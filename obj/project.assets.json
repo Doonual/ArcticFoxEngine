@@ -4812,11 +4812,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "A:\\Documents\\C#\\Engine\\Engine.csproj",
-      "projectName": "Engine",
-      "projectPath": "A:\\Documents\\C#\\Engine\\Engine.csproj",
+      "projectUniqueName": "A:\\Documents\\C#\\ArcticFoxEngine\\Arctic Fox Engine.csproj",
+      "projectName": "Arctic Fox Engine",
+      "projectPath": "A:\\Documents\\C#\\ArcticFoxEngine\\Arctic Fox Engine.csproj",
       "packagesPath": "C:\\Users\\doonu\\.nuget\\packages\\",
-      "outputPath": "A:\\Documents\\C#\\Engine\\obj\\",
+      "outputPath": "A:\\Documents\\C#\\ArcticFoxEngine\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

@@ -1,6 +1,7 @@
 ﻿using SharpDX.DXGI;
 using System.Threading;
 using System;
+using CoolClassLibrary;
 
 namespace Engine {
 
@@ -175,10 +176,13 @@ namespace Engine {
 
 			// Define the geometry for a triangle
 			Vertex[] triangleVertices = new Vertex[] {
-				new Vertex() {Position=new Vector3(0.0f, 0.25f * aspectRatio, 0.0f), Color = new Vector4(1.0f, 0.0f, 0.0f, 1.0f)},
-				new Vertex() {Position=new Vector3(0.25f, -0.25f * aspectRatio, 0.0f), Color = new Vector4(0.0f, 1.0f, 0.0f, 1.0f)},
-				new Vertex() {Position=new Vector3(-0.25f, -0.25f * aspectRatio, 0.0f), Color = new Vector4(0.0f, 0.0f, 1.0f, 1.0f)},
+				new Vertex() {Position=new Vector3(-1f, 1f, 0.0f), Color = new Vector4(1.0f, 0.0f, 0.0f, 1.0f)},
+				new Vertex() {Position=new Vector3(1f, -1f, 0.0f), Color = new Vector4(0.0f, 1.0f, 0.0f, 1.0f)},
+				new Vertex() {Position=new Vector3(-1f, -1f, 0.0f), Color = new Vector4(0.0f, 0.0f, 1.0f, 1.0f)},
 
+				new Vertex() {Position=new Vector3(-1f, 1f, 0.0f), Color = new Vector4(1.0f, 0.0f, 0.0f, 1.0f)},
+				new Vertex() {Position=new Vector3(1f, 1f, 0.0f), Color = new Vector4(1.0f, 1.0f, 0.0f, 1.0f)},
+				new Vertex() {Position=new Vector3(1f, -1f, 0.0f), Color = new Vector4(0.0f, 1.0f, 0.0f, 1.0f)},
 			};
 			int vertexBufferSize = Utilities.SizeOf(triangleVertices);
 
@@ -238,11 +242,12 @@ namespace Engine {
 			commandList.SetRenderTargets(rtvHandle, null);
 
 			// Record commands.
-			commandList.ClearRenderTargetView(rtvHandle, new Color4(0, 0.2F, 0.4f, 1), 0, null);
+			commandList.ClearRenderTargetView(rtvHandle, new Color4(0f, 0f, 0f, 1), 0, null);
 
 			commandList.PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList;
 			commandList.SetVertexBuffer(0, vertexBufferView);
 			commandList.DrawInstanced(3, 1, 0, 0);
+			commandList.DrawInstanced(3, 1, 3, 0);
 
 			// Indicate that the back buffer will now be used to present.
 			commandList.ResourceBarrierTransition(renderTargets[frameIndex], ResourceStates.RenderTarget, ResourceStates.Present);

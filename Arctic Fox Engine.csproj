@@ -1,12 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
+    <OutputType>WinExe</OutputType>
     <TargetFramework>net6.0-windows</TargetFramework>
     <Nullable>disable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove=".gitignore" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="SharpDX" Version="4.2.0" />
@@ -20,6 +24,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\CoolClassLibrary\CoolClassLibrary.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="icon.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="shaders.hlsl">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

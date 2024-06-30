@@ -1,4 +1,5 @@
 using SharpDX.Windows;
+using CoolClassLibrary;
 
 namespace Engine {
 
@@ -7,9 +8,14 @@ namespace Engine {
 		[STAThread]
 		static void Main() {
 
+			//Log.Init("Arctic Fox Engine", "Doonual", DateTime.Now);
+
+
+			//Log.Info("Starting Engine");
 			RenderForm form = new RenderForm("Hello Triangle") {
-				Width = 1280,
-				Height = 800
+				Width = 1280 + 16,
+				Height = 720 + 39,
+				Icon = new Icon("icon.ico"),
 			};
 			form.Show();
 

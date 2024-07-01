@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.10.34916.146
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Arctic Fox Engine", "Arctic Fox Engine.csproj", "{FAB88286-3C76-4438-BE0F-640EB70CA7A7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ArcticFoxEngine", "ArcticFoxEngine.csproj", "{FAB88286-3C76-4438-BE0F-640EB70CA7A7}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoolClassLibrary", "..\CoolClassLibrary\CoolClassLibrary.csproj", "{18409F8E-48AC-42AB-9E71-77998F0E311A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArcticFoxTest", "..\ArcticFoxTest\ArcticFoxTest.csproj", "{5DF00927-3B60-43BE-AC10-6102F89D7CBF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{18409F8E-48AC-42AB-9E71-77998F0E311A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{18409F8E-48AC-42AB-9E71-77998F0E311A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{18409F8E-48AC-42AB-9E71-77998F0E311A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5DF00927-3B60-43BE-AC10-6102F89D7CBF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5DF00927-3B60-43BE-AC10-6102F89D7CBF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5DF00927-3B60-43BE-AC10-6102F89D7CBF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5DF00927-3B60-43BE-AC10-6102F89D7CBF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

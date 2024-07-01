@@ -1,11 +1,18 @@
-struct PSInput {
+#if !defined(__INTELLISENSE__) // Disable error squigly
+
+#include "res/RootSignature.hlsl"
+
+#endif
+
+struct Pixel_Input {
 	float4 position : SV_POSITION;
 	float4 color : COLOR;
 };
 
-PSInput VSMain(float4 position : POSITION, float4 color : COLOR) {
+[RootSignature(ROOTSIG)]
+Pixel_Input Vertex_Main(float4 position : POSITION, float4 color : COLOR) {
 	
-	PSInput result;
+	Pixel_Input result;
 	result.position = position;
 	result.color = color;
 	return result;
@@ -14,7 +21,8 @@ PSInput VSMain(float4 position : POSITION, float4 color : COLOR) {
 
 #define PI2 6.28318
 
-float4 PSMain(PSInput input) : SV_TARGET {
+[RootSignature(ROOTSIG)]
+float4 Pixel_Main(Pixel_Input input) : SV_TARGET {
 	
 	float2 originalPos = input.position / 720.0;
 	originalPos -= float2(0.5 * 1280.0 / 720.0, 0.5);

@@ -11,7 +11,7 @@ namespace Engine {
 			//Log.Init("Arctic Fox Engine", "Doonual", DateTime.Now);
 
 
-			//Log.Info("Starting Engine");
+			Log.Info("Starting Engine");
 			RenderForm form = new RenderForm("Hello Triangle") {
 				Width = 1280 + 16,
 				Height = 720 + 39,

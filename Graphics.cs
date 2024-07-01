@@ -377,4 +377,14 @@ namespace ArcticFoxEngine {
 		}
 
 	}
+
+	internal class StandardIncludeHandler : CppObject, SharpDX.D3DCompiler.Include {
+		public IDisposable Shadow { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+		internal StandardIncludeHandler() : base(new IntPtr(1)) { }
+		public void Close(Stream stream) { }
+		public Stream Open(SharpDX.D3DCompiler.IncludeType type, string fileName, Stream parentStream) {
+			throw new NotImplementedException();
+		}
+	}
+
 }

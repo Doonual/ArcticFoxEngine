@@ -3,15 +3,17 @@ using System.Threading;
 using System;
 
 namespace ArcticFoxEngine {
-
+	using CoolClassLibrary;
 	using SharpDX;
 	using SharpDX.Direct3D12;
 	using SharpDX.Windows;
-	using System.Windows.Forms;
+	using Swan;
+	using System.IO;
 
 	public static class Graphics {
 
 		public static bool debug = false;
+		static RenderForm mainWindow;
 
 		#region Pipeline objects
 
@@ -46,6 +48,11 @@ namespace ArcticFoxEngine {
 		private static Resource indexBuffer;
 		private static IndexBufferView indexBufferView;
 
+		private static Resource constantBuffer;
+		private static DescriptorHeap constantBufferViewHeap;
+		private static IntPtr constantBufferPointer;
+		private static ConstantBuffer constantBufferData;
+
 		#endregion
 		#region Synchronisation objects
 
@@ -61,10 +68,14 @@ namespace ArcticFoxEngine {
 			public Vector3 Position;
 			public Vector4 Color;
 		};
+		struct ConstantBuffer {
+			public Vector4 Offset;
+		};
 
 		// Initialise the graphics pipeline and all the graphics assets
 		public static void Initialise(RenderForm form) {
 
+			mainWindow = form;
 			SetupRenderPipeline(form);
 			LoadAssets();
 
@@ -111,30 +122,47 @@ namespace ArcticFoxEngine {
 			}
 
 
+			// Describe and create a constant buffer view (CBV) descriptor heap
+			// Flags indicate that this descriptor heap can be bound to the pipeline
+			// and that descriptors contained in it can be refrenced by a root table
+			DescriptorHeapDescription cbvHeapDesc = new DescriptorHeapDescription() {
+				DescriptorCount = 1,
+				Flags = DescriptorHeapFlags.ShaderVisible,
+				Type = DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView
+			};
+			constantBufferViewHeap = device.CreateDescriptorHeap(cbvHeapDesc);
+
+
+
 
 		}
 		private static void LoadAssets() {
 
 			// Create an empty root signature
-			RootSignatureDescription rootSignatureDesc = new RootSignatureDescription(RootSignatureFlags.AllowInputAssemblerInputLayout);
+			RootParameter[] rootParameters = new RootParameter[] {
+
+				new RootParameter(ShaderVisibility.Pixel, new DescriptorRange() {
+					RangeType = DescriptorRangeType.ConstantBufferView,
+					BaseShaderRegister = 0,
+					OffsetInDescriptorsFromTableStart = int.MinValue,
+					DescriptorCount = 1
+				})
+
+			};
+
+			RootSignatureDescription rootSignatureDesc = new RootSignatureDescription(RootSignatureFlags.AllowInputAssemblerInputLayout, rootParameters);
 			rootSignature = device.CreateRootSignature(rootSignatureDesc.Serialize());
 
 			// Create the pipeline state, which includes compiling and loading shaders
 
 			#region Compiling shaders
 
-			ShaderBytecode vertexShader;
-			ShaderBytecode pixelShader;
-			SharpDX.D3DCompiler.ShaderFlags flags = SharpDX.D3DCompiler.ShaderFlags.None;
-			if (debug == true) {
-				flags |= SharpDX.D3DCompiler.ShaderFlags.Debug;
-			}
-
 			string shader = File.ReadAllText("res/shaders.hlsl");
+			SharpDX.D3DCompiler.ShaderFlags flags = debug ? SharpDX.D3DCompiler.ShaderFlags.None : SharpDX.D3DCompiler.ShaderFlags.Debug;
 			SharpDX.D3DCompiler.Include include = new StandardIncludeHandler();
-
-			vertexShader = new ShaderBytecode(SharpDX.D3DCompiler.ShaderBytecode.Compile(shader, "Vertex_Main", "vs_5_0", flags, SharpDX.D3DCompiler.EffectFlags.None, new SharpDX.Direct3D.ShaderMacro[0], include));
-			pixelShader = new ShaderBytecode(SharpDX.D3DCompiler.ShaderBytecode.Compile(shader, "Pixel_Main", "ps_5_0", flags, SharpDX.D3DCompiler.EffectFlags.None, new SharpDX.Direct3D.ShaderMacro[0], include));
+			
+			ShaderBytecode vertexShader = new ShaderBytecode(SharpDX.D3DCompiler.ShaderBytecode.Compile(shader, "Vertex_Main", "vs_5_0", flags, SharpDX.D3DCompiler.EffectFlags.None, new SharpDX.Direct3D.ShaderMacro[0], include));
+			ShaderBytecode pixelShader = new ShaderBytecode(SharpDX.D3DCompiler.ShaderBytecode.Compile(shader, "Pixel_Main", "ps_5_0", flags, SharpDX.D3DCompiler.EffectFlags.None, new SharpDX.Direct3D.ShaderMacro[0], include));
 
 			#endregion
 
@@ -198,7 +226,22 @@ namespace ArcticFoxEngine {
 
 			SetVertexIndexBuffers(triangleVertices, triangleIndices);
 
+
+			constantBuffer = device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None, ResourceDescription.Buffer(1024 * 64), ResourceStates.GenericRead);
+
+			// Describe and create a constant buffer view
+			ConstantBufferViewDescription cbvDesc = new ConstantBufferViewDescription() {
+				BufferLocation = constantBuffer.GPUVirtualAddress,
+				SizeInBytes = (Utilities.SizeOf<ConstantBuffer>() + 255) & ~255
+			};
+			device.CreateConstantBufferView(cbvDesc, constantBufferViewHeap.CPUDescriptorHandleForHeapStart);
+
+			// Initialise and map the constant buffers. We don't unmap this until the
+			// app closes. Keeping things mapped for the lifetime of the resource is okay
+			constantBufferPointer = constantBuffer.Map(0);
+			Utilities.Write(constantBufferPointer, ref constantBufferData);
 			
+
 			#region Synchronisation
 
 			// Create synchronisation objects
@@ -307,8 +350,15 @@ namespace ArcticFoxEngine {
 
 			// Set necessary state
 			mainRenderCMDList.SetGraphicsRootSignature(rootSignature);
+
+			mainRenderCMDList.SetDescriptorHeaps(1, new DescriptorHeap[] { constantBufferViewHeap });
+			mainRenderCMDList.SetGraphicsRootDescriptorTable(0, constantBufferViewHeap.GPUDescriptorHandleForHeapStart);
+
 			mainRenderCMDList.SetViewport(viewport);
 			mainRenderCMDList.SetScissorRectangles(scissorRect);
+
+
+			
 
 			// Indicate that the back buffer will be used as a render target
 			mainRenderCMDList.ResourceBarrierTransition(renderTargets[frameIndex], ResourceStates.Present, ResourceStates.RenderTarget);
@@ -319,6 +369,8 @@ namespace ArcticFoxEngine {
 
 			// Record commands
 			mainRenderCMDList.ClearRenderTargetView(rtvHandle, new Color4(0f, 0f, 0f, 1), 0, null);
+
+			
 
 			mainRenderCMDList.PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList;
 			mainRenderCMDList.SetIndexBuffer(indexBufferView);
@@ -350,6 +402,8 @@ namespace ArcticFoxEngine {
 			frameIndex = swapChain.CurrentBackBufferIndex;
 		}
 
+		static float time = 0f;
+
 		public static void Render() {
 
 			// Record all the commands we need to render the scene into the command list
@@ -361,6 +415,14 @@ namespace ArcticFoxEngine {
 			// Present the frame
 			swapChain.Present(1, 0);
 
+
+			constantBufferData.Offset.X = MathF.Cos(time * 0.5f) * 0.2f;
+			constantBufferData.Offset.Y = MathF.Sin(time * 0.5f) * 0.2f;
+			
+
+			Utilities.Write(constantBufferPointer, ref constantBufferData);
+
+			time += 1f / 60f;
 
 		}
 

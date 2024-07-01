@@ -1,15 +1,15 @@
-#if !defined(__INTELLISENSE__) // Disable error squigly
-
-#include "res/RootSignature.hlsl"
-
-#endif
+cbuffer ConstantBuffer : register(b0) {
+	
+	float4 offset;
+	
+};
 
 struct Pixel_Input {
 	float4 position : SV_POSITION;
 	float4 color : COLOR;
 };
 
-[RootSignature(ROOTSIG)]
+
 Pixel_Input Vertex_Main(float4 position : POSITION, float4 color : COLOR) {
 	
 	Pixel_Input result;
@@ -21,17 +21,20 @@ Pixel_Input Vertex_Main(float4 position : POSITION, float4 color : COLOR) {
 
 #define PI2 6.28318
 
-[RootSignature(ROOTSIG)]
+
 float4 Pixel_Main(Pixel_Input input) : SV_TARGET {
 	
+
 	float2 originalPos = input.position / 720.0;
 	originalPos -= float2(0.5 * 1280.0 / 720.0, 0.5);
 	
 	originalPos.x -= 0.25;
+	originalPos -= offset.xy;
 	originalPos *= 2.5;
 	
 	float2 pos = float2(0.0, 0.0);
 	float depth = 0.0;
+	bool escaped = false;
 	
 	for (int i = 0; i < 1000; i++) {
 		
@@ -41,6 +44,7 @@ float4 Pixel_Main(Pixel_Input input) : SV_TARGET {
 		
 		if (pos.x * pos.x + pos.y * pos.y > 4.0) {
 			i = 1000;
+			escaped = true;
 		}
 		
 		depth += 0.1;
@@ -52,7 +56,12 @@ float4 Pixel_Main(Pixel_Input input) : SV_TARGET {
 	float3 c = float3(-0.627, -0.734, -0.650);
 	float3 d = float3(0.550, 0.504, 0.672);
 	
-	float3 col = a + b * cos(PI2 * (c * depth + d));
+	float seededOffset = (a % 1000) / 1000.0;
+	
+	float3 col = a + b * cos(PI2 * (c * (depth + seededOffset) + d));
+	if (escaped == false) {
+		col = float3(0.0, 0.0, 0.0);
+	}
 	
 	return float4(col, 0.0);
 	

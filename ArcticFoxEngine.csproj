@@ -18,7 +18,6 @@
 
 	<ItemGroup>
 		<None Remove=".gitignore" />
-		<None Remove="res\RootSignature.hlsl" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -37,6 +36,11 @@
 		<Content Include="res\**">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
+	</ItemGroup>
+	
+	
+	<ItemGroup>
+	  <ProjectReference Include="..\CoolClassLibrary\CoolClassLibrary.csproj" />
 	</ItemGroup>
 
 

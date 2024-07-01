@@ -20,7 +20,7 @@ namespace ArcticFoxEngine {
 			};
 			form.Show();
 
-			Graphics.Initialise(form);
+			Graphics.SetupRenderer(form);
 
 			using (RenderLoop loop = new RenderLoop(form)) {
 				while (loop.NextFrame()) {

@@ -45,7 +45,7 @@ namespace ArcticFoxEngine {
 		private static Resource indexBuffer;
 		private static IndexBufferView indexBufferView;
 
-		internal static ConstBuffer<ConstantBuffer> offsetBuffer;
+		internal static ConstBuffer<ShaderInfo> shaderInfo;
 
 		#endregion
 		#region Synchronisation objects
@@ -62,7 +62,9 @@ namespace ArcticFoxEngine {
 			public Vector3 Position;
 			public Vector4 Color;
 		};
-		internal struct ConstantBuffer {
+		internal struct ShaderInfo {
+			public int screenWidth;
+			public int screenHeight;
 			public Vector4 Offset;
 		};
 
@@ -94,17 +96,27 @@ namespace ArcticFoxEngine {
 			SetupPipeline(vertexShader, pixelShader);
 
 
-			offsetBuffer = new ConstBuffer<ConstantBuffer>(1024 * 64);
+			ShaderInfo shaderInfoData = new ShaderInfo();
+			shaderInfoData.screenWidth = width;
+			shaderInfoData.screenHeight = height;
+			shaderInfo = new ConstBuffer<ShaderInfo>(Utilities.SizeOf<ShaderInfo>());
+			shaderInfo.WriteToBuffer(shaderInfoData);
+
 
 			Vertex[] triangleVertices = new Vertex[] {
-				new Vertex() {Position=new Vector3(-1f, -1f, 0.0f), Color = new Vector4(1.0f, 0.0f, 0.0f, 1.0f)},
-				new Vertex() {Position=new Vector3(-1f, 1f, 0.0f), Color = new Vector4(0.0f, 0.0f, 1.0f, 1.0f)},
-				new Vertex() {Position=new Vector3(1f, -1f, 0.0f), Color = new Vector4(0.0f, 1.0f, 0.0f, 1.0f)},
-				new Vertex() {Position=new Vector3(1f, 1f, 0.0f), Color = new Vector4(1.0f, 1.0f, 0.0f, 1.0f)},
+				new Vertex() {Position=new Vector3(-0.8f, -0.8f, 0.1f), Color = new Vector4(0.0f, 0.0f, 0.0f, 1.0f)},
+				new Vertex() {Position=new Vector3(0.8f, -0.8f, 0.1f), Color = new Vector4(1.0f, 0.0f, 0.0f, 1.0f)},
+				new Vertex() {Position=new Vector3(-0.8f, 0.8f, 0.1f), Color = new Vector4(0.0f, 1.0f, 0.0f, 1.0f)},
+				new Vertex() {Position=new Vector3(0.8f, 0.8f, 0.1f), Color = new Vector4(1.0f, 1.0f, 0.0f, 1.0f)},
+				new Vertex() {Position=new Vector3(-0.8f, -0.8f, 0.9f), Color = new Vector4(0.0f, 0.0f, 1.0f, 1.0f)},
+				new Vertex() {Position=new Vector3(0.8f, -0.8f, 0.9f), Color = new Vector4(1.0f, 0.0f, 1.0f, 1.0f)},
+				new Vertex() {Position=new Vector3(-0.8f, 0.8f, 0.9f), Color = new Vector4(0.0f, 1.0f, 1.0f, 1.0f)},
+				new Vertex() {Position=new Vector3(0.8f, 0.8f, 0.9f), Color = new Vector4(1.0f, 1.0f, 1.0f, 1.0f)},
 			};
 			int[] triangleIndices = new int[] {
-				0, 1, 2,
-				2, 1, 3
+				// Z+ Face
+				0, 2, 1,
+				2, 3, 1,
 			};
 			SetVertexIndexBuffers(triangleVertices, triangleIndices);
 
@@ -178,7 +190,7 @@ namespace ArcticFoxEngine {
 			// Create a root signature with one constant buffer
 			RootParameter[] rootParameters = new RootParameter[] {
 
-				new RootParameter(ShaderVisibility.Pixel, new DescriptorRange() {
+				new RootParameter(ShaderVisibility.All, new DescriptorRange() {
 					RangeType = DescriptorRangeType.ConstantBufferView,
 					BaseShaderRegister = 0,
 					OffsetInDescriptorsFromTableStart = int.MinValue,
@@ -344,11 +356,6 @@ namespace ArcticFoxEngine {
 
 			// Present the frame
 			swapChain.Present(1, 0);
-
-			ConstantBuffer bufferData = new ConstantBuffer();
-			bufferData.Offset.X = MathF.Cos(time * 0.5f) * 0.2f;
-			bufferData.Offset.Y = MathF.Sin(time * 0.5f) * 0.2f;
-			offsetBuffer.WriteToBuffer(bufferData);
 			
 
 			time += 1f / 60f;

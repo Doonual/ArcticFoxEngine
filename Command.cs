@@ -54,8 +54,8 @@ namespace ArcticFoxEngine {
 			// Set necessary state
 			commandList.SetGraphicsRootSignature(Graphics.rootSignature);
 
-			commandList.SetDescriptorHeaps(1, new DescriptorHeap[] { Graphics.offsetBuffer.viewHeap });
-			commandList.SetGraphicsRootDescriptorTable(0, (Graphics.offsetBuffer.viewHeap.GPUDescriptorHandleForHeapStart));
+			commandList.SetDescriptorHeaps(1, new DescriptorHeap[] { Graphics.shaderInfo.viewHeap });
+			commandList.SetGraphicsRootDescriptorTable(0, (Graphics.shaderInfo.viewHeap.GPUDescriptorHandleForHeapStart));
 
 			commandList.SetViewport(Graphics.viewport);
 			commandList.SetScissorRectangles(Graphics.scissorRect);

@@ -18,6 +18,7 @@
 
 	<ItemGroup>
 		<None Remove=".gitignore" />
+		<None Remove="res\shaders.hlsl" />
 	</ItemGroup>
 
 	<ItemGroup>

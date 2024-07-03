@@ -11,7 +11,10 @@ namespace ArcticFoxEngine {
 
 		private static RenderForm form;
 
-		public static void Create(int width, int height, string title = "Arctic Fox", string iconPath = "res/icon.ico") {
+		public static Action setup;
+		public static Action update;
+
+		public static void Run(int width, int height, string title = "Arctic Fox", string iconPath = "res/icon.ico") {
 
 			form = new RenderForm(title) {
 				Width = width + 16,
@@ -22,20 +25,23 @@ namespace ArcticFoxEngine {
 
 			Graphics.SetupRenderer(form);
 
+			if (setup != null) {
+				setup();
+			}
+
 			using (RenderLoop loop = new RenderLoop(form)) {
 				while (loop.NextFrame()) {
-					MainEventLoop();
+					
+					if (update != null) {
+						update();
+					}
+
+					Graphics.Buffer();
+					Graphics.WaitForPreviousFrame();
 				}
 			}
 			
 			Graphics.Dispose();
-
-		}
-
-		private static void MainEventLoop() {
-
-			Graphics.Render();
-			Graphics.WaitForPreviousFrame();
 
 		}
 

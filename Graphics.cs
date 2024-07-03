@@ -1,16 +1,12 @@
 ﻿using SharpDX.DXGI;
-using System.Threading;
-using System;
 
 namespace ArcticFoxEngine {
+
 	using CoolClassLibrary;
 	using SharpDX;
 	using SharpDX.Direct3D12;
 	using SharpDX.Windows;
-	using Swan;
 	using System.IO;
-	using System.Windows.Forms;
-	using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 	public static class Graphics {
 
@@ -20,34 +16,20 @@ namespace ArcticFoxEngine {
 
 		#region Pipeline objects
 
-		internal const int swapChainFrameCount = 2;
 		internal static ViewportF viewport;
 		internal static Rectangle scissorRect;
 
 		private static SwapChain3 swapChain;
 		internal static Device device;
-		internal static readonly Resource[] renderTargets = new Resource[swapChainFrameCount];
+		
 		internal static RootSignature rootSignature;
 		internal static PipelineState pipelineState;
 
-		internal static DescriptorHeap renderTargetViewHeap;
-		internal static int renderTargetViewDescriptorSize;
+		internal const int swapChainFrameCount = 2;
 
 		#endregion
 
-		#region Resources
 
-		private static Vertex[] rawVertices;
-		private static Resource vertexBuffer;
-		private static VertexBufferView vertexBufferView;
-
-		private static int[] rawIndices;
-		private static Resource indexBuffer;
-		private static IndexBufferView indexBufferView;
-
-		internal static ConstBuffer<ShaderInfo> shaderInfo;
-
-		#endregion
 		#region Synchronisation objects
 
 		internal static int frameIndex;
@@ -58,14 +40,13 @@ namespace ArcticFoxEngine {
 
 		#endregion
 
-		public struct Vertex {
-			public Vector3 Position;
-			public Vector4 Color;
-		};
+		
 		internal struct ShaderInfo {
 			public int screenWidth;
 			public int screenHeight;
-			public Vector4 Offset;
+			public float aspectRatio;
+			public int anotherField;
+			public Matrix cameraInfo;
 		};
 
 		
@@ -86,44 +67,22 @@ namespace ArcticFoxEngine {
 
 			SetupViewport(width, height);
 			SetupDevice(width, height, refreshRate);
-			Command.SetupCommand();
-			SetupRenderAssets(width, height, refreshRate, Command.GetCommandQueue());
 
-			SetupRootSignature();
+			Command.SetupCommand();
+			SetupSwapChain(width, height, refreshRate, Command.GetCommandQueue());
+
+			GraphicsResources.SetupResources(device, swapChain);
+			GraphicsResources.SetupRootSignature();
 
 			ShaderBytecode vertexShader = CompileShader("res/shaders.hlsl", ShaderType.Vertex);
 			ShaderBytecode pixelShader = CompileShader("res/shaders.hlsl", ShaderType.Pixel);
 			SetupPipeline(vertexShader, pixelShader);
 
-
-			ShaderInfo shaderInfoData = new ShaderInfo();
-			shaderInfoData.screenWidth = width;
-			shaderInfoData.screenHeight = height;
-			shaderInfo = new ConstBuffer<ShaderInfo>(Utilities.SizeOf<ShaderInfo>());
-			shaderInfo.WriteToBuffer(shaderInfoData);
-
-
-			Vertex[] triangleVertices = new Vertex[] {
-				new Vertex() {Position=new Vector3(-0.8f, -0.8f, 0.1f), Color = new Vector4(0.0f, 0.0f, 0.0f, 1.0f)},
-				new Vertex() {Position=new Vector3(0.8f, -0.8f, 0.1f), Color = new Vector4(1.0f, 0.0f, 0.0f, 1.0f)},
-				new Vertex() {Position=new Vector3(-0.8f, 0.8f, 0.1f), Color = new Vector4(0.0f, 1.0f, 0.0f, 1.0f)},
-				new Vertex() {Position=new Vector3(0.8f, 0.8f, 0.1f), Color = new Vector4(1.0f, 1.0f, 0.0f, 1.0f)},
-				new Vertex() {Position=new Vector3(-0.8f, -0.8f, 0.9f), Color = new Vector4(0.0f, 0.0f, 1.0f, 1.0f)},
-				new Vertex() {Position=new Vector3(0.8f, -0.8f, 0.9f), Color = new Vector4(1.0f, 0.0f, 1.0f, 1.0f)},
-				new Vertex() {Position=new Vector3(-0.8f, 0.8f, 0.9f), Color = new Vector4(0.0f, 1.0f, 1.0f, 1.0f)},
-				new Vertex() {Position=new Vector3(0.8f, 0.8f, 0.9f), Color = new Vector4(1.0f, 1.0f, 1.0f, 1.0f)},
-			};
-			int[] triangleIndices = new int[] {
-				// Z+ Face
-				0, 2, 1,
-				2, 3, 1,
-			};
-			SetVertexIndexBuffers(triangleVertices, triangleIndices);
-
-
 			SetupSynchronisation();
+			LinkClasses();
 
 		}
+
 
 		private static void SetupViewport(int viewportWidth, int viewportHeight) {
 			viewport.Width = viewportWidth;
@@ -139,7 +98,7 @@ namespace ArcticFoxEngine {
 			device = new Device(null, SharpDX.Direct3D.FeatureLevel.Level_11_0);
 
 		}
-		private static void SetupRenderAssets(int width, int height, int refreshRate, CommandQueue commandQueue) {
+		private static void SetupSwapChain(int width, int height, int refreshRate, CommandQueue commandQueue) {
 
 			// Creating the swap chain
 			using (Factory4 factory = new Factory4()) {
@@ -162,47 +121,8 @@ namespace ArcticFoxEngine {
 
 			}
 
-
-
-			// Create a render target view (RTV) descriptor heap
-			DescriptorHeapDescription rtvHeapDesc = new DescriptorHeapDescription() {
-				DescriptorCount = swapChainFrameCount,
-				Flags = DescriptorHeapFlags.None,
-				Type = DescriptorHeapType.RenderTargetView
-			};
-			renderTargetViewHeap = device.CreateDescriptorHeap(rtvHeapDesc);
-			renderTargetViewDescriptorSize = device.GetDescriptorHandleIncrementSize(DescriptorHeapType.RenderTargetView);
-
-
-			// Create frame resources from swap chain frames
-			CpuDescriptorHandle rtvHandle = renderTargetViewHeap.CPUDescriptorHandleForHeapStart;
-			for (int n = 0; n < swapChainFrameCount; n++) {
-				renderTargets[n] = swapChain.GetBackBuffer<Resource>(n);
-				device.CreateRenderTargetView(renderTargets[n], null, rtvHandle);
-				rtvHandle += renderTargetViewDescriptorSize;
-			}
-
 		}
 
-		private static void SetupRootSignature() {
-			// Basically what constants are you going to pass to the shaders
-
-			// Create a root signature with one constant buffer
-			RootParameter[] rootParameters = new RootParameter[] {
-
-				new RootParameter(ShaderVisibility.All, new DescriptorRange() {
-					RangeType = DescriptorRangeType.ConstantBufferView,
-					BaseShaderRegister = 0,
-					OffsetInDescriptorsFromTableStart = int.MinValue,
-					DescriptorCount = 1
-				})
-
-			};
-
-			RootSignatureDescription rootSignatureDesc = new RootSignatureDescription(RootSignatureFlags.AllowInputAssemblerInputLayout, rootParameters);
-			rootSignature = device.CreateRootSignature(rootSignatureDesc.Serialize());
-
-		}
 		private static void SetupPipeline(ShaderBytecode vertexShader, ShaderBytecode pixelShader) {
 
 			// Input format
@@ -247,7 +167,10 @@ namespace ArcticFoxEngine {
 		}
 		
 		
-		
+		private static void LinkClasses() {
+			Screen.LinkRenderForm(mainRenderForm);
+		}
+
 		internal enum ShaderType {
 			Vertex,
 			Pixel
@@ -276,55 +199,12 @@ namespace ArcticFoxEngine {
 			
 		}
 
-		// Manage resource and memory
-		internal static Resource CreateGPUResource(int size) {
-
-			Resource res = device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None, ResourceDescription.Buffer(size), ResourceStates.GenericRead);
-			return res;
-
-		}
 		internal static void WriteGPUResource<T>(Resource resource, T[] data, int offset) where T : struct {
 
 			// Copy the triangle data to the vertex buffer
 			IntPtr pDataBegin = resource.Map(0);
 			Utilities.Write(pDataBegin, data, offset, data.Length);
 			resource.Unmap(0);
-
-		}
-		public static void SetVertexIndexBuffers(Vertex[] vertices, int[] indices) {
-
-			// Note: using upload heaps to transfer static data like vert buffers is not 
-			// recommended. Every time the GPU needs it, the upload heap will be marshalled 
-			// over. Please read up on Default Heap usage. An upload heap is used here for 
-			// code simplicity and because there are very few verts to actually transfer.
-
-
-			rawVertices = vertices;
-			rawIndices = indices;
-
-			if (vertexBuffer != null) {
-				vertexBuffer.Dispose();
-			}
-			if (indexBuffer != null) {
-				indexBuffer.Dispose();
-			}
-
-			int vertexBufferSize = Utilities.SizeOf(vertices);
-			vertexBuffer = CreateGPUResource(vertexBufferSize);
-			WriteGPUResource(vertexBuffer, vertices, 0);
-
-			vertexBufferView.BufferLocation = vertexBuffer.GPUVirtualAddress;
-			vertexBufferView.StrideInBytes = Utilities.SizeOf<Vertex>();
-			vertexBufferView.SizeInBytes = vertexBufferSize;
-
-			int indexBufferSize = Utilities.SizeOf(indices);
-			indexBuffer = CreateGPUResource(indexBufferSize);
-			WriteGPUResource(indexBuffer, indices, 0);
-
-			indexBufferView.BufferLocation = indexBuffer.GPUVirtualAddress;
-			indexBufferView.SizeInBytes = indexBufferSize;
-			indexBufferView.Format = Format.R32_UInt;
-
 
 		}
 		
@@ -349,17 +229,11 @@ namespace ArcticFoxEngine {
 
 		static float time = 0f;
 
-		public static void Render() {
-
-			// Execute MainRender
-			Command.ExecuteMainRender(vertexBufferView, indexBufferView, rawIndices.Length);
+		public static void Buffer() {
 
 			// Present the frame
 			swapChain.Present(1, 0);
 			
-
-			time += 1f / 60f;
-
 		}
 
 		public static void Dispose() {
@@ -368,14 +242,9 @@ namespace ArcticFoxEngine {
 			// Wait for the GPU to be done with all resources.
 			WaitForPreviousFrame();
 
-			foreach (Resource target in renderTargets) {
-				target.Dispose();
-			}
+			GraphicsResources.Dispose();
 			rootSignature.Dispose();
-			renderTargetViewHeap.Dispose();
 			pipelineState.Dispose();
-			vertexBuffer.Dispose();
-			indexBuffer.Dispose();
 			fence.Dispose();
 			swapChain.Dispose();
 			device.Dispose();

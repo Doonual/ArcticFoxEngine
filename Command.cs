@@ -5,12 +5,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static ArcticFoxEngine.Graphics;
 
 namespace ArcticFoxEngine {
-	internal static class Command {
+	public static class Command {
 
 		private static GraphicsCommandList commandList;
-
 		private static CommandAllocator commandAllocator;
 		private static CommandQueue commandQueue;
 
@@ -31,12 +31,13 @@ namespace ArcticFoxEngine {
 			return commandQueue;
 
 		}
-
 		internal static CommandQueue GetCommandQueue() {
 			return commandQueue;
 		}
 
-		internal static void ExecuteMainRender(VertexBufferView vertexBuffer, IndexBufferView indexBuffer, int numIndices) {
+		public static void ExecuteMainRender(Camera camera, GeometryInfo geometry) {
+
+			GraphicsResources.UpdateShaderInfo(camera);
 
 			#region Setup commandlist
 
@@ -54,8 +55,8 @@ namespace ArcticFoxEngine {
 			// Set necessary state
 			commandList.SetGraphicsRootSignature(Graphics.rootSignature);
 
-			commandList.SetDescriptorHeaps(1, new DescriptorHeap[] { Graphics.shaderInfo.viewHeap });
-			commandList.SetGraphicsRootDescriptorTable(0, (Graphics.shaderInfo.viewHeap.GPUDescriptorHandleForHeapStart));
+			commandList.SetDescriptorHeaps(1, new DescriptorHeap[] { GraphicsResources.mainCombinedDescriporHeap });
+			commandList.SetGraphicsRootDescriptorTable(0, (GraphicsResources.mainCombinedDescriporHeap.GPUDescriptorHandleForHeapStart));
 
 			commandList.SetViewport(Graphics.viewport);
 			commandList.SetScissorRectangles(Graphics.scissorRect);
@@ -64,10 +65,10 @@ namespace ArcticFoxEngine {
 
 
 			// Indicate that the back buffer will be used as a render target
-			commandList.ResourceBarrierTransition(Graphics.renderTargets[Graphics.frameIndex], ResourceStates.Present, ResourceStates.RenderTarget);
+			commandList.ResourceBarrierTransition(GraphicsResources.renderTargets[Graphics.frameIndex], ResourceStates.Present, ResourceStates.RenderTarget);
 
-			CpuDescriptorHandle rtvHandle = Graphics.renderTargetViewHeap.CPUDescriptorHandleForHeapStart;
-			rtvHandle += Graphics.frameIndex * Graphics.renderTargetViewDescriptorSize;
+			CpuDescriptorHandle rtvHandle = GraphicsResources.renderTargetViewHeap.CPUDescriptorHandleForHeapStart;
+			rtvHandle += Graphics.frameIndex * GraphicsResources.renderTargetViewDescriptorSize;
 			commandList.SetRenderTargets(rtvHandle, null);
 
 			// Record commands
@@ -76,18 +77,17 @@ namespace ArcticFoxEngine {
 
 
 			commandList.PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList;
-			commandList.SetVertexBuffer(0, vertexBuffer);
-			commandList.SetIndexBuffer(indexBuffer);
-			
-
-			commandList.DrawIndexedInstanced(numIndices, 1, 0, 0, 0);
+			commandList.SetVertexBuffer(0, geometry.vertexBufferView);
+			commandList.SetIndexBuffer(geometry.indexBufferView);
+			commandList.DrawIndexedInstanced(geometry.indexData.Length, 1, 0, 0, 0);
 
 			// Indicate that the back buffer will now be used to present
-			commandList.ResourceBarrierTransition(Graphics.renderTargets[Graphics.frameIndex], ResourceStates.RenderTarget, ResourceStates.Present);
+			commandList.ResourceBarrierTransition(GraphicsResources.renderTargets[Graphics.frameIndex], ResourceStates.RenderTarget, ResourceStates.Present);
 
 			commandList.Close();
 
 			#endregion
+
 			commandQueue.ExecuteCommandList(commandList);
 
 		}

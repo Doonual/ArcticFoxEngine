@@ -1,5 +1,10 @@
 ﻿This is a description of the main event loop
 
 
-Update
-Render
+Graphics - Setup DirectX
+User - Setup Scene
+
+Loop {
+	User - Update
+	Graphics - Render
+}

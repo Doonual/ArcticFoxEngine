@@ -7,6 +7,7 @@ namespace ArcticFoxEngine {
 	using SharpDX.Direct3D12;
 	using SharpDX.Windows;
 	using System.IO;
+	using System.Runtime.InteropServices;
 
 	public static class Graphics {
 
@@ -28,8 +29,6 @@ namespace ArcticFoxEngine {
 		internal const int swapChainFrameCount = 2;
 
 		#endregion
-
-
 		#region Synchronisation objects
 
 		internal static int frameIndex;
@@ -42,11 +41,14 @@ namespace ArcticFoxEngine {
 
 		
 		internal struct ShaderInfo {
+
+			public Matrix projectionMatrix;
+			public Matrix worldToCameraMatrix;
+
 			public int screenWidth;
 			public int screenHeight;
 			public float aspectRatio;
-			public int anotherField;
-			public Matrix cameraInfo;
+
 		};
 
 		

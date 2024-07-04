@@ -61,10 +61,13 @@ namespace ArcticFoxEngine {
 		internal static void UpdateShaderInfo(Camera camera) {
 
 			ShaderInfo shaderInfoData = new ShaderInfo();
+
+			shaderInfoData.projectionMatrix = camera.projectionMatrix;
+			shaderInfoData.worldToCameraMatrix = camera.transformationMatrix;
+
 			shaderInfoData.screenWidth = Screen.width;
 			shaderInfoData.screenHeight = Screen.height;
 			shaderInfoData.aspectRatio = (float)Screen.width / Screen.height;
-			shaderInfoData.cameraInfo = camera.projectionMatrix;
 			shaderInfo.WriteToBuffer(shaderInfoData);
 
 		}

@@ -40,12 +40,17 @@ namespace ArcticFoxEngine {
 		}
 		public static Vector3 back {
 			get {
-				return new Vector3(0f, 0f, 1f);
+				return new Vector3(0f, 0f, -1f);
 			}
 		}
 		public static Vector3 zero {
 			get {
 				return new Vector3(0f, 0f, 0f);
+			}
+		}
+		public static Vector3 one {
+			get {
+				return new Vector3(1f, 1f, 1f);
 			}
 		}
 
@@ -86,6 +91,10 @@ namespace ArcticFoxEngine {
 		}
 
 		#endregion
+
+		public override string ToString() {
+			return "(" + x + ", " + y + ", " + z + ")";
+		}
 
 	}
 }

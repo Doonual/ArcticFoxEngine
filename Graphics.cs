@@ -43,7 +43,6 @@ namespace ArcticFoxEngine {
 		internal struct ShaderInfo {
 
 			public Matrix projectionMatrix;
-			public Matrix worldToCameraMatrix;
 
 			public int screenWidth;
 			public int screenHeight;

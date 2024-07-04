@@ -11,58 +11,51 @@ using System.Threading.Tasks;
 namespace ArcticFoxEngine {
 	public class Camera {
 
-		internal Matrix projectionMatrix;
-		internal Matrix transformationMatrix;
+		public Vector3 position;
+		public Quaternion rotation;
 
-		public enum Projection {
+		public float fov;
 
+		public float nearPlane = 0.3f;
+		public float farPlane = 100f;
+
+		public ProjectionType projectionType;
+
+		internal Matrix projectionMatrix {
+			get {
+				return CalculateProjectionMatrix();
+			}
+		}
+
+		public enum ProjectionType {
 			Perspective,
 			Orthographic
+		}
+
+		public Camera(Vector3 position, Quaternion rotation, float fov, ProjectionType projectionType) {
+
+			this.position = position;
+			this.rotation = rotation;
+			this.fov = fov;
+			this.projectionType = projectionType;
 
 		}
 
-		public Camera(Vector3 position, float fov, Projection projectionType) {
+		private Matrix CalculateProjectionMatrix() {
 
-			if (projectionType == Projection.Perspective) {
-				projectionMatrix = CreateProjectionMatrix(fov);
-				transformationMatrix = CreateTransformationMatrix(position, Quaternion.Identity, Vector3.one);
+			Matrix projectionMatrix = new Matrix();
+			if (projectionType == ProjectionType.Perspective) {
+				projectionMatrix = Matrix.PerspectiveFovLH(fov * MathF.PI / 180f, Screen.aspectRatio, nearPlane, farPlane);
+			}
+			if (projectionType == ProjectionType.Orthographic) {
+				projectionMatrix = Matrix.OrthoRH(Screen.aspectRatio, 1f, nearPlane, farPlane);
 			}
 
-		}
+			Matrix cameraTransform = Matrix.Transformation(Vector3.zero, Quaternion.Identity, Vector3.one, Vector3.zero, rotation, position);
+			cameraTransform.Invert();
 
-		public static Matrix CreateProjectionMatrix(float fov) {
-			float nearPlane = 0.3f;
-			float farPlane = 100f;
-
-			Matrix mat = new Matrix(
-				1f / (Screen.aspectRatio * MathF.Tan(fov / 2f)), 0f, 0f, 0f,
-				0f, 1f / MathF.Tan(fov / 2f), 0f, 0f,
-				0f, 0f, -(farPlane + nearPlane) / (farPlane - nearPlane), -(2 * farPlane * nearPlane) / (farPlane - nearPlane),
-				0f, 0f, -1f, 0f
-			);
-
-			mat = Matrix.PerspectiveFovRH(fov, Screen.aspectRatio, nearPlane, farPlane);
-			return mat;
-		}
-
-		public static Matrix CreateTransformationMatrix(Vector3 position, Quaternion rotation, Vector3 scale) {
-			Matrix mat = Matrix.Transformation(Vector3.zero, Quaternion.Identity, scale, Vector3.zero, rotation, position);
-			//mat.Invert();
-			return mat;
-		}
-
-		float angle = 0f;
-		public void Test() {
-
-			angle += 0.003f;
-			//angle %= 2f * MathF.PI;
-			Vector3 pos = new Vector3(MathF.Cos(angle), 0f, MathF.Sin(angle)) * 5f;
-
-			float fov = 110f;
-
-			projectionMatrix = CreateProjectionMatrix(fov * MathF.PI / 180);
-			transformationMatrix = CreateTransformationMatrix(Vector3.back * 2.5f, Quaternion.RotationYawPitchRoll(angle, angle * 0.7f, 0f), Vector3.one);
-
+			return cameraTransform * projectionMatrix;
+			
 		}
 
 

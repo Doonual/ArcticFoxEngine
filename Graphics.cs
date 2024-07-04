@@ -229,8 +229,6 @@ namespace ArcticFoxEngine {
 			frameIndex = swapChain.CurrentBackBufferIndex;
 		}
 
-		static float time = 0f;
-
 		public static void Buffer() {
 
 			// Present the frame

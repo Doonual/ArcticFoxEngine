@@ -1,7 +1,6 @@
 ﻿cbuffer ConstantBuffer : register(b0) {
 	
 	float4x4 projectionMatrix;
-	float4x4 worldToCameraMatrix;
 
 	int screenWidth;
 	int screenHeight;
@@ -20,12 +19,7 @@ Pixel_Input Vertex_Main(float4 position : POSITION, float4 color : COLOR) {
 	
 	Pixel_Input result;
 	
-	float4 vertexPos = mul(worldToCameraMatrix, position * float4(1.0, 1.0, -1.0, 1.0));
-	result.position = mul(projectionMatrix, vertexPos);
-	//result.position.z += 1.0;
-	//result.position.z /= 2.0;
-	//result.position.w = 1.0;
-	//result.position.w = result.position.z;
+	result.position = mul(projectionMatrix, position);
 	result.color = color;
 	
 	return result;

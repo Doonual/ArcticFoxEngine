@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ArcticFoxEngine {
+﻿namespace ArcticFoxEngine {
 	public struct Vector3 {
 
 		public float x;
@@ -43,8 +37,10 @@ namespace ArcticFoxEngine {
 				return new Vector3(0f, 0f, -1f);
 			}
 		}
-		public static Vector3 zero {
-			get {
+		public static Vector3 zero { 
+
+			get
+{
 				return new Vector3(0f, 0f, 0f);
 			}
 		}

@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ArcticFoxEngine", "ArcticFo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoolClassLibrary", "..\CoolClassLibrary\CoolClassLibrary.csproj", "{18409F8E-48AC-42AB-9E71-77998F0E311A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArcticFoxTest", "..\ArcticFoxTest\ArcticFoxTest.csproj", "{5DF00927-3B60-43BE-AC10-6102F89D7CBF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ArcticFoxTest", "..\ArcticFoxTest\ArcticFoxTest.csproj", "{5DF00927-3B60-43BE-AC10-6102F89D7CBF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

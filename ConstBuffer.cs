@@ -1,11 +1,5 @@
 ﻿using SharpDX;
-using SharpDX.D3DCompiler;
 using SharpDX.Direct3D12;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ArcticFoxEngine {
 	internal class ConstBuffer<T> where T : struct {

@@ -18,7 +18,7 @@
 
 	<ItemGroup>
 		<None Remove=".gitignore" />
-		<None Remove="res\shaders.hlsl" />
+		<None Remove=".res\shaders.hlsl" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -34,9 +34,17 @@
 	
 	
 	<ItemGroup>
-		<Content Include="res\**">
+		<Content Include=".res\**">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
+	</ItemGroup>
+	
+	
+	<ItemGroup>
+	  <None Include=".Documentation\EventLoop.txt" />
+	  <None Include=".Documentation\Terms.txt" />
+	  <None Include=".res\icon.ico" />
+	  <None Include=".res\mandelbrot_shader.hlsl" />
 	</ItemGroup>
 	
 	

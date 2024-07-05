@@ -1,11 +1,5 @@
 ﻿using SharpDX;
 using SharpDX.Direct3D12;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static ArcticFoxEngine.Graphics;
 
 namespace ArcticFoxEngine {
 	public static class Command {
@@ -58,8 +52,8 @@ namespace ArcticFoxEngine {
 			commandList.SetDescriptorHeaps(1, new DescriptorHeap[] { GraphicsResources.mainCombinedDescriporHeap });
 			commandList.SetGraphicsRootDescriptorTable(0, (GraphicsResources.mainCombinedDescriporHeap.GPUDescriptorHandleForHeapStart));
 
-			commandList.SetViewport(Graphics.viewport);
-			commandList.SetScissorRectangles(Graphics.scissorRect);
+			commandList.SetViewport(camera.viewport);
+			commandList.SetScissorRectangles(camera.scissorRect);
 
 
 

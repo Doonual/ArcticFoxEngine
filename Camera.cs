@@ -1,15 +1,11 @@
-﻿using CoolClassLibrary;
-using SharpDX;
-using SharpDX.Mathematics.Interop;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
-using System.Text;
-using System.Threading.Tasks;
+﻿using SharpDX;
+using RectangleF = SharpDX.RectangleF;
 
 namespace ArcticFoxEngine {
 	public class Camera {
+
+		public float viewportWidth;
+		public float viewportHeight;
 
 		public Vector3 position;
 		public Quaternion rotation;
@@ -27,6 +23,24 @@ namespace ArcticFoxEngine {
 			}
 		}
 
+		internal ViewportF viewport {
+			get {
+				ViewportF viewport = new ViewportF();
+				viewport.Width = viewportWidth;
+				viewport.Height = viewportHeight;
+				viewport.MaxDepth = 1f;
+				return viewport;
+			}
+		}
+		internal RectangleF scissorRect {
+			get {
+				RectangleF scissorRect = new RectangleF();
+				scissorRect.Right = viewportWidth;
+				scissorRect.Bottom = viewportHeight;
+				return scissorRect;
+			}
+		}
+
 		public enum ProjectionType {
 			Perspective,
 			Orthographic
@@ -38,6 +52,8 @@ namespace ArcticFoxEngine {
 			this.rotation = rotation;
 			this.fov = fov;
 			this.projectionType = projectionType;
+			viewportWidth = Screen.width;
+			viewportHeight = Screen.height;
 
 		}
 
@@ -57,7 +73,6 @@ namespace ArcticFoxEngine {
 			return cameraTransform * projectionMatrix;
 			
 		}
-
 
 	}
 

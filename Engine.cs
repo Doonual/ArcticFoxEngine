@@ -1,10 +1,4 @@
 ﻿using SharpDX.Windows;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace ArcticFoxEngine {
 	public static class Engine {
@@ -14,7 +8,7 @@ namespace ArcticFoxEngine {
 		public static Action setup;
 		public static Action update;
 
-		public static void Run(int width, int height, string title = "Arctic Fox", string iconPath = "res/icon.ico") {
+		public static void Run(int width, int height, string title = "Arctic Fox", string iconPath = ".res/icon.ico") {
 
 			form = new RenderForm(title) {
 				Width = width + 16,

@@ -1,16 +1,11 @@
 ﻿using SharpDX.Windows;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ArcticFoxEngine {
 	internal static class Screen {
 
 		private static RenderForm window;
 
-		internal static void LinkRenderForm(RenderForm window) {
+		internal static void InitScreen(RenderForm window) {
 			Screen.window = window;
 		}
 

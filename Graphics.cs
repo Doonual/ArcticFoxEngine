@@ -2,43 +2,33 @@
 
 namespace ArcticFoxEngine {
 
-	using CoolClassLibrary;
 	using SharpDX;
 	using SharpDX.Direct3D12;
 	using SharpDX.Windows;
 	using System.IO;
-	using System.Runtime.InteropServices;
 
 	public static class Graphics {
 
 		public static bool debug = false;
 
-		static RenderForm mainRenderForm;
-
-		#region Pipeline objects
-
-		internal static ViewportF viewport;
-		internal static Rectangle scissorRect;
-
-		private static SwapChain3 swapChain;
 		internal static Device device;
-		
+
+		static RenderForm mainRenderForm;
+		private static SwapChain3 swapChain;
+		internal const int swapChainFrameCount = 2;
+
 		internal static RootSignature rootSignature;
 		internal static PipelineState pipelineState;
 
-		internal const int swapChainFrameCount = 2;
 
-		#endregion
-		#region Synchronisation objects
+		
+
 
 		internal static int frameIndex;
 		private static AutoResetEvent fenceEvent;
 
 		private static Fence fence;
 		private static int fenceValue;
-
-		#endregion
-
 		
 		internal struct ShaderInfo {
 
@@ -66,7 +56,6 @@ namespace ArcticFoxEngine {
 			int height = form.ClientSize.Height;
 			int refreshRate = 60;
 
-			SetupViewport(width, height);
 			SetupDevice(width, height, refreshRate);
 
 			Command.SetupCommand();
@@ -75,8 +64,8 @@ namespace ArcticFoxEngine {
 			GraphicsResources.SetupResources(device, swapChain);
 			GraphicsResources.SetupRootSignature();
 
-			ShaderBytecode vertexShader = CompileShader("res/shaders.hlsl", ShaderType.Vertex);
-			ShaderBytecode pixelShader = CompileShader("res/shaders.hlsl", ShaderType.Pixel);
+			ShaderBytecode vertexShader = CompileShader(".res/shaders.hlsl", ShaderType.Vertex);
+			ShaderBytecode pixelShader = CompileShader(".res/shaders.hlsl", ShaderType.Pixel);
 			SetupPipeline(vertexShader, pixelShader);
 
 			SetupSynchronisation();
@@ -85,14 +74,7 @@ namespace ArcticFoxEngine {
 		}
 
 
-		private static void SetupViewport(int viewportWidth, int viewportHeight) {
-			viewport.Width = viewportWidth;
-			viewport.Height = viewportHeight;
-			viewport.MaxDepth = 1.0f;
-
-			scissorRect.Right = viewportWidth;
-			scissorRect.Bottom = viewportHeight;
-		}
+		
 		private static void SetupDevice(int swapchainWidth, int swapchainHeight, int refreshRate) {
 
 			// Create the graphics device
@@ -169,7 +151,7 @@ namespace ArcticFoxEngine {
 		
 		
 		private static void LinkClasses() {
-			Screen.LinkRenderForm(mainRenderForm);
+			Screen.InitScreen(mainRenderForm);
 		}
 
 		internal enum ShaderType {

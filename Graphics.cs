@@ -152,6 +152,7 @@ namespace ArcticFoxEngine {
 		
 		private static void LinkClasses() {
 			Screen.InitScreen(mainRenderForm);
+			Input.InitInput();
 		}
 
 		internal enum ShaderType {

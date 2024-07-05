@@ -7,8 +7,7 @@ namespace ArcticFoxEngine {
 		public float viewportWidth;
 		public float viewportHeight;
 
-		public Vector3 position;
-		public Quaternion rotation;
+		public Transform transform = new Transform();
 
 		public float fov;
 
@@ -46,10 +45,8 @@ namespace ArcticFoxEngine {
 			Orthographic
 		}
 
-		public Camera(Vector3 position, Quaternion rotation, float fov, ProjectionType projectionType) {
+		public Camera(float fov, ProjectionType projectionType) {
 
-			this.position = position;
-			this.rotation = rotation;
 			this.fov = fov;
 			this.projectionType = projectionType;
 			viewportWidth = Screen.width;
@@ -67,9 +64,7 @@ namespace ArcticFoxEngine {
 				projectionMatrix = Matrix.OrthoRH(Screen.aspectRatio, 1f, nearPlane, farPlane);
 			}
 
-			Matrix cameraTransform = Matrix.Transformation(Vector3.zero, Quaternion.Identity, Vector3.one, Vector3.zero, rotation, position);
-			cameraTransform.Invert();
-
+			Matrix cameraTransform = transform.transformationMatrix.Invert();
 			return cameraTransform * projectionMatrix;
 			
 		}

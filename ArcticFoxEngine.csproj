@@ -30,6 +30,9 @@
 		<PackageReference Include="SharpDX.Direct3D12" Version="4.2.0" />
 		<PackageReference Include="SharpDX.DXGI" Version="4.2.0" />
 		<PackageReference Include="SharpDX.Mathematics" Version="4.2.0" />
+		<PackageReference Include="SharpDX.RawInput" Version="4.2.0">
+		  <NoWarn>NU1701</NoWarn>
+		</PackageReference>
 	</ItemGroup>
 	
 	

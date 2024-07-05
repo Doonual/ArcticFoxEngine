@@ -79,22 +79,22 @@ namespace ArcticFoxEngine {
 		/// <summary>
 		/// The X component of the quaternion.
 		/// </summary>
-		public float X;
+		public float x;
 
 		/// <summary>
 		/// The Y component of the quaternion.
 		/// </summary>
-		public float Y;
+		public float y;
 
 		/// <summary>
 		/// The Z component of the quaternion.
 		/// </summary>
-		public float Z;
+		public float z;
 
 		/// <summary>
 		/// The W component of the quaternion.
 		/// </summary>
-		public float W;
+		public float w;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="Quaternion"/> struct.
@@ -102,22 +102,22 @@ namespace ArcticFoxEngine {
 		/// <param name="value">The value that will be assigned to all components.</param>
 		public Quaternion(float value)
 		{
-			X = value;
-			Y = value;
-			Z = value;
-			W = value;
+			x = value;
+			y = value;
+			z = value;
+			w = value;
 		}
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="Quaternion"/> struct.
 		/// </summary>
 		/// <param name="value">A vector containing the values with which to initialize the components.</param>
-		public Quaternion(Vector4 value)
+		public Quaternion(SharpDX.Vector4 value)
 		{
-			X = value.X;
-			Y = value.Y;
-			Z = value.Z;
-			W = value.W;
+			x = value.X;
+			y = value.Y;
+			z = value.Z;
+			w = value.W;
 		}
 
 		/// <summary>
@@ -127,10 +127,10 @@ namespace ArcticFoxEngine {
 		/// <param name="w">Initial value for the W component of the quaternion.</param>
 		public Quaternion(SharpDX.Vector3 value, float w)
 		{
-			X = value.X;
-			Y = value.Y;
-			Z = value.Z;
-			W = w;
+			x = value.X;
+			y = value.Y;
+			z = value.Z;
+			this.w = w;
 		}
 
 		/// <summary>
@@ -139,12 +139,12 @@ namespace ArcticFoxEngine {
 		/// <param name="value">A vector containing the values with which to initialize the X and Y components.</param>
 		/// <param name="z">Initial value for the Z component of the quaternion.</param>
 		/// <param name="w">Initial value for the W component of the quaternion.</param>
-		public Quaternion(Vector2 value, float z, float w)
+		public Quaternion(SharpDX.Vector2 value, float z, float w)
 		{
-			X = value.X;
-			Y = value.Y;
-			Z = z;
-			W = w;
+			x = value.X;
+			y = value.Y;
+			this.z = z;
+			this.w = w;
 		}
 
 		/// <summary>
@@ -156,10 +156,10 @@ namespace ArcticFoxEngine {
 		/// <param name="w">Initial value for the W component of the quaternion.</param>
 		public Quaternion(float x, float y, float z, float w)
 		{
-			X = x;
-			Y = y;
-			Z = z;
-			W = w;
+			this.x = x;
+			this.y = y;
+			this.z = z;
+			this.w = w;
 		}
 
 		/// <summary>
@@ -175,10 +175,10 @@ namespace ArcticFoxEngine {
 			if (values.Length != 4)
 				throw new ArgumentOutOfRangeException("values", "There must be four and only four input values for Quaternion.");
 
-			X = values[0];
-			Y = values[1];
-			Z = values[2];
-			W = values[3];
+			x = values[0];
+			y = values[1];
+			z = values[2];
+			w = values[3];
 		}
 
 		/// <summary>
@@ -197,7 +197,7 @@ namespace ArcticFoxEngine {
 		/// </summary>
 		public bool IsNormalized
 		{
-			get { return MathUtil.IsOne(X * X + Y * Y + Z * Z + W * W); }
+			get { return MathUtil.IsOne(x * x + y * y + z * z + w * w); }
 		}
 
 		/// <summary>
@@ -208,11 +208,11 @@ namespace ArcticFoxEngine {
 		{
 			get
 			{
-				float length = X * X + Y * Y + Z * Z;
+				float length = x * x + y * y + z * z;
 				if (MathUtil.IsZero(length))
 					return 0.0f;
 
-				return (float)(2.0 * Math.Acos(MathUtil.Clamp(W, -1f, 1f)));
+				return (float)(2.0 * Math.Acos(MathUtil.Clamp(w, -1f, 1f)));
 			}
 		}
 
@@ -224,12 +224,12 @@ namespace ArcticFoxEngine {
 		{
 			get
 			{
-				float length = X * X + Y * Y + Z * Z;
+				float length = x * x + y * y + z * z;
 				if (MathUtil.IsZero(length))
 					return SharpDX.Vector3.UnitX;
 
 				float inv = 1.0f / (float)Math.Sqrt(length);
-				return new SharpDX.Vector3(X * inv, Y * inv, Z * inv);
+				return new SharpDX.Vector3(x * inv, y * inv, z * inv);
 			}
 		}
 
@@ -246,10 +246,10 @@ namespace ArcticFoxEngine {
 			{
 				switch (index)
 				{
-					case 0: return X;
-					case 1: return Y;
-					case 2: return Z;
-					case 3: return W;
+					case 0: return x;
+					case 1: return y;
+					case 2: return z;
+					case 3: return w;
 				}
 
 				throw new ArgumentOutOfRangeException("index", "Indices for Quaternion run from 0 to 3, inclusive.");
@@ -259,10 +259,10 @@ namespace ArcticFoxEngine {
 			{
 				switch (index)
 				{
-					case 0: X = value; break;
-					case 1: Y = value; break;
-					case 2: Z = value; break;
-					case 3: W = value; break;
+					case 0: x = value; break;
+					case 1: y = value; break;
+					case 2: z = value; break;
+					case 3: w = value; break;
 					default: throw new ArgumentOutOfRangeException("index", "Indices for Quaternion run from 0 to 3, inclusive.");
 				}
 			}
@@ -273,9 +273,9 @@ namespace ArcticFoxEngine {
 		/// </summary>
 		public void Conjugate()
 		{
-			X = -X;
-			Y = -Y;
-			Z = -Z;
+			x = -x;
+			y = -y;
+			z = -z;
 		}
 
 		/// <summary>
@@ -288,10 +288,10 @@ namespace ArcticFoxEngine {
 			{
 				lengthSq = 1.0f / lengthSq;
 
-				X = -X * lengthSq;
-				Y = -Y * lengthSq;
-				Z = -Z * lengthSq;
-				W = W * lengthSq;
+				x = -x * lengthSq;
+				y = -y * lengthSq;
+				z = -z * lengthSq;
+				w = w * lengthSq;
 			}
 		}
 
@@ -305,7 +305,7 @@ namespace ArcticFoxEngine {
 		/// </remarks>
 		public float Length()
 		{
-			return (float)Math.Sqrt(X * X + Y * Y + Z * Z + W * W);
+			return (float)Math.Sqrt(x * x + y * y + z * z + w * w);
 		}
 
 		/// <summary>
@@ -318,7 +318,7 @@ namespace ArcticFoxEngine {
 		/// </remarks>
 		public float LengthSquared()
 		{
-			return X * X + Y * Y + Z * Z + W * W;
+			return x * x + y * y + z * z + w * w;
 		}
 
 		/// <summary>
@@ -330,10 +330,10 @@ namespace ArcticFoxEngine {
 			if (!MathUtil.IsZero(length))
 			{
 				float inverse = 1.0f / length;
-				X *= inverse;
-				Y *= inverse;
-				Z *= inverse;
-				W *= inverse;
+				x *= inverse;
+				y *= inverse;
+				z *= inverse;
+				w *= inverse;
 			}
 		}
 
@@ -343,7 +343,7 @@ namespace ArcticFoxEngine {
 		/// <returns>A four-element array containing the components of the quaternion.</returns>
 		public float[] ToArray()
 		{
-			return new float[] { X, Y, Z, W };
+			return new float[] { x, y, z, w };
 		}
 
 		/// <summary>
@@ -354,10 +354,10 @@ namespace ArcticFoxEngine {
 		/// <param name="result">When the method completes, contains the sum of the two quaternions.</param>
 		public static void Add(ref Quaternion left, ref Quaternion right, out Quaternion result)
 		{
-			result.X = left.X + right.X;
-			result.Y = left.Y + right.Y;
-			result.Z = left.Z + right.Z;
-			result.W = left.W + right.W;
+			result.x = left.x + right.x;
+			result.y = left.y + right.y;
+			result.z = left.z + right.z;
+			result.w = left.w + right.w;
 		}
 
 		/// <summary>
@@ -381,10 +381,10 @@ namespace ArcticFoxEngine {
 		/// <param name="result">When the method completes, contains the difference of the two quaternions.</param>
 		public static void Subtract(ref Quaternion left, ref Quaternion right, out Quaternion result)
 		{
-			result.X = left.X - right.X;
-			result.Y = left.Y - right.Y;
-			result.Z = left.Z - right.Z;
-			result.W = left.W - right.W;
+			result.x = left.x - right.x;
+			result.y = left.y - right.y;
+			result.z = left.z - right.z;
+			result.w = left.w - right.w;
 		}
 
 		/// <summary>
@@ -408,10 +408,10 @@ namespace ArcticFoxEngine {
 		/// <param name="result">When the method completes, contains the scaled quaternion.</param>
 		public static void Multiply(ref Quaternion value, float scale, out Quaternion result)
 		{
-			result.X = value.X * scale;
-			result.Y = value.Y * scale;
-			result.Z = value.Z * scale;
-			result.W = value.W * scale;
+			result.x = value.x * scale;
+			result.y = value.y * scale;
+			result.z = value.z * scale;
+			result.w = value.w * scale;
 		}
 
 		/// <summary>
@@ -435,22 +435,22 @@ namespace ArcticFoxEngine {
 		/// <param name="result">When the method completes, contains the multiplied quaternion.</param>
 		public static void Multiply(ref Quaternion left, ref Quaternion right, out Quaternion result)
 		{
-			float lx = left.X;
-			float ly = left.Y;
-			float lz = left.Z;
-			float lw = left.W;
-			float rx = right.X;
-			float ry = right.Y;
-			float rz = right.Z;
-			float rw = right.W;
+			float lx = left.x;
+			float ly = left.y;
+			float lz = left.z;
+			float lw = left.w;
+			float rx = right.x;
+			float ry = right.y;
+			float rz = right.z;
+			float rw = right.w;
 			float a = ly * rz - lz * ry;
 			float b = lz * rx - lx * rz;
 			float c = lx * ry - ly * rx;
 			float d = lx * rx + ly * ry + lz * rz;
-			result.X = lx * rw + rx * lw + a;
-			result.Y = ly * rw + ry * lw + b;
-			result.Z = lz * rw + rz * lw + c;
-			result.W = lw * rw - d;
+			result.x = lx * rw + rx * lw + a;
+			result.y = ly * rw + ry * lw + b;
+			result.z = lz * rw + rz * lw + c;
+			result.w = lw * rw - d;
 		}
 
 		/// <summary>
@@ -473,10 +473,10 @@ namespace ArcticFoxEngine {
 		/// <param name="result">When the method completes, contains a quaternion facing in the opposite direction.</param>
 		public static void Negate(ref Quaternion value, out Quaternion result)
 		{
-			result.X = -value.X;
-			result.Y = -value.Y;
-			result.Z = -value.Z;
-			result.W = -value.W;
+			result.x = -value.x;
+			result.y = -value.y;
+			result.z = -value.z;
+			result.w = -value.w;
 		}
 
 		/// <summary>
@@ -531,10 +531,10 @@ namespace ArcticFoxEngine {
 		/// <param name="result">When the method completes, contains the conjugated quaternion.</param>
 		public static void Conjugate(ref Quaternion value, out Quaternion result)
 		{
-			result.X = -value.X;
-			result.Y = -value.Y;
-			result.Z = -value.Z;
-			result.W = value.W;
+			result.x = -value.x;
+			result.y = -value.y;
+			result.z = -value.z;
+			result.w = value.w;
 		}
 
 		/// <summary>
@@ -557,7 +557,7 @@ namespace ArcticFoxEngine {
 		/// <param name="result">When the method completes, contains the dot product of the two quaternions.</param>
 		public static void Dot(ref Quaternion left, ref Quaternion right, out float result)
 		{
-			result = left.X * right.X + left.Y * right.Y + left.Z * right.Z + left.W * right.W;
+			result = left.x * right.x + left.y * right.y + left.z * right.z + left.w * right.w;
 		}
 
 		/// <summary>
@@ -568,7 +568,7 @@ namespace ArcticFoxEngine {
 		/// <returns>The dot product of the two quaternions.</returns>
 		public static float Dot(Quaternion left, Quaternion right)
 		{
-			return left.X * right.X + left.Y * right.Y + left.Z * right.Z + left.W * right.W;
+			return left.x * right.x + left.y * right.y + left.z * right.z + left.w * right.w;
 		}
 
 		/// <summary>
@@ -578,22 +578,22 @@ namespace ArcticFoxEngine {
 		/// <param name="result">When the method completes, contains the exponentiated quaternion.</param>
 		public static void Exponential(ref Quaternion value, out Quaternion result)
 		{
-			float angle = (float)Math.Sqrt(value.X * value.X + value.Y * value.Y + value.Z * value.Z);
+			float angle = (float)Math.Sqrt(value.x * value.x + value.y * value.y + value.z * value.z);
 			float sin = (float)Math.Sin(angle);
 
 			if (!MathUtil.IsZero(sin))
 			{
 				float coeff = sin / angle;
-				result.X = coeff * value.X;
-				result.Y = coeff * value.Y;
-				result.Z = coeff * value.Z;
+				result.x = coeff * value.x;
+				result.y = coeff * value.y;
+				result.z = coeff * value.z;
 			}
 			else
 			{
 				result = value;
 			}
 
-			result.W = (float)Math.Cos(angle);
+			result.w = (float)Math.Cos(angle);
 		}
 
 		/// <summary>
@@ -649,17 +649,17 @@ namespace ArcticFoxEngine {
 
 			if (Dot(start, end) >= 0.0f)
 			{
-				result.X = inverse * start.X + amount * end.X;
-				result.Y = inverse * start.Y + amount * end.Y;
-				result.Z = inverse * start.Z + amount * end.Z;
-				result.W = inverse * start.W + amount * end.W;
+				result.x = inverse * start.x + amount * end.x;
+				result.y = inverse * start.y + amount * end.y;
+				result.z = inverse * start.z + amount * end.z;
+				result.w = inverse * start.w + amount * end.w;
 			}
 			else
 			{
-				result.X = inverse * start.X - amount * end.X;
-				result.Y = inverse * start.Y - amount * end.Y;
-				result.Z = inverse * start.Z - amount * end.Z;
-				result.W = inverse * start.W - amount * end.W;
+				result.x = inverse * start.x - amount * end.x;
+				result.y = inverse * start.y - amount * end.y;
+				result.z = inverse * start.z - amount * end.z;
+				result.w = inverse * start.w - amount * end.w;
 			}
 
 			result.Normalize();
@@ -691,17 +691,17 @@ namespace ArcticFoxEngine {
 		/// <param name="result">When the method completes, contains the natural logarithm of the quaternion.</param>
 		public static void Logarithm(ref Quaternion value, out Quaternion result)
 		{
-			if (Math.Abs(value.W) < 1.0)
+			if (Math.Abs(value.w) < 1.0)
 			{
-				float angle = (float)Math.Acos(value.W);
+				float angle = (float)Math.Acos(value.w);
 				float sin = (float)Math.Sin(angle);
 
 				if (!MathUtil.IsZero(sin))
 				{
 					float coeff = angle / sin;
-					result.X = value.X * coeff;
-					result.Y = value.Y * coeff;
-					result.Z = value.Z * coeff;
+					result.x = value.x * coeff;
+					result.y = value.y * coeff;
+					result.z = value.z * coeff;
 				}
 				else
 				{
@@ -713,7 +713,7 @@ namespace ArcticFoxEngine {
 				result = value;
 			}
 
-			result.W = 0.0f;
+			result.w = 0.0f;
 		}
 
 		/// <summary>
@@ -766,10 +766,10 @@ namespace ArcticFoxEngine {
 			float sin = (float)Math.Sin(half);
 			float cos = (float)Math.Cos(half);
 
-			result.X = normalized.X * sin;
-			result.Y = normalized.Y * sin;
-			result.Z = normalized.Z * sin;
-			result.W = cos;
+			result.x = normalized.X * sin;
+			result.y = normalized.Y * sin;
+			result.z = normalized.Z * sin;
+			result.w = cos;
 		}
 
 		/// <summary>
@@ -799,42 +799,42 @@ namespace ArcticFoxEngine {
 			if (scale > 0.0f)
 			{
 				sqrt = (float)Math.Sqrt(scale + 1.0f);
-				result.W = sqrt * 0.5f;
+				result.w = sqrt * 0.5f;
 				sqrt = 0.5f / sqrt;
 
-				result.X = (matrix.M23 - matrix.M32) * sqrt;
-				result.Y = (matrix.M31 - matrix.M13) * sqrt;
-				result.Z = (matrix.M12 - matrix.M21) * sqrt;
+				result.x = (matrix.M23 - matrix.M32) * sqrt;
+				result.y = (matrix.M31 - matrix.M13) * sqrt;
+				result.z = (matrix.M12 - matrix.M21) * sqrt;
 			}
 			else if (matrix.M11 >= matrix.M22 && matrix.M11 >= matrix.M33)
 			{
 				sqrt = (float)Math.Sqrt(1.0f + matrix.M11 - matrix.M22 - matrix.M33);
 				half = 0.5f / sqrt;
 
-				result.X = 0.5f * sqrt;
-				result.Y = (matrix.M12 + matrix.M21) * half;
-				result.Z = (matrix.M13 + matrix.M31) * half;
-				result.W = (matrix.M23 - matrix.M32) * half;
+				result.x = 0.5f * sqrt;
+				result.y = (matrix.M12 + matrix.M21) * half;
+				result.z = (matrix.M13 + matrix.M31) * half;
+				result.w = (matrix.M23 - matrix.M32) * half;
 			}
 			else if (matrix.M22 > matrix.M33)
 			{
 				sqrt = (float)Math.Sqrt(1.0f + matrix.M22 - matrix.M11 - matrix.M33);
 				half = 0.5f / sqrt;
 
-				result.X = (matrix.M21 + matrix.M12) * half;
-				result.Y = 0.5f * sqrt;
-				result.Z = (matrix.M32 + matrix.M23) * half;
-				result.W = (matrix.M31 - matrix.M13) * half;
+				result.x = (matrix.M21 + matrix.M12) * half;
+				result.y = 0.5f * sqrt;
+				result.z = (matrix.M32 + matrix.M23) * half;
+				result.w = (matrix.M31 - matrix.M13) * half;
 			}
 			else
 			{
 				sqrt = (float)Math.Sqrt(1.0f + matrix.M33 - matrix.M11 - matrix.M22);
 				half = 0.5f / sqrt;
 
-				result.X = (matrix.M31 + matrix.M13) * half;
-				result.Y = (matrix.M32 + matrix.M23) * half;
-				result.Z = 0.5f * sqrt;
-				result.W = (matrix.M12 - matrix.M21) * half;
+				result.x = (matrix.M31 + matrix.M13) * half;
+				result.y = (matrix.M32 + matrix.M23) * half;
+				result.z = 0.5f * sqrt;
+				result.w = (matrix.M12 - matrix.M21) * half;
 			}
 		}
 
@@ -852,42 +852,42 @@ namespace ArcticFoxEngine {
 			if (scale > 0.0f)
 			{
 				sqrt = (float)Math.Sqrt(scale + 1.0f);
-				result.W = sqrt * 0.5f;
+				result.w = sqrt * 0.5f;
 				sqrt = 0.5f / sqrt;
 
-				result.X = (matrix.M23 - matrix.M32) * sqrt;
-				result.Y = (matrix.M31 - matrix.M13) * sqrt;
-				result.Z = (matrix.M12 - matrix.M21) * sqrt;
+				result.x = (matrix.M23 - matrix.M32) * sqrt;
+				result.y = (matrix.M31 - matrix.M13) * sqrt;
+				result.z = (matrix.M12 - matrix.M21) * sqrt;
 			}
 			else if (matrix.M11 >= matrix.M22 && matrix.M11 >= matrix.M33)
 			{
 				sqrt = (float)Math.Sqrt(1.0f + matrix.M11 - matrix.M22 - matrix.M33);
 				half = 0.5f / sqrt;
 
-				result.X = 0.5f * sqrt;
-				result.Y = (matrix.M12 + matrix.M21) * half;
-				result.Z = (matrix.M13 + matrix.M31) * half;
-				result.W = (matrix.M23 - matrix.M32) * half;
+				result.x = 0.5f * sqrt;
+				result.y = (matrix.M12 + matrix.M21) * half;
+				result.z = (matrix.M13 + matrix.M31) * half;
+				result.w = (matrix.M23 - matrix.M32) * half;
 			}
 			else if (matrix.M22 > matrix.M33)
 			{
 				sqrt = (float)Math.Sqrt(1.0f + matrix.M22 - matrix.M11 - matrix.M33);
 				half = 0.5f / sqrt;
 
-				result.X = (matrix.M21 + matrix.M12) * half;
-				result.Y = 0.5f * sqrt;
-				result.Z = (matrix.M32 + matrix.M23) * half;
-				result.W = (matrix.M31 - matrix.M13) * half;
+				result.x = (matrix.M21 + matrix.M12) * half;
+				result.y = 0.5f * sqrt;
+				result.z = (matrix.M32 + matrix.M23) * half;
+				result.w = (matrix.M31 - matrix.M13) * half;
 			}
 			else
 			{
 				sqrt = (float)Math.Sqrt(1.0f + matrix.M33 - matrix.M11 - matrix.M22);
 				half = 0.5f / sqrt;
 
-				result.X = (matrix.M31 + matrix.M13) * half;
-				result.Y = (matrix.M32 + matrix.M23) * half;
-				result.Z = 0.5f * sqrt;
-				result.W = (matrix.M12 - matrix.M21) * half;
+				result.x = (matrix.M31 + matrix.M13) * half;
+				result.y = (matrix.M32 + matrix.M23) * half;
+				result.z = 0.5f * sqrt;
+				result.w = (matrix.M12 - matrix.M21) * half;
 			}
 		}
 
@@ -1002,8 +1002,8 @@ namespace ArcticFoxEngine {
 		/// </summary>
 		/// <param name="objectPosition">The position of the object around which the billboard will rotate.</param>
 		/// <param name="cameraPosition">The position of the camera.</param>
-		/// <param name="cameraUpVector">The up vector of the camera.</param>
-		/// <param name="cameraForwardVector">The forward vector of the camera.</param>
+		/// <param name="cameraUpSharpDX.Vector">The up vector of the camera.</param>
+		/// <param name="cameraForwardSharpDX.Vector">The forward vector of the camera.</param>
 		/// <param name="result">When the method completes, contains the created billboard quaternion.</param>
 		public static void BillboardLH(ref SharpDX.Vector3 objectPosition, ref SharpDX.Vector3 cameraPosition, ref SharpDX.Vector3 cameraUpVector, ref SharpDX.Vector3 cameraForwardVector, out Quaternion result)
 		{
@@ -1017,13 +1017,13 @@ namespace ArcticFoxEngine {
 		/// </summary>
 		/// <param name="objectPosition">The position of the object around which the billboard will rotate.</param>
 		/// <param name="cameraPosition">The position of the camera.</param>
-		/// <param name="cameraUpVector">The up vector of the camera.</param>
-		/// <param name="cameraForwardVector">The forward vector of the camera.</param>
+		/// <param name="cameraUp">The up vector of the camera.</param>
+		/// <param name="cameraForward">The forward vector of the camera.</param>
 		/// <returns>The created billboard quaternion.</returns>
-		public static Quaternion BillboardLH(SharpDX.Vector3 objectPosition, SharpDX.Vector3 cameraPosition, SharpDX.Vector3 cameraUpVector, SharpDX.Vector3 cameraForwardVector)
+		public static Quaternion BillboardLH(SharpDX.Vector3 objectPosition, SharpDX.Vector3 cameraPosition, SharpDX.Vector3 cameraUp, SharpDX.Vector3 cameraForward)
 		{
 			Quaternion result;
-			BillboardLH(ref objectPosition, ref cameraPosition, ref cameraUpVector, ref cameraForwardVector, out result);
+			BillboardLH(ref objectPosition, ref cameraPosition, ref cameraUp, ref cameraForward, out result);
 			return result;
 		}
 
@@ -1032,13 +1032,13 @@ namespace ArcticFoxEngine {
 		/// </summary>
 		/// <param name="objectPosition">The position of the object around which the billboard will rotate.</param>
 		/// <param name="cameraPosition">The position of the camera.</param>
-		/// <param name="cameraUpVector">The up vector of the camera.</param>
-		/// <param name="cameraForwardVector">The forward vector of the camera.</param>
+		/// <param name="cameraUp">The up vector of the camera.</param>
+		/// <param name="cameraForward">The forward vector of the camera.</param>
 		/// <param name="result">When the method completes, contains the created billboard quaternion.</param>
-		public static void BillboardRH(ref SharpDX.Vector3 objectPosition, ref SharpDX.Vector3 cameraPosition, ref SharpDX.Vector3 cameraUpVector, ref SharpDX.Vector3 cameraForwardVector, out Quaternion result)
+		public static void BillboardRH(ref SharpDX.Vector3 objectPosition, ref SharpDX.Vector3 cameraPosition, ref SharpDX.Vector3 cameraUp, ref SharpDX.Vector3 cameraForward, out Quaternion result)
 		{
 			Matrix3x3 matrix;
-			Matrix3x3.BillboardRH(ref objectPosition, ref cameraPosition, ref cameraUpVector, ref cameraForwardVector, out matrix);
+			Matrix3x3.BillboardRH(ref objectPosition, ref cameraPosition, ref cameraUp, ref cameraForward, out matrix);
 			RotationMatrix(ref matrix, out result);
 		}
 
@@ -1047,13 +1047,13 @@ namespace ArcticFoxEngine {
 		/// </summary>
 		/// <param name="objectPosition">The position of the object around which the billboard will rotate.</param>
 		/// <param name="cameraPosition">The position of the camera.</param>
-		/// <param name="cameraUpVector">The up vector of the camera.</param>
-		/// <param name="cameraForwardVector">The forward vector of the camera.</param>
+		/// <param name="cameraUp">The up vector of the camera.</param>
+		/// <param name="cameraForward">The forward vector of the camera.</param>
 		/// <returns>The created billboard quaternion.</returns>
-		public static Quaternion BillboardRH(SharpDX.Vector3 objectPosition, SharpDX.Vector3 cameraPosition, SharpDX.Vector3 cameraUpVector, SharpDX.Vector3 cameraForwardVector)
+		public static Quaternion BillboardRH(SharpDX.Vector3 objectPosition, SharpDX.Vector3 cameraPosition, SharpDX.Vector3 cameraUp, SharpDX.Vector3 cameraForward)
 		{
 			Quaternion result;
-			BillboardRH(ref objectPosition, ref cameraPosition, ref cameraUpVector, ref cameraForwardVector, out result);
+			BillboardRH(ref objectPosition, ref cameraPosition, ref cameraUp, ref cameraForward, out result);
 			return result;
 		}
 
@@ -1089,10 +1089,10 @@ namespace ArcticFoxEngine {
 			float sinYaw = (float)Math.Sin(halfYaw);
 			float cosYaw = (float)Math.Cos(halfYaw);
 
-			result.X = cosYaw * sinPitch * cosRoll + sinYaw * cosPitch * sinRoll;
-			result.Y = sinYaw * cosPitch * cosRoll - cosYaw * sinPitch * sinRoll;
-			result.Z = cosYaw * cosPitch * sinRoll - sinYaw * sinPitch * cosRoll;
-			result.W = cosYaw * cosPitch * cosRoll + sinYaw * sinPitch * sinRoll;
+			result.x = cosYaw * sinPitch * cosRoll + sinYaw * cosPitch * sinRoll;
+			result.y = sinYaw * cosPitch * cosRoll - cosYaw * sinPitch * sinRoll;
+			result.z = cosYaw * cosPitch * sinRoll - sinYaw * sinPitch * cosRoll;
+			result.w = cosYaw * cosPitch * cosRoll + sinYaw * sinPitch * sinRoll;
 		}
 
 		/// <summary>
@@ -1136,10 +1136,10 @@ namespace ArcticFoxEngine {
 				opposite = (float)Math.Sin(amount * acos) * invSin * Math.Sign(dot);
 			}
 
-			result.X = inverse * start.X + opposite * end.X;
-			result.Y = inverse * start.Y + opposite * end.Y;
-			result.Z = inverse * start.Z + opposite * end.Z;
-			result.W = inverse * start.W + opposite * end.W;
+			result.x = inverse * start.x + opposite * end.x;
+			result.y = inverse * start.y + opposite * end.y;
+			result.z = inverse * start.z + opposite * end.z;
+			result.w = inverse * start.w + opposite * end.w;
 		}
 
 		/// <summary>
@@ -1325,7 +1325,7 @@ namespace ArcticFoxEngine {
 		/// </returns>
 		public override string ToString()
 		{
-			return string.Format(CultureInfo.CurrentCulture, "X:{0} Y:{1} Z:{2} W:{3}", X, Y, Z, W);
+			return string.Format(CultureInfo.CurrentCulture, "X:{0} Y:{1} Z:{2} W:{3}", x, y, z, w);
 		}
 
 		/// <summary>
@@ -1340,8 +1340,8 @@ namespace ArcticFoxEngine {
 			if (format == null)
 				return ToString();
 
-			return string.Format(CultureInfo.CurrentCulture, "X:{0} Y:{1} Z:{2} W:{3}", X.ToString(format, CultureInfo.CurrentCulture),
-				Y.ToString(format, CultureInfo.CurrentCulture), Z.ToString(format, CultureInfo.CurrentCulture), W.ToString(format, CultureInfo.CurrentCulture));
+			return string.Format(CultureInfo.CurrentCulture, "X:{0} Y:{1} Z:{2} W:{3}", x.ToString(format, CultureInfo.CurrentCulture),
+				y.ToString(format, CultureInfo.CurrentCulture), z.ToString(format, CultureInfo.CurrentCulture), w.ToString(format, CultureInfo.CurrentCulture));
 		}
 
 		/// <summary>
@@ -1353,7 +1353,7 @@ namespace ArcticFoxEngine {
 		/// </returns>
 		public string ToString(IFormatProvider formatProvider)
 		{
-			return string.Format(formatProvider, "X:{0} Y:{1} Z:{2} W:{3}", X, Y, Z, W);
+			return string.Format(formatProvider, "X:{0} Y:{1} Z:{2} W:{3}", x, y, z, w);
 		}
 
 		/// <summary>
@@ -1369,8 +1369,8 @@ namespace ArcticFoxEngine {
 			if (format == null)
 				return ToString(formatProvider);
 
-			return string.Format(formatProvider, "X:{0} Y:{1} Z:{2} W:{3}", X.ToString(format, formatProvider),
-				Y.ToString(format, formatProvider), Z.ToString(format, formatProvider), W.ToString(format, formatProvider));
+			return string.Format(formatProvider, "X:{0} Y:{1} Z:{2} W:{3}", x.ToString(format, formatProvider),
+				y.ToString(format, formatProvider), z.ToString(format, formatProvider), w.ToString(format, formatProvider));
 		}
 
 		/// <summary>
@@ -1383,10 +1383,10 @@ namespace ArcticFoxEngine {
 		{
 			unchecked
 			{
-				var hashCode = X.GetHashCode();
-				hashCode = hashCode * 397 ^ Y.GetHashCode();
-				hashCode = hashCode * 397 ^ Z.GetHashCode();
-				hashCode = hashCode * 397 ^ W.GetHashCode();
+				var hashCode = x.GetHashCode();
+				hashCode = hashCode * 397 ^ y.GetHashCode();
+				hashCode = hashCode * 397 ^ z.GetHashCode();
+				hashCode = hashCode * 397 ^ w.GetHashCode();
 				return hashCode;
 			}
 		}
@@ -1401,7 +1401,7 @@ namespace ArcticFoxEngine {
 		[MethodImpl((MethodImplOptions)0x100)] // MethodImplOptions.AggressiveInlining
 		public bool Equals(ref Quaternion other)
 		{
-			return MathUtil.NearEqual(other.X, X) && MathUtil.NearEqual(other.Y, Y) && MathUtil.NearEqual(other.Z, Z) && MathUtil.NearEqual(other.W, W);
+			return MathUtil.NearEqual(other.x, x) && MathUtil.NearEqual(other.y, y) && MathUtil.NearEqual(other.z, z) && MathUtil.NearEqual(other.w, w);
 		}
 
 		/// <summary>
@@ -1435,7 +1435,7 @@ namespace ArcticFoxEngine {
 
 		public static implicit operator SharpDX.Quaternion(Quaternion q)
 		{
-			return new SharpDX.Quaternion(q.X, q.Y, q.Z, q.W);
+			return new SharpDX.Quaternion(q.x, q.y, q.z, q.w);
 		}
 
 	}

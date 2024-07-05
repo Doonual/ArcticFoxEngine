@@ -31,6 +31,7 @@ namespace ArcticFoxEngine {
 					}
 
 					Graphics.Buffer();
+					Input.NextFrame();
 					Graphics.WaitForPreviousFrame();
 				}
 			}

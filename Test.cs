@@ -22,8 +22,9 @@ namespace ArcticFoxEngine {
 
 		private static void Setup() {
 
-			Log.Info("In setup");
-			mainCamera = new Camera(Vector3.back * 3f, Quaternion.Identity, 95f, Camera.ProjectionType.Perspective);
+			mainCamera = new Camera(95f, Camera.ProjectionType.Perspective);
+
+			mainCamera.transform.position = mainCamera.transform.Back * 3f;
 
 			Vertex[] vertexData = new Vertex[] {
 				new Vertex() {Position=new Vector3(-1f, -1f, -1f), Color = new Color(0.0f, 0.0f, 0.0f)},
@@ -56,15 +57,22 @@ namespace ArcticFoxEngine {
 
 		}
 
-		static float t = 0f;
+		static Vector2 mouseVector;
 
 		private static void Update() {
 
-			t += 0.005f;
-			float pitch = MathF.Sin(t * 0.3f);
 
-			mainCamera.position = new Vector3(MathF.Cos(t) * MathF.Cos(pitch), MathF.Sin(pitch), MathF.Sin(t) * MathF.Cos(pitch)) * 3f;
-			mainCamera.rotation = Quaternion.RotationYawPitchRoll(-t - MathF.PI / 2f, pitch, 0f);
+			if (Input.GetMouseButton() == true) {
+				mouseVector.x = Input.GetMouseVector().x * 0.001f;
+				mouseVector.y = Input.GetMouseVector().y * 0.001f;
+			}
+			
+
+			mouseVector *= 0.985f;
+
+			Quaternion rotateDelta = Quaternion.RotationYawPitchRoll(mouseVector.x, mouseVector.y, 0f);
+			mainCamera.transform.rotation *= rotateDelta;
+			mainCamera.transform.position = mainCamera.transform.Back * 3f;
 
 			Command.ExecuteMainRender(mainCamera, mainGeometry);
 

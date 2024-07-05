@@ -44,6 +44,11 @@
 	
 	
 	<ItemGroup>
+	  <Content Include=".Documentation\Input.txt" />
+	</ItemGroup>
+	
+	
+	<ItemGroup>
 	  <None Include=".Documentation\EventLoop.txt" />
 	  <None Include=".Documentation\Terms.txt" />
 	  <None Include=".res\icon.ico" />

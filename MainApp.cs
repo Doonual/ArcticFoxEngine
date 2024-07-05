@@ -1,7 +1,9 @@
-﻿using CoolClassLibrary;
+﻿using ArcticFoxEngine.Input;
+using ArcticFoxEngine.Input.Bindings;
+using CoolClassLibrary;
 
 namespace ArcticFoxEngine {
-	public static class Test {
+	public static class MainApp {
 
 		public static void RunTest() {
 
@@ -10,12 +12,14 @@ namespace ArcticFoxEngine {
 #endif
 
 			Log.Info("Starting Engine");
-
 			Engine.setup = Setup;
 			Engine.update = Update;
 			Engine.Run(1280, 720);
 
 		}
+
+		static ButtonBinding panButton;
+		static Axis2DBinding panVector;
 
 		static Camera mainCamera;
 		static GeometryInfo mainGeometry;
@@ -54,6 +58,8 @@ namespace ArcticFoxEngine {
 			};
 			mainGeometry = new GeometryInfo(vertexData, indexData);
 
+			panButton = new MouseButtonInput(MouseButtonInput.MouseButton.Left);
+			panVector = new GenericAxis2DInput(new MouseAxisInput(MouseAxisInput.MouseAxis.x), new MouseAxisInput(MouseAxisInput.MouseAxis.y));
 
 		}
 
@@ -61,12 +67,10 @@ namespace ArcticFoxEngine {
 
 		private static void Update() {
 
-
-			if (Input.GetMouseButton() == true) {
-				mouseVector.x = Input.GetMouseVector().x * 0.001f;
-				mouseVector.y = Input.GetMouseVector().y * 0.001f;
+			if (panButton.GetButton() == true) {
+				mouseVector = panVector.GetValue() * 0.002f;
 			}
-			
+
 
 			mouseVector *= 0.985f;
 

@@ -1,0 +1,14 @@
+﻿The input system in the Arctic Fox engine is designed to be highly customisable
+
+The InputManager class is the main manager.
+it has a record of all the bound inputs to update them.
+
+Bindings of the following types can be bound:
+Buttons (boolean)
+Axis (boolean)
+
+Start by instantiating any of the classes in Input/Bindings
+These are implementations of either AxisBinding or ButtonBinding.
+
+The classes in Input/Bindings hook into the devices in Input/Devices to recieve updates about the relevant key
+They then pass that information into either AxisBinding or ButtonBinding which calculate things like delta, and what frame a button is down on

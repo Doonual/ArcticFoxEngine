@@ -1,4 +1,5 @@
-﻿using SharpDX.Windows;
+﻿using ArcticFoxEngine.Input;
+using SharpDX.Windows;
 
 namespace ArcticFoxEngine {
 	public static class Engine {
@@ -31,8 +32,9 @@ namespace ArcticFoxEngine {
 					}
 
 					Graphics.Buffer();
-					Input.NextFrame();
+					
 					Graphics.WaitForPreviousFrame();
+					InputManager.NextFrame();
 				}
 			}
 			

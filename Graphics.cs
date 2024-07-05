@@ -1,4 +1,5 @@
 ﻿using SharpDX.DXGI;
+using ArcticFoxEngine.Input;
 
 namespace ArcticFoxEngine {
 
@@ -152,7 +153,7 @@ namespace ArcticFoxEngine {
 		
 		private static void LinkClasses() {
 			Screen.InitScreen(mainRenderForm);
-			Input.InitInput();
+			InputManager.InitInput();
 		}
 
 		internal enum ShaderType {

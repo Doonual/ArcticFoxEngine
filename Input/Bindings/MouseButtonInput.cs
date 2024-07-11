@@ -1,11 +1,7 @@
 ﻿using ArcticFoxEngine.Input.Devices;
 using CoolClassLibrary;
-using SharpDX.RawInput;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using SharpDX.DirectInput;
+using Swan;
 
 namespace ArcticFoxEngine.Input.Bindings {
 	public class MouseButtonInput : ButtonBinding {
@@ -14,14 +10,13 @@ namespace ArcticFoxEngine.Input.Bindings {
 		MouseButton mouseButton;
 		public enum MouseButton {
 
-			Left,
-			Right,
-			Middle,
-			Button1,
-			Button2,
-			Button3,
-			Button4,
-			Button5
+			Left = 12,
+			Right = 13,
+			Middle = 14,
+			Mouse4 = 15,
+			Mouse5 = 16,
+			WheelUp = 8,
+			WheelDown = 8,
 
 		}
 
@@ -31,89 +26,31 @@ namespace ArcticFoxEngine.Input.Bindings {
 			this.mouseButton = mouseButton;
 		}
 
-		private void MouseUpdate(MouseInputEventArgs e) {
-			
-			switch (mouseButton) {
-
-				case MouseButton.Left:
-				if (e.ButtonFlags == MouseButtonFlags.LeftButtonDown) {
-					inputButton = true;
-				}
-				if (e.ButtonFlags == MouseButtonFlags.LeftButtonUp) {
-					inputButton = false;
-				}
-				break;
-
-				case MouseButton.Right:
-				if (e.ButtonFlags == MouseButtonFlags.RightButtonDown) {
-					inputButton = true;
-				}
-				if (e.ButtonFlags == MouseButtonFlags.RightButtonUp) {
-					inputButton = false;
-				}
-				break;
-
-				case MouseButton.Middle:
-				if (e.ButtonFlags == MouseButtonFlags.MiddleButtonDown) {
-					inputButton = true;
-				}
-				if (e.ButtonFlags == MouseButtonFlags.MiddleButtonUp) {
-					inputButton = false;
-				}
-				break;
-
-				case MouseButton.Button1:
-				if (e.ButtonFlags == MouseButtonFlags.Button1Down) {
-					inputButton = true;
-				}
-				if (e.ButtonFlags == MouseButtonFlags.Button1Up) {
-					inputButton = false;
-				}
-				break;
-
-				case MouseButton.Button2:
-				if (e.ButtonFlags == MouseButtonFlags.Button2Down) {
-					inputButton = true;
-				}
-				if (e.ButtonFlags == MouseButtonFlags.Button2Up) {
-					inputButton = false;
-				}
-				break;
-
-				case MouseButton.Button3:
-				if (e.ButtonFlags == MouseButtonFlags.Button3Down) {
-					inputButton = true;
-				}
-				if (e.ButtonFlags == MouseButtonFlags.Button3Up) {
-					inputButton = false;
-				}
-				break;
-
-				case MouseButton.Button4:
-				if (e.ButtonFlags == MouseButtonFlags.Button4Down) {
-					inputButton = true;
-				}
-				if (e.ButtonFlags == MouseButtonFlags.Button4Up) {
-					inputButton = false;
-				}
-				break;
-
-				case MouseButton.Button5:
-				if (e.ButtonFlags == MouseButtonFlags.Button5Down) {
-					inputButton = true;
-				}
-				if (e.ButtonFlags == MouseButtonFlags.Button5Up) {
-					inputButton = false;
-				}
-				break;
+		private void MouseUpdate(MouseUpdate e) {
 
 
+			if (((int)e.Offset) != ((int)mouseButton)) {
+				return;
 			}
-			
+			inputButton = e.Value == 128;
+			if (mouseButton == MouseButton.WheelUp) {
+				inputButton = e.Value == -120;
+			}
+			if (mouseButton == MouseButton.WheelDown) {
+				inputButton = e.Value == 120;
+			}
+
+
 			
 		}
 
-		protected override void NextFrame() {}
+		protected override void NextFrame() {
+			
+			if (mouseButton == MouseButton.WheelDown || mouseButton == MouseButton.WheelUp) {
+				inputButton = false;
+			}
+
+		}
 
 	}
 }

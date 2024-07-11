@@ -1,11 +1,6 @@
 ﻿using ArcticFoxEngine.Input.Devices;
 using CoolClassLibrary;
-using SharpDX.RawInput;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using SharpDX.DirectInput;
 
 namespace ArcticFoxEngine.Input.Bindings {
 	public class MouseAxisInput : AxisBinding {
@@ -14,8 +9,8 @@ namespace ArcticFoxEngine.Input.Bindings {
 
 		public enum MouseAxis {
 
-			x,
-			y
+			x = 0,
+			y = 4
 
 		}
 		public MouseAxisInput(MouseAxis axis) {
@@ -25,13 +20,10 @@ namespace ArcticFoxEngine.Input.Bindings {
 
 		}
 
-		private void MouseUpdate(MouseInputEventArgs args) {
+		private void MouseUpdate(MouseUpdate args) {
 
-			if (axis == MouseAxis.x) {
-				axisActive += args.X;
-			}
-			if (axis == MouseAxis.y) {
-				axisActive += args.Y;
+			if (((int)axis) == ((int)args.Offset)) {
+				axisActive += args.Value;
 			}
 
 		}

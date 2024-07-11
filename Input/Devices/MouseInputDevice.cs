@@ -1,4 +1,4 @@
-﻿using SharpDX.RawInput;
+﻿using SharpDX.DirectInput;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,23 +9,30 @@ namespace ArcticFoxEngine.Input.Devices {
 	internal static class MouseInputDevice {
 
 		private static bool initialised = false;
-		internal static List<Action<MouseInputEventArgs>> deviceUpdate;
+		internal static List<Action<MouseUpdate>> deviceUpdate;
+		internal static Mouse mouse;
 
 		internal static void Init() {
 			if (initialised == true) { return; }
 			initialised = true;
+			deviceUpdate = new List<Action<MouseUpdate>>();
 
-			deviceUpdate = new List<Action<MouseInputEventArgs>>();
+			InputManager.AddInputDevice(UpdateDevice);
 
-			Device.RegisterDevice(SharpDX.Multimedia.UsagePage.Generic, SharpDX.Multimedia.UsageId.GenericMouse, DeviceFlags.None);
-			Device.MouseInput += Device_MouseInput;
+			mouse = new Mouse(InputManager.directInput);
+			mouse.Properties.BufferSize = 128;
+			mouse.Acquire();
 
 		}
 
-		private static void Device_MouseInput(object sender, MouseInputEventArgs e) {
-			for (int i = 0; i < deviceUpdate.Count; i ++) {
-				deviceUpdate[i](e);
+		private static void UpdateDevice() {
+			MouseUpdate[] updates = mouse.GetBufferedData();
+			for (int i = 0; i < updates.Length; i++) {
+				for (int n = 0; n < deviceUpdate.Count; n++) {
+					deviceUpdate[n](updates[i]);
+				}
 			}
 		}
+
 	}
 }

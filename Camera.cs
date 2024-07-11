@@ -1,5 +1,6 @@
 ﻿using SharpDX;
 using RectangleF = SharpDX.RectangleF;
+using ImGuiNET;
 
 namespace ArcticFoxEngine {
 	public class Camera {
@@ -67,6 +68,15 @@ namespace ArcticFoxEngine {
 			Matrix cameraTransform = transform.transformationMatrix.Invert();
 			return cameraTransform * projectionMatrix;
 			
+		}
+
+		public void Debug() {
+
+			ImGui.Begin("Camera");
+			ImGui.SliderFloat("Fov", ref fov, 45f, 130f);
+			ImGui.SliderFloat("Near plane", ref nearPlane, 0f, 1f);
+			ImGui.SliderFloat("Far plane", ref farPlane, 50f, 1000f);
+
 		}
 
 	}

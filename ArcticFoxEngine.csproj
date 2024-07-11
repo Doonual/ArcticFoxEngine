@@ -2,7 +2,7 @@
 
 	<PropertyGroup>
 		<OutputType>Library</OutputType>
-		<TargetFramework>net6.0-windows</TargetFramework>
+		<TargetFramework>net7.0-windows</TargetFramework>
 		<Nullable>disable</Nullable>
 		<UseWindowsForms>true</UseWindowsForms>
 		<ImplicitUsings>enable</ImplicitUsings>
@@ -22,12 +22,15 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<PackageReference Include="ClickableTransparentOverlay" Version="9.1.0" />
+		<PackageReference Include="ImGui.NET" Version="1.90.9.1" />
 		<PackageReference Include="SharpDX" Version="4.2.0" />
 		<PackageReference Include="SharpDX.D3DCompiler" Version="4.2.0" />
 		<PackageReference Include="SharpDX.Desktop" Version="4.2.0">
 			<NoWarn>NU1701</NoWarn>
 		</PackageReference>
 		<PackageReference Include="SharpDX.Direct3D12" Version="4.2.0" />
+		<PackageReference Include="SharpDX.DirectInput" Version="4.2.0" />
 		<PackageReference Include="SharpDX.DXGI" Version="4.2.0" />
 		<PackageReference Include="SharpDX.Mathematics" Version="4.2.0" />
 		<PackageReference Include="SharpDX.RawInput" Version="4.2.0">

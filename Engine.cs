@@ -1,4 +1,6 @@
-﻿using ArcticFoxEngine.Input;
+﻿using ArcticFoxEngine.Debug;
+using ArcticFoxEngine.Input;
+using CoolClassLibrary;
 using SharpDX.Windows;
 
 namespace ArcticFoxEngine {
@@ -26,7 +28,9 @@ namespace ArcticFoxEngine {
 
 			using (RenderLoop loop = new RenderLoop(form)) {
 				while (loop.NextFrame()) {
-					
+
+					InputManager.GetInputDeviceUpdates();
+
 					if (update != null) {
 						update();
 					}
@@ -39,6 +43,8 @@ namespace ArcticFoxEngine {
 			}
 			
 			Graphics.Dispose();
+
+			DebugManager.Close();
 
 		}
 

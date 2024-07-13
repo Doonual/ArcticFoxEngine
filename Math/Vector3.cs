@@ -94,6 +94,11 @@
 			this.y = y;
 			this.z = z;
 		}
+		public Vector3(System.Numerics.Vector3 vector3) {
+			this.x = vector3.X;
+			this.y = vector3.Y;
+			this.z = vector3.Z;
+		}
 
 		public float Length() {
 			return MathF.Sqrt(x * x + y * y + z * z);
@@ -157,6 +162,9 @@
 		}
 		public static implicit operator SharpDX.Vector3(Vector3 d) {
 			return new SharpDX.Vector3(d.x, d.y, d.z);
+		}
+		public static implicit operator System.Numerics.Vector3(Vector3 d) {
+			return new System.Numerics.Vector3(d.x, d.y, d.z);
 		}
 
 		#endregion

@@ -88,6 +88,9 @@
 		public static implicit operator Vector3(Vector2 d) {
 			return new Vector3(d.x, d.y, 0f);
 		}
+		public static implicit operator System.Numerics.Vector2(Vector2 d) {
+			return new System.Numerics.Vector2(d.x, d.y);
+		}
 
 		#endregion
 

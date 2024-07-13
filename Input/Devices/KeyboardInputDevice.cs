@@ -28,7 +28,7 @@ namespace ArcticFoxEngine.Input.Devices {
 		}
 
 		private static void UpdateDevice() {
-
+			
 			KeyboardUpdate[] updates = keyboard.GetBufferedData();
 			for (int i = 0; i < updates.Length; i ++) {
 				for (int n = 0; n < deviceUpdate.Count; n ++) {

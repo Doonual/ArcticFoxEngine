@@ -1,17 +1,16 @@
 ﻿using ArcticFoxEngine.Debug;
 using ArcticFoxEngine.Input;
-using CoolClassLibrary;
 using SharpDX.Windows;
 
 namespace ArcticFoxEngine {
 	public static class Engine {
 
 		private static RenderForm form;
-
-		public static Action setup;
-		public static Action update;
+		public static Action init;
 
 		public static void Run(int width, int height, string title = "Arctic Fox", string iconPath = ".res/icon.ico") {
+
+			
 
 			form = new RenderForm(title) {
 				Width = width + 16,
@@ -22,23 +21,22 @@ namespace ArcticFoxEngine {
 
 			Graphics.SetupRenderer(form);
 
-			if (setup != null) {
-				setup();
-			}
+			init();
 
 			using (RenderLoop loop = new RenderLoop(form)) {
 				while (loop.NextFrame()) {
 
 					InputManager.GetInputDeviceUpdates();
 
-					if (update != null) {
-						update();
+					if (Scene.activeScene != null) {
+						Scene.activeScene.NewFrame();
 					}
 
 					Graphics.Buffer();
 					
 					Graphics.WaitForPreviousFrame();
 					InputManager.NextFrame();
+
 				}
 			}
 			

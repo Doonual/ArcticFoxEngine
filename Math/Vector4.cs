@@ -164,6 +164,9 @@
 		public static implicit operator Vector3(Vector4 d) {
 			return new Vector3(d.x, d.y, d.z);
 		}
+		public static implicit operator System.Numerics.Vector4(Vector4 d) {
+			return new System.Numerics.Vector4(d.x, d.y, d.z, d.w);
+		}
 
 		#endregion
 

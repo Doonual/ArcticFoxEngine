@@ -3,12 +3,10 @@ using RectangleF = SharpDX.RectangleF;
 using ImGuiNET;
 
 namespace ArcticFoxEngine {
-	public class Camera {
+	public class Camera : Component {
 
 		public float viewportWidth;
 		public float viewportHeight;
-
-		public Transform transform = new Transform();
 
 		public float fov;
 
@@ -65,22 +63,23 @@ namespace ArcticFoxEngine {
 				projectionMatrix = Matrix.OrthoRH(Screen.aspectRatio, 1f, nearPlane, farPlane);
 			}
 
-			Matrix cameraTransform = transform.transformationMatrix.Invert();
+			Matrix cameraTransform = gameObject.transform.transformationMatrix.Invert();
 			return cameraTransform * projectionMatrix;
 			
 		}
 
-		public void Debug() {
+		public override void Debug() {
 
-			ImGui.Begin("Camera");
 			ImGui.SliderFloat("Fov", ref fov, 45f, 130f);
 			ImGui.SliderFloat("Near plane", ref nearPlane, 0f, 1f);
 			ImGui.SliderFloat("Far plane", ref farPlane, 50f, 1000f);
 
 		}
 
-	}
+		public override void OnRender() {
+			Command.ExecuteMainRender(this, gameObject.scene.mainGeometry);
+		}
 
-	
+	}
 
 }

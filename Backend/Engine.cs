@@ -20,6 +20,7 @@ namespace ArcticFoxEngine {
 			form.Show();
 
 			Graphics.SetupRenderer(form);
+			DebugManager.InitImGui();
 
 			init();
 

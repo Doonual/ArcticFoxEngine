@@ -19,6 +19,7 @@ namespace ArcticFoxEngine {
 		public Scene() {
 			objects = new List<GameObject>();
 			objectsToAdd = new List<GameObject>();
+			mainGeometry = new GeometryInfo();
 		}
 
 		public void Instantiate(GameObject obj) {

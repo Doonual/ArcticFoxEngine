@@ -2,7 +2,7 @@
 using ArcticFoxEngine.Input;
 
 namespace ArcticFoxEngine {
-
+	using CoolClassLibrary;
 	using SharpDX;
 	using SharpDX.Direct3D12;
 	using SharpDX.Windows;
@@ -74,8 +74,6 @@ namespace ArcticFoxEngine {
 
 		}
 
-
-		
 		private static void SetupDevice(int swapchainWidth, int swapchainHeight, int refreshRate) {
 
 			// Create the graphics device

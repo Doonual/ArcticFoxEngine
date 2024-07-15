@@ -46,8 +46,7 @@ namespace ArcticFoxEngine {
 				Flags = DescriptorHeapFlags.ShaderVisible,
 				Type = DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView
 			};
-			mainCombinedDescriporHeap = Graphics.device.CreateDescriptorHeap(mainCombinedDescriptorHeapDesc);
-
+			mainCombinedDescriporHeap = device.CreateDescriptorHeap(mainCombinedDescriptorHeapDesc);
 
 			shaderInfo = new ConstBuffer<ShaderInfo>(Utilities.SizeOf<ShaderInfo>(), mainCombinedDescriporHeap);
 
@@ -83,7 +82,6 @@ namespace ArcticFoxEngine {
 			rootSignature = device.CreateRootSignature(rootSignatureDesc.Serialize());
 
 		}
-
 
 		public static void Dispose() {
 			foreach (Resource target in renderTargets) {

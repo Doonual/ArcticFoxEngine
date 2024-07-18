@@ -2,6 +2,7 @@
 using ArcticFoxEngine.Input;
 
 namespace ArcticFoxEngine {
+	using ArcticFoxEngine.Backend;
 	using CoolClassLibrary;
 	using SharpDX;
 	using SharpDX.Direct3D12;
@@ -20,10 +21,6 @@ namespace ArcticFoxEngine {
 
 		internal static RootSignature rootSignature;
 		internal static PipelineState pipelineState;
-
-
-		
-
 
 		internal static int frameIndex;
 		private static AutoResetEvent fenceEvent;
@@ -62,7 +59,7 @@ namespace ArcticFoxEngine {
 			Command.SetupCommand();
 			SetupSwapChain(width, height, refreshRate, Command.GetCommandQueue());
 
-			GraphicsResources.SetupResources(device, swapChain);
+			GraphicsResources.SetupResources(device, swapChain, width, height);
 			GraphicsResources.SetupRootSignature();
 
 			ShaderBytecode vertexShader = CompileShader(".res/shaders.hlsl", ShaderType.Vertex);
@@ -92,7 +89,7 @@ namespace ArcticFoxEngine {
 					Usage = Usage.RenderTargetOutput,
 					SwapEffect = SwapEffect.FlipDiscard,
 					OutputHandle = mainRenderForm.Handle,
-					//Flags = SwapChainFlags.None,
+					Flags = SwapChainFlags.None | SwapChainFlags.AllowModeSwitch,
 					SampleDescription = new SampleDescription(1, 0),
 					IsWindowed = true
 				};
@@ -110,9 +107,29 @@ namespace ArcticFoxEngine {
 			// Input format
 			InputElement[] inputElementDescs = new InputElement[] {
 				new InputElement("POSITION", 0, Format.R32G32B32_Float, 0, 0),
-				new InputElement("COLOR", 0, Format.R32G32B32A32_Float, 12, 0)
+				new InputElement("COLOR", 0, Format.R32G32B32A32_Float, 12, 0),
 			};
 
+			DepthStencilOperationDescription defaultStencilOp = new DepthStencilOperationDescription() {
+				FailOperation = StencilOperation.Keep,
+				DepthFailOperation = StencilOperation.Keep,
+				PassOperation = StencilOperation.Keep,
+				Comparison = Comparison.Always
+			};
+			DepthStencilStateDescription depthState = new DepthStencilStateDescription() {
+
+				IsDepthEnabled = true,
+				DepthWriteMask = DepthWriteMask.All,
+				DepthComparison = Comparison.Less,
+
+				IsStencilEnabled = false,
+				StencilReadMask = 0xff,
+				StencilWriteMask = 0xff,
+				FrontFace = defaultStencilOp,
+				BackFace = defaultStencilOp,
+
+
+			};
 
 			GraphicsPipelineStateDescription psonDesc = new GraphicsPipelineStateDescription() {
 
@@ -122,17 +139,17 @@ namespace ArcticFoxEngine {
 				PixelShader = pixelShader,
 				RasterizerState = RasterizerStateDescription.Default(),
 				BlendState = BlendStateDescription.Default(),
-				DepthStencilFormat = SharpDX.DXGI.Format.D32_Float,
-				DepthStencilState = new DepthStencilStateDescription() { IsDepthEnabled = false, IsStencilEnabled = false },
+				DepthStencilFormat = Format.D32_Float,
+				DepthStencilState = depthState,
 				SampleMask = int.MaxValue,
 				PrimitiveTopologyType = PrimitiveTopologyType.Triangle,
 				RenderTargetCount = 1,
 				Flags = PipelineStateFlags.None,
-				SampleDescription = new SharpDX.DXGI.SampleDescription(1, 0),
+				SampleDescription = new SampleDescription(1, 0),
 				StreamOutput = new StreamOutputDescription()
 
 			};
-			psonDesc.RenderTargetFormats[0] = SharpDX.DXGI.Format.R8G8B8A8_UNorm;
+			psonDesc.RenderTargetFormats[0] = Format.R8G8B8A8_UNorm;
 			pipelineState = device.CreateGraphicsPipelineState(psonDesc);
 
 		}
@@ -150,7 +167,7 @@ namespace ArcticFoxEngine {
 		
 		
 		private static void LinkClasses() {
-			Screen.InitScreen(mainRenderForm);
+			Screen.InitScreen(mainRenderForm, swapChain);
 			InputManager.InitInput();
 		}
 
@@ -214,7 +231,9 @@ namespace ArcticFoxEngine {
 
 			// Present the frame
 			swapChain.Present(1, 0);
+
 			
+
 		}
 
 		public static void Dispose() {

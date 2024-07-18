@@ -1,4 +1,5 @@
-﻿using ArcticFoxEngine.Debug;
+﻿using ArcticFoxEngine.Backend;
+using ArcticFoxEngine.Debug;
 using ArcticFoxEngine.Input;
 using SharpDX.Windows;
 
@@ -8,6 +9,8 @@ namespace ArcticFoxEngine {
 		private static RenderForm form;
 		public static Action init;
 
+		private static RenderLoop loop;
+
 		public static void Run(int width, int height, string title = "Arctic Fox", string iconPath = ".res/icon.ico") {
 
 			
@@ -16,16 +19,24 @@ namespace ArcticFoxEngine {
 				Width = width + 16,
 				Height = height + 39,
 				Icon = new Icon(iconPath),
+				FormBorderStyle = FormBorderStyle.None,
 			};
 			form.Show();
+			form.Width = 1920;
+			form.Height = 1080;
+			form.Location = new Point(0, 0);
 
 			Graphics.SetupRenderer(form);
 			DebugManager.InitImGui();
 
 			init();
 
-			using (RenderLoop loop = new RenderLoop(form)) {
-				while (loop.NextFrame()) {
+			using (loop = new RenderLoop(form)) {
+				while (loop != null && loop.NextFrame()) {
+
+					long timestamp;
+					Command.mainRenderCommandQueue.GetClockCalibration(out timestamp, out _);
+					GPU_Profiler.GpuTimestampFrameStart(timestamp);
 
 					InputManager.GetInputDeviceUpdates();
 
@@ -34,17 +45,26 @@ namespace ArcticFoxEngine {
 					}
 
 					Graphics.Buffer();
-					
+
+
+					Command.mainRenderCommandQueue.GetClockCalibration(out timestamp, out _);
+					GPU_Profiler.GpuTimestampFrameEnd(timestamp);
 					Graphics.WaitForPreviousFrame();
+
+					
+
 					InputManager.NextFrame();
 
 				}
 			}
 			
 			Graphics.Dispose();
+			DebugManager.CloseGUI();
 
-			DebugManager.Close();
-
+		}
+		public static void Stop() {
+			loop.Dispose();
+			loop = null;
 		}
 
 	}

@@ -1,4 +1,6 @@
-﻿using SharpDX;
+﻿using ArcticFoxEngine.Backend;
+using CoolClassLibrary;
+using SharpDX;
 using SharpDX.Direct3D12;
 
 namespace ArcticFoxEngine {
@@ -7,7 +9,7 @@ namespace ArcticFoxEngine {
 		
 		private static CommandAllocator commandAllocator;
 
-		private static CommandQueue mainRenderCommandQueue;
+		internal static CommandQueue mainRenderCommandQueue;
 		private static GraphicsCommandList mainRenderCommandList;
 
 		internal static CommandQueue SetupCommand() {
@@ -31,6 +33,7 @@ namespace ArcticFoxEngine {
 		internal static CommandQueue GetCommandQueue() {
 			return mainRenderCommandQueue;
 		}
+
 
 		public static void ExecuteMainRender(Camera camera, GeometryInfo geometry) {
 
@@ -64,12 +67,13 @@ namespace ArcticFoxEngine {
 			mainRenderCommandList.ResourceBarrierTransition(GraphicsResources.renderTargets[Graphics.frameIndex], ResourceStates.Present, ResourceStates.RenderTarget);
 
 			CpuDescriptorHandle rtvHandle = GraphicsResources.renderTargetViewHeap.CPUDescriptorHandleForHeapStart;
+			CpuDescriptorHandle dsvHandle = GraphicsResources.depthStencilDescriptorHeap.CPUDescriptorHandleForHeapStart;
 			rtvHandle += Graphics.frameIndex * GraphicsResources.renderTargetViewDescriptorSize;
-			mainRenderCommandList.SetRenderTargets(rtvHandle, null);
+			mainRenderCommandList.SetRenderTargets(rtvHandle, dsvHandle);
 
 			// Record commands
 			mainRenderCommandList.ClearRenderTargetView(rtvHandle, new Color4(0f, 0f, 0f, 1), 0, null);
-
+			mainRenderCommandList.ClearDepthStencilView(dsvHandle, ClearFlags.FlagsDepth, 1f, 0);
 
 
 			mainRenderCommandList.PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList;
@@ -80,12 +84,19 @@ namespace ArcticFoxEngine {
 
 			// Indicate that the back buffer will now be used to present
 			mainRenderCommandList.ResourceBarrierTransition(GraphicsResources.renderTargets[Graphics.frameIndex], ResourceStates.RenderTarget, ResourceStates.Present);
-
 			mainRenderCommandList.Close();
 
 			#endregion
 
 			mainRenderCommandQueue.ExecuteCommandList(mainRenderCommandList);
+
+
+			long cpuTimestamp;
+			long gpuTimestamp;
+			Command.mainRenderCommandQueue.GetClockCalibration(out gpuTimestamp, out cpuTimestamp);
+			GPU_Profiler.UpdateGpuTimestamp(gpuTimestamp, Command.mainRenderCommandQueue.TimestampFrequency);
+
+
 
 		}
 

@@ -14,9 +14,12 @@ namespace ArcticFoxEngine {
 		internal static int renderTargetViewDescriptorSize;
 		internal static readonly Resource[] renderTargets = new Resource[Graphics.swapChainFrameCount];
 
+		internal static Resource depthStencilBuffer;
+		internal static DescriptorHeap depthStencilDescriptorHeap;
+
 		internal static ConstBuffer<ShaderInfo> shaderInfo;
 
-		internal static void SetupResources(Device device, SwapChain3 swapChain) {
+		internal static void SetupResources(Device device, SwapChain3 swapChain, int renderWidth, int renderHeight) {
 
 			#region Setup Render Target View (RTV) descriptor heaps and resources
 
@@ -41,12 +44,39 @@ namespace ArcticFoxEngine {
 			#endregion
 
 
+			// Default Heap setup. Contains all the vertices and indices
 			DescriptorHeapDescription mainCombinedDescriptorHeapDesc = new DescriptorHeapDescription() {
 				DescriptorCount = 1,
 				Flags = DescriptorHeapFlags.ShaderVisible,
 				Type = DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView
 			};
 			mainCombinedDescriporHeap = device.CreateDescriptorHeap(mainCombinedDescriptorHeapDesc);
+
+			// Depth buffer setup
+			DescriptorHeapDescription depthStencilHeapDescription = new DescriptorHeapDescription() {
+				DescriptorCount = 1,
+				Type = DescriptorHeapType.DepthStencilView,
+				Flags = DescriptorHeapFlags.None
+			};
+			depthStencilDescriptorHeap = device.CreateDescriptorHeap(depthStencilHeapDescription);
+
+			DepthStencilViewDescription depthStencilDesc = new DepthStencilViewDescription() {
+				Format = Format.D32_Float,
+				Dimension = DepthStencilViewDimension.Texture2D,
+				Flags = DepthStencilViewFlags.None
+			};
+			ClearValue depthOptimizedClearValue = new ClearValue() {
+				Format = Format.D32_Float,
+				DepthStencil = new DepthStencilValue() { Depth = 1.0f, Stencil = 0 },
+			};
+			depthStencilBuffer = device.CreateCommittedResource(
+				new HeapProperties(HeapType.Default),
+				HeapFlags.None, ResourceDescription.Texture2D(Format.D32_Float, renderWidth, renderHeight, flags: ResourceFlags.AllowDepthStencil),
+				ResourceStates.DepthWrite
+			);
+			depthStencilBuffer.Name = "Depth / Stencil Resource Heap";
+			device.CreateDepthStencilView(depthStencilBuffer, depthStencilDesc, depthStencilDescriptorHeap.CPUDescriptorHandleForHeapStart);
+
 
 			shaderInfo = new ConstBuffer<ShaderInfo>(Utilities.SizeOf<ShaderInfo>(), mainCombinedDescriporHeap);
 
@@ -88,6 +118,9 @@ namespace ArcticFoxEngine {
 				target.Dispose();
 			}
 			renderTargetViewHeap.Dispose();
+
+			depthStencilBuffer.Dispose();
+			depthStencilDescriptorHeap.Dispose();
 		}
 
 	}

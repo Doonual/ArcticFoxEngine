@@ -24,14 +24,14 @@ namespace ArcticFoxEngine {
 
 			gpuUpload = new GPU_Upload();
 
-			int vertexBufferSize = 1024;
+			int vertexBufferSize = 2048;
 			vertexData = new Vertex[vertexBufferSize];
 			vertexBuffer = Graphics.device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.None, ResourceDescription.Buffer(vertexBufferSize), ResourceStates.GenericRead);
 			vertexBufferView.BufferLocation = vertexBuffer.GPUVirtualAddress;
 			vertexBufferView.StrideInBytes = Utilities.SizeOf<Vertex>();
 			vertexBufferView.SizeInBytes = vertexBufferSize;
 
-			int indexBufferSize = 1024;
+			int indexBufferSize = 2048;
 			indexData = new int[indexBufferSize];
 			indexBuffer = Graphics.device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.None, ResourceDescription.Buffer(indexBufferSize), ResourceStates.IndexBuffer);
 			indexBufferView.BufferLocation = indexBuffer.GPUVirtualAddress;
@@ -43,23 +43,31 @@ namespace ArcticFoxEngine {
 
 		public void AddMeshData(Vertex[] vertices, int[] indices) {
 
-			Array.Copy(vertices, 0, vertexData, vertexBufferWritePos, vertices.Length);
-			Array.Copy(indices, 0, indexData, indexBufferWritePos, indices.Length);
+			int indicesStartIndex = vertexBufferWritePos;
 
-			int sourceVertexBufferSize = Utilities.SizeOf<Vertex>() * vertices.Length;
-			gpuUpload.UploadContext(sourceVertexBufferSize);
+			int[] indicesOffset = new int[indices.Length];
+			for (int i = 0; i < indices.Length; i ++) {
+				indicesOffset[i] = indices[i] + indicesStartIndex;
+			}
+
+			Array.Copy(vertices, 0, vertexData, vertexBufferWritePos, vertices.Length);
+			Array.Copy(indicesOffset, 0, indexData, indexBufferWritePos, indicesOffset.Length);
+
+			int vertexUploadBufferSize = Utilities.SizeOf<Vertex>() * vertices.Length;
+			gpuUpload.UploadContext(vertexUploadBufferSize);
 			Utilities.Write(gpuUpload.cpuAddress, vertices, 0, vertices.Length);
-			gpuUpload.commandList.CopyBufferRegion(vertexBuffer, vertexBufferWritePos, gpuUpload.uploadBuffer, 0, sourceVertexBufferSize);
+			gpuUpload.commandList.CopyBufferRegion(vertexBuffer, vertexBufferWritePos * Utilities.SizeOf<Vertex>(), gpuUpload.uploadBuffer, 0, vertexUploadBufferSize);
 			gpuUpload.EndUpload();
 
-			int sourceIndexBufferSize = Utilities.SizeOf<int>() * indices.Length;
-			gpuUpload.UploadContext(sourceIndexBufferSize);
-			Utilities.Write(gpuUpload.cpuAddress, indices, 0, indices.Length);
-			gpuUpload.commandList.CopyBufferRegion(indexBuffer, indexBufferWritePos, gpuUpload.uploadBuffer, 0, sourceIndexBufferSize);
+
+			int indexUploadBufferSize = Utilities.SizeOf<int>() * indicesOffset.Length;
+			gpuUpload.UploadContext(indexUploadBufferSize);
+			Utilities.Write(gpuUpload.cpuAddress, indicesOffset, 0, indicesOffset.Length);
+			gpuUpload.commandList.CopyBufferRegion(indexBuffer, indexBufferWritePos * Utilities.SizeOf<int>(), gpuUpload.uploadBuffer, 0, indexUploadBufferSize);
 			gpuUpload.EndUpload();
 
 			vertexBufferWritePos += vertices.Length;
-			indexBufferWritePos += indices.Length;
+			indexBufferWritePos += indicesOffset.Length;
 
 		}
 

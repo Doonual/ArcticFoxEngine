@@ -13,7 +13,7 @@ namespace ArcticFoxEngine.Testing.SceneTest {
 
 			Log.Info("Starting Engine");
 			Engine.init = Init;
-			Engine.Run(1280, 720);
+			Engine.Run(1920, 1080);
 
 		}
 
@@ -27,12 +27,20 @@ namespace ArcticFoxEngine.Testing.SceneTest {
 			mainScene.Instantiate(mainObj);
 			mainObj.transform.position = Vector3.Back * 3f;
 
-			GameObject cube = new GameObject("Cube");
-			MeshFilter cubeMesh = new MeshFilter();
+			for (int i = 0; i < 5; i ++) {
+				GameObject cube = new GameObject("Cube #" + (i + 1));
+				cube.transform.position = Vector3.Right * i * 3f;
+				MeshFilter cubeMesh = new MeshFilter(Mesh.Primitive.Cube);
+				cube.AddComponent(cubeMesh);
+				mainScene.Instantiate(cube);
+			}
 			
-			cube.AddComponent(cubeMesh);
-			mainScene.Instantiate(cube);
-			cubeMesh.SetMesh(Mesh.CreatePrimitive(Mesh.Primitive.Cube));
+
+
+			
+			
+
+
 			mainScene.SetActiveScene();
 
 			

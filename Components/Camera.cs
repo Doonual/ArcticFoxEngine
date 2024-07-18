@@ -68,8 +68,12 @@ namespace ArcticFoxEngine {
 			
 		}
 
+		internal override string debugName => "Camera";
+		internal override string debugDescription => "Renders the scene from the camera's point of view";
+
 		public override void Debug() {
 
+			base.Debug();
 			ImGui.SliderFloat("Fov", ref fov, 45f, 130f);
 			ImGui.SliderFloat("Near plane", ref nearPlane, 0f, 1f);
 			ImGui.SliderFloat("Far plane", ref farPlane, 50f, 1000f);

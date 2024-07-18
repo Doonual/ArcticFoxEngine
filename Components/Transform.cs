@@ -49,6 +49,7 @@ namespace ArcticFoxEngine {
 			}
 		}
 
+		
 		#endregion
 
 		public Transform() {
@@ -56,24 +57,37 @@ namespace ArcticFoxEngine {
 			position = Vector3.Zero;
 			rotation = Quaternion.Identity;
 			scale = Vector3.One;
-			textBuf = new byte[128];
+		}
+		public void ResetTransform() {
+			position = Vector3.Zero;
+			rotation = Quaternion.Identity;
+			scale = Vector3.One;
 		}
 
-		byte[] textBuf;
+		internal override string debugName => "Transform";
+
+		internal override string debugDescription => "Gives an object a position, rotation and scale.";
+
 
 		public override void Debug() {
+
+			base.Debug();
 
 			System.Numerics.Vector3 systemPos = (System.Numerics.Vector3)position;
 			System.Numerics.Vector4 systemRot = new System.Numerics.Vector4(rotation.x, rotation.y, rotation.z, rotation.w);
 			System.Numerics.Vector3 systemScale = (System.Numerics.Vector3)scale;
 
-			ImGui.InputFloat3("Position", ref systemPos);
-			ImGui.InputFloat4("Rotation", ref systemRot);
-			ImGui.InputFloat3("Scale", ref systemScale);
+			ImGui.DragFloat3("Position", ref systemPos, 0.01f);
+			ImGui.DragFloat4("Rotation", ref systemRot, 0.01f);
+			ImGui.DragFloat3("Scale", ref systemScale, 0.01f);
 
 			position = new Vector3(systemPos);
 			rotation = new Quaternion(systemRot.X, systemRot.Y, systemRot.Z, systemRot.W);
 			scale = new Vector3(systemScale);
+
+			if (ImGui.Button("Reset") == true) {
+				ResetTransform();
+			}
 
 		}
 

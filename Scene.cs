@@ -47,16 +47,26 @@ namespace ArcticFoxEngine {
 			}
 
 		}
+
+		private int selectedObjectIndex = 0;
 		internal void DebugEvent() {
-			
-			//ImGui.Begin("Scene");
-			for (int i = 0; i < objects.Count; i++) {
-				if (ImGui.CollapsingHeader("Object " + i + ": " + objects[i].name) == true) {
-					ImGui.Indent();
-					objects[i].DebugComponents();
-					ImGui.Unindent();
-				}
+
+			ImGui.SeparatorText("Objects: " + objects.Count);
+
+			string[] objectNames = new string[objects.Count];
+			for (int i = 0; i < objects.Count; i ++) {
+				objectNames[i] = objects[i].name;
 			}
+			ImGui.Combo("Object", ref selectedObjectIndex, objectNames, objects.Count);
+
+			ImGui.BeginChild(1, new System.Numerics.Vector2(-1f, 500f), true);
+			objects[selectedObjectIndex].DebugComponents();
+			ImGui.EndChild();
+
+		}
+
+		public GameObject[] GetObjects() {
+			return objects.ToArray();
 		}
 
 	}

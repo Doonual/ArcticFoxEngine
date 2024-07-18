@@ -1,4 +1,5 @@
-﻿using ImGuiNET;
+﻿using ArcticFoxEngine.Debug;
+using ImGuiNET;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -44,13 +45,22 @@ namespace ArcticFoxEngine {
 			}
 		}
 		internal void DebugComponents() {
+
+			//ImGui.SeparatorText("Object #" + GetHashCode());
+			ImGui.Text("Name: " + name);
+			ImGui.Text("Components (" + components.Count + ")");
+
+			ImGui.Separator();
 			for (int i = 0; i < components.Count; i++) {
-				if (ImGui.CollapsingHeader("Component " + i + ": " + components[i].GetType().Name) == true) {
+				if (ImGui.CollapsingHeader(DebugManager.FormatHex(components[i].GetHashCode()) + " " + components[i].GetType().Name) == true) {
 					ImGui.Indent();
 					components[i].Debug();
 					ImGui.Unindent();
 				}
 			}
+
+
+			
 		}
 		internal void RenderComponents() {
 			for (int i = 0; i < components.Count; i++) {

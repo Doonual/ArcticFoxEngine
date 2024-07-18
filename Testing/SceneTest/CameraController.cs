@@ -25,6 +25,7 @@ namespace ArcticFoxEngine.Testing.SceneTest {
 		static ButtonBinding lookHold;
 
 		static ButtonBinding toggleDebug;
+		static ButtonBinding exitButton;
 
 		#endregion
 
@@ -45,6 +46,7 @@ namespace ArcticFoxEngine.Testing.SceneTest {
 			lookHold = new MouseButtonInput(MouseButtonInput.MouseButton.Right);
 
 			toggleDebug = new KeyboardButtonInput(KeyboardButtonInput.KeyboardButton.F1);
+			exitButton = new KeyboardButtonInput(KeyboardButtonInput.KeyboardButton.Escape);
 
 		}
 
@@ -86,13 +88,17 @@ namespace ArcticFoxEngine.Testing.SceneTest {
 			#endregion
 			if (toggleDebug.GetButtonDown() == true) {
 				if (DebugManager.isOpen == true) {
-					DebugManager.Close();
+					DebugManager.CloseGUI();
 				}
 				else {
-					DebugManager.Open();
+					DebugManager.OpenGUI();
 				}
 
 			}
+			if (exitButton.GetButton() == true) {
+				Engine.Stop();
+			}
+
 
 		}
 

@@ -1,0 +1,13 @@
+﻿
+
+-=Pipeline State Object=-
+All the objects that are part of the Pipeline state object
+	- Root Signature
+	- Vertex Shader
+	- Pixel Shader
+	- Render Target View
+	- Depth Stencil
+
+-=Resources=-
+All the other resources the GPU needs
+	- 

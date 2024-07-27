@@ -2,6 +2,7 @@
 using ArcticFoxEngine.Input;
 using ArcticFoxEngine.Input.Bindings;
 using CoolClassLibrary;
+using ImGuiNET;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,25 +14,29 @@ namespace ArcticFoxEngine.Testing.SceneTest {
 
 		#region Input Bindings
 
-		static ButtonBinding moveForward;
-		static ButtonBinding moveRight;
-		static ButtonBinding moveBack;
-		static ButtonBinding moveLeft;
-		static ButtonBinding moveUp;
-		static ButtonBinding moveDown;
-		static ButtonBinding rollRight;
-		static ButtonBinding rollLeft;
-		static Axis2DBinding lookVector;
-		static ButtonBinding lookHold;
+		ButtonBinding moveForward;
+		ButtonBinding moveRight;
+		ButtonBinding moveBack;
+		ButtonBinding moveLeft;
+		ButtonBinding moveUp;
+		ButtonBinding moveDown;
+		ButtonBinding rollRight;
+		ButtonBinding rollLeft;
+		Axis2DBinding lookVector;
+		ButtonBinding lookHold;
 
-		static ButtonBinding toggleDebug;
-		static ButtonBinding exitButton;
+		ButtonBinding increaseSpeed;
+		ButtonBinding decreaseSpeed;
+
+		ButtonBinding toggleDebug;
+		ButtonBinding exitButton;
 
 		#endregion
 
 		Camera mainCamera;
+		float speed;
 
-		public override void Start() {
+		protected internal override void Start() {
 			mainCamera = gameObject.GetComponent<Camera>();
 
 			moveForward = new KeyboardButtonInput(KeyboardButtonInput.KeyboardButton.W);
@@ -45,33 +50,38 @@ namespace ArcticFoxEngine.Testing.SceneTest {
 			lookVector = new GenericAxis2DInput(new MouseAxisInput(MouseAxisInput.MouseAxis.x), new MouseAxisInput(MouseAxisInput.MouseAxis.y));
 			lookHold = new MouseButtonInput(MouseButtonInput.MouseButton.Right);
 
+			increaseSpeed = new MouseButtonInput(MouseButtonInput.MouseButton.WheelUp);
+			decreaseSpeed = new MouseButtonInput(MouseButtonInput.MouseButton.WheelDown);
+
 			toggleDebug = new KeyboardButtonInput(KeyboardButtonInput.KeyboardButton.F1);
 			exitButton = new KeyboardButtonInput(KeyboardButtonInput.KeyboardButton.Escape);
 
+			speed = 1f;
+
 		}
 
-		public override void Update() {
+		protected internal override void Update() {
 
 			#region Camera Controls
 
 			if (moveForward.GetButton() == true) {
-				gameObject.transform.position += gameObject.transform.Forward * 0.02f;
+				gameObject.transform.position += gameObject.transform.Forward * 0.02f * speed;
 			}
 			if (moveRight.GetButton() == true) {
-				gameObject.transform.position += gameObject.transform.Right * 0.02f;
+				gameObject.transform.position += gameObject.transform.Right * 0.02f * speed;
 			}
 			if (moveBack.GetButton() == true) {
-				gameObject.transform.position += gameObject.transform.Back * 0.02f;
+				gameObject.transform.position += gameObject.transform.Back * 0.02f * speed;
 			}
 			if (moveLeft.GetButton() == true) {
-				gameObject.transform.position += gameObject.transform.Left * 0.02f;
+				gameObject.transform.position += gameObject.transform.Left * 0.02f * speed;
 			}
 
 			if (moveUp.GetButton() == true) {
-				gameObject.transform.position += gameObject.transform.Up * 0.02f;
+				gameObject.transform.position += gameObject.transform.Up * 0.02f * speed;
 			}
 			if (moveDown.GetButton() == true) {
-				gameObject.transform.position += gameObject.transform.Down * 0.02f;
+				gameObject.transform.position += gameObject.transform.Down * 0.02f * speed;
 			}
 
 			if (rollRight.GetButton() == true) {
@@ -84,6 +94,12 @@ namespace ArcticFoxEngine.Testing.SceneTest {
 				gameObject.transform.rotation *= Quaternion.RotationYawPitchRoll(lookVector.GetValue().x * 0.002f, lookVector.GetValue().y * 0.002f, 0f);
 			}
 
+			if (increaseSpeed.GetButton() == true) {
+				speed *= 1.2f;
+			}
+			if (decreaseSpeed.GetButton() == true) {
+				speed /= 1.2f;
+			}
 
 			#endregion
 			if (toggleDebug.GetButtonDown() == true) {
@@ -102,6 +118,10 @@ namespace ArcticFoxEngine.Testing.SceneTest {
 
 		}
 
+		protected internal override void Debug() {
+			base.Debug();
+			ImGui.SliderFloat("Speed", ref speed, 0f, 1000f, null, ImGuiSliderFlags.Logarithmic);
+		}
 
 	}
 }

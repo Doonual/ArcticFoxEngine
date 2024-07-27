@@ -16,10 +16,10 @@ namespace ArcticFoxEngine {
 		internal static Device device;
 
 		static RenderForm mainRenderForm;
-		private static SwapChain3 swapChain;
+		internal static SwapChain3 swapChain;
 		internal const int swapChainFrameCount = 2;
 
-		internal static RootSignature rootSignature;
+		
 		internal static PipelineState pipelineState;
 
 		internal static int frameIndex;
@@ -27,17 +27,6 @@ namespace ArcticFoxEngine {
 
 		private static Fence fence;
 		private static int fenceValue;
-		
-		internal struct ShaderInfo {
-
-			public Matrix projectionMatrix;
-
-			public int screenWidth;
-			public int screenHeight;
-			public float aspectRatio;
-
-		};
-
 		
 		// Main setup function
 		// Combines all the individual steps to setting up rendering
@@ -54,20 +43,28 @@ namespace ArcticFoxEngine {
 			int height = form.ClientSize.Height;
 			int refreshRate = 60;
 
-			SetupDevice(width, height, refreshRate);
+			try {
+				SetupDevice(width, height, refreshRate);
 
-			Command.SetupCommand();
-			SetupSwapChain(width, height, refreshRate, Command.GetCommandQueue());
+				GPU_Render.SetupCommand();
+				SetupSwapChain(width, height, refreshRate, GPU_Render.GetCommandQueue());
 
-			GraphicsResources.SetupResources(device, swapChain, width, height);
-			GraphicsResources.SetupRootSignature();
+				GraphicsResources.LoadResources(width, height);
 
-			ShaderBytecode vertexShader = CompileShader(".res/shaders.hlsl", ShaderType.Vertex);
-			ShaderBytecode pixelShader = CompileShader(".res/shaders.hlsl", ShaderType.Pixel);
-			SetupPipeline(vertexShader, pixelShader);
+				ShaderBytecode vertexShader = CompileShader(".res/shaders.hlsl", ShaderType.Vertex);
+				ShaderBytecode pixelShader = CompileShader(".res/shaders.hlsl", ShaderType.Pixel);
+				SetupPipeline(vertexShader, pixelShader);
 
-			SetupSynchronisation();
-			LinkClasses();
+				SetupSynchronisation();
+				LinkClasses();
+				Log.Success("Initialised renderer");
+			}
+			catch (Exception e) {
+				Log.Error("Failed to initialise renderer");
+				Log.Raw(e);
+			}
+
+			
 
 		}
 
@@ -128,13 +125,12 @@ namespace ArcticFoxEngine {
 				FrontFace = defaultStencilOp,
 				BackFace = defaultStencilOp,
 
-
 			};
 
 			GraphicsPipelineStateDescription psonDesc = new GraphicsPipelineStateDescription() {
 
 				InputLayout = new InputLayoutDescription(inputElementDescs),
-				RootSignature = rootSignature,
+				RootSignature = GraphicsResources.rootSignature,
 				VertexShader = vertexShader,
 				PixelShader = pixelShader,
 				RasterizerState = RasterizerStateDescription.Default(),
@@ -177,34 +173,58 @@ namespace ArcticFoxEngine {
 		}
 		internal static ShaderBytecode CompileShader(string path, ShaderType type) {
 
+
 			string shaderCode = File.ReadAllText(path);
 
 			SharpDX.D3DCompiler.ShaderFlags flags = debug ? SharpDX.D3DCompiler.ShaderFlags.None : SharpDX.D3DCompiler.ShaderFlags.Debug;
 			SharpDX.D3DCompiler.Include include = new StandardIncludeHandler();
 
+			string entrypoint = "";
+			string profile = "";
+
 			switch (type) {
 
 				case ShaderType.Vertex:
-				return new ShaderBytecode(SharpDX.D3DCompiler.ShaderBytecode.Compile(shaderCode, "Vertex_Main", "vs_5_0", flags, SharpDX.D3DCompiler.EffectFlags.None, new SharpDX.Direct3D.ShaderMacro[0], include));
+				entrypoint = "Vertex_Main";
+				profile = "vs_5_0";
+				break;
 
 				case ShaderType.Pixel:
-				return new ShaderBytecode(SharpDX.D3DCompiler.ShaderBytecode.Compile(shaderCode, "Pixel_Main", "ps_5_0", flags, SharpDX.D3DCompiler.EffectFlags.None, new SharpDX.Direct3D.ShaderMacro[0], include));
-
-				default:
-				return null;
-
+				entrypoint = "Pixel_Main";
+				profile = "ps_5_0";
+				break;
 
 			}
+			ShaderBytecode compiledShader = null;
+			try {
+				compiledShader = new ShaderBytecode(SharpDX.D3DCompiler.ShaderBytecode.Compile(shaderCode, entrypoint, profile, flags, SharpDX.D3DCompiler.EffectFlags.None, new SharpDX.Direct3D.ShaderMacro[0], include));
+				switch (type) {
+					case ShaderType.Vertex:
+					Log.Success("Compiled vertex shader");
+					break;
 
+					case ShaderType.Pixel:
+					Log.Success("Compiled pixel shader");
+					break;
+				}
+				return compiledShader;
+			}
+			catch (Exception e) {
+				switch (type) {
+					case ShaderType.Vertex:
+					Log.Error("Failed to compile vertex shader");
+					break;
+
+					case ShaderType.Pixel:
+					Log.Error("Failed to compile pixel shader");
+					break;
+				}
+				Log.Raw(e);
+			}
+
+			return null;
 			
-		}
 
-		internal static void WriteGPUResource<T>(Resource resource, T[] data, int offset) where T : struct {
-
-			// Copy the triangle data to the vertex buffer
-			IntPtr pDataBegin = resource.Map(0);
-			Utilities.Write(pDataBegin, data, offset, data.Length);
-			resource.Unmap(0);
 
 		}
 		
@@ -215,7 +235,7 @@ namespace ArcticFoxEngine {
 			// This is code implemented as such for simplicity. 
 
 			int localFence = fenceValue;
-			Command.GetCommandQueue().Signal(fence, localFence);
+			GPU_Render.GetCommandQueue().Signal(fence, localFence);
 			fenceValue++;
 
 			// Wait until the previous frame is finished.
@@ -243,12 +263,11 @@ namespace ArcticFoxEngine {
 			WaitForPreviousFrame();
 
 			GraphicsResources.Dispose();
-			rootSignature.Dispose();
 			pipelineState.Dispose();
 			fence.Dispose();
 			swapChain.Dispose();
 			device.Dispose();
-			Command.Dispose();
+			GPU_Render.Dispose();
 
 		}
 

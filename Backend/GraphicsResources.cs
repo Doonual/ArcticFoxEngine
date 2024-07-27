@@ -5,21 +5,33 @@ namespace ArcticFoxEngine {
 	using SharpDX.Direct3D12;
 	using SharpDX;
 	using static ArcticFoxEngine.Graphics;
+	using ArcticFoxEngine.Backend;
+	using CoolClassLibrary;
 
 	internal static class GraphicsResources {
 
-		internal static DescriptorHeap mainCombinedDescriporHeap;
-		
+
+		internal static RootSignature rootSignature;
+
+		// Combined descriptor heap for shader resource binding
+		internal static DescriptorHeap combinedDescriptorHeap;
+		internal static int combinedDescriptorHeapIncrement;
+		internal static ConstBuffer<RenderInfo> renderInfo;
+
+		// Render target view descriptor heap
 		internal static DescriptorHeap renderTargetViewHeap;
-		internal static int renderTargetViewDescriptorSize;
 		internal static readonly Resource[] renderTargets = new Resource[Graphics.swapChainFrameCount];
-
-		internal static Resource depthStencilBuffer;
+		internal static int renderTargetViewDescriptorSize;
+		
+		// Depth Stencil descriptor heap
 		internal static DescriptorHeap depthStencilDescriptorHeap;
+		internal static Resource depthStencilBuffer;
+		
 
-		internal static ConstBuffer<ShaderInfo> shaderInfo;
+		
 
-		internal static void SetupResources(Device device, SwapChain3 swapChain, int renderWidth, int renderHeight) {
+		// Main load for the GraphicsResources
+		internal static void LoadResources(int renderWidth, int renderHeight) {
 
 			#region Setup Render Target View (RTV) descriptor heaps and resources
 
@@ -36,23 +48,14 @@ namespace ArcticFoxEngine {
 			// Create frame resources from swap chain frames
 			CpuDescriptorHandle rtvHandle = renderTargetViewHeap.CPUDescriptorHandleForHeapStart;
 			for (int n = 0; n < Graphics.swapChainFrameCount; n++) {
-				renderTargets[n] = swapChain.GetBackBuffer<Resource>(n);
+				renderTargets[n] = Graphics.swapChain.GetBackBuffer<Resource>(n);
 				device.CreateRenderTargetView(renderTargets[n], null, rtvHandle);
 				rtvHandle += renderTargetViewDescriptorSize;
 			}
 
 			#endregion
+			#region Depth buffer setup
 
-
-			// Default Heap setup. Contains all the vertices and indices
-			DescriptorHeapDescription mainCombinedDescriptorHeapDesc = new DescriptorHeapDescription() {
-				DescriptorCount = 1,
-				Flags = DescriptorHeapFlags.ShaderVisible,
-				Type = DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView
-			};
-			mainCombinedDescriporHeap = device.CreateDescriptorHeap(mainCombinedDescriptorHeapDesc);
-
-			// Depth buffer setup
 			DescriptorHeapDescription depthStencilHeapDescription = new DescriptorHeapDescription() {
 				DescriptorCount = 1,
 				Type = DescriptorHeapType.DepthStencilView,
@@ -77,23 +80,25 @@ namespace ArcticFoxEngine {
 			depthStencilBuffer.Name = "Depth / Stencil Resource Heap";
 			device.CreateDepthStencilView(depthStencilBuffer, depthStencilDesc, depthStencilDescriptorHeap.CPUDescriptorHandleForHeapStart);
 
+			#endregion
 
-			shaderInfo = new ConstBuffer<ShaderInfo>(Utilities.SizeOf<ShaderInfo>(), mainCombinedDescriporHeap);
+			// Default Heap setup. Contains all the vertices and indices
+			DescriptorHeapDescription mainCombinedDescriptorHeapDesc = new DescriptorHeapDescription() {
+				DescriptorCount = 1 + 2048,
+				Flags = DescriptorHeapFlags.ShaderVisible,
+				Type = DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView,
+			};
+
+			combinedDescriptorHeap = device.CreateDescriptorHeap(mainCombinedDescriptorHeapDesc);
+			combinedDescriptorHeapIncrement = device.GetDescriptorHandleIncrementSize(DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView);
+
+			renderInfo = new ConstBuffer<RenderInfo>(1);
+			renderInfo.AddToDescriptorHeap(combinedDescriptorHeap, 0);
+			
+			SetupRootSignature();
 
 		}
-		internal static void UpdateShaderInfo(Camera camera) {
-
-			ShaderInfo shaderInfoData = new ShaderInfo();
-
-			shaderInfoData.projectionMatrix = camera.projectionMatrix;
-			shaderInfoData.screenWidth = Screen.width;
-			shaderInfoData.screenHeight = Screen.height;
-			shaderInfoData.aspectRatio = (float)Screen.width / Screen.height;
-			shaderInfo.WriteToBuffer(shaderInfoData);
-
-		}
-
-		internal static void SetupRootSignature() {
+		private static void SetupRootSignature() {
 			
 			// Basically what constants are you going to pass to the shaders
 			// Create a root signature with one root argument
@@ -104,12 +109,27 @@ namespace ArcticFoxEngine {
 					BaseShaderRegister = 0,
 					OffsetInDescriptorsFromTableStart = int.MinValue,
 					DescriptorCount = 1
+				}),
+				new RootParameter(ShaderVisibility.All, new DescriptorRange() {
+					RangeType = DescriptorRangeType.ConstantBufferView,
+					BaseShaderRegister = 1,
+					OffsetInDescriptorsFromTableStart = int.MinValue,
+					DescriptorCount = 1
 				})
 
 			};
 
 			RootSignatureDescription rootSignatureDesc = new RootSignatureDescription(RootSignatureFlags.AllowInputAssemblerInputLayout, rootParameters);
 			rootSignature = device.CreateRootSignature(rootSignatureDesc.Serialize());
+
+		}
+		
+		
+		internal static void BindShaderResources(GraphicsCommandList destCmdList) {
+
+			destCmdList.SetGraphicsRootSignature(rootSignature);
+			destCmdList.SetDescriptorHeaps(1, new DescriptorHeap[] { combinedDescriptorHeap });
+			destCmdList.SetGraphicsRootDescriptorTable(0, (combinedDescriptorHeap.GPUDescriptorHandleForHeapStart));
 
 		}
 
@@ -121,6 +141,8 @@ namespace ArcticFoxEngine {
 
 			depthStencilBuffer.Dispose();
 			depthStencilDescriptorHeap.Dispose();
+
+			rootSignature.Dispose();
 		}
 
 	}

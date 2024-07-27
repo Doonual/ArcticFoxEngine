@@ -11,9 +11,8 @@ namespace ArcticFoxEngine {
 		public int[] indices;
 
 		public enum Primitive {
-
 			Cube,
-
+			Quad,
 		}
 
 		public Mesh(Vertex[] vertices, int[] indices) {
@@ -54,6 +53,21 @@ namespace ArcticFoxEngine {
 					6, 7, 3,
 					0, 1, 5,
 					5, 4, 0
+				};
+
+				break;
+
+				case Primitive.Quad:
+
+				vertexData = new Vertex[] {
+					new Vertex() {Position = new Vector3(-1f, 0f, -1f), Color = new Color(0, 0, 0)},
+					new Vertex() {Position = new Vector3(1f, 0f, -1f), Color = new Color(255, 0, 0)},
+					new Vertex() {Position = new Vector3(-1f, 0f, 1f), Color = new Color(0, 255, 0)},
+					new Vertex() {Position = new Vector3(1f, 0f, 1f), Color = new Color(255, 255, 0)},
+				};
+				indexData = new int[] {
+					0, 1, 2,
+					2, 1, 3
 				};
 
 				break;

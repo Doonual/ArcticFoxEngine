@@ -4,6 +4,7 @@
 		<OutputType>Library</OutputType>
 		<TargetFramework>net6.0-windows</TargetFramework>
 		<Nullable>disable</Nullable>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<UseWindowsForms>true</UseWindowsForms>
 		<ImplicitUsings>enable</ImplicitUsings>
 	</PropertyGroup>
@@ -50,6 +51,7 @@
 	
 	
 	<ItemGroup>
+	  <Content Include=".Documentation\GraphicsResources.txt" />
 	  <Content Include=".Documentation\Input.txt" />
 	</ItemGroup>
 	

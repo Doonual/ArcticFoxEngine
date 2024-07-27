@@ -1,4 +1,6 @@
-﻿using ArcticFoxEngine.Debug;
+﻿using ArcticFoxEngine.Backend;
+using ArcticFoxEngine.Debug;
+using CoolClassLibrary;
 using ImGuiNET;
 using System;
 using System.Collections.Generic;
@@ -13,32 +15,21 @@ namespace ArcticFoxEngine {
 			get;
 			internal set;
 		}
+		public bool enabled { get; private set; }
 
 		private List<Component> components;
-		public Transform transform {
-			get {
-				return GetComponent<Transform>();
-			}
-		}
+
+		public Transform transform { get { return (Transform)components[0]; } }
 
 		public string name;
 
-		public GameObject(string name) {
+		internal GameObject(string name) {
 			components = new List<Component>();
-			components.Add(new Transform());
+			AddComponent<Transform>();
 			this.name = name;
-		}
-		public GameObject() {
-			components = new List<Component>();
-			components.Add(new Transform());
-			name = "Unnamed";
+			this.enabled = true;
 		}
 
-		internal void StartComponents() {
-			for (int i = 0; i < components.Count; i ++) {
-				components[i].Start();
-			}
-		}
 		internal void UpdateComponents() {
 			for (int i = 0; i < components.Count; i++) {
 				components[i].Update();
@@ -52,11 +43,37 @@ namespace ArcticFoxEngine {
 
 			ImGui.Separator();
 			for (int i = 0; i < components.Count; i++) {
-				if (ImGui.CollapsingHeader(DebugManager.FormatHex(components[i].GetHashCode()) + " " + components[i].GetType().Name) == true) {
+
+				ImGui.PushID(components[i].GetHashCode() );
+
+				if (components[i].GetType() == typeof(Transform)) {
+					ImGui.BeginDisabled();
+				}
+				bool componentEnabled = components[i].enabled;
+				if (ImGui.Checkbox("", ref componentEnabled) == true) {
+					if (components[i].enabled == true) {
+						components[i].Disable();
+					}
+					else {
+						components[i].Enable();
+					}
+				}
+				
+				ImGui.SameLine();
+
+
+				if (components[i].GetType() == typeof(Transform)) {
+					ImGui.EndDisabled();
+				}
+
+				if (ImGui.CollapsingHeader(components[i].GetType().Name) == true) {
 					ImGui.Indent();
 					components[i].Debug();
 					ImGui.Unindent();
 				}
+
+				ImGui.PopID();
+
 			}
 
 
@@ -68,7 +85,22 @@ namespace ArcticFoxEngine {
 			}
 		}
 
-		public T GetComponent<T>() where T : Component {
+		public void Enable() {
+			if (enabled == true) { return; }
+			enabled = true;
+			for (int i = 0; i < components.Count; i ++) {
+				components[i].ObjectEnable();
+			}
+		}
+		public void Disable() {
+			if (enabled == false) { return; }
+			enabled = false;
+			for (int i = 0; i < components.Count; i++) {
+				components[i].ObjectDisable();
+			}
+		}
+
+		public T GetComponent<T>() where T : Component, new() {
 
 			for (int i = 0; i < components.Count; i ++) {
 
@@ -81,15 +113,21 @@ namespace ArcticFoxEngine {
 			return null;
 
 		}
-		public void AddComponent(Component comp) {
-			components.Add(comp);
-			comp.gameObject = this;
+		public T AddComponent<T>() where T : Component, new() {
+			T newComp = new T();
+			components.Add(newComp);
+			newComp.gameObject = this;
+			newComp.dependantEnabled = enabled;
+			newComp.Start();
+			newComp.Enable();
+			return newComp;
 		}
 		public void RemoveComponent(Component comp) {
+			comp.Disable();
 			components.Remove(comp);
 		}
-		public void RemoveComponent<T>() where T : Component {
-			components.Remove(GetComponent<T>());
+		public void RemoveComponent<T>() where T : Component, new() {
+			RemoveComponent(GetComponent<T>());
 		}
 
 	}

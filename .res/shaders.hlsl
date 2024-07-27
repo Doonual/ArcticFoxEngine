@@ -1,10 +1,15 @@
 ﻿cbuffer ConstantBuffer : register(b0) {
 	
-	float4x4 projectionMatrix;
+	float4x4 cameraProjectionMatrix;
 
 	int screenWidth;
 	int screenHeight;
 	float aspectRatio;
+	
+};
+cbuffer ObjectInfo : register(b1) {
+	
+	float4x4 transformMatrix;
 	
 };
 
@@ -19,7 +24,7 @@ Pixel_Input Vertex_Main(float4 position : POSITION, float4 color : COLOR) {
 	
 	Pixel_Input result;
 	
-	result.position = mul(projectionMatrix, position);
+	result.position = mul(cameraProjectionMatrix, mul(transformMatrix, position));
 	result.color = color;
 	
 	return result;

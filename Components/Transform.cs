@@ -69,7 +69,7 @@ namespace ArcticFoxEngine {
 		internal override string debugDescription => "Gives an object a position, rotation and scale.";
 
 
-		public override void Debug() {
+		protected internal override void Debug() {
 
 			base.Debug();
 

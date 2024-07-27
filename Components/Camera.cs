@@ -1,19 +1,31 @@
 ﻿using SharpDX;
 using RectangleF = SharpDX.RectangleF;
 using ImGuiNET;
+using ArcticFoxEngine.Backend;
 
 namespace ArcticFoxEngine {
 	public class Camera : Component {
 
+		public int renderWidth { 
+			get {
+				return Screen.width;
+			}
+		}
+		public int renderHeight {
+			get {
+				return Screen.height;
+			}
+		}
+
 		public float viewportWidth;
 		public float viewportHeight;
 
-		public float fov;
+		public float fov = 100f;
 
-		public float nearPlane = 0.3f;
+		public float nearPlane = 0.01f;
 		public float farPlane = 100f;
 
-		public ProjectionType projectionType;
+		public ProjectionType projectionType = ProjectionType.Perspective;
 
 		internal Matrix projectionMatrix {
 			get {
@@ -44,10 +56,8 @@ namespace ArcticFoxEngine {
 			Orthographic
 		}
 
-		public Camera(float fov, ProjectionType projectionType) {
+		public Camera() {
 
-			this.fov = fov;
-			this.projectionType = projectionType;
 			viewportWidth = Screen.width;
 			viewportHeight = Screen.height;
 
@@ -71,7 +81,7 @@ namespace ArcticFoxEngine {
 		internal override string debugName => "Camera";
 		internal override string debugDescription => "Renders the scene from the camera's point of view";
 
-		public override void Debug() {
+		protected internal override void Debug() {
 
 			base.Debug();
 			ImGui.SliderFloat("Fov", ref fov, 45f, 130f);
@@ -80,9 +90,21 @@ namespace ArcticFoxEngine {
 
 		}
 
-		public override void OnRender() {
-			Command.ExecuteMainRender(this, gameObject.scene.mainGeometry);
+		protected internal override void OnRender() {
+			GPU_Render.ExecuteMainRender(this, gameObject.scene.mainGeometry);
 		}
+
+		internal void WriteCameraInfoBuffer(ConstBuffer<RenderInfo> buffer) {
+
+			RenderInfo info = new RenderInfo();
+			info.projectionMatrix = projectionMatrix;
+			info.screenWidth = renderWidth;
+			info.screenHeight = renderHeight;
+			info.aspectRatio = (float)renderWidth / renderHeight;
+			buffer.Write(new RenderInfo[] { info }, 0);
+
+		}
+
 
 	}
 

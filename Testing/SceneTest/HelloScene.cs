@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ArcticFoxEngine.Components;
+using ArcticFoxEngine.Debug.Commands;
 using CoolClassLibrary;
 
 namespace ArcticFoxEngine.Testing.SceneTest {
@@ -12,6 +13,11 @@ namespace ArcticFoxEngine.Testing.SceneTest {
 		public static void RunTest() {
 
 			Log.Info("Starting Engine");
+			CommandController.Init(new List<Command>() {
+				new HelpCommand(),
+				new AddObjectCommand(),
+			});
+
 			Engine.init = Init;
 			Engine.Run(1920, 1080);
 
@@ -20,28 +26,16 @@ namespace ArcticFoxEngine.Testing.SceneTest {
 		public static void Init() {
 
 			Scene mainScene = new Scene();
-
-			GameObject mainObj = new GameObject("Camera");
-			mainObj.AddComponent(new Camera(95f, Camera.ProjectionType.Perspective));
-			mainObj.AddComponent(new CameraController());
-			mainScene.Instantiate(mainObj);
-			mainObj.transform.position = Vector3.Back * 3f;
-
-			for (int i = 0; i < 5; i ++) {
-				GameObject cube = new GameObject("Cube #" + (i + 1));
-				cube.transform.position = Vector3.Right * i * 3f;
-				MeshFilter cubeMesh = new MeshFilter(Mesh.Primitive.Cube);
-				cube.AddComponent(cubeMesh);
-				mainScene.Instantiate(cube);
-			}
-			
-
-
-			
-			
-
-
 			mainScene.SetActiveScene();
+
+			
+
+			GameObject cameraObj = mainScene.InstantiateObject("Camera");
+			Camera mainCam = cameraObj.AddComponent<Camera>();
+			cameraObj.AddComponent<CameraController>();
+			cameraObj.AddComponent<CubeSpin>();
+			cameraObj.transform.position = Vector3.Back * 12f;
+
 
 			
 

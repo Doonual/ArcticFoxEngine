@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 
 namespace ArcticFoxEngine.Backend {
-	public static class GPU_Profiler {
+	public static class Profiler {
 
 		private static long timestampFrequency;
 
@@ -34,7 +34,7 @@ namespace ArcticFoxEngine.Backend {
 
 		internal static void UpdateGpuTimestamp(long gpuTimestamp, long timestampFrequency) {
 
-			GPU_Profiler.timestampFrequency = timestampFrequency;
+			Profiler.timestampFrequency = timestampFrequency;
 
 			deltaTime = (gpuTimestamp - prevGpuTimestamp) / (double)timestampFrequency;
 			prevGpuTimestamp = gpuTimestamp;

@@ -12,31 +12,30 @@ namespace ArcticFoxEngine {
 		internal static Scene activeScene;
 
 		private List<GameObject> objects;
-		private List<GameObject> objectsToAdd;
 
 		public GeometryInfo mainGeometry;
 
 		public Scene() {
 			objects = new List<GameObject>();
-			objectsToAdd = new List<GameObject>();
 			mainGeometry = new GeometryInfo();
 		}
 
-		public void Instantiate(GameObject obj) {
-			objectsToAdd.Add(obj);
-			obj.scene = this;
+		
+		public GameObject InstantiateObject(string name) {
+			GameObject newGo = new GameObject(name);
+			objects.Add(newGo);
+			newGo.scene = this;
+			return newGo;
 		}
+		public GameObject InstantiateObject() {
+			return InstantiateObject("Object #" + objects.Count);
+		}
+
 		public void SetActiveScene() {
 			activeScene = this;
 		}
 
 		internal void NewFrame() {
-
-			while (objectsToAdd.Count > 0) {
-				objectsToAdd[0].StartComponents();
-				objects.Add(objectsToAdd[0]);
-				objectsToAdd.RemoveAt(0);
-			}
 			
 			for (int i = 0; i < objects.Count; i ++) {
 				objects[i].UpdateComponents();

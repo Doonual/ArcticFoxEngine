@@ -16,7 +16,7 @@ namespace ArcticFoxEngine.Input.Bindings {
 			Mouse4 = 15,
 			Mouse5 = 16,
 			WheelUp = 8,
-			WheelDown = 8,
+			WheelDown = 7,
 
 		}
 
@@ -29,16 +29,19 @@ namespace ArcticFoxEngine.Input.Bindings {
 		private void MouseUpdate(MouseUpdate e) {
 
 
+			if (mouseButton == MouseButton.WheelUp) {
+				inputButton = e.Value == 120;
+				return;
+			}
+			if (mouseButton == MouseButton.WheelDown) {
+				inputButton = e.Value == -120;
+				return;
+			}
 			if (((int)e.Offset) != ((int)mouseButton)) {
 				return;
 			}
 			inputButton = e.Value == 128;
-			if (mouseButton == MouseButton.WheelUp) {
-				inputButton = e.Value == -120;
-			}
-			if (mouseButton == MouseButton.WheelDown) {
-				inputButton = e.Value == 120;
-			}
+			
 
 
 			

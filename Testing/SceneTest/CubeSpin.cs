@@ -20,7 +20,7 @@ namespace ArcticFoxEngine.Testing.SceneTest {
 		float ringSize = 14f;
 		
 
-		protected internal override void Start() {
+		public override void Start() {
 
 			xSpin = new List<GameObject>();
 			ySpin = new List<GameObject>();
@@ -40,6 +40,7 @@ namespace ArcticFoxEngine.Testing.SceneTest {
 				}
 
 				GameObject xObj = Scene.activeScene.InstantiateObject("X" + (i + 1));
+				xObj.SetParent(gameObject);
 				xObj.AddComponent<MeshRenderer>().SetMesh(cubeMesh);
 				xSpin.Add(xObj);
 
@@ -56,6 +57,7 @@ namespace ArcticFoxEngine.Testing.SceneTest {
 				}
 
 				GameObject yObj = Scene.activeScene.InstantiateObject("Y" + (i + 1));
+				yObj.SetParent(gameObject);
 				yObj.AddComponent<MeshRenderer>().SetMesh(cubeMesh);
 				ySpin.Add(yObj);
 
@@ -72,6 +74,7 @@ namespace ArcticFoxEngine.Testing.SceneTest {
 				}
 
 				GameObject zObj = Scene.activeScene.InstantiateObject("Z" + (i + 1));
+				zObj.SetParent(gameObject);
 				zObj.AddComponent<MeshRenderer>().SetMesh(cubeMesh);
 				zSpin.Add(zObj);
 
@@ -84,7 +87,7 @@ namespace ArcticFoxEngine.Testing.SceneTest {
 
 		}
 
-		protected internal override void Update() {
+		public override void Update() {
 			
 			if (animate == true) {
 				t += speed * 0.001f;
@@ -120,7 +123,7 @@ namespace ArcticFoxEngine.Testing.SceneTest {
 
 		}
 
-		protected internal override void Debug() {
+		public override void Debug() {
 			base.Debug();
 			animate ^= ImGui.Checkbox("Animate", ref animate);
 

@@ -16,13 +16,12 @@ namespace ArcticFoxEngine {
 
 		internal static void SetupCommand() {
 
-
-			cmdAllocator = Graphics.device.CreateCommandAllocator(CommandListType.Direct);
-			cmdQueue = Graphics.device.CreateCommandQueue(new CommandQueueDescription(CommandListType.Direct));
-
 			// Create the command list
 			// Command lists are created in the recording state, but there is nothing
 			// to record yet. The main loop expects it to be closed, so close it now.
+
+			cmdAllocator = Graphics.device.CreateCommandAllocator(CommandListType.Direct);
+			cmdQueue = Graphics.device.CreateCommandQueue(new CommandQueueDescription(CommandListType.Direct));
 			cmdList = Graphics.device.CreateCommandList(CommandListType.Direct, cmdAllocator, Graphics.pipelineState);
 			cmdList.Close();
 

@@ -152,7 +152,7 @@ namespace ArcticFoxEngine.Debug {
 					if (cols[n].Length > 6) {
 
 
-						ImGui.Text(cols[n].Substring(6));
+						ImGui.TextWrapped(cols[n].Substring(6));
 						ImGui.PushStyleVar(ImGuiStyleVar.ItemSpacing, new System.Numerics.Vector2(-1f, 0f));
 						ImGui.SameLine();
 						ImGui.PopStyleVar(1);

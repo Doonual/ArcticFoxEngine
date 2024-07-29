@@ -44,11 +44,11 @@ namespace ArcticFoxEngine {
 			int refreshRate = 60;
 
 			try {
-				SetupDevice(width, height, refreshRate);
+				SetupDevice();
 
 				GPU_Render.SetupCommand();
 				SetupSwapChain(width, height, refreshRate, GPU_Render.GetCommandQueue());
-
+				
 				GraphicsResources.LoadResources(width, height);
 
 				ShaderBytecode vertexShader = CompileShader(".res/shaders.hlsl", ShaderType.Vertex);
@@ -56,7 +56,10 @@ namespace ArcticFoxEngine {
 				SetupPipeline(vertexShader, pixelShader);
 
 				SetupSynchronisation();
-				LinkClasses();
+
+				Screen.InitScreen(mainRenderForm, swapChain);
+				InputManager.InitInput();
+
 				Log.Success("Initialised renderer");
 			}
 			catch (Exception e) {
@@ -68,11 +71,9 @@ namespace ArcticFoxEngine {
 
 		}
 
-		private static void SetupDevice(int swapchainWidth, int swapchainHeight, int refreshRate) {
-
+		private static void SetupDevice() {
 			// Create the graphics device
 			device = new Device(null, SharpDX.Direct3D.FeatureLevel.Level_11_0);
-
 		}
 		private static void SetupSwapChain(int width, int height, int refreshRate, CommandQueue commandQueue) {
 
@@ -159,12 +160,6 @@ namespace ArcticFoxEngine {
 			// Create an event handle to use for frame synchronisation
 			fenceEvent = new AutoResetEvent(false);
 
-		}
-		
-		
-		private static void LinkClasses() {
-			Screen.InitScreen(mainRenderForm, swapChain);
-			InputManager.InitInput();
 		}
 
 		internal enum ShaderType {

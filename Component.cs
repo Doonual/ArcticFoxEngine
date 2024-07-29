@@ -20,12 +20,13 @@ namespace ArcticFoxEngine {
 
 		internal virtual string debugName => "";
 		internal virtual string debugDescription => "";
+		internal virtual Type[] dependencies => new Type[0];
 
-		internal protected virtual void OnEnable() { }
-		internal protected virtual void OnDisable() { }
-		internal protected virtual void Start() { }
-		internal protected virtual void Update() { }
-		internal protected virtual void OnRender() { }
+		public virtual void OnEnable() { }
+		public virtual void OnDisable() { }
+		public virtual void Start() { }
+		public virtual void Update() { }
+		public virtual void OnRender() { }
 
 
 		internal void ObjectEnable() {
@@ -59,7 +60,7 @@ namespace ArcticFoxEngine {
 		}
 
 
-		protected internal virtual void Debug() {
+		public virtual void Debug() {
 
 			string debugNameActual = debugName;
 

@@ -30,14 +30,14 @@ namespace ArcticFoxEngine {
 				case Primitive.Cube:
 
 				vertexData = new Vertex[] {
-					new Vertex() {Position=new Vector3(-1f, -1f, -1f), Color = new Color(0.0f, 0.0f, 0.0f)},
-					new Vertex() {Position=new Vector3(1f, -1f, -1f), Color = new Color(1.0f, 0.0f, 0.0f)},
-					new Vertex() {Position=new Vector3(-1f, 1f, -1f), Color = new Color(0.0f, 1.0f, 0.0f)},
-					new Vertex() {Position=new Vector3(1f, 1f, -1f), Color = new Color(1.0f, 1.0f, 0.0f)},
-					new Vertex() {Position=new Vector3(-1f, -1f, 1f), Color = new Color(0.0f, 0.0f, 1.0f)},
-					new Vertex() {Position=new Vector3(1f, -1f, 1f), Color = new Color(1.0f, 0.0f, 1.0f)},
-					new Vertex() {Position=new Vector3(-1f, 1f, 1f), Color = new Color(0.0f, 1.0f, 1.0f)},
-					new Vertex() {Position=new Vector3(1f, 1f, 1f), Color = new Color(1.0f, 1.0f, 1.0f)},
+					new Vertex() {Position=new Vector3(-0.5f, -0.5f, -0.5f), Color = new Color(0.0f, 0.0f, 0.0f)},
+					new Vertex() {Position=new Vector3(0.5f, -0.5f, -0.5f), Color = new Color(1.0f, 0.0f, 0.0f)},
+					new Vertex() {Position=new Vector3(-0.5f, 0.5f, -0.5f), Color = new Color(0.0f, 1.0f, 0.0f)},
+					new Vertex() {Position=new Vector3(0.5f, 0.5f, -0.5f), Color = new Color(1.0f, 1.0f, 0.0f)},
+					new Vertex() {Position=new Vector3(-0.5f, -0.5f, 0.5f), Color = new Color(0.0f, 0.0f, 1.0f)},
+					new Vertex() {Position=new Vector3(0.5f, -0.5f, 0.5f), Color = new Color(1.0f, 0.0f, 1.0f)},
+					new Vertex() {Position=new Vector3(-0.5f, 0.5f, 0.5f), Color = new Color(0.0f, 1.0f, 1.0f)},
+					new Vertex() {Position=new Vector3(0.5f, 0.5f, 0.5f), Color = new Color(1.0f, 1.0f, 1.0f)},
 				};
 				indexData = new int[] {
 					// Z+ Face

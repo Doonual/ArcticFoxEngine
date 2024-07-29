@@ -26,9 +26,6 @@ namespace ArcticFoxEngine {
 		// Depth Stencil descriptor heap
 		internal static DescriptorHeap depthStencilDescriptorHeap;
 		internal static Resource depthStencilBuffer;
-		
-
-		
 
 		// Main load for the GraphicsResources
 		internal static void LoadResources(int renderWidth, int renderHeight) {

@@ -26,19 +26,15 @@ namespace ArcticFoxEngine.Testing.SceneTest {
 		public static void Init() {
 
 			Scene mainScene = new Scene();
-			mainScene.SetActiveScene();
-
-			
+			Scene.LoadScene(mainScene);
 
 			GameObject cameraObj = mainScene.InstantiateObject("Camera");
 			Camera mainCam = cameraObj.AddComponent<Camera>();
 			cameraObj.AddComponent<CameraController>();
-			cameraObj.AddComponent<CubeSpin>();
-			cameraObj.transform.position = Vector3.Back * 12f;
+			cameraObj.transform.position = Vector3.Back * 25f;
 
-
-			
-
+			GameObject cubeSpinMaster = mainScene.InstantiateObject("Cube Spin");
+			cubeSpinMaster.AddComponent<CubeSpin>();
 
 		}
 

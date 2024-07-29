@@ -81,7 +81,7 @@ namespace ArcticFoxEngine {
 		internal override string debugName => "Camera";
 		internal override string debugDescription => "Renders the scene from the camera's point of view";
 
-		protected internal override void Debug() {
+		public override void Debug() {
 
 			base.Debug();
 			ImGui.SliderFloat("Fov", ref fov, 45f, 130f);
@@ -90,7 +90,7 @@ namespace ArcticFoxEngine {
 
 		}
 
-		protected internal override void OnRender() {
+		public override void OnRender() {
 			GPU_Render.ExecuteMainRender(this, gameObject.scene.mainGeometry);
 		}
 

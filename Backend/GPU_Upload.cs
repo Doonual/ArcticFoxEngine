@@ -64,7 +64,7 @@ namespace ArcticFoxEngine.Backend {
 		Fence uploadFence;
 		int fenceValue;
 		AutoResetEvent fenceEvent;
-		Mutex frameMutex;
+		//Mutex frameMutex;
 
 		int uploadFrameIndex;
 
@@ -99,7 +99,6 @@ namespace ArcticFoxEngine.Backend {
 
 		public void UploadContext(int alignedSize) {
 
-			//frameMutex.WaitOne();
 
 			uploadFrameIndex = GetAvailableUploadFrame();
 			UploadFrame frame = uploadFrames[uploadFrameIndex];

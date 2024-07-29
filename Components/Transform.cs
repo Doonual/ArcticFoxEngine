@@ -7,12 +7,15 @@ namespace ArcticFoxEngine {
 		public Vector3 position;
 		public Quaternion rotation;
 		public Vector3 scale;
-
-		float test = 0f;
-
 		public Matrix transformationMatrix {
 			get {
-				return Matrix.Transformation(position, rotation, scale);
+				if (gameObject.parent == null) {
+					return Matrix.Transformation(position, rotation, scale);
+				}
+				else {
+					return Matrix.Transformation(position, rotation, scale) * gameObject.parent.transform.transformationMatrix;
+				}
+				
 			}
 		}
 
@@ -69,10 +72,9 @@ namespace ArcticFoxEngine {
 		internal override string debugDescription => "Gives an object a position, rotation and scale.";
 
 
-		protected internal override void Debug() {
+		public override void Debug() {
 
 			base.Debug();
-
 			System.Numerics.Vector3 systemPos = (System.Numerics.Vector3)position;
 			System.Numerics.Vector4 systemRot = new System.Numerics.Vector4(rotation.x, rotation.y, rotation.z, rotation.w);
 			System.Numerics.Vector3 systemScale = (System.Numerics.Vector3)scale;

@@ -2712,7 +2712,7 @@ namespace ArcticFoxEngine {
 			Matrix rotationMatrix = RotationQuaternion(rotation);
 			Matrix translationMatrix = Translation(translation);
 
-			return rotationMatrix * scaleMatrix * translationMatrix;
+			return scaleMatrix * rotationMatrix * translationMatrix;
 
 		}
 

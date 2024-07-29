@@ -61,14 +61,14 @@ namespace ArcticFoxEngine.Components {
 		}
 
 
-		protected internal override void OnDisable() {
+		public override void OnDisable() {
 			UnloadMesh();
 		}
-		protected internal override void OnEnable() {
+		public override void OnEnable() {
 			LoadMesh();
 		}
 
-		protected internal override void Debug() {
+		public override void Debug() {
 
 			base.Debug();
 

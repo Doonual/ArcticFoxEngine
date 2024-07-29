@@ -54,13 +54,14 @@ namespace ArcticFoxEngine.Debug {
 
 		protected override void Render() {
 
-			DebugDemo.Render();
+			DebugRender.Render();
 			DebugScene.Render();
 			DebugPerformance.Render();
 			DebugMeshBuffers.Render();
 			DebugLog.Render();
 
 		}
+
 
 		internal static string FormatHex(int hexValue) {
 

@@ -15,7 +15,8 @@ namespace ArcticFoxEngine {
 		public static void Run(int width, int height, string title = "Arctic Fox", string iconPath = ".res/icon.ico") {
 
 
-			// Create the main window
+			#region Create the main window
+
 			try {
 				form = new RenderForm(title) {
 					Width = width + 16,
@@ -33,7 +34,9 @@ namespace ArcticFoxEngine {
 				Log.Error("Create window failed");
 				Log.Raw(e);
 			}
-			
+
+			#endregion
+			#region Setup rendering
 
 			try {
 				Graphics.SetupRenderer(form);
@@ -44,11 +47,12 @@ namespace ArcticFoxEngine {
 				Log.Error("Failed to initialise engine");
 				Log.Raw(e);
 			}
+
+			#endregion
+			
 			Log.Raw("");
 
-			
 			init();
-
 
 			// Main game loop
 			using (loop = new RenderLoop(form)) {

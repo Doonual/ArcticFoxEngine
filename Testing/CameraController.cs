@@ -36,7 +36,7 @@ namespace ArcticFoxEngine.Testing.SceneTest {
 		Camera mainCamera;
 		float speed;
 
-		protected internal override void Start() {
+		public override void Start() {
 			mainCamera = gameObject.GetComponent<Camera>();
 
 			moveForward = new KeyboardButtonInput(KeyboardButtonInput.KeyboardButton.W);
@@ -60,7 +60,7 @@ namespace ArcticFoxEngine.Testing.SceneTest {
 
 		}
 
-		protected internal override void Update() {
+		public override void Update() {
 
 			#region Camera Controls
 
@@ -118,7 +118,7 @@ namespace ArcticFoxEngine.Testing.SceneTest {
 
 		}
 
-		protected internal override void Debug() {
+		public override void Debug() {
 			base.Debug();
 			ImGui.SliderFloat("Speed", ref speed, 0f, 1000f, null, ImGuiSliderFlags.Logarithmic);
 		}

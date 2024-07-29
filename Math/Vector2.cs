@@ -55,6 +55,10 @@
 			y *= length / currentLength;
 		}
 
+		public static Vector2 Angle(float theta, float magnitude) {
+			return new Vector2(MathF.Cos(theta), MathF.Sin(theta)) * magnitude;
+		}
+
 		#region Math
 
 		public static Vector2 operator *(Vector2 a, float b) {

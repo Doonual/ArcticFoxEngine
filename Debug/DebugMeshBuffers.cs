@@ -22,7 +22,6 @@ namespace ArcticFoxEngine.Debug {
 			GeometryInfo geometry = Scene.activeScene.mainGeometry;
 			MeshRenderer delMeshFilter = null;
 
-			ImGui.Begin("Mesh buffer data debugger");
 			ImGui.InputInt("Max Display Entries", ref maxEntries);
 
 			int[] meshFilterIndex;

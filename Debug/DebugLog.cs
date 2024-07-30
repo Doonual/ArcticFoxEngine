@@ -116,8 +116,6 @@ namespace ArcticFoxEngine.Debug {
 
 		internal static void Render() {
 
-			ImGui.Begin("Log");
-
 			if (ImGui.Button("Clear") == true) {
 				messages.Clear();
 				messages.Add("");
@@ -183,9 +181,6 @@ namespace ArcticFoxEngine.Debug {
 
 				CommandController.ExecuteCommand(cmdInput);
 				cmdInput = "";
-				
-				
-
 			}	
 
 

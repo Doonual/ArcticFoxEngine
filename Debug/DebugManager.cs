@@ -52,13 +52,56 @@ namespace ArcticFoxEngine.Debug {
 
 		}
 
+
+		private static bool renderWindowOpen = true;
+		private static bool sceneWindowOpen = true;
+		private static bool performanceWindowOpen = false;
+		private static bool meshWindowOpen = false;
+		private static bool logWindowOpen = true;
 		protected override void Render() {
 
-			DebugRender.Render();
-			DebugScene.Render();
-			DebugPerformance.Render();
-			DebugMeshBuffers.Render();
-			DebugLog.Render();
+			ImGuiWindowFlags flags = ImGuiWindowFlags.None;
+			flags |= ImGuiWindowFlags.AlwaysAutoResize;
+			flags |= ImGuiWindowFlags.NoTitleBar;
+
+			ImGui.SetNextWindowPos(new System.Numerics.Vector2(0f, 0f));
+			ImGui.Begin("Menu buttons", flags);
+			if (ImGui.BeginMenu("Window") == true) {
+				renderWindowOpen |= ImGui.MenuItem("Render") == true;
+				sceneWindowOpen |= ImGui.MenuItem("Scene") == true;
+				performanceWindowOpen |= ImGui.MenuItem("Performance") == true;
+				meshWindowOpen |= ImGui.MenuItem("Mesh") == true;
+				logWindowOpen |= ImGui.MenuItem("Log") == true;
+			}
+
+			ImGui.EndMenu();
+			ImGui.End();
+
+			if (renderWindowOpen == true) {
+				ImGui.Begin("Render", ref renderWindowOpen);
+				DebugRender.Render();
+				ImGui.End();
+			}
+			if (sceneWindowOpen == true) {
+				ImGui.Begin("Scene", ref sceneWindowOpen);
+				DebugScene.Render();
+				ImGui.End();
+			}
+			if (performanceWindowOpen == true) {
+				ImGui.Begin("Performance", ref performanceWindowOpen);
+				DebugPerformance.Render();
+				ImGui.End();
+			}
+			if (meshWindowOpen == true) {
+				ImGui.Begin("Mesh buffer data debugger", ref meshWindowOpen);
+				DebugMeshBuffers.Render();
+				ImGui.End();
+			}
+			if (logWindowOpen == true) {
+				ImGui.Begin("Log", ref logWindowOpen);
+				DebugLog.Render();
+				ImGui.End();
+			}
 
 		}
 

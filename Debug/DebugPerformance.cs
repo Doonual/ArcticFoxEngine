@@ -56,8 +56,6 @@ namespace ArcticFoxEngine.Debug {
 
 			double ms = Profiler.GetFrameTime() * 1000;
 
-			ImGui.Begin("Performance");
-
 			ImGuiTableFlags flags = ImGuiTableFlags.Borders;
 			ImGui.BeginTable("Performance Table", 3, flags);
 
@@ -123,9 +121,6 @@ namespace ArcticFoxEngine.Debug {
 			}
 
 			ImGui.Columns();
-
-
-			ImGui.End();
 			
 		}
 

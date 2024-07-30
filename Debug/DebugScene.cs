@@ -6,11 +6,9 @@ namespace ArcticFoxEngine.Debug {
 
 		internal static void Render() {
 
-			ImGui.Begin("Scene");
 			if (Scene.activeScene != null) {
 				Scene.activeScene.DebugEvent();
 			}
-			ImGui.End();
 			
 		}
 	}

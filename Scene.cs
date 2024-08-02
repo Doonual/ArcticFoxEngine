@@ -48,7 +48,7 @@ namespace ArcticFoxEngine {
 		public static void LoadScene(Scene scene) {
 			activeScene = scene;
 		}
-
+		
 		internal void NewFrame() {
 			
 			for (int i = 0; i < objects.Count; i ++) {
@@ -252,6 +252,15 @@ namespace ArcticFoxEngine {
 
 		}
 
-		
+		private bool disposed = false;
+		public void Dispose() {
+			if (disposed == true) { return; }
+			disposed = true;
+			mainGeometry.Dispose();
+		}
+		~Scene() {
+			Dispose();
+		}
+
 	}
 }

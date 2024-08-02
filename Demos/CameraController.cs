@@ -28,15 +28,13 @@ namespace ArcticFoxEngine.Testing.SceneTest {
 		ButtonBinding increaseSpeed;
 		ButtonBinding decreaseSpeed;
 
-		ButtonBinding toggleDebug;
-		ButtonBinding exitButton;
-
 		#endregion
 
 		Camera mainCamera;
 		float speed;
 
 		public override void Start() {
+			
 			mainCamera = gameObject.GetComponent<Camera>();
 
 			moveForward = new KeyboardButtonInput(KeyboardButtonInput.KeyboardButton.W);
@@ -52,9 +50,6 @@ namespace ArcticFoxEngine.Testing.SceneTest {
 
 			increaseSpeed = new MouseButtonInput(MouseButtonInput.MouseButton.WheelUp);
 			decreaseSpeed = new MouseButtonInput(MouseButtonInput.MouseButton.WheelDown);
-
-			toggleDebug = new KeyboardButtonInput(KeyboardButtonInput.KeyboardButton.F1);
-			exitButton = new KeyboardButtonInput(KeyboardButtonInput.KeyboardButton.Escape);
 
 			speed = 1f;
 
@@ -102,18 +97,6 @@ namespace ArcticFoxEngine.Testing.SceneTest {
 			}
 
 			#endregion
-			if (toggleDebug.GetButtonDown() == true) {
-				if (DebugManager.isOpen == true) {
-					DebugManager.CloseGUI();
-				}
-				else {
-					DebugManager.OpenGUI();
-				}
-
-			}
-			if (exitButton.GetButton() == true) {
-				Engine.Stop();
-			}
 
 
 		}

@@ -8,24 +8,15 @@ using ArcticFoxEngine.Debug.Commands;
 using CoolClassLibrary;
 
 namespace ArcticFoxEngine.Testing.SceneTest {
-	public class HelloScene {
+	public class HelloSceneDemo : DemoScene {
 
-		public static void RunTest() {
+		Scene mainScene;
 
-			Log.Info("Starting Engine");
-			CommandController.Init(new List<Command>() {
-				new HelpCommand(),
-				new AddObjectCommand(),
-			});
+		internal override string name => "Hello Scene";
 
-			Engine.init = Init;
-			Engine.Run(1920, 1080);
+		internal override Scene LoadScene() {
 
-		}
-
-		public static void Init() {
-
-			Scene mainScene = new Scene();
+			mainScene = new Scene();
 			Scene.LoadScene(mainScene);
 
 			GameObject cameraObj = mainScene.InstantiateObject("Camera");
@@ -36,7 +27,12 @@ namespace ArcticFoxEngine.Testing.SceneTest {
 			GameObject cubeSpinMaster = mainScene.InstantiateObject("Cube Spin");
 			cubeSpinMaster.AddComponent<CubeSpin>();
 
+			return mainScene;
+
 		}
 
+		internal override void UnloadScene() {
+			mainScene.Dispose();
+		}
 	}
 }

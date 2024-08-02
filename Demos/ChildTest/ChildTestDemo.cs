@@ -9,24 +9,15 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace ArcticFoxEngine.Testing.ChildTest {
-	public static class ChildTest {
+	public class ChildTestDemo : DemoScene {
 
-		public static void RunTest() {
+		Scene mainScene;
 
-			Log.Info("Starting Engine");
-			CommandController.Init(new List<Command>() {
-				new HelpCommand(),
-				new AddObjectCommand(),
-			});
+		internal override string name => "Child Test";
 
-			Engine.init = Init;
-			Engine.Run(1920, 1080, "ArcticFox - ChildTest");
+		internal override Scene LoadScene() {
 
-		}
-
-		public static void Init() {
-
-			Scene mainScene = new Scene();
+			mainScene = new Scene();
 			Scene.LoadScene(mainScene);
 
 			GameObject cameraObj = GameObject.Instantiate("Camera");
@@ -97,12 +88,16 @@ namespace ArcticFoxEngine.Testing.ChildTest {
 			CubeWheel cubeWheelComp = originalWheel.AddComponent<CubeWheel>();
 			cubeWheelComp.Stop();
 			cubeWheelComp.Propagate(5, 8f);
-			
+
 
 			#endregion
 
+			return mainScene;
 
 		}
 
+		internal override void UnloadScene() {
+			mainScene.Dispose();
+		}
 	}
 }

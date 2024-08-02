@@ -1,6 +1,8 @@
 ﻿using ArcticFoxEngine.Backend;
 using ArcticFoxEngine.Debug;
+using ArcticFoxEngine.Debug.Commands;
 using ArcticFoxEngine.Input;
+using ArcticFoxEngine.Input.Bindings;
 using CoolClassLibrary;
 using SharpDX.Windows;
 
@@ -9,11 +11,18 @@ namespace ArcticFoxEngine {
 
 		private static RenderForm form;
 		public static Action init;
-
 		private static RenderLoop loop;
+
+		static ButtonBinding exitButton;
+		static ButtonBinding toggleDebugButton;
 
 		public static void Run(int width, int height, string title = "Arctic Fox", string iconPath = ".res/icon.ico") {
 
+			CommandController.Init(new List<Command>() {
+				new HelpCommand(),
+				new AddObjectCommand(),
+			});
+			DebugManager.Init();
 
 			#region Create the main window
 
@@ -40,7 +49,6 @@ namespace ArcticFoxEngine {
 
 			try {
 				Graphics.SetupRenderer(form);
-				DebugManager.InitImGui();
 				Log.Success("Engine initialisation complete");
 			}
 			catch (Exception e) {
@@ -51,8 +59,13 @@ namespace ArcticFoxEngine {
 			#endregion
 			
 			Log.Raw("");
+			
+			exitButton = new KeyboardButtonInput(KeyboardButtonInput.KeyboardButton.Escape);
+			toggleDebugButton = new KeyboardButtonInput(KeyboardButtonInput.KeyboardButton.F1);
 
-			init();
+			if (init != null) {
+				init();
+			}
 
 			// Main game loop
 			using (loop = new RenderLoop(form)) {
@@ -67,6 +80,15 @@ namespace ArcticFoxEngine {
 					if (Scene.activeScene != null) {
 						Scene.activeScene.NewFrame();
 					}
+					if (exitButton.GetButton() == true) { Stop(); }
+					if (toggleDebugButton.GetButtonDown() == true) {
+						if (DebugManager.isOpen == true) {
+							DebugManager.CloseGUI();
+						}
+						else {
+							DebugManager.OpenGUI();
+						}
+					}
 
 					Graphics.Buffer();
 
@@ -74,8 +96,6 @@ namespace ArcticFoxEngine {
 					GPU_Render.cmdQueue.GetClockCalibration(out timestamp, out _);
 					Profiler.GpuTimestampFrameEnd(timestamp);
 					Graphics.WaitForPreviousFrame();
-
-					
 
 					InputManager.NextFrame();
 

@@ -54,5 +54,15 @@ namespace ArcticFoxEngine.Backend {
 		}
 
 
+		bool disposed = false;
+		internal void Dispose() {
+			if (disposed == true) { return; }
+			constantBuffer.Unmap(0);
+			constantBuffer.Dispose();
+		}
+		~ConstBuffer() {
+			Dispose();
+		}
+
 	}
 }

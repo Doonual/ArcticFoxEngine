@@ -1,4 +1,7 @@
-﻿using ClickableTransparentOverlay;
+﻿using ArcticFoxEngine.Testing;
+using ArcticFoxEngine.Testing.SceneTest;
+using ArcticFoxEngine.Testing.ChildTest;
+using ClickableTransparentOverlay;
 using CoolClassLibrary;
 using ImGuiNET;
 
@@ -6,15 +9,14 @@ namespace ArcticFoxEngine.Debug {
 	public class DebugManager : Overlay {
 
 		static DebugManager debugManager;
-		static ImGuiIOPtr ioPtr;
-		private static List<DebugWindow> windows;
-		private static bool showDemo;
-		public static bool isOpen {
-			get;
-			private set;
-		}
+		public static bool isOpen { get; private set; }
 
-		static DebugManager() {
+		private static List<DebugWindow> windows;
+		private static bool showImGuiDemo;
+
+		private static List<DemoScene> demoScenes;
+
+		internal static void Init() {
 			isOpen = false;
 			windows = new List<DebugWindow>() {
 				new DebugLog(),
@@ -24,6 +26,14 @@ namespace ArcticFoxEngine.Debug {
 				new DebugScene(),
 			};
 			LoadWindowOptions();
+			demoScenes = new List<DemoScene>() {
+				new HelloSceneDemo(),
+				new ChildTestDemo(),
+			};
+
+			Log.ListenToLog(GetDebugWindow<DebugLog>().LogEvent);
+			Log.ListenToLogColor(GetDebugWindow<DebugLog>().LogColorEvent);
+
 		}
 
 		internal static T GetDebugWindow<T>() where T : DebugWindow {
@@ -34,20 +44,6 @@ namespace ArcticFoxEngine.Debug {
 				}
 			}
 			return null;
-
-		}
-
-		internal static void InitImGui() {
-
-			// This shouldnt work, but it does
-			ImGui.CreateContext();
-			ioPtr = ImGui.GetIO();
-			ioPtr.ConfigFlags |= ImGuiConfigFlags.NavEnableKeyboard;
-
-			ImGui.StyleColorsDark();
-
-			Log.ListenToLog(GetDebugWindow<DebugLog>().LogEvent);
-			Log.ListenToLogColor(GetDebugWindow<DebugLog>().LogColorEvent);
 
 		}
 
@@ -79,7 +75,7 @@ namespace ArcticFoxEngine.Debug {
 			if (ImGui.BeginMainMenuBar() == true) {
 				if (ImGui.BeginMenu("Window") == true) {
 
-					ImGui.Checkbox("Show ImGui Demo", ref showDemo);
+					ImGui.Checkbox("Show ImGui Demo", ref showImGuiDemo);
 					ImGui.Separator();
 
 					for (int i = 0; i < windows.Count; i++) {
@@ -87,12 +83,26 @@ namespace ArcticFoxEngine.Debug {
 							SaveWindowOptions();
 						}
 					}
-
+					ImGui.EndMenu();
 				}
+				
+				if (ImGui.BeginMenu("Scene") == true) {
+					ImGui.PushStyleColor(ImGuiCol.Text, new System.Numerics.Vector4(0.5f, 0.5f, 0.5f, 1.0f));
+					ImGui.Text("Demos");
+					ImGui.PopStyleColor();
+					for (int i = 0; i < demoScenes.Count; i ++) {
+						if (ImGui.MenuItem(demoScenes[i].name) == true) {
+							Scene.LoadScene(demoScenes[i].LoadScene());
+						}
+					}
+					
+					ImGui.EndMenu();
+				}
+				
 			}
 			ImGui.EndMenuBar();
 
-			if (showDemo == true) {
+			if (showImGuiDemo == true) {
 				ImGui.ShowDemoWindow();
 			}
 			for (int i = 0; i < windows.Count; i++) {

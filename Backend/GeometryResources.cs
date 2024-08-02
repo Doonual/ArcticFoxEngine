@@ -242,10 +242,18 @@ namespace ArcticFoxEngine {
 
 		}
 
-		~GeometryResources() {
-
+		bool disposed = false;
+		internal void Dispose() {
+			if (disposed == true) { return; }
+			disposed = true;
 			vertexBuffer.Dispose();
 			indexBuffer.Dispose();
+			objectBuffer.Dispose();
+		}
+		~GeometryResources() {
+
+			Log.Info("Releasing mesh buffers");
+			Dispose();
 
 		}
 

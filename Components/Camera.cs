@@ -23,7 +23,7 @@ namespace ArcticFoxEngine {
 		public float fov = 100f;
 
 		public float nearPlane = 0.01f;
-		public float farPlane = 100f;
+		public float farPlane = 1000f;
 
 		public ProjectionType projectionType = ProjectionType.Perspective;
 
@@ -85,8 +85,8 @@ namespace ArcticFoxEngine {
 
 			base.Debug();
 			ImGui.SliderFloat("Fov", ref fov, 45f, 130f);
-			ImGui.SliderFloat("Near plane", ref nearPlane, 0f, 1f);
-			ImGui.SliderFloat("Far plane", ref farPlane, 50f, 1000f);
+			ImGui.SliderFloat("Near plane", ref nearPlane, 0f, 1f, null, ImGuiSliderFlags.Logarithmic);
+			ImGui.SliderFloat("Far plane", ref farPlane, 20f, 6000f, null, ImGuiSliderFlags.Logarithmic);
 
 		}
 

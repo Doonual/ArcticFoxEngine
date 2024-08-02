@@ -39,7 +39,7 @@ This will do everything in Arctic Fox Engine. This has 3 stages to it: creating 
 			The 1st descriptor in this descriptor heap is the RenderInfo, this contains the camera's projection matrix, as well as screen resolution
 			All following descriptors are for ObjectInfo, this contains the object's transformation matrix as well as any other data related to object rendering
 			The RenderInfo descriptor is added by GraphicsResources
-			The ObjectInfo descriptors are added by GeometryInfo. Might change this
+			The ObjectInfo descriptors are added by GeometryResources. Might change this
 
 			Root Signature
 			The root signature tells the shaders how to interpret the main combined descriptor heap
@@ -57,10 +57,10 @@ This will do everything in Arctic Fox Engine. This has 3 stages to it: creating 
 
 	By this point the renderer is setup, however we still don't have any mesh data
 	This is setup after we create a scene.
-	When a scene is created it also creates the GeometryInfo
-	When GeometryInfo is created, it also creates a buffer for the vertex info, a buffer for the index info, and a buffer for the object info
+	When a scene is created it also creates the GeometryResources
+	When GeometryResources is created, it also creates a buffer for the vertex info, a buffer for the index info, and a buffer for the object info
 	The vertex buffer and index buffer are stored within a default heap
 	The object info is stored in an upload heap
 
-	Whenever a mesh is to be added, GeometryInfo will find a spot for the mesh to go, and tell the mesh exactly where to go.
+	Whenever a mesh is to be added, GeometryResources will find a spot for the mesh to go, and tell the mesh exactly where to go.
 	The mesh's vertex, index and object data may be at very different indices. This is fine.

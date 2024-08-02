@@ -85,6 +85,7 @@ namespace ArcticFoxEngine {
 
 			position = new Vector3(systemPos);
 			rotation = new Quaternion(systemRot.X, systemRot.Y, systemRot.Z, systemRot.W);
+			rotation.Normalize();
 			scale = new Vector3(systemScale);
 
 			if (ImGui.Button("Reset") == true) {

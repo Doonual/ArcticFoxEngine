@@ -8,20 +8,22 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace ArcticFoxEngine.Debug {
-	internal static class DebugLog {
+	internal class DebugLog : DebugWindow {
 
-		private static List<string> messages;
-		private static string cmdInput;
-		private static bool scrollToBottom;
-		private static bool pauseOutput;
+		private List<string> messages;
+		private string cmdInput;
+		private bool scrollToBottom;
+		private bool pauseOutput;
 
-		static DebugLog() {
+		internal override string name => "Log";
+
+		internal DebugLog() {
 			messages = new List<string>();
 			messages.Add("");
 			cmdInput = "";
 		}
 
-		internal static void LogEvent(string text) {
+		internal void LogEvent(string text) {
 
 			if (pauseOutput == true) { return; }
 
@@ -37,7 +39,7 @@ namespace ArcticFoxEngine.Debug {
 			scrollToBottom = true;
 
 		}
-		internal static void LogColorEvent(ConsoleColor col) {
+		internal void LogColorEvent(ConsoleColor col) {
 
 			if (pauseOutput == true) { return; }
 
@@ -114,7 +116,7 @@ namespace ArcticFoxEngine.Debug {
 
 		}
 
-		internal static void Render() {
+		internal override void Render() {
 
 			if (ImGui.Button("Clear") == true) {
 				messages.Clear();
@@ -131,7 +133,6 @@ namespace ArcticFoxEngine.Debug {
 				scrollToBottom = false;
 				ImGui.SetScrollHereY(-ImGui.GetScrollMaxY());
 			}
-			
 
 			for (int i = 0; i < messages.Count; i++) {
 
@@ -173,7 +174,11 @@ namespace ArcticFoxEngine.Debug {
 
 			ImGui.PushItemWidth(-45f);
 			
+
 			bool sendCommand = ImGui.InputText("", ref cmdInput, 64u, ImGuiInputTextFlags.EnterReturnsTrue);
+			if (sendCommand == true) {
+				ImGui.SetKeyboardFocusHere(-1);
+			}
 			ImGui.PopItemWidth();
 			ImGui.SameLine();
 			

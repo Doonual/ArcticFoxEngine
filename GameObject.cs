@@ -11,21 +11,19 @@ using System.Threading.Tasks;
 namespace ArcticFoxEngine {
 	public class GameObject {
 
-		public Scene scene {
-			get;
-			internal set;
-		}
+		// Object Hierarchy
+		public Scene scene { get; internal set; }		// Scene the object is contained in
+		public GameObject parent { get; private set; }	// When null, indicates it is in the scene root
+		private List<GameObject> children;
+
+		// Object properties
+		private List<Component> components;
+		public string name;
 		public bool enabled { get; private set; }
 		private bool dependantEnabled;
 		public bool globalEnabled { get { return enabled && dependantEnabled; } }
 
-		private List<Component> components;
-
-		public Transform transform { get { return (Transform)components[0]; } }
-		public GameObject parent { get; private set; } // When null, indicates it is in the scene root
-		private List<GameObject> children; 
-
-		public string name;
+		public Transform transform { get { return (Transform)components[0]; } }	// Shortcut to the objects transform
 
 		internal GameObject(string name) {
 			components = new List<Component>();
@@ -47,80 +45,7 @@ namespace ArcticFoxEngine {
 			return Instantiate(name, this);
 		}
 
-		#region Component events
-
-		internal void UpdateEvent() {
-			if (enabled == false) { return; }
-			for (int i = 0; i < components.Count; i++) {
-				if (components[i].enabled == false) { continue; }
-				components[i].Update();
-			}
-			for (int i = 0; i < children.Count; i ++) {
-				children[i].UpdateEvent();
-			}
-		}
-		internal void RenderEvent() {
-			if (enabled == false) { return; }
-			for (int i = 0; i < components.Count; i++) {
-				if (components[i].enabled == false) { return; }
-				components[i].OnRender();
-			}
-			for (int i = 0; i < children.Count; i++) {
-				children[i].RenderEvent();
-			}
-		}
-		internal void DebugEvent() {
-
-			ImGui.Text("Name: " + name);
-			ImGui.Text("Enabled: " + enabled);
-			ImGui.Text("Dependant Enabled: " + dependantEnabled);
-			ImGui.Text("Components (" + components.Count + ")");
-
-
-			ImGui.Separator();
-			for (int i = 0; i < components.Count; i++) {
-
-				ImGui.PushID(components[i].GetHashCode());
-
-				// If the current component is the Transform component
-				if (components[i].GetType() == typeof(Transform)) {
-					ImGui.BeginDisabled();
-				}
-
-				// Checkbox for enabling and disabling components
-				bool componentEnabled = components[i].enabled;
-				if (ImGui.Checkbox("", ref componentEnabled) == true) {
-					if (components[i].enabled == true) {
-						components[i].Disable();
-					}
-					else {
-						components[i].Enable();
-					}
-				}
-
-				ImGui.SameLine();
-
-
-				if (components[i].GetType() == typeof(Transform)) {
-					ImGui.EndDisabled();
-				}
-
-				if (ImGui.CollapsingHeader(components[i].GetType().Name) == true) {
-					ImGui.Indent();
-					components[i].Debug();
-					ImGui.Unindent();
-				}
-
-				ImGui.PopID();
-
-			}
-
-
-
-		}
-
-		#endregion
-
+		#region Parenting
 
 		public void SetParent(GameObject parent) {
 			if (this.parent == parent) { return; }
@@ -129,7 +54,7 @@ namespace ArcticFoxEngine {
 			if (this.parent != null) {
 				this.parent.children.Remove(this);
 			}
-			
+
 			this.parent = parent;
 			if (parent == null) {
 				// If we are setting the parent back to the scene root, add the object back to the scene root
@@ -151,6 +76,8 @@ namespace ArcticFoxEngine {
 			return children[index];
 		}
 
+		#endregion
+		#region Enabling
 
 		internal void ParentEnable() {
 			if (dependantEnabled == true) { return; }
@@ -201,15 +128,18 @@ namespace ArcticFoxEngine {
 				for (int i = 0; i < components.Count; i++) {
 					components[i].ObjectDisable();
 				}
-				for (int i = 0; i < children.Count; i ++) {
+				for (int i = 0; i < children.Count; i++) {
 					children[i].ParentDisable();
 				}
 			}
 		}
 
+		#endregion
+		#region Component management
+
 		public T GetComponent<T>() where T : Component, new() {
 
-			for (int i = 0; i < components.Count; i ++) {
+			for (int i = 0; i < components.Count; i++) {
 
 				if (components[i].GetType() == typeof(T)) {
 					return (T)components[i];
@@ -222,9 +152,9 @@ namespace ArcticFoxEngine {
 		}
 		public Type GetComponent(Type type) {
 
-			for (int i = 0; i < components.Count; i ++) {
+			for (int i = 0; i < components.Count; i++) {
 				if (components[i].GetType() == type) {
-					return(components[i].GetType());
+					return (components[i].GetType());
 				}
 			}
 			return null;
@@ -237,7 +167,7 @@ namespace ArcticFoxEngine {
 
 			// Check for dependencies
 			bool dependencyProblem = false;
-			for (int i = 0; i < newComp.dependencies.Length; i ++) {
+			for (int i = 0; i < newComp.dependencies.Length; i++) {
 				if (GetComponent(newComp.dependencies[i]) == null) {
 					Log.Warn("Component " + newComp.GetType().Name + " was added to object " + name + " with missing dependency " + newComp.dependencies[i].Name);
 					Log.Warn("Adding default " + newComp.dependencies[i].Name);
@@ -247,12 +177,12 @@ namespace ArcticFoxEngine {
 			}
 			if (dependencyProblem == true) {
 				Log.Raw(newComp.GetType().Name + " depends on the following components");
-				for (int i = 0; i < newComp.dependencies.Length; i ++) {
+				for (int i = 0; i < newComp.dependencies.Length; i++) {
 					Log.Raw(" - " + newComp.dependencies[i].Name);
 
 				}
 			}
-			
+
 
 			newComp.Start();
 			newComp.Enable();
@@ -287,7 +217,7 @@ namespace ArcticFoxEngine {
 			newComp.Enable();
 			return newComp;
 
-		} 
+		}
 		public void RemoveComponent(Component comp) {
 			comp.Disable();
 			components.Remove(comp);
@@ -296,5 +226,80 @@ namespace ArcticFoxEngine {
 			RemoveComponent(GetComponent<T>());
 		}
 
+		#endregion
+
+		#region Component events
+
+		internal void UpdateEvent() {
+			if (enabled == false) { return; }
+			for (int i = 0; i < components.Count; i++) {
+				if (components[i].enabled == false) { continue; }
+				components[i].Update();
+			}
+			for (int i = 0; i < children.Count; i ++) {
+				children[i].UpdateEvent();
+			}
+		}
+		internal void RenderEvent() {
+			if (enabled == false) { return; }
+			for (int i = 0; i < components.Count; i++) {
+				if (components[i].enabled == false) { return; }
+				components[i].OnRender();
+			}
+			for (int i = 0; i < children.Count; i++) {
+				children[i].RenderEvent();
+			}
+		}
+		internal void DebugEvent() {
+
+			ImGui.InputText("Name", ref name, 128);
+			ImGui.Text("Components (" + components.Count + ")");
+
+			ImGui.Separator();
+			for (int i = 0; i < components.Count; i++) {
+
+				ImGui.PushID(components[i].GetHashCode());
+
+				// If the current component is the Transform component
+				if (components[i].GetType() == typeof(Transform)) {
+					ImGui.BeginDisabled();
+				}
+
+				// Checkbox for enabling and disabling components
+				bool componentEnabled = components[i].enabled;
+				if (ImGui.Checkbox("", ref componentEnabled) == true) {
+					if (components[i].enabled == true) {
+						components[i].Disable();
+					}
+					else {
+						components[i].Enable();
+					}
+				}
+
+				ImGui.SameLine();
+
+
+				if (components[i].GetType() == typeof(Transform)) {
+					ImGui.EndDisabled();
+				}
+
+				if (ImGui.CollapsingHeader(components[i].GetType().Name) == true) {
+					ImGui.Indent();
+					components[i].Debug();
+					ImGui.Unindent();
+				}
+
+				ImGui.PopID();
+
+			}
+
+
+
+		}
+
+		#endregion
+
+		
+		
 	}
 }

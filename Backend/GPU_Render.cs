@@ -32,7 +32,7 @@ namespace ArcticFoxEngine {
 		}
 
 
-		public static void ExecuteMainRender(Camera camera, GeometryInfo geometry) {
+		public static void ExecuteMainRender(Camera camera, GeometryResources geometry) {
 
 			#region Setup commandlist
 

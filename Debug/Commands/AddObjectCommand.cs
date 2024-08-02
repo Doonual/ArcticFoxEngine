@@ -18,7 +18,7 @@ namespace ArcticFoxEngine.Debug.Commands {
 		public string[] GetNextArgument(string[] args) {
 			
 			if (args.Length == 0) {
-				return new string[] { "name" };
+				return new string[] { "$Tname" };
 			}
 
 			return new string[0];

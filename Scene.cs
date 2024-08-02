@@ -5,22 +5,20 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ImGuiNET;
+using System.Windows.Forms;
 
 namespace ArcticFoxEngine {
 	public class Scene {
 
 		internal static Scene activeScene;
 
-		// Top level objects here only
-		internal List<GameObject> objects;
-
-		public GeometryInfo mainGeometry;
+		internal List<GameObject> objects;	// Top level objects here only
+		public GeometryResources mainGeometry;
 
 		public Scene() {
 			objects = new List<GameObject>();
-			mainGeometry = new GeometryInfo();
+			mainGeometry = new GeometryResources();
 		}
-
 
 		public GameObject InstantiateObject(string name = "", GameObject parent = null) {
 			
@@ -65,6 +63,8 @@ namespace ArcticFoxEngine {
 
 		private GameObject debugObjectSelected;
 		private List<GameObject> expandedChildren;
+		private bool addingNewObj = false;
+		private string newObjString = "";
 		internal void DebugEvent() {
 
 			if (expandedChildren == null) {
@@ -73,10 +73,7 @@ namespace ArcticFoxEngine {
 
 			ImGui.SeparatorText("Objects: " + objects.Count);
 
-			string[] objectNames = new string[objects.Count];
-			for (int i = 0; i < objects.Count; i ++) {
-				objectNames[i] = objects[i].name;
-			}
+			#region Object Tree
 
 			// This scares me
 			Action<GameObject> inspectObjectTree = null;
@@ -84,8 +81,9 @@ namespace ArcticFoxEngine {
 
 				ImGui.PushID(obj.GetHashCode());
 
+				#region Object enabled checkbox
+
 				bool objectEnabled = obj.enabled;
-				
 				if (ImGui.Checkbox("", ref objectEnabled) == true) {
 					if (obj.enabled == true) {
 						obj.Disable();
@@ -95,14 +93,16 @@ namespace ArcticFoxEngine {
 					}
 				}
 
-				
 				ImGui.SameLine();
 
-
-				
+				#endregion
+				#region Expand children arrow button
 
 				bool expandCurrent = false;
 				if (obj.GetChildCount() > 0) {
+
+					ImGui.PushStyleVar(ImGuiStyleVar.ItemSpacing, new System.Numerics.Vector2(0f, 0f));
+
 					expandCurrent = expandedChildren.Contains(obj);
 					ImGuiDir arrowDirection = ImGuiDir.Right;
 					if (expandCurrent == true) {
@@ -118,15 +118,32 @@ namespace ArcticFoxEngine {
 						}
 					}
 
-					ImGui.PushStyleVar(ImGuiStyleVar.ItemSpacing, new System.Numerics.Vector2(0f, 0f));
 					ImGui.SameLine();
 					ImGui.PopStyleVar();
+
+				}
+				else {
+					/*
+					ImGui.PushStyleColor(ImGuiCol.Button,			new System.Numerics.Vector4(0f, 0f,0f, 0f));
+					ImGui.PushStyleColor(ImGuiCol.ButtonHovered,	new System.Numerics.Vector4(0f, 0f, 0f, 0f));
+					ImGui.PushStyleColor(ImGuiCol.ButtonActive,		new System.Numerics.Vector4(0f, 0f, 0f, 0f));
+
+					ImGui.ArrowButton(obj.GetHashCode() + " show children", ImGuiDir.None);
+
+					ImGui.PopStyleColor();
+					ImGui.PopStyleColor();
+					ImGui.PopStyleColor();
+					*/
 				}
 
+				
+
+				#endregion
+
 				if (debugObjectSelected == obj) {
-					ImGui.PushStyleColor(ImGuiCol.Button, new System.Numerics.Vector4(230f / 255f, 179f / 255f, 0f, 1f));
-					ImGui.PushStyleColor(ImGuiCol.ButtonHovered, new System.Numerics.Vector4(230f / 255f, 179f / 255f, 0f, 1f));
-					ImGui.PushStyleColor(ImGuiCol.ButtonActive, new System.Numerics.Vector4(230f / 255f, 179f / 255f, 0f, 1f));
+					ImGui.PushStyleColor(ImGuiCol.Button,			new System.Numerics.Vector4(0.2588f / 2f, 0.5882f / 2f, 0.9804f / 2f, 0.4f));
+					ImGui.PushStyleColor(ImGuiCol.ButtonHovered,	new System.Numerics.Vector4(0.2588f / 2f, 0.5882f / 2f, 0.9804f / 2f, 0.4f));
+					ImGui.PushStyleColor(ImGuiCol.ButtonActive,		new System.Numerics.Vector4(0.2588f / 2f, 0.5882f / 2f, 0.9804f / 2f, 0.4f));
 				}
 
 
@@ -169,16 +186,51 @@ namespace ArcticFoxEngine {
 			for (int i = 0; i < objects.Count; i ++) {
 				inspectObjectTree(objects[i]);
 			}
+
+			#endregion
+			ImGui.Separator();
+
+			#region "Add New" and "Delete Current" buttons
+
+			bool addNewObject = false;
+			bool deleteObject = false;
+			if (addingNewObj == false) {
+				
+				ImGui.Columns(2);
+				addingNewObj = ImGui.Button("Add New", new System.Numerics.Vector2(-0.0001f, 0f));
+				ImGui.NextColumn();
+
+				if (debugObjectSelected == null) { ImGui.BeginDisabled(); }
+				deleteObject = ImGui.Button("Delete Current", new System.Numerics.Vector2(-0.0001f, 0f));
+				if (debugObjectSelected == null) { ImGui.EndDisabled(); }
+				ImGui.Columns();
+
+				if (addingNewObj == true) {
+					newObjString = "";
+				}
+
+			}
+			else {
+				ImGui.Columns(2);
+				ImGui.PushItemWidth(-1f);
+				ImGui.InputText("", ref newObjString, 128);
+				ImGui.PopItemWidth();
+
+				ImGui.NextColumn();
+				if (ImGui.Button("Create") == true) {
+					addNewObject = true;
+					addingNewObj = false;
+				}
+				ImGui.SameLine();
+				if (ImGui.Button("Cancel") == true) {
+					addingNewObj = false;
+				}
+
+			}
+
+			#endregion
+
 			ImGui.EndChild();
-
-			ImGui.Columns(2);
-			bool addNewObject = ImGui.Button("Add New", new System.Numerics.Vector2(-0.0001f, 0f));
-			ImGui.NextColumn();
-
-			if (debugObjectSelected == null) { ImGui.BeginDisabled(); }
-			bool deleteObject = ImGui.Button("Delete current", new System.Numerics.Vector2(-0.0001f, 0f));
-			if (debugObjectSelected == null) { ImGui.EndDisabled(); }
-			ImGui.Columns();
 
 			ImGui.BeginChild("Object components inspector", new System.Numerics.Vector2(-1f, 500f), true);
 			if (debugObjectSelected != null) {
@@ -191,7 +243,7 @@ namespace ArcticFoxEngine {
 			ImGui.EndChild();
 
 			if (addNewObject == true) {
-				InstantiateObject();
+				InstantiateObject(newObjString);
 			}
 			if (deleteObject == true) {
 				DestroyObject(debugObjectSelected);

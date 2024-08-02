@@ -7,7 +7,7 @@ namespace ArcticFoxEngine {
 	using SharpDX.Direct3D12;
 	using Swan;
 
-	public class GeometryInfo {
+	public class GeometryResources {
 
 		internal List<MeshRenderer> meshFilters;
 		
@@ -25,7 +25,7 @@ namespace ArcticFoxEngine {
 		GPU_Upload gpuUpload;
 
 		
-		public GeometryInfo() {
+		public GeometryResources() {
 
 			meshFilters = new List<MeshRenderer>();
 			gpuUpload = new GPU_Upload();
@@ -219,7 +219,6 @@ namespace ArcticFoxEngine {
 
 		}
 
-
 		public void UpdateObjectInfoBuffer() {
 
 			int maxObjectInfoIndex = -1;
@@ -243,7 +242,7 @@ namespace ArcticFoxEngine {
 
 		}
 
-		~GeometryInfo() {
+		~GeometryResources() {
 
 			vertexBuffer.Dispose();
 			indexBuffer.Dispose();

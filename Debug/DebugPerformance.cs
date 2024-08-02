@@ -1,24 +1,23 @@
 ﻿using ImGuiNET;
-using ClickableTransparentOverlay;
 using CoolClassLibrary;
 using ArcticFoxEngine.Backend;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace ArcticFoxEngine.Debug {
-	public static class DebugPerformance {
+	internal class DebugPerformance : DebugWindow {
 
-		static double msMax = 0.0;
-		static double msMaxView = 0.0;
+		double msMax = 0.0;
+		double msMaxView = 0.0;
 
-		static double msMin = 0.0;
-		static double msMinView = 0.0;
+		double msMin = 0.0;
+		double msMinView = 0.0;
 
-		static float[] fpsVals;
-		static int numElements;
-		static float msLine;
+		float[] fpsVals;
+		int numElements;
+		float msLine;
 
+		internal override string name => "Performance";
 
-		static DebugPerformance() {
+		internal DebugPerformance() {
 
 			fpsVals = new float[2000];
 			numElements = fpsVals.Length;
@@ -26,7 +25,7 @@ namespace ArcticFoxEngine.Debug {
 
 		}
 
-		internal static void UpdateVals() {
+		internal void UpdateVals() {
 
 			double ms = Profiler.GetFrameTime() * 1000;
 
@@ -52,7 +51,7 @@ namespace ArcticFoxEngine.Debug {
 		}
 
 
-		internal static void Render() {
+		internal override void Render() {
 
 			double ms = Profiler.GetFrameTime() * 1000;
 
@@ -124,7 +123,7 @@ namespace ArcticFoxEngine.Debug {
 			
 		}
 
-		private static float[] SquishPlot(float[] inVals, int targetNumVals) {
+		private float[] SquishPlot(float[] inVals, int targetNumVals) {
 
 			float[] outVals = new float[targetNumVals];
 			for (int i = 0; i < outVals.Length; i++) {

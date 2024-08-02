@@ -9,17 +9,18 @@ using System.Numerics;
 using ArcticFoxEngine.Components;
 
 namespace ArcticFoxEngine.Debug {
-	internal static class DebugMeshBuffers {
+	internal class DebugMeshBuffers : DebugWindow {
 
-		static int maxEntries = 64;
-		static int cubeCount = 0;
-		static int quadCount = 0;
+		int maxEntries = 64;
+		int cubeCount = 0;
+		int quadCount = 0;
 
-		static float colorStride = 0.781f;
+		float colorStride = 0.781f;
 
-		internal static void Render() {
+		internal override string name => "Mesh Buffer Viewer";
+		internal override void Render() {
 
-			GeometryInfo geometry = Scene.activeScene.mainGeometry;
+			GeometryResources geometry = Scene.activeScene.mainGeometry;
 			MeshRenderer delMeshFilter = null;
 
 			ImGui.InputInt("Max Display Entries", ref maxEntries);
@@ -263,6 +264,7 @@ namespace ArcticFoxEngine.Debug {
 
 			}
 		}
+
 
 	}
 }

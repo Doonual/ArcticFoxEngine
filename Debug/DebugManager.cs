@@ -7,14 +7,34 @@ namespace ArcticFoxEngine.Debug {
 
 		static DebugManager debugManager;
 		static ImGuiIOPtr ioPtr;
-
+		private static List<DebugWindow> windows;
+		private static bool showDemo;
 		public static bool isOpen {
 			get;
 			private set;
 		}
-		
+
 		static DebugManager() {
 			isOpen = false;
+			windows = new List<DebugWindow>() {
+				new DebugLog(),
+				new DebugMeshBuffers(),
+				new DebugPerformance(),
+				new DebugRender(),
+				new DebugScene(),
+			};
+			LoadWindowOptions();
+		}
+
+		internal static T GetDebugWindow<T>() where T : DebugWindow {
+
+			for (int i = 0; i < windows.Count; i++) {
+				if (windows[i].GetType() == typeof(T)) {
+					return (T)windows[i];
+				}
+			}
+			return null;
+
 		}
 
 		internal static void InitImGui() {
@@ -26,8 +46,8 @@ namespace ArcticFoxEngine.Debug {
 
 			ImGui.StyleColorsDark();
 
-			Log.ListenToLog(DebugLog.LogEvent);
-			Log.ListenToLogColor(DebugLog.LogColorEvent);
+			Log.ListenToLog(GetDebugWindow<DebugLog>().LogEvent);
+			Log.ListenToLogColor(GetDebugWindow<DebugLog>().LogColorEvent);
 
 		}
 
@@ -39,6 +59,8 @@ namespace ArcticFoxEngine.Debug {
 
 			debugManager = new DebugManager();
 			debugManager.Start();
+
+			LoadWindowOptions();
 
 
 		}
@@ -52,59 +74,37 @@ namespace ArcticFoxEngine.Debug {
 
 		}
 
-
-		private static bool renderWindowOpen = true;
-		private static bool sceneWindowOpen = true;
-		private static bool performanceWindowOpen = false;
-		private static bool meshWindowOpen = false;
-		private static bool logWindowOpen = true;
 		protected override void Render() {
 
-			ImGuiWindowFlags flags = ImGuiWindowFlags.None;
-			flags |= ImGuiWindowFlags.AlwaysAutoResize;
-			flags |= ImGuiWindowFlags.NoTitleBar;
+			if (ImGui.BeginMainMenuBar() == true) {
+				if (ImGui.BeginMenu("Window") == true) {
 
-			ImGui.SetNextWindowPos(new System.Numerics.Vector2(0f, 0f));
-			ImGui.Begin("Menu buttons", flags);
-			if (ImGui.BeginMenu("Window") == true) {
-				renderWindowOpen |= ImGui.MenuItem("Render") == true;
-				sceneWindowOpen |= ImGui.MenuItem("Scene") == true;
-				performanceWindowOpen |= ImGui.MenuItem("Performance") == true;
-				meshWindowOpen |= ImGui.MenuItem("Mesh") == true;
-				logWindowOpen |= ImGui.MenuItem("Log") == true;
+					ImGui.Checkbox("Show ImGui Demo", ref showDemo);
+					ImGui.Separator();
+
+					for (int i = 0; i < windows.Count; i++) {
+						if (ImGui.MenuItem(windows[i].name, null, ref windows[i].open) == true) {
+							SaveWindowOptions();
+						}
+					}
+
+				}
+			}
+			ImGui.EndMenuBar();
+
+			if (showDemo == true) {
+				ImGui.ShowDemoWindow();
+			}
+			for (int i = 0; i < windows.Count; i++) {
+				if (windows[i].open == true) {
+					ImGui.Begin(windows[i].name, ref windows[i].open);
+					windows[i].Render();
+					ImGui.End();
+				}
 			}
 
-			ImGui.EndMenu();
-			ImGui.End();
-
-			if (renderWindowOpen == true) {
-				ImGui.Begin("Render", ref renderWindowOpen);
-				DebugRender.Render();
-				ImGui.End();
-			}
-			if (sceneWindowOpen == true) {
-				ImGui.Begin("Scene", ref sceneWindowOpen);
-				DebugScene.Render();
-				ImGui.End();
-			}
-			if (performanceWindowOpen == true) {
-				ImGui.Begin("Performance", ref performanceWindowOpen);
-				DebugPerformance.Render();
-				ImGui.End();
-			}
-			if (meshWindowOpen == true) {
-				ImGui.Begin("Mesh buffer data debugger", ref meshWindowOpen);
-				DebugMeshBuffers.Render();
-				ImGui.End();
-			}
-			if (logWindowOpen == true) {
-				ImGui.Begin("Log", ref logWindowOpen);
-				DebugLog.Render();
-				ImGui.End();
-			}
 
 		}
-
 
 		internal static string FormatHex(int hexValue) {
 
@@ -116,5 +116,32 @@ namespace ArcticFoxEngine.Debug {
 			return hexString;
 
 		}
+
+		private static void SaveWindowOptions() {
+
+			byte saveValue = 0;
+			for (int i = 0; i < windows.Count; i++) {
+				saveValue <<= 1;
+				saveValue += (byte)(windows[i].open == true ? 1 : 0);
+			}
+
+			File.WriteAllBytes("debugconfig", new byte[] { saveValue });
+
+		}
+		private static void LoadWindowOptions() {
+
+			byte saveValue = File.ReadAllBytes("debugconfig")[0];
+			for (int i = windows.Count - 1; i >= 0; i--) {
+				if ((saveValue & 1) == 1) {
+					windows[i].open = true;
+				}
+				else {
+					windows[i].open = false;
+				}
+				saveValue >>= 1;
+			}
+
+		}
+
 	}
 }

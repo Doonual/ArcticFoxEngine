@@ -1,27 +1,22 @@
 ﻿using ImGuiNET;
-using ClickableTransparentOverlay;
-using CoolClassLibrary;
 
 namespace ArcticFoxEngine.Debug {
-	public static class DebugRender {
+	internal class DebugRender : DebugWindow {
 
-		static bool showImGuiDemo;
-		static bool showRenderWindow;
+		bool showImGuiDemo;
+		bool showRenderWindow;
 
-		static DebugRender() {
+		internal DebugRender() {
 			showRenderWindow = true;
 		}
 
-		internal static void Render() {
+		internal override string name => "Render";
+
+		internal override void Render() {
 
 			if (showRenderWindow == true) {
 				ImGui.Begin("Render", ref showRenderWindow, ImGuiWindowFlags.None);
 
-				showImGuiDemo ^= ImGui.RadioButton("Show ImGui Demo", showImGuiDemo);
-
-				if (showImGuiDemo == true) {
-					ImGui.ShowDemoWindow();
-				}
 			}
 			
 

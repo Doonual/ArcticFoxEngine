@@ -28,7 +28,7 @@ namespace ArcticFoxEngine.Backend {
 			
 			frameEnd = gpuTimestamp;
 			frameTime = (frameEnd - frameStart) / (double)timestampFrequency;
-			DebugPerformance.UpdateVals();
+			DebugManager.GetDebugWindow<DebugPerformance>().UpdateVals();
 
 		}
 

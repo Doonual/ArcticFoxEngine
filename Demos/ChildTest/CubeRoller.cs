@@ -1,4 +1,5 @@
-﻿using ArcticFoxEngine.Components;
+﻿using ArcticFoxEngine.Backend;
+using ArcticFoxEngine.Components;
 using ImGuiNET;
 using System;
 using System.Collections.Generic;
@@ -13,7 +14,7 @@ namespace ArcticFoxEngine.Testing.ChildTest {
 		float rotationSpeed;
 
 
-		float rotationMagnitude = 0.01f;
+		float rotationMagnitude = 2f;
 
 
 		public override void Start() {
@@ -25,7 +26,7 @@ namespace ArcticFoxEngine.Testing.ChildTest {
 		public override void Update() {
 
 			rotationAngle += rotationSpeed;
-			Vector2 rotationDirection = Vector2.Angle(rotationAngle, rotationMagnitude);
+			Vector2 rotationDirection = Vector2.Angle(rotationAngle, rotationMagnitude) * (float)Profiler.deltaTime;
 
 			transform.rotation *= Quaternion.RotationYawPitchRoll(rotationDirection.x, rotationDirection.y, 0f);
 

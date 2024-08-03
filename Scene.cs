@@ -21,7 +21,7 @@ namespace ArcticFoxEngine {
 
 		public Scene() {
 
-			int kbEach = 8;
+			int kbEach = 128;
 
 			Log.Info("Requesting " + (3 * kbEach) + " Kb for mesh buffers");
 

@@ -27,7 +27,7 @@ namespace ArcticFoxEngine.Debug {
 
 		internal void UpdateVals() {
 
-			double ms = Profiler.GetFrameTime() * 1000;
+			double ms = Profiler.frameTime * 1000;
 
 			if (ms > msMax) {
 				msMax = ms;
@@ -53,7 +53,7 @@ namespace ArcticFoxEngine.Debug {
 
 		internal override void Render() {
 
-			double ms = Profiler.GetFrameTime() * 1000;
+			double ms = Profiler.frameTime * 1000;
 
 			ImGuiTableFlags flags = ImGuiTableFlags.Borders;
 			ImGui.BeginTable("Performance Table", 3, flags);

@@ -11,43 +11,33 @@ using System.Threading.Tasks;
 namespace ArcticFoxEngine.Backend {
 	public static class Profiler {
 
-		private static long timestampFrequency;
 
 		private static long frameStart;
 		private static long frameEnd;
 
 		private static long prevGpuTimestamp;
 
-		private static double deltaTime;
-		private static double frameTime;
+		public static float deltaTime { get; private set; }
+		public static float frameTime { get; private set; }
 
-		internal static void GpuTimestampFrameStart(long gpuTimestamp) {
-			frameStart = gpuTimestamp;
-		}
-		internal static void GpuTimestampFrameEnd(long gpuTimestamp) {
+		internal static void FrameStart() {
+
+			long gpuTimestamp;
+			GPU_Render.cmdQueue.GetClockCalibration(out gpuTimestamp, out _);
 			
+			frameStart = gpuTimestamp;
+			deltaTime = (gpuTimestamp - prevGpuTimestamp) / (float)GPU_Render.cmdQueue.TimestampFrequency;
+			prevGpuTimestamp = gpuTimestamp;
+		}
+		internal static void FrameEnd() {
+
+			long gpuTimestamp;
+			GPU_Render.cmdQueue.GetClockCalibration(out gpuTimestamp, out _);
+
 			frameEnd = gpuTimestamp;
-			frameTime = (frameEnd - frameStart) / (double)timestampFrequency;
+			frameTime = (frameEnd - frameStart) / (float)GPU_Render.cmdQueue.TimestampFrequency;
 			DebugManager.GetDebugWindow<DebugPerformance>().UpdateVals();
 
-		}
-
-		internal static void UpdateGpuTimestamp(long gpuTimestamp, long timestampFrequency) {
-
-			Profiler.timestampFrequency = timestampFrequency;
-
-			deltaTime = (gpuTimestamp - prevGpuTimestamp) / (double)timestampFrequency;
-			prevGpuTimestamp = gpuTimestamp;
-			
-
-		}
-
-		public static double GetFrameTime() {
-			return frameTime;
-		}
-
-		public static double GetDeltaTime() {
-			return deltaTime;
 		}
 
 	}

@@ -20,6 +20,11 @@ namespace ArcticFoxEngine.Debug {
 		internal override string name => "Mesh Buffer Viewer";
 		internal override void Render() {
 
+			if (Scene.activeScene == null) {
+				ImGui.Text("Load a scene to debug the mesh buffers");
+				return;
+			}
+
 			GeometryResources geometry = Scene.activeScene.mainGeometry;
 			MeshRenderer delMeshFilter = null;
 

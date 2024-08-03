@@ -1,4 +1,5 @@
-﻿using ArcticFoxEngine.Components;
+﻿using ArcticFoxEngine.Backend;
+using ArcticFoxEngine.Components;
 using CoolClassLibrary;
 using ImGuiNET;
 using System;
@@ -90,7 +91,7 @@ namespace ArcticFoxEngine.Testing.SceneTest {
 		public override void Update() {
 			
 			if (animate == true) {
-				t += speed * 0.001f;
+				t += speed * (float)Profiler.deltaTime * 0.3f;
 			}
 			t %= 1;
 

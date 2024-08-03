@@ -1,4 +1,5 @@
-﻿using ArcticFoxEngine.Components;
+﻿using ArcticFoxEngine.Backend;
+using ArcticFoxEngine.Components;
 using CoolClassLibrary;
 using ImGuiNET;
 using System;
@@ -20,7 +21,7 @@ namespace ArcticFoxEngine.Testing.ChildTest {
 
 			radius = 7f;
 			angle = MathUtil.RandomFloat(0f, MathF.PI * 2);
-			omega = MathUtil.RandomFloat(0.001f, 0.004f);
+			omega = MathUtil.RandomFloat(0.1f, 0.4f);
 
 			meshRenderObj = gameObject.InstantiateChild("Mesh renderer obj");
 			meshRenderObj.AddComponent<MeshRenderer>().SetMesh(Mesh.CreatePrimitive(Mesh.Primitive.Cube));
@@ -36,7 +37,7 @@ namespace ArcticFoxEngine.Testing.ChildTest {
 			transform.rotation = Quaternion.RotationYawPitchRoll(0f, 0f, angle);
 			transform.position = transform.Right * radius;
 
-			angle += omega;
+			angle += omega * Profiler.deltaTime;
 			angle %= MathF.PI * 2f;
 
 		}

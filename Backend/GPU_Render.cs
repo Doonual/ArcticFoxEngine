@@ -91,10 +91,6 @@ namespace ArcticFoxEngine {
 			cmdList.Close();
 			cmdQueue.ExecuteCommandList(cmdList);
 
-			long cpuTimestamp;
-			long gpuTimestamp;
-			cmdQueue.GetClockCalibration(out gpuTimestamp, out cpuTimestamp);
-			Profiler.UpdateGpuTimestamp(gpuTimestamp, cmdQueue.TimestampFrequency);
 
 		}
 

@@ -71,9 +71,7 @@ namespace ArcticFoxEngine {
 			using (loop = new RenderLoop(form)) {
 				while (loop != null && loop.NextFrame()) {
 
-					long timestamp;
-					GPU_Render.cmdQueue.GetClockCalibration(out timestamp, out _);
-					Profiler.GpuTimestampFrameStart(timestamp);
+					Profiler.FrameStart();
 
 					Scene.PerformSceneSwap();
 
@@ -95,8 +93,7 @@ namespace ArcticFoxEngine {
 					Graphics.Buffer();
 
 
-					GPU_Render.cmdQueue.GetClockCalibration(out timestamp, out _);
-					Profiler.GpuTimestampFrameEnd(timestamp);
+					Profiler.FrameEnd();
 					Graphics.WaitForPreviousFrame();
 
 					InputManager.NextFrame();

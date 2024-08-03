@@ -1,6 +1,7 @@
 ﻿using ArcticFoxEngine.Testing;
 using ArcticFoxEngine.Testing.SceneTest;
 using ArcticFoxEngine.Testing.ChildTest;
+using ArcticFoxEngine.Demos.RenderingStressTest;
 using ClickableTransparentOverlay;
 using CoolClassLibrary;
 using ImGuiNET;
@@ -15,7 +16,6 @@ namespace ArcticFoxEngine.Debug {
 		private static bool showImGuiDemo;
 
 		private static List<DemoScene> demoScenes;
-		private static int loadScene = -1;
 
 		internal static void Init() {
 			isOpen = false;
@@ -30,7 +30,9 @@ namespace ArcticFoxEngine.Debug {
 			demoScenes = new List<DemoScene>() {
 				new HelloSceneDemo(),
 				new ChildTestDemo(),
+				new RenderingStressTestDemo(),
 			};
+
 
 			Log.ListenToLog(GetDebugWindow<DebugLog>().LogEvent);
 			Log.ListenToLogColor(GetDebugWindow<DebugLog>().LogColorEvent);
@@ -113,7 +115,6 @@ namespace ArcticFoxEngine.Debug {
 					ImGui.End();
 				}
 			}
-
 
 		}
 

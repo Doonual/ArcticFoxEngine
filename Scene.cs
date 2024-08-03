@@ -6,18 +6,27 @@ using System.Text;
 using System.Threading.Tasks;
 using ImGuiNET;
 using System.Windows.Forms;
+using ArcticFoxEngine.Input;
+using ArcticFoxEngine.Testing;
 
 namespace ArcticFoxEngine {
 	public class Scene {
 
-		internal static Scene activeScene;
+		internal static Scene activeScene;				// Scene that is currently shown
+		internal static Scene sceneSwitchQueue;			// Scene that is waiting to be switched to
+		internal static DemoScene sceneSwitchDemoQueue; // DemoScene that is waiting to be created and switched to
 
 		internal List<GameObject> objects;	// Top level objects here only
 		public GeometryResources mainGeometry;
 
 		public Scene() {
+
+			int kbEach = 8;
+
+			Log.Info("Requesting " + (3 * kbEach) + " Kb for mesh buffers");
+
 			objects = new List<GameObject>();
-			mainGeometry = new GeometryResources();
+			mainGeometry = new GeometryResources(kbEach * 1024, kbEach * 1024, kbEach * 1024);
 		}
 
 		public GameObject InstantiateObject(string name = "", GameObject parent = null) {
@@ -44,11 +53,48 @@ namespace ArcticFoxEngine {
 			return objects.ToArray();
 		}
 
+		#region Scene Management
 
 		public static void LoadScene(Scene scene) {
-			activeScene = scene;
+			sceneSwitchQueue = scene;
+			sceneSwitchDemoQueue = null;
 		}
-		
+		public static void LoadDemoScene(DemoScene demoScene) {
+			sceneSwitchDemoQueue = demoScene;
+			sceneSwitchQueue = null;
+		}
+
+		internal static void PerformSceneSwap() {
+			if (sceneSwitchQueue == null && sceneSwitchDemoQueue == null) { return; }
+			if (activeScene != null) {
+				Log.Info("Disposing scene \"" + Log.FormatHex(activeScene.GetHashCode()) + "\"");
+				activeScene.Dispose();
+			}
+
+			if (sceneSwitchDemoQueue != null) {
+				string sceneLoadName = sceneSwitchDemoQueue.name;
+				Log.Info("Loading demo scene \"" + sceneLoadName + "\"");
+				try {
+					activeScene = sceneSwitchDemoQueue.LoadScene();
+					Log.Success("Loaded demo scene \"" + sceneLoadName + "\"");
+				}
+				catch (Exception e) {
+					Log.Error("Failed to load demo scene \"" + sceneLoadName + "\"");
+				}
+			}
+			if (sceneSwitchQueue != null) {
+				Log.Info("Switching scene to \"" + Log.FormatHex(sceneSwitchQueue.GetHashCode()) + "\"");
+				activeScene = sceneSwitchQueue;
+			}
+			Log.Raw("");
+
+			sceneSwitchQueue = null;
+			sceneSwitchDemoQueue = null;
+
+		}
+
+		#endregion
+
 		internal void NewFrame() {
 			
 			for (int i = 0; i < objects.Count; i ++) {
@@ -60,6 +106,8 @@ namespace ArcticFoxEngine {
 			}
 
 		}
+
+		#region Debug
 
 		private GameObject debugObjectSelected;
 		private List<GameObject> expandedChildren;
@@ -252,6 +300,9 @@ namespace ArcticFoxEngine {
 
 		}
 
+		#endregion
+		#region Disposal
+
 		private bool disposed = false;
 		public void Dispose() {
 			if (disposed == true) { return; }
@@ -261,6 +312,8 @@ namespace ArcticFoxEngine {
 		~Scene() {
 			Dispose();
 		}
+
+		#endregion
 
 	}
 }

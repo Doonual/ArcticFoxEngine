@@ -32,9 +32,7 @@ namespace ArcticFoxEngine {
 		}
 
 
-		public static void ExecuteMainRender(Camera camera, GeometryResources geometry) {
-
-			#region Setup commandlist
+		public static void Render(Camera camera, GeometryResources geometry) {
 
 			// Command list allocators can only be reset when the associated 
 			// command lists have finished execution on the GPU; apps should use 
@@ -48,9 +46,11 @@ namespace ArcticFoxEngine {
 
 			// Bind shader resources
 
+			
 			camera.WriteCameraInfoBuffer(GraphicsResources.renderInfo);
 			geometry.UpdateObjectInfoBuffer();
 			GraphicsResources.BindShaderResources(cmdList);
+
 			
 
 			// Viewport and render target
@@ -86,12 +86,10 @@ namespace ArcticFoxEngine {
 
 			// Indicate that the back buffer will now be used to present
 			cmdList.ResourceBarrierTransition(GraphicsResources.renderTargets[Graphics.frameIndex], ResourceStates.RenderTarget, ResourceStates.Present);
+			
+			
 			cmdList.Close();
-
-			#endregion
-
 			cmdQueue.ExecuteCommandList(cmdList);
-
 
 			long cpuTimestamp;
 			long gpuTimestamp;

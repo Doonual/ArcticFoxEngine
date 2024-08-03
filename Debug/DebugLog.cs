@@ -51,27 +51,27 @@ namespace ArcticFoxEngine.Debug {
 				break;
 
 				case ConsoleColor.DarkBlue:
-				colString = "0000FF";
+				colString = "00007F";
 				break;
 
 				case ConsoleColor.DarkGreen:
-				colString = "00FF00";
+				colString = "007F00";
 				break;
 
 				case ConsoleColor.DarkCyan:
-				colString = "00FFFF";
+				colString = "007F7F";
 				break;
 
 				case ConsoleColor.DarkRed:
-				colString = "FF0000";
+				colString = "7F0000";
 				break;
 
 				case ConsoleColor.DarkMagenta:
-				colString = "FF00FF";
+				colString = "7F007F";
 				break;
 
 				case ConsoleColor.DarkYellow:
-				colString = "FFFF00";
+				colString = "7F7F00";
 				break;
 
 				case ConsoleColor.Gray:
@@ -83,27 +83,27 @@ namespace ArcticFoxEngine.Debug {
 				break;
 
 				case ConsoleColor.Blue:
-				colString = "7F7FFF";
+				colString = "0000FF";
 				break;
 
 				case ConsoleColor.Green:
-				colString = "7FFF7F";
+				colString = "00FF00";
 				break;
 
 				case ConsoleColor.Cyan:
-				colString = "7FFFFF";
+				colString = "00FFFF";
 				break;
 
 				case ConsoleColor.Red:
-				colString = "FF7F7F";
+				colString = "FF0000";
 				break;
 
 				case ConsoleColor.Magenta:
-				colString = "FF7FFF";
+				colString = "FF00FF";
 				break;
 
 				case ConsoleColor.Yellow:
-				colString = "FFFF7F";
+				colString = "FFFF00";
 				break;
 
 				case ConsoleColor.White:

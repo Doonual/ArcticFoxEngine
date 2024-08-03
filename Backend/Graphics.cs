@@ -11,7 +11,7 @@ namespace ArcticFoxEngine {
 
 	public static class Graphics {
 
-		public static bool debug = false;
+		public static bool isDebug = false;
 
 		internal static Device device;
 
@@ -32,7 +32,7 @@ namespace ArcticFoxEngine {
 		// Combines all the individual steps to setting up rendering
 		public static void SetupRenderer(RenderForm form) {
 
-			if (debug == true) {
+			if (isDebug == true) {
 				// Enable the D3D12 debug layer
 				DebugInterface.Get().EnableDebugLayer();
 			}
@@ -171,7 +171,7 @@ namespace ArcticFoxEngine {
 
 			string shaderCode = File.ReadAllText(path);
 
-			SharpDX.D3DCompiler.ShaderFlags flags = debug ? SharpDX.D3DCompiler.ShaderFlags.None : SharpDX.D3DCompiler.ShaderFlags.Debug;
+			SharpDX.D3DCompiler.ShaderFlags flags = isDebug ? SharpDX.D3DCompiler.ShaderFlags.None : SharpDX.D3DCompiler.ShaderFlags.Debug;
 			SharpDX.D3DCompiler.Include include = new StandardIncludeHandler();
 
 			string entrypoint = "";
@@ -245,9 +245,28 @@ namespace ArcticFoxEngine {
 		public static void Buffer() {
 
 			// Present the frame
-			swapChain.Present(1, 0);
+			try {
+				CheckHRESULT(swapChain.Present(1, 0));
+			}
+			catch (Exception e) {
+				CheckHRESULT(device.DeviceRemovedReason);
+				Log.Error(e);
+			}
 
-			
+		}
+
+		internal static void CheckHRESULT(Result result) {
+			// https://learn.microsoft.com/en-us/windows/win32/com/structure-of-com-error-codes
+
+			uint resultCode = ((uint)result);
+			uint severity = (resultCode >> 31);
+			uint facility = ((resultCode >> 16) & 0b111111111111);
+			uint code = resultCode & 0b1111111111111111;
+
+			if (severity == 1) {
+				Log.Error("DX12 Error: " + result);
+				Thread.CurrentThread.Interrupt();
+			}
 
 		}
 

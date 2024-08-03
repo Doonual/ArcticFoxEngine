@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace ArcticFoxEngine.Backend {
-	internal class GPU_Upload {
+	internal static class GPU_Upload {
 
 		struct UploadFrame {
 
@@ -19,7 +19,7 @@ namespace ArcticFoxEngine.Backend {
 			public int fenceValue;
 			public bool ready;
 
-			public UploadFrame(GPU_Upload upload) {
+			public UploadFrame() {
 				commandAllocator = Graphics.device.CreateCommandAllocator(CommandListType.Copy); ;
 				commandList = Graphics.device.CreateCommandList(CommandListType.Copy, commandAllocator, null);
 				commandList.Close();
@@ -33,11 +33,11 @@ namespace ArcticFoxEngine.Backend {
 				fenceValue = 0;
 			}
 
-			public void WaitAndReset(GPU_Upload upload) {
+			public void WaitAndReset() {
 
-				if (upload.uploadFence.CompletedValue < upload.fenceValue) {
-					upload.uploadFence.SetEventOnCompletion(upload.fenceValue, upload.fenceEvent.SafeWaitHandle.DangerousGetHandle());
-					upload.fenceEvent.WaitOne();
+				if (uploadFence.CompletedValue < fenceValue) {
+					uploadFence.SetEventOnCompletion(fenceValue, fenceEvent.SafeWaitHandle.DangerousGetHandle());
+					fenceEvent.WaitOne();
 				}
 
 				uploadBuffer.Dispose();
@@ -48,8 +48,9 @@ namespace ArcticFoxEngine.Backend {
 
 			}
 
-			public void Dispose(GPU_Upload upload) {
-				WaitAndReset(upload);
+			public void Dispose() {
+				
+				WaitAndReset();
 				commandAllocator.Dispose();
 				commandList.Dispose();
 			}
@@ -57,28 +58,28 @@ namespace ArcticFoxEngine.Backend {
 		}
 
 
-		int uploadFrameCount = 4;
-		UploadFrame[] uploadFrames;
+		static int uploadFrameCount = 4;
+		static UploadFrame[] uploadFrames;
 
-		CommandQueue uploadCommandQueue;
-		Fence uploadFence;
-		int fenceValue;
-		AutoResetEvent fenceEvent;
+		static CommandQueue uploadCommandQueue;
+		static Fence uploadFence;
+		static int fenceValue;
+		static AutoResetEvent fenceEvent;
 		//Mutex frameMutex;
 
-		int uploadFrameIndex;
+		static int uploadFrameIndex;
 
-		public GraphicsCommandList commandList;
-		public IntPtr cpuAddress;
-		public Resource uploadBuffer;
+		static public GraphicsCommandList commandList;
+		static public IntPtr cpuAddress;
+		static public Resource uploadBuffer;
 
-		
 
-		public GPU_Upload() {
+
+		static GPU_Upload() {
 
 			uploadFrames = new UploadFrame[uploadFrameCount];
 			for (int i = 0; i < uploadFrameCount; i++) {
-				uploadFrames[i] = new UploadFrame(this);
+				uploadFrames[i] = new UploadFrame();
 			}
 
 			CommandQueueDescription desc = new CommandQueueDescription();
@@ -97,7 +98,7 @@ namespace ArcticFoxEngine.Backend {
 
 		}
 
-		public void UploadContext(int alignedSize) {
+		public static void UploadContext(int alignedSize) {
 
 
 			uploadFrameIndex = GetAvailableUploadFrame();
@@ -116,7 +117,7 @@ namespace ArcticFoxEngine.Backend {
 
 
 		}
-		public void EndUpload() {
+		public static void EndUpload() {
 
 			UploadFrame frame = uploadFrames[uploadFrameIndex];
 			GraphicsCommandList commandList = frame.commandList;
@@ -126,10 +127,10 @@ namespace ArcticFoxEngine.Backend {
 			fenceValue++;
 			frame.fenceValue = fenceValue;
 			uploadCommandQueue.Signal(uploadFence, frame.fenceValue);
-			frame.WaitAndReset(this);
+			frame.WaitAndReset();
 
 		}
-		int GetAvailableUploadFrame() {
+		static int GetAvailableUploadFrame() {
 			// Iterates through the upload frames and returns the index of the first ready one
 
 			int index = -1;
@@ -155,10 +156,10 @@ namespace ArcticFoxEngine.Backend {
 
 		}
 
-		~GPU_Upload() {
+		internal static void Dispose() {
 
 			for (int i = 0; i < uploadFrameCount; i ++) {
-				uploadFrames[i].Dispose(this);
+				uploadFrames[i].Dispose();
 			}
 
 			if (fenceEvent != null) {

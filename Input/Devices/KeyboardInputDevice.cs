@@ -16,7 +16,6 @@ namespace ArcticFoxEngine.Input.Devices {
 
 		internal static void Init() {
 			if (initialised == true) { return; }
-			initialised = true;
 			deviceUpdate = new List<Action<KeyboardUpdate>>();
 
 			InputManager.AddInputDevice(UpdateDevice);
@@ -25,10 +24,11 @@ namespace ArcticFoxEngine.Input.Devices {
 			keyboard.Properties.BufferSize = 128;
 			keyboard.Acquire();
 
+			initialised = true;
 		}
 
 		private static void UpdateDevice() {
-			
+			if (initialised == false) { return; }
 			KeyboardUpdate[] updates = keyboard.GetBufferedData();
 			for (int i = 0; i < updates.Length; i ++) {
 				for (int n = 0; n < deviceUpdate.Count; n ++) {

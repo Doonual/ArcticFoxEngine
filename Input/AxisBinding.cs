@@ -11,7 +11,8 @@ namespace ArcticFoxEngine.Input {
 		internal float axisCurrent;
 		internal float axisPrev;
 
-		internal Action<float> activeChangedEvent;
+		internal Action<float> activeChangedEvent = (float a) => { };
+
 
 		protected float axisActive {
 			get {

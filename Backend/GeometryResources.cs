@@ -22,17 +22,14 @@ namespace ArcticFoxEngine {
 		internal int[] objectGap;
 		internal ConstBuffer<ObjectInfo> objectBuffer;
 
-		GPU_Upload gpuUpload;
-
 		
-		public GeometryResources() {
+		public GeometryResources(int sizeOfVB, int sizeOfIB, int sizeOfOB) {
 
 			meshFilters = new List<MeshRenderer>();
-			gpuUpload = new GPU_Upload();
 
-			int vbElements = 2048;
-			int ibElements = 2048;
-			int obElements = 2048;
+			int vbElements = sizeOfVB / Utilities.SizeOf<Vertex>();
+			int ibElements = sizeOfIB / sizeof(int);
+			int obElements = sizeOfOB / Utilities.SizeOf<ObjectInfo>();
 
 			// Create gap arrays
 			vertexGap = new int[vbElements];
@@ -49,12 +46,12 @@ namespace ArcticFoxEngine {
 			}
 			
 			// Create buffer resources
-			vertexBuffer = Graphics.device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.None, ResourceDescription.Buffer(vbElements * Utilities.SizeOf<Vertex>()), ResourceStates.GenericRead);
+			vertexBuffer = Graphics.device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.None, ResourceDescription.Buffer(sizeOfVB), ResourceStates.GenericRead);
 			vertexBufferView.BufferLocation = vertexBuffer.GPUVirtualAddress;
 			vertexBufferView.StrideInBytes = Utilities.SizeOf<Vertex>();
 			vertexBufferView.SizeInBytes = vbElements * Utilities.SizeOf<Vertex>();
 
-			indexBuffer = Graphics.device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.None, ResourceDescription.Buffer(ibElements * sizeof(int)), ResourceStates.IndexBuffer);
+			indexBuffer = Graphics.device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.None, ResourceDescription.Buffer(sizeOfIB), ResourceStates.IndexBuffer);
 			indexBufferView.BufferLocation = indexBuffer.GPUVirtualAddress;
 			indexBufferView.SizeInBytes = ibElements * sizeof(int);
 			indexBufferView.Format = SharpDX.DXGI.Format.R32_UInt;
@@ -99,16 +96,16 @@ namespace ArcticFoxEngine {
 			}
 			
 			int vertexUploadBufferSize = Utilities.SizeOf<Vertex>() * vertices.Length;
-			gpuUpload.UploadContext(vertexUploadBufferSize);
-			Utilities.Write(gpuUpload.cpuAddress, vertices, 0, vertices.Length);
-			gpuUpload.commandList.CopyBufferRegion(vertexBuffer, vbStartIndex * Utilities.SizeOf<Vertex>(), gpuUpload.uploadBuffer, 0, vertexUploadBufferSize);
-			gpuUpload.EndUpload();
+			GPU_Upload.UploadContext(vertexUploadBufferSize);
+			Utilities.Write(GPU_Upload.cpuAddress, vertices, 0, vertices.Length);
+			GPU_Upload.commandList.CopyBufferRegion(vertexBuffer, vbStartIndex * Utilities.SizeOf<Vertex>(), GPU_Upload.uploadBuffer, 0, vertexUploadBufferSize);
+			GPU_Upload.EndUpload();
 			
 			int indexUploadBufferSize = Utilities.SizeOf<int>() * indicesOffset.Length;
-			gpuUpload.UploadContext(indexUploadBufferSize);
-			Utilities.Write(gpuUpload.cpuAddress, indicesOffset, 0, indicesOffset.Length);
-			gpuUpload.commandList.CopyBufferRegion(indexBuffer, ibStartIndex * Utilities.SizeOf<int>(), gpuUpload.uploadBuffer, 0, indexUploadBufferSize);
-			gpuUpload.EndUpload();
+			GPU_Upload.UploadContext(indexUploadBufferSize);
+			Utilities.Write(GPU_Upload.cpuAddress, indicesOffset, 0, indicesOffset.Length);
+			GPU_Upload.commandList.CopyBufferRegion(indexBuffer, ibStartIndex * Utilities.SizeOf<int>(), GPU_Upload.uploadBuffer, 0, indexUploadBufferSize);
+			GPU_Upload.EndUpload();
 
 			#endregion
 
@@ -222,7 +219,6 @@ namespace ArcticFoxEngine {
 		public void UpdateObjectInfoBuffer() {
 
 			int maxObjectInfoIndex = -1;
-			
 			for (int i = 0; i < meshFilters.Count; i ++) {
 				if (meshFilters[i].obStartIndex > maxObjectInfoIndex) {
 					maxObjectInfoIndex = meshFilters[i].obStartIndex;
@@ -237,7 +233,7 @@ namespace ArcticFoxEngine {
 				MeshRenderer currentMesh = meshFilters[i];
 				gpuSendInfo[currentMesh.obStartIndex] = currentMesh.GetObjectInfo();
 			}
-			
+
 			objectBuffer.Write(gpuSendInfo, 0);
 
 		}
@@ -252,7 +248,6 @@ namespace ArcticFoxEngine {
 		}
 		~GeometryResources() {
 
-			Log.Info("Releasing mesh buffers");
 			Dispose();
 
 		}

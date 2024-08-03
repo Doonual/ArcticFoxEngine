@@ -39,7 +39,7 @@ namespace ArcticFoxEngine.Testing.SceneTest {
 					
 				}
 
-				GameObject xObj = Scene.activeScene.InstantiateObject("X" + (i + 1));
+				GameObject xObj = gameObject.scene.InstantiateObject("X" + (i + 1));
 				xObj.SetParent(gameObject);
 				xObj.AddComponent<MeshRenderer>().SetMesh(cubeMesh);
 				xSpin.Add(xObj);
@@ -56,7 +56,7 @@ namespace ArcticFoxEngine.Testing.SceneTest {
 					}
 				}
 
-				GameObject yObj = Scene.activeScene.InstantiateObject("Y" + (i + 1));
+				GameObject yObj = gameObject.scene.InstantiateObject("Y" + (i + 1));
 				yObj.SetParent(gameObject);
 				yObj.AddComponent<MeshRenderer>().SetMesh(cubeMesh);
 				ySpin.Add(yObj);
@@ -73,7 +73,7 @@ namespace ArcticFoxEngine.Testing.SceneTest {
 					}
 				}
 
-				GameObject zObj = Scene.activeScene.InstantiateObject("Z" + (i + 1));
+				GameObject zObj = gameObject.scene.InstantiateObject("Z" + (i + 1));
 				zObj.SetParent(gameObject);
 				zObj.AddComponent<MeshRenderer>().SetMesh(cubeMesh);
 				zSpin.Add(zObj);

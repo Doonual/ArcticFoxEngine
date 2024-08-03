@@ -38,11 +38,8 @@ namespace ArcticFoxEngine {
 			children = new List<GameObject>();
 
 		}
-		public static GameObject Instantiate(string name = "", GameObject parent = null) {
-			return Scene.activeScene.InstantiateObject(name, parent);
-		}
 		public GameObject InstantiateChild(string name = "") {
-			return Instantiate(name, this);
+			return scene.InstantiateObject(name, this);
 		}
 
 		#region Parenting

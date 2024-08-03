@@ -91,7 +91,7 @@ namespace ArcticFoxEngine {
 		}
 
 		public override void OnRender() {
-			GPU_Render.ExecuteMainRender(this, gameObject.scene.mainGeometry);
+			GPU_Render.Render(this, gameObject.scene.mainGeometry);
 		}
 
 		internal void WriteCameraInfoBuffer(ConstBuffer<RenderInfo> buffer) {

@@ -75,6 +75,8 @@ namespace ArcticFoxEngine {
 					GPU_Render.cmdQueue.GetClockCalibration(out timestamp, out _);
 					Profiler.GpuTimestampFrameStart(timestamp);
 
+					Scene.PerformSceneSwap();
+
 					InputManager.GetInputDeviceUpdates();
 
 					if (Scene.activeScene != null) {

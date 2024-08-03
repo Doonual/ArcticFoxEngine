@@ -34,7 +34,7 @@ namespace ArcticFoxEngine.Testing.SceneTest {
 		float speed;
 
 		public override void Start() {
-			
+
 			mainCamera = gameObject.GetComponent<Camera>();
 
 			moveForward = new KeyboardButtonInput(KeyboardButtonInput.KeyboardButton.W);
@@ -46,6 +46,8 @@ namespace ArcticFoxEngine.Testing.SceneTest {
 			rollRight = new KeyboardButtonInput(KeyboardButtonInput.KeyboardButton.E);
 			rollLeft = new KeyboardButtonInput(KeyboardButtonInput.KeyboardButton.Q);
 			lookVector = new GenericAxis2DInput(new MouseAxisInput(MouseAxisInput.MouseAxis.x), new MouseAxisInput(MouseAxisInput.MouseAxis.y));
+
+			
 			lookHold = new MouseButtonInput(MouseButtonInput.MouseButton.Right);
 
 			increaseSpeed = new MouseButtonInput(MouseButtonInput.MouseButton.WheelUp);

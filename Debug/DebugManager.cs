@@ -15,6 +15,7 @@ namespace ArcticFoxEngine.Debug {
 		private static bool showImGuiDemo;
 
 		private static List<DemoScene> demoScenes;
+		private static int loadScene = -1;
 
 		internal static void Init() {
 			isOpen = false;
@@ -92,7 +93,7 @@ namespace ArcticFoxEngine.Debug {
 					ImGui.PopStyleColor();
 					for (int i = 0; i < demoScenes.Count; i ++) {
 						if (ImGui.MenuItem(demoScenes[i].name) == true) {
-							Scene.LoadScene(demoScenes[i].LoadScene());
+							Scene.LoadDemoScene(demoScenes[i]);
 						}
 					}
 					
@@ -113,17 +114,6 @@ namespace ArcticFoxEngine.Debug {
 				}
 			}
 
-
-		}
-
-		internal static string FormatHex(int hexValue) {
-
-			string hexString = hexValue.ToString("X");
-			while (hexString.Length < 7) {
-				hexString = "0" + hexString;
-			}
-			hexString = "0x" + hexString;
-			return hexString;
 
 		}
 

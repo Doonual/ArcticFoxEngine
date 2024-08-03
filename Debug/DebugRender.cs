@@ -3,7 +3,6 @@
 namespace ArcticFoxEngine.Debug {
 	internal class DebugRender : DebugWindow {
 
-		bool showImGuiDemo;
 		bool showRenderWindow;
 
 		internal DebugRender() {
@@ -16,9 +15,7 @@ namespace ArcticFoxEngine.Debug {
 
 			if (showRenderWindow == true) {
 				ImGui.Begin("Render", ref showRenderWindow, ImGuiWindowFlags.None);
-
 			}
-			
 
 		}
 	}

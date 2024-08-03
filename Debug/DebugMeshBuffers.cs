@@ -35,9 +35,9 @@ namespace ArcticFoxEngine.Debug {
 			for (int i = 0; i < Math.Min(geometry.vertexGap.Length, maxEntries); i++) {
 
 				meshFilterIndex[i] = -1;
-				for (int n = 0; n < geometry.meshFilters.Count; n++) {
-					int currentBufferStart = geometry.meshFilters[n].vbStartIndex;
-					int bufferLength = geometry.meshFilters[n].mesh.vertices.Length;
+				for (int n = 0; n < geometry.meshRenderers.Count; n++) {
+					int currentBufferStart = geometry.meshRendererPositions[n].vbStart;
+					int bufferLength = geometry.meshRenderers[n].mesh.vertices.Length;
 					if (i >= currentBufferStart && i < currentBufferStart + bufferLength) {
 						meshFilterIndex[i] = n;
 					}
@@ -88,7 +88,7 @@ namespace ArcticFoxEngine.Debug {
 				ImGui.PopID();
 
 				if (delCurrent == true && meshFilterIndex[i] != -1) {
-					delMeshFilter = geometry.meshFilters[meshFilterIndex[i]];
+					delMeshFilter = geometry.meshRenderers[meshFilterIndex[i]];
 				}
 
 
@@ -105,9 +105,9 @@ namespace ArcticFoxEngine.Debug {
 			for (int i = 0; i < Math.Min(geometry.indexGap.Length, maxEntries); i++) {
 
 				meshFilterIndex[i] = -1;
-				for (int n = 0; n < geometry.meshFilters.Count; n++) {
-					int currentBufferStart = geometry.meshFilters[n].ibStartIndex;
-					int bufferLength = geometry.meshFilters[n].mesh.indices.Length;
+				for (int n = 0; n < geometry.meshRenderers.Count; n++) {
+					int currentBufferStart = geometry.meshRendererPositions[n].ibStart;
+					int bufferLength = geometry.meshRenderers[n].mesh.indices.Length;
 					if (i >= currentBufferStart && i < currentBufferStart + bufferLength) {
 						meshFilterIndex[i] = n;
 					}
@@ -158,7 +158,7 @@ namespace ArcticFoxEngine.Debug {
 				ImGui.PopID();
 
 				if (delCurrent == true && meshFilterIndex[i] != -1) {
-					delMeshFilter = geometry.meshFilters[meshFilterIndex[i]];
+					delMeshFilter = geometry.meshRenderers[meshFilterIndex[i]];
 				}
 
 
@@ -175,8 +175,8 @@ namespace ArcticFoxEngine.Debug {
 			for (int i = 0; i < Math.Min(geometry.objectGap.Length, maxEntries); i++) {
 
 				meshFilterIndex[i] = -1;
-				for (int n = 0; n < geometry.meshFilters.Count; n++) {
-					int currentBufferStart = geometry.meshFilters[n].obStartIndex;
+				for (int n = 0; n < geometry.meshRenderers.Count; n++) {
+					int currentBufferStart = geometry.meshRendererPositions[n].obStart;
 					int bufferLength = 1;
 					if (i >= currentBufferStart && i < currentBufferStart + bufferLength) {
 						meshFilterIndex[i] = n;
@@ -228,7 +228,7 @@ namespace ArcticFoxEngine.Debug {
 				ImGui.PopID();
 
 				if (delCurrent == true && meshFilterIndex[i] != -1) {
-					delMeshFilter = geometry.meshFilters[meshFilterIndex[i]];
+					delMeshFilter = geometry.meshRenderers[meshFilterIndex[i]];
 				}
 
 

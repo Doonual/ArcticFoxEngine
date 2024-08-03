@@ -54,8 +54,6 @@ namespace ArcticFoxEngine.Testing.ChildTest {
 
 			if (count <= 0) { return; }
 
-			Log.Info("Propagate - " + count);
-
 			GameObject nextCube = gameObject.InstantiateChild("Count: " + count);
 			nextCube.AddComponent<MeshRenderer>();
 			CubeWheel cw = nextCube.AddComponent<CubeWheel>();

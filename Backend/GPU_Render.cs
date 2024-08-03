@@ -72,15 +72,15 @@ namespace ArcticFoxEngine {
 			cmdList.SetIndexBuffer(geometry.indexBufferView);
 
 			
-			for (int i = 0; i < geometry.meshFilters.Count; i ++) {
+			for (int i = 0; i < geometry.meshRenderers.Count; i ++) {
 
-				MeshRenderer renderMesh = geometry.meshFilters[i];
+				MeshRenderer renderMesh = geometry.meshRenderers[i];
 				int indexCount = renderMesh.mesh.indices.Length;
 
 				GpuDescriptorHandle startOfObjectBufferPos = GraphicsResources.combinedDescriptorHeap.GPUDescriptorHandleForHeapStart + GraphicsResources.combinedDescriptorHeapIncrement;
-				startOfObjectBufferPos += renderMesh.obStartIndex * GraphicsResources.combinedDescriptorHeapIncrement;
+				startOfObjectBufferPos += geometry.meshRendererPositions[i].obStart * GraphicsResources.combinedDescriptorHeapIncrement;
 				cmdList.SetGraphicsRootDescriptorTable(1, startOfObjectBufferPos);
-				cmdList.DrawIndexedInstanced(renderMesh.mesh.indices.Length, 1, renderMesh.ibStartIndex, renderMesh.vbStartIndex, renderMesh.vbStartIndex);
+				cmdList.DrawIndexedInstanced(renderMesh.mesh.indices.Length, 1, geometry.meshRendererPositions[i].ibStart, geometry.meshRendererPositions[i].vbStart, geometry.meshRendererPositions[i].vbStart);
 
 			}
 

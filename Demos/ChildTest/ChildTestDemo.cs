@@ -87,7 +87,7 @@ namespace ArcticFoxEngine.Testing.ChildTest {
 			originalWheel.AddComponent<MeshRenderer>();
 			CubeWheel cubeWheelComp = originalWheel.AddComponent<CubeWheel>();
 			cubeWheelComp.Stop();
-			cubeWheelComp.Propagate(5, 8f);
+			cubeWheelComp.Propagate(8, 8f);
 
 
 			#endregion

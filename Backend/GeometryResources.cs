@@ -9,7 +9,8 @@ namespace ArcticFoxEngine {
 
 	public class GeometryResources {
 
-		internal List<MeshRenderer> meshFilters;
+		internal List<MeshRenderer> meshRenderers;
+		internal List<(int vbStart, int ibStart, int obStart)> meshRendererPositions;
 		
 		internal int[] vertexGap;
 		internal Resource vertexBuffer;
@@ -25,7 +26,8 @@ namespace ArcticFoxEngine {
 		
 		public GeometryResources(int sizeOfVB, int sizeOfIB, int sizeOfOB) {
 
-			meshFilters = new List<MeshRenderer>();
+			meshRenderers = new List<MeshRenderer>();
+			meshRendererPositions = new List<(int vbStart, int ibStart, int obStart)>();
 
 			int vbElements = sizeOfVB / Utilities.SizeOf<Vertex>();
 			int ibElements = sizeOfIB / sizeof(int);
@@ -62,19 +64,36 @@ namespace ArcticFoxEngine {
 		}
 
 
-		public (int vbStartIndex, int ibStartIndex, int obStartIndex) AddMesh(MeshRenderer meshFilter) {
-
-			meshFilters.Add(meshFilter);
+		public bool AddMesh(MeshRenderer meshRenderer) {
 
 			// Find suitable space for mesh data insertion
-			int vbStartIndex = FindGap(vertexGap, meshFilter.mesh.vertices.Length);
-			int ibStartIndex = FindGap(indexGap, meshFilter.mesh.indices.Length);
+			int vbStartIndex = FindGap(vertexGap, meshRenderer.mesh.vertices.Length);
+			int ibStartIndex = FindGap(indexGap, meshRenderer.mesh.indices.Length);
 			int obStartIndex = FindGap(objectGap, 1);
 
+			// If there is no suitable space for mesh data
+			if (vbStartIndex == -1 || ibStartIndex == -1 || obStartIndex == -1) {
+				if (vbStartIndex == -1) {
+					Log.Error("Failed to add mesh vertex data to vertex buffer, not enough room");
+				}
+				if (ibStartIndex == -1) {
+					Log.Error("Failed to add mesh index data to index buffer, not enough room");
+				}
+				if (obStartIndex == -1) {
+					Log.Error("Failed to add mesh object data to index object, not enough room");
+				}
+				return false;
+
+			}
+
+			meshRenderers.Add(meshRenderer);
+			meshRendererPositions.Add((vbStartIndex, ibStartIndex, obStartIndex));
+
+
 			// Shortcuts to the mesh data
-			Vertex[] vertices = meshFilter.mesh.vertices;
-			int[] indices = meshFilter.mesh.indices;
-			ObjectInfo[] objectInfo = new ObjectInfo[] { meshFilter.GetObjectInfo() };
+			Vertex[] vertices = meshRenderer.mesh.vertices;
+			int[] indices = meshRenderer.mesh.indices;
+			ObjectInfo[] objectInfo = new ObjectInfo[] { meshRenderer.GetObjectInfo() };
 
 			// Mark each gap as being occupied by data
 			for (int i = 0; i < vertices.Length; i ++) {
@@ -109,10 +128,10 @@ namespace ArcticFoxEngine {
 
 			#endregion
 
-			return (vbStartIndex, ibStartIndex, obStartIndex);
+			return true;
 			
 		}
-		public void RemoveMesh(MeshRenderer meshFilter) {
+		public void RemoveMesh(MeshRenderer meshRenderer) {
 
 			// When we remove a mesh, this will create an empty space
 			// [X, X, X, X, X, X, X, X, X] to
@@ -145,17 +164,35 @@ namespace ArcticFoxEngine {
 			// When a gap is created the algorithm marks its size and position
 			// When a gap joins multiple gaps together, it merges them
 
-			meshFilters.Remove(meshFilter);
+			
 
 
 			// Find the start of the mesh within the buffers
-			int vbStartIndex = meshFilter.vbStartIndex;
-			int ibStartIndex = meshFilter.ibStartIndex;
-			int obStartIndex = meshFilter.obStartIndex;
 
-			int numVerts = meshFilter.mesh.vertices.Length;
-			int numIndex = meshFilter.mesh.indices.Length;
+			int meshRendererListIndex = -1;
+			for (int i = 0; i < meshRenderers.Count; i ++) {
+				if (meshRenderers[i] == meshRenderer) {
+					meshRendererListIndex = i;
+					break;
+				}
+			}
+			if (meshRendererListIndex == -1) {
+				Log.Error("Failed to remove mesh, mesh not added");
+				return;
+			}
+
+			
+
+			int vbStartIndex = meshRendererPositions[meshRendererListIndex].vbStart;
+			int ibStartIndex = meshRendererPositions[meshRendererListIndex].ibStart;
+			int obStartIndex = meshRendererPositions[meshRendererListIndex].obStart;
+
+			int numVerts = meshRenderer.mesh.vertices.Length;
+			int numIndex = meshRenderer.mesh.indices.Length;
 			int numObjs = 1;
+
+			meshRenderers.RemoveAt(meshRendererListIndex);
+			meshRendererPositions.RemoveAt(meshRendererListIndex);
 
 			// Mark the data as just removed but still to be propagated
 			for (int i = 0; i < numVerts; i ++) {
@@ -204,24 +241,32 @@ namespace ArcticFoxEngine {
 		}
 		public int FindGap(int[] gapArray, int width) {
 
+			int foundSpot = -1;
 			for (int i = 0; i < gapArray.Length;) {
 
 				if (gapArray[i] >= width || gapArray[i] == -1) {
-					return i;
+					foundSpot = i;
+					break;
 				}
 				i += gapArray[i] + 1;
 
 			}
-			return -1;
+
+			if (gapArray.Length - foundSpot < width) {
+				return -1;
+			}
+
+			return foundSpot;
 
 		}
 
 		public void UpdateObjectInfoBuffer() {
 
 			int maxObjectInfoIndex = -1;
-			for (int i = 0; i < meshFilters.Count; i ++) {
-				if (meshFilters[i].obStartIndex > maxObjectInfoIndex) {
-					maxObjectInfoIndex = meshFilters[i].obStartIndex;
+
+			for (int i = 0; i < meshRenderers.Count; i ++) {
+				if (meshRendererPositions[i].obStart > maxObjectInfoIndex) {
+					maxObjectInfoIndex = meshRendererPositions[i].obStart;
 				}
 			}
 			if (maxObjectInfoIndex == -1) {
@@ -229,9 +274,9 @@ namespace ArcticFoxEngine {
 			}
 
 			ObjectInfo[] gpuSendInfo = new ObjectInfo[maxObjectInfoIndex + 1];
-			for (int i = 0; i < meshFilters.Count; i++) {
-				MeshRenderer currentMesh = meshFilters[i];
-				gpuSendInfo[currentMesh.obStartIndex] = currentMesh.GetObjectInfo();
+			for (int i = 0; i < meshRenderers.Count; i++) {
+				MeshRenderer currentMesh = meshRenderers[i];
+				gpuSendInfo[meshRendererPositions[i].obStart] = currentMesh.GetObjectInfo();
 			}
 
 			objectBuffer.Write(gpuSendInfo, 0);

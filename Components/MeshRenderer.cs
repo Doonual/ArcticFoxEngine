@@ -11,47 +11,40 @@ namespace ArcticFoxEngine.Components {
 	public class MeshRenderer : Component {
 
 		public Mesh mesh { get; private set; }
-		private Mesh loadedMesh;
-
-		internal int vbStartIndex;
-		internal int ibStartIndex;
-		internal int obStartIndex;
-		// May eventually move these into GeometryInfo
-
-		Vector4 vertexColSet;
+		
 
 		public MeshRenderer() {
-			loadedMesh = null;
+			mesh = null;
 		}
-
 
 		public void SetMesh(Mesh mesh) {
 			
 			// If the object has a mesh already loaded, delete it
-			if (loadedMesh != null) {
+			if (this.mesh != null && enabled == true) {
 				UnloadMesh();
 			}
 
 			this.mesh = mesh;
-			if (this.mesh == null) {
-				this.mesh = Mesh.CreatePrimitive(Mesh.Primitive.Cube);
-			}
-
-			if (enabled == true) {
+			if (this.mesh != null && enabled == true) {
 				LoadMesh();
 			}
 			
 
 		}
 
-		private void UnloadMesh() {
-			gameObject.scene.mainGeometry.RemoveMesh(this);
-			loadedMesh = null;
-		}
 		private void LoadMesh() {
 			if (mesh == null) { return; }
-			(vbStartIndex, ibStartIndex, obStartIndex) = gameObject.scene.mainGeometry.AddMesh(this);
-			loadedMesh = mesh;
+			bool meshAdded = gameObject.scene.mainGeometry.AddMesh(this);
+			if (meshAdded == true) {
+				Enable();
+			}
+			else {
+				Disable();
+			}
+		}
+		private void UnloadMesh() {
+			gameObject.scene.mainGeometry.RemoveMesh(this);
+			Disable();
 		}
 
 		internal ObjectInfo GetObjectInfo() {
@@ -68,6 +61,9 @@ namespace ArcticFoxEngine.Components {
 			LoadMesh();
 		}
 
+		Vector4 vertexColSet;
+		internal override string debugName => "Mesh Filter";
+		internal override string debugDescription => "Adds the mesh to the scene geometry";
 		public override void Debug() {
 
 			base.Debug();
@@ -75,10 +71,6 @@ namespace ArcticFoxEngine.Components {
 			System.Numerics.Vector3 vec3 = new System.Numerics.Vector3(vertexColSet.x, vertexColSet.y, vertexColSet.z);
 			ImGui.ColorPicker3("Vertex Col", ref vec3);
 			vertexColSet = new Vector4(vec3.X, vec3.Y, vec3.Z, 1f);
-
-			ImGui.Text("Vertex Buffer Start Index: " + vbStartIndex);
-			ImGui.Text("Index Buffer Start Index: " + ibStartIndex);
-			ImGui.Text("Object Buffer Start Index: " + obStartIndex);
 
 			if (ImGui.Button("Update") == true) {
 
@@ -90,11 +82,7 @@ namespace ArcticFoxEngine.Components {
 			}
 
 		}
-
-
-		internal override string debugName => "Mesh Filter";
-		internal override string debugDescription => "Adds the mesh to the scene geometry";
-
+		
 
 	}
 }

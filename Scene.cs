@@ -80,6 +80,7 @@ namespace ArcticFoxEngine {
 				}
 				catch (Exception e) {
 					Log.Error("Failed to load demo scene \"" + sceneLoadName + "\"");
+					Log.Error(e);
 				}
 			}
 			if (sceneSwitchQueue != null) {

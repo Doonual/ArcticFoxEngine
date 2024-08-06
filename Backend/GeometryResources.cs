@@ -3,11 +3,18 @@
 namespace ArcticFoxEngine {
 	using ArcticFoxEngine.Backend;
 	using ArcticFoxEngine.Components;
+	using ArcticFoxEngine.Debug;
 	using CoolClassLibrary;
 	using SharpDX.Direct3D12;
 	using Swan;
 
 	public class GeometryResources {
+
+		internal static int kbPerBuffer = 512;
+
+		internal static int numVbElements = kbPerBuffer * 1024 / Utilities.SizeOf<Vertex>();
+		internal static int numIbElements = kbPerBuffer * 1024 / sizeof(int);
+		internal static int numObElements = 128 * 1024 / Utilities.SizeOf<ObjectInfo>();
 
 		internal List<MeshRenderer> meshRenderers;
 		internal List<(int vbStart, int ibStart, int obStart)> meshRendererPositions;
@@ -24,42 +31,38 @@ namespace ArcticFoxEngine {
 		internal ConstBuffer<ObjectInfo> objectBuffer;
 
 		
-		public GeometryResources(int sizeOfVB, int sizeOfIB, int sizeOfOB) {
+		public GeometryResources() {
 
 			meshRenderers = new List<MeshRenderer>();
 			meshRendererPositions = new List<(int vbStart, int ibStart, int obStart)>();
 
-			int vbElements = sizeOfVB / Utilities.SizeOf<Vertex>();
-			int ibElements = sizeOfIB / sizeof(int);
-			int obElements = sizeOfOB / Utilities.SizeOf<ObjectInfo>();
-
 			// Create gap arrays
-			vertexGap = new int[vbElements];
-			for (int i = 0; i < vbElements; i++) {
+			vertexGap = new int[numVbElements];
+			for (int i = 0; i < numVbElements; i++) {
 				vertexGap[i] = -1;
 			}
-			indexGap = new int[ibElements];
-			for (int i = 0; i < ibElements; i ++) {
+			indexGap = new int[numIbElements];
+			for (int i = 0; i < numIbElements; i ++) {
 				indexGap[i] = -1;
 			}
-			objectGap = new int[obElements];
-			for (int i = 0; i < obElements; i++) {
+			objectGap = new int[numObElements];
+			for (int i = 0; i < numObElements; i++) {
 				objectGap[i] = -1;
 			}
 			
 			// Create buffer resources
-			vertexBuffer = Graphics.device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.None, ResourceDescription.Buffer(sizeOfVB), ResourceStates.GenericRead);
+			vertexBuffer = Graphics.device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.None, ResourceDescription.Buffer(numVbElements * Utilities.SizeOf<Vertex>()), ResourceStates.GenericRead);
 			vertexBufferView.BufferLocation = vertexBuffer.GPUVirtualAddress;
 			vertexBufferView.StrideInBytes = Utilities.SizeOf<Vertex>();
-			vertexBufferView.SizeInBytes = vbElements * Utilities.SizeOf<Vertex>();
+			vertexBufferView.SizeInBytes = numVbElements * Utilities.SizeOf<Vertex>();
 
-			indexBuffer = Graphics.device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.None, ResourceDescription.Buffer(sizeOfIB), ResourceStates.IndexBuffer);
+			indexBuffer = Graphics.device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.None, ResourceDescription.Buffer(numIbElements * sizeof(int)), ResourceStates.IndexBuffer);
 			indexBufferView.BufferLocation = indexBuffer.GPUVirtualAddress;
-			indexBufferView.SizeInBytes = ibElements * sizeof(int);
+			indexBufferView.SizeInBytes = numIbElements * sizeof(int);
 			indexBufferView.Format = SharpDX.DXGI.Format.R32_UInt;
 
-			objectBuffer = new ConstBuffer<ObjectInfo>(obElements);
-			objectBuffer.AddToDescriptorHeap(GraphicsResources.combinedDescriptorHeap, 1); // Offset by 1 to leave the render info
+			objectBuffer = new ConstBuffer<ObjectInfo>(numObElements);
+			objectBuffer.AddToDescriptorHeap(RenderResources.combinedDescriptorHeap, 1); // Offset by 1 to leave the render info
 
 		}
 
@@ -260,7 +263,9 @@ namespace ArcticFoxEngine {
 
 		}
 
-		public void UpdateObjectInfoBuffer() {
+		public void WriteObjectInfoBuffer() {
+
+			if (DebugRender.updateObjectInfo == false) { return; }
 
 			int maxObjectInfoIndex = -1;
 
@@ -292,9 +297,7 @@ namespace ArcticFoxEngine {
 			objectBuffer.Dispose();
 		}
 		~GeometryResources() {
-
 			Dispose();
-
 		}
 
 	}

@@ -67,6 +67,11 @@ namespace ArcticFoxEngine.Testing.ChildTest {
 			ImGui.SliderFloat("Radius", ref radius, 1.9f, 6f);
 			ImGui.SliderFloat("Angle", ref angle, 0f, MathF.PI * 2);
 			ImGui.SliderFloat("Omega", ref omega, 0.004f, 0.01f);
+
+			if (ImGui.Button("Adopt Camera") == true) {
+				gameObject.scene.mainCamera.gameObject.SetParent(gameObject);
+			}
+
 		}
 
 	}

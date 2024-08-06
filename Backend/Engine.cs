@@ -71,15 +71,19 @@ namespace ArcticFoxEngine {
 			using (loop = new RenderLoop(form)) {
 				while (loop != null && loop.NextFrame()) {
 
-					Profiler.FrameStart();
+					Profiler.FrameBegin();
 
 					Scene.PerformSceneSwap();
 
 					InputManager.GetInputDeviceUpdates();
 
+					
 					if (Scene.activeScene != null) {
 						Scene.activeScene.NewFrame();
+						GPU_Render.Render(Scene.activeScene.mainCamera, Scene.activeScene.mainGeometry);
 					}
+
+
 					if (exitButton.GetButton() == true) { Stop(); }
 					if (toggleDebugButton.GetButtonDown() == true) {
 						if (DebugManager.isOpen == true) {
@@ -91,7 +95,6 @@ namespace ArcticFoxEngine {
 					}
 
 					Graphics.Buffer();
-
 
 					Profiler.FrameEnd();
 					Graphics.WaitForPreviousFrame();

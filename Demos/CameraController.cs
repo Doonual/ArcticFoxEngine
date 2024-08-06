@@ -57,6 +57,7 @@ namespace ArcticFoxEngine.Testing.SceneTest {
 
 		}
 
+
 		public override void Update() {
 
 			#region Camera Controls
@@ -99,7 +100,6 @@ namespace ArcticFoxEngine.Testing.SceneTest {
 			}
 
 			#endregion
-
 
 		}
 

@@ -41,15 +41,17 @@ namespace ArcticFoxEngine {
 			// However, when ExecuteCommandList() is called on a particular command 
 			// list, that command list can then be reset at any time and must be before 
 			// re-recording
+
+			Profiler.MetricBegin();
 			cmdAllocator.Reset();
 			cmdList.Reset(cmdAllocator, Graphics.pipelineState);
 
 			// Bind shader resources
 
 			
-			camera.WriteCameraInfoBuffer(GraphicsResources.renderInfo);
-			geometry.UpdateObjectInfoBuffer();
-			GraphicsResources.BindShaderResources(cmdList);
+			camera.WriteCameraInfoBuffer();
+			geometry.WriteObjectInfoBuffer();
+			RenderResources.BindShaderResources(cmdList);
 
 			
 
@@ -57,11 +59,11 @@ namespace ArcticFoxEngine {
 			cmdList.SetViewport(camera.viewport);
 			cmdList.SetScissorRectangles(camera.scissorRect);
 			// Indicate that the back buffer will be used as a render target
-			cmdList.ResourceBarrierTransition(GraphicsResources.renderTargets[Graphics.frameIndex], ResourceStates.Present, ResourceStates.RenderTarget);
+			cmdList.ResourceBarrierTransition(RenderResources.renderTargets[Graphics.frameIndex], ResourceStates.Present, ResourceStates.RenderTarget);
 			// Set render target and depth stencil
-			CpuDescriptorHandle rtvHandle = GraphicsResources.renderTargetViewHeap.CPUDescriptorHandleForHeapStart;
-			CpuDescriptorHandle dsvHandle = GraphicsResources.depthStencilDescriptorHeap.CPUDescriptorHandleForHeapStart;
-			rtvHandle += Graphics.frameIndex * GraphicsResources.renderTargetViewDescriptorSize;
+			CpuDescriptorHandle rtvHandle = RenderResources.renderTargetViewHeap.CPUDescriptorHandleForHeapStart;
+			CpuDescriptorHandle dsvHandle = RenderResources.depthStencilDescriptorHeap.CPUDescriptorHandleForHeapStart;
+			rtvHandle += Graphics.frameIndex * RenderResources.renderTargetViewDescriptorSize;
 			cmdList.SetRenderTargets(rtvHandle, dsvHandle);
 			cmdList.ClearRenderTargetView(rtvHandle, new Color4(0f, 0f, 0f, 1), 0, null);
 			cmdList.ClearDepthStencilView(dsvHandle, ClearFlags.FlagsDepth, 1f, 0);
@@ -74,22 +76,24 @@ namespace ArcticFoxEngine {
 			
 			for (int i = 0; i < geometry.meshRenderers.Count; i ++) {
 
-				MeshRenderer renderMesh = geometry.meshRenderers[i];
-				int indexCount = renderMesh.mesh.indices.Length;
+				int indexCount = geometry.meshRenderers[i].mesh.indices.Length;
+				(int vbStart, int ibStart, int obStart) = geometry.meshRendererPositions[i];
 
-				GpuDescriptorHandle startOfObjectBufferPos = GraphicsResources.combinedDescriptorHeap.GPUDescriptorHandleForHeapStart + GraphicsResources.combinedDescriptorHeapIncrement;
-				startOfObjectBufferPos += geometry.meshRendererPositions[i].obStart * GraphicsResources.combinedDescriptorHeapIncrement;
-				cmdList.SetGraphicsRootDescriptorTable(1, startOfObjectBufferPos);
-				cmdList.DrawIndexedInstanced(renderMesh.mesh.indices.Length, 1, geometry.meshRendererPositions[i].ibStart, geometry.meshRendererPositions[i].vbStart, geometry.meshRendererPositions[i].vbStart);
+				RenderResources.BindCurrentObject(cmdList, obStart);
+				cmdList.DrawIndexedInstanced(indexCount, 1, ibStart, vbStart, vbStart);
 
 			}
 
 			// Indicate that the back buffer will now be used to present
-			cmdList.ResourceBarrierTransition(GraphicsResources.renderTargets[Graphics.frameIndex], ResourceStates.RenderTarget, ResourceStates.Present);
+			cmdList.ResourceBarrierTransition(RenderResources.renderTargets[Graphics.frameIndex], ResourceStates.RenderTarget, ResourceStates.Present);
 			
 			
 			cmdList.Close();
+
+			Profiler.MetricEnd("Render setup");
+			Profiler.MetricBegin();
 			cmdQueue.ExecuteCommandList(cmdList);
+			Profiler.MetricEnd("Render");
 
 
 		}

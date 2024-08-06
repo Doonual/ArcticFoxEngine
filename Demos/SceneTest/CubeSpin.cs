@@ -132,7 +132,6 @@ namespace ArcticFoxEngine.Testing.SceneTest {
 			ImGui.SliderFloat("Speed", ref speed, -1f, 1f);
 			if (animate == false) { ImGui.EndDisabled(); }
 			ImGui.SliderFloat("T", ref t, 0f, 1f);
-
 		}
 
 	}

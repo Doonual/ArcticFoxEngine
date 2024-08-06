@@ -49,7 +49,7 @@ namespace ArcticFoxEngine {
 				GPU_Render.SetupCommand();
 				SetupSwapChain(width, height, refreshRate, GPU_Render.GetCommandQueue());
 				
-				GraphicsResources.LoadResources(width, height);
+				RenderResources.LoadResources(width, height);
 
 				ShaderBytecode vertexShader = CompileShader(".res/shaders.hlsl", ShaderType.Vertex);
 				ShaderBytecode pixelShader = CompileShader(".res/shaders.hlsl", ShaderType.Pixel);
@@ -131,7 +131,7 @@ namespace ArcticFoxEngine {
 			GraphicsPipelineStateDescription psonDesc = new GraphicsPipelineStateDescription() {
 
 				InputLayout = new InputLayoutDescription(inputElementDescs),
-				RootSignature = GraphicsResources.rootSignature,
+				RootSignature = RenderResources.rootSignature,
 				VertexShader = vertexShader,
 				PixelShader = pixelShader,
 				RasterizerState = RasterizerStateDescription.Default(),
@@ -276,7 +276,7 @@ namespace ArcticFoxEngine {
 			// Wait for the GPU to be done with all resources.
 			WaitForPreviousFrame();
 
-			GraphicsResources.Dispose();
+			RenderResources.Dispose();
 			pipelineState.Dispose();
 			fence.Dispose();
 			swapChain.Dispose();

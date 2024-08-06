@@ -108,18 +108,17 @@
 			return MathF.Sqrt(x * x + y * y + z * z + w * w);
 		}
 		public Vector4 Normalize() {
-
 			float length = this.Length();
 			return new Vector4(x / length, y / length, z / length, w / length);
-
 		}
 		public Vector4 SetLength(float length) {
-
 			return Normalize() * length;
-
+		}
+		public Vector4 Round() {
+			return new Vector4(MathF.Round(x), MathF.Round(y), MathF.Round(z), MathF.Round(w));
 		}
 
-		
+
 		#region Math
 
 		public static float Dot(Vector4 a, Vector4 b) {
@@ -166,6 +165,9 @@
 		}
 		public static implicit operator System.Numerics.Vector4(Vector4 d) {
 			return new System.Numerics.Vector4(d.x, d.y, d.z, d.w);
+		}
+		public static implicit operator Vector4(System.Numerics.Vector4 d) {
+			return new Vector4(d.X, d.Y, d.Z, d.W);
 		}
 
 		#endregion

@@ -8,7 +8,7 @@ namespace ArcticFoxEngine {
 	using ArcticFoxEngine.Backend;
 	using CoolClassLibrary;
 
-	internal static class GraphicsResources {
+	internal static class RenderResources {
 
 
 		internal static RootSignature rootSignature;
@@ -127,6 +127,12 @@ namespace ArcticFoxEngine {
 			destCmdList.SetGraphicsRootSignature(rootSignature);
 			destCmdList.SetDescriptorHeaps(1, new DescriptorHeap[] { combinedDescriptorHeap });
 			destCmdList.SetGraphicsRootDescriptorTable(0, (combinedDescriptorHeap.GPUDescriptorHandleForHeapStart));
+
+		}
+		internal static void BindCurrentObject(GraphicsCommandList descCmdList, int obStartIndex) {
+
+			GpuDescriptorHandle currentObjectHandle = combinedDescriptorHeap.GPUDescriptorHandleForHeapStart + (obStartIndex + 1) * combinedDescriptorHeapIncrement;
+			descCmdList.SetGraphicsRootDescriptorTable(1, currentObjectHandle);
 
 		}
 

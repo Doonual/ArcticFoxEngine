@@ -49,11 +49,14 @@
 		public float GetLength() {
 			return MathF.Sqrt(x * x + y * y);
 		}
-		public void SetLength(float length) {
+		public Vector2 SetLength(float length) {
 			float currentLength = GetLength();
-			x *= length / currentLength;
-			y *= length / currentLength;
+			return new Vector2(x * length / currentLength, y * length / currentLength);
 		}
+		public Vector2 Round() {
+			return new Vector2(MathF.Round(x), MathF.Round(y));
+		}
+
 
 		public static Vector2 Angle(float theta, float magnitude) {
 			return new Vector2(MathF.Cos(theta), MathF.Sin(theta)) * magnitude;
@@ -94,6 +97,9 @@
 		}
 		public static implicit operator System.Numerics.Vector2(Vector2 d) {
 			return new System.Numerics.Vector2(d.x, d.y);
+		}
+		public static implicit operator Vector2(System.Numerics.Vector2 d) {
+			return new Vector2(d.X, d.Y);
 		}
 
 		#endregion

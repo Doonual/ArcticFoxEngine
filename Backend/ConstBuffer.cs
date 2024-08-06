@@ -37,7 +37,7 @@ namespace ArcticFoxEngine.Backend {
 					SizeInBytes = stride
 				};
 
-				Graphics.device.CreateConstantBufferView(cbvDesc, destDescriptorHeap.CPUDescriptorHandleForHeapStart + (offset + i) * GraphicsResources.combinedDescriptorHeapIncrement);
+				Graphics.device.CreateConstantBufferView(cbvDesc, destDescriptorHeap.CPUDescriptorHandleForHeapStart + (offset + i) * RenderResources.combinedDescriptorHeapIncrement);
 
 			}
 			

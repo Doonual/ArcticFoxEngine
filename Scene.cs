@@ -8,6 +8,7 @@ using ImGuiNET;
 using System.Windows.Forms;
 using ArcticFoxEngine.Input;
 using ArcticFoxEngine.Testing;
+using ArcticFoxEngine.Backend;
 
 namespace ArcticFoxEngine {
 	public class Scene {
@@ -16,17 +17,14 @@ namespace ArcticFoxEngine {
 		internal static Scene sceneSwitchQueue;			// Scene that is waiting to be switched to
 		internal static DemoScene sceneSwitchDemoQueue; // DemoScene that is waiting to be created and switched to
 
-		internal List<GameObject> objects;	// Top level objects here only
+		internal List<GameObject> objects;				// Top level objects here only
 		public GeometryResources mainGeometry;
+		public Camera mainCamera;
 
 		public Scene() {
 
-			int kbEach = 128;
-
-			Log.Info("Requesting " + (3 * kbEach) + " Kb for mesh buffers");
-
 			objects = new List<GameObject>();
-			mainGeometry = new GeometryResources(kbEach * 1024, kbEach * 1024, kbEach * 1024);
+			mainGeometry = new GeometryResources();
 		}
 
 		public GameObject InstantiateObject(string name = "", GameObject parent = null) {
@@ -63,7 +61,6 @@ namespace ArcticFoxEngine {
 			sceneSwitchDemoQueue = demoScene;
 			sceneSwitchQueue = null;
 		}
-
 		internal static void PerformSceneSwap() {
 			if (sceneSwitchQueue == null && sceneSwitchDemoQueue == null) { return; }
 			if (activeScene != null) {
@@ -97,14 +94,16 @@ namespace ArcticFoxEngine {
 		#endregion
 
 		internal void NewFrame() {
-			
+
+			Profiler.MetricBegin();
 			for (int i = 0; i < objects.Count; i ++) {
 				objects[i].UpdateEvent();
 			}
-
 			for (int i = 0; i < objects.Count; i++) {
 				objects[i].RenderEvent();
 			}
+
+			Profiler.MetricEnd("Update");
 
 		}
 
@@ -171,19 +170,6 @@ namespace ArcticFoxEngine {
 					ImGui.PopStyleVar();
 
 				}
-				else {
-					/*
-					ImGui.PushStyleColor(ImGuiCol.Button,			new System.Numerics.Vector4(0f, 0f,0f, 0f));
-					ImGui.PushStyleColor(ImGuiCol.ButtonHovered,	new System.Numerics.Vector4(0f, 0f, 0f, 0f));
-					ImGui.PushStyleColor(ImGuiCol.ButtonActive,		new System.Numerics.Vector4(0f, 0f, 0f, 0f));
-
-					ImGui.ArrowButton(obj.GetHashCode() + " show children", ImGuiDir.None);
-
-					ImGui.PopStyleColor();
-					ImGui.PopStyleColor();
-					ImGui.PopStyleColor();
-					*/
-				}
 
 				
 
@@ -211,9 +197,7 @@ namespace ArcticFoxEngine {
 				ImGui.PopStyleVar();
 
 				if (debugObjectSelected == obj) {
-					ImGui.PopStyleColor();
-					ImGui.PopStyleColor();
-					ImGui.PopStyleColor();
+					ImGui.PopStyleColor(3);
 				}
 
 				if (expandCurrent == true) {

@@ -89,19 +89,18 @@ namespace ArcticFoxEngine {
 			ImGui.SliderFloat("Far plane", ref farPlane, 20f, 6000f, null, ImGuiSliderFlags.Logarithmic);
 
 		}
-
-		public override void OnRender() {
-			GPU_Render.Render(this, gameObject.scene.mainGeometry);
+		public override void OnEnable() {
+			gameObject.scene.mainCamera = this;
 		}
 
-		internal void WriteCameraInfoBuffer(ConstBuffer<RenderInfo> buffer) {
+		internal void WriteCameraInfoBuffer() {
 
 			RenderInfo info = new RenderInfo();
 			info.projectionMatrix = projectionMatrix;
 			info.screenWidth = renderWidth;
 			info.screenHeight = renderHeight;
 			info.aspectRatio = (float)renderWidth / renderHeight;
-			buffer.Write(new RenderInfo[] { info }, 0);
+			RenderResources.renderInfo.Write(new RenderInfo[] { info }, 0);
 
 		}
 

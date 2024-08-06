@@ -113,7 +113,9 @@
 		public Vector3 SetLength(float length) {
 			return Normalize() * length;
 		}
-
+		public Vector3 Round() {
+			return new Vector3(MathF.Round(x), MathF.Round(y), MathF.Round(z));
+		}
 
 		#region Math
 
@@ -165,6 +167,9 @@
 		}
 		public static implicit operator System.Numerics.Vector3(Vector3 d) {
 			return new System.Numerics.Vector3(d.x, d.y, d.z);
+		}
+		public static implicit operator Vector3(System.Numerics.Vector3 d) {
+			return new Vector3(d.X, d.Y, d.Z);
 		}
 
 		#endregion

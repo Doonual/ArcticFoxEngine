@@ -2,6 +2,7 @@
 
 namespace ClickableTransparentOverlay {
 	using ClickableTransparentOverlay.Win32;
+	using SharpDX.Direct3D12;
 	using SixLabors.ImageSharp;
 	using SixLabors.ImageSharp.PixelFormats;
 	using System;
@@ -371,13 +372,13 @@ namespace ClickableTransparentOverlay {
 		protected abstract void Render();
 
 
-		public void OneLoop(float deltaTime) {
+		public void OneLoop(float deltaTime, GraphicsCommandList gCmdList) {
 			this.window.PumpEvents();
 			Utils.SetOverlayClickable(this.window.Handle, this.inputhandler.Update());
 			this.renderer.Update(deltaTime, () => { Render(); });
 			this.deviceContext.OMSetRenderTargets(renderView);
 			this.deviceContext.ClearRenderTargetView(renderView, new Color4(0.0f));
-			this.renderer.Render();
+			this.renderer.Render(gCmdList);
 			if (VSync) {
 				this.swapChain.Present(1, PresentFlags.None); // Present with vsync
 			}

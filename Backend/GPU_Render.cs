@@ -1,6 +1,7 @@
 ﻿using ArcticFoxEngine.Backend;
 using ArcticFoxEngine.Components;
 using ArcticFoxEngine.Debug;
+using ClickableTransparentOverlay;
 using CoolClassLibrary;
 using SharpDX;
 using SharpDX.Direct3D12;
@@ -46,20 +47,26 @@ namespace ArcticFoxEngine {
 			cmdAllocator.Reset();
 			cmdList.Reset(cmdAllocator, Graphics.pipelineState);
 
+
+
+			if (Overlay.render != false) {
+				Overlay.mainOverlay.OneLoop(Profiler.deltaTime, cmdList);
+			}
+
 			// Bind shader resources
 
-			
-			camera.WriteCameraInfoBuffer();
-			geometry.WriteObjectInfoBuffer();
-			RenderResources.BindShaderResources(cmdList);
 
-			
+			//camera.WriteCameraInfoBuffer();
+			//geometry.WriteObjectInfoBuffer();
+			//RenderResources.BindShaderResources(cmdList);
+
+
 
 			// Viewport and render target
-			cmdList.SetViewport(camera.viewport);
-			cmdList.SetScissorRectangles(camera.scissorRect);
+			//cmdList.SetViewport(camera.viewport);
+			//cmdList.SetScissorRectangles(camera.scissorRect);
 			// Indicate that the back buffer will be used as a render target
-			cmdList.ResourceBarrierTransition(RenderResources.renderTargets[Graphics.frameIndex], ResourceStates.Present, ResourceStates.RenderTarget);
+			//cmdList.ResourceBarrierTransition(RenderResources.renderTargets[Graphics.frameIndex], ResourceStates.Present, ResourceStates.RenderTarget);
 			// Set render target and depth stencil
 			CpuDescriptorHandle rtvHandle = RenderResources.renderTargetViewHeap.CPUDescriptorHandleForHeapStart;
 			CpuDescriptorHandle dsvHandle = RenderResources.depthStencilDescriptorHeap.CPUDescriptorHandleForHeapStart;
@@ -67,6 +74,11 @@ namespace ArcticFoxEngine {
 			cmdList.SetRenderTargets(rtvHandle, dsvHandle);
 			cmdList.ClearRenderTargetView(rtvHandle, new Color4(0f, 0f, 0f, 1), 0, null);
 			cmdList.ClearDepthStencilView(dsvHandle, ClearFlags.FlagsDepth, 1f, 0);
+
+
+			
+
+			/*
 
 			// Set geometry
 			cmdList.PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList;
@@ -83,6 +95,7 @@ namespace ArcticFoxEngine {
 				cmdList.DrawIndexedInstanced(indexCount, 1, ibStart, vbStart, vbStart);
 
 			}
+			*/
 
 			// Indicate that the back buffer will now be used to present
 			cmdList.ResourceBarrierTransition(RenderResources.renderTargets[Graphics.frameIndex], ResourceStates.RenderTarget, ResourceStates.Present);

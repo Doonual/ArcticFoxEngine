@@ -99,9 +99,7 @@ namespace ArcticFoxEngine {
 
 					Profiler.FrameEnd();
 
-					if (Overlay.render != false) {
-						Overlay.mainOverlay.OneLoop(Profiler.deltaTime);
-					}
+					
 					
 
 					Graphics.Buffer();

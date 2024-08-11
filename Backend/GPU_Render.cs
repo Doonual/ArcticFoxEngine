@@ -49,9 +49,7 @@ namespace ArcticFoxEngine {
 
 
 
-			if (Overlay.render != false) {
-				Overlay.mainOverlay.OneLoop(Profiler.deltaTime, cmdList);
-			}
+			
 
 			// Bind shader resources
 
@@ -66,7 +64,10 @@ namespace ArcticFoxEngine {
 			//cmdList.SetViewport(camera.viewport);
 			//cmdList.SetScissorRectangles(camera.scissorRect);
 			// Indicate that the back buffer will be used as a render target
-			//cmdList.ResourceBarrierTransition(RenderResources.renderTargets[Graphics.frameIndex], ResourceStates.Present, ResourceStates.RenderTarget);
+			cmdList.ResourceBarrierTransition(RenderResources.renderTargets[Graphics.frameIndex], ResourceStates.Present, ResourceStates.RenderTarget);
+
+			
+
 			// Set render target and depth stencil
 			CpuDescriptorHandle rtvHandle = RenderResources.renderTargetViewHeap.CPUDescriptorHandleForHeapStart;
 			CpuDescriptorHandle dsvHandle = RenderResources.depthStencilDescriptorHeap.CPUDescriptorHandleForHeapStart;
@@ -75,8 +76,10 @@ namespace ArcticFoxEngine {
 			cmdList.ClearRenderTargetView(rtvHandle, new Color4(0f, 0f, 0f, 1), 0, null);
 			cmdList.ClearDepthStencilView(dsvHandle, ClearFlags.FlagsDepth, 1f, 0);
 
+			if (Overlay.render != false) {
+				Overlay.mainOverlay.OneLoop(Profiler.deltaTime, cmdList);
+			}
 
-			
 
 			/*
 

@@ -107,12 +107,14 @@ namespace ArcticFoxEngine {
 					OffsetInDescriptorsFromTableStart = int.MinValue,
 					DescriptorCount = 1
 				}),
+				/*
 				new RootParameter(ShaderVisibility.All, new DescriptorRange() {
 					RangeType = DescriptorRangeType.ConstantBufferView,
 					BaseShaderRegister = 1,
 					OffsetInDescriptorsFromTableStart = int.MinValue,
 					DescriptorCount = 1
 				})
+				*/
 
 			};
 

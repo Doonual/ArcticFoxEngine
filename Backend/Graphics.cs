@@ -104,8 +104,9 @@ namespace ArcticFoxEngine {
 
 			// Input format
 			InputElement[] inputElementDescs = new InputElement[] {
-				new InputElement("POSITION", 0, Format.R32G32B32_Float, 0, 0),
-				new InputElement("COLOR", 0, Format.R32G32B32A32_Float, 12, 0),
+				new InputElement("POSITION", 0, Format.R32G32_Float, 0, 0),
+				new InputElement("TEXCOORD", 0, Format.R32G32_Float, 8, 0),
+				new InputElement("COLOR", 0, Format.R8G8B8A8_UNorm, 16, 0),
 			};
 
 			DepthStencilOperationDescription defaultStencilOp = new DepthStencilOperationDescription() {
@@ -118,7 +119,8 @@ namespace ArcticFoxEngine {
 
 				IsDepthEnabled = true,
 				DepthWriteMask = DepthWriteMask.All,
-				DepthComparison = Comparison.Less,
+				//DepthComparison = Comparison.Less,
+				DepthComparison = Comparison.Always,
 
 				IsStencilEnabled = false,
 				StencilReadMask = 0xff,

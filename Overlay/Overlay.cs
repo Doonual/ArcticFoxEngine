@@ -373,6 +373,7 @@ namespace ClickableTransparentOverlay {
 
 
 		public void OneLoop(float deltaTime, GraphicsCommandList gCmdList) {
+			
 			this.window.PumpEvents();
 			Utils.SetOverlayClickable(this.window.Handle, this.inputhandler.Update());
 			this.renderer.Update(deltaTime, () => { Render(); });

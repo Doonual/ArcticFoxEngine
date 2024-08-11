@@ -112,7 +112,7 @@ namespace ClickableTransparentOverlay {
 				indexBuffer = Graphics.device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None, ResourceDescription.Buffer(indexBufferSize * sizeof(ImDrawIdx)), ResourceStates.GenericRead);
 				indexBufferView.BufferLocation = indexBuffer.GPUVirtualAddress;
 				indexBufferView.SizeInBytes = indexBufferSize * sizeof(ImDrawIdx);
-				indexBufferView.Format = SharpDX.DXGI.Format.R32_UInt;
+				indexBufferView.Format = SharpDX.DXGI.Format.R16_UInt;
 
 			}
 
@@ -120,12 +120,14 @@ namespace ClickableTransparentOverlay {
 			ImDrawVert* vertexResourcePointer = (ImDrawVert*)vertexBuffer.Map(0);
 			ImDrawIdx* indexResourcePointer = (ImDrawIdx*)indexBuffer.Map(0);
 			for (int n = 0; n < data.CmdListsCount; n++) {
-				var cmdlList = data.CmdListsRange[n];
+				ImDrawListPtr cmdlList = data.CmdListsRange[n];
 
-				var vertBytes = cmdlList.VtxBuffer.Size * sizeof(ImDrawVert);
+				int vertBytes = cmdlList.VtxBuffer.Size * sizeof(ImDrawVert);
 				Buffer.MemoryCopy((void*)cmdlList.VtxBuffer.Data, vertexResourcePointer, vertBytes, vertBytes);
 
-				var idxBytes = cmdlList.IdxBuffer.Size * sizeof(ImDrawIdx);
+
+				int idxBytes = cmdlList.IdxBuffer.Size * sizeof(ImDrawIdx);
+
 				Buffer.MemoryCopy((void*)cmdlList.IdxBuffer.Data, indexResourcePointer, idxBytes, idxBytes);
 
 				vertexResourcePointer += cmdlList.VtxBuffer.Size;
@@ -173,9 +175,7 @@ namespace ClickableTransparentOverlay {
 						{
 							//ctx.PSSetShaderResource(0, texture);
 						}
-						//else {
-							gCmdList.DrawIndexedInstanced((int)cmd.ElemCount, 1, (int)(cmd.IdxOffset + global_idx_offset), (int)(cmd.VtxOffset + global_vtx_offset), 1);
-						//}
+						gCmdList.DrawIndexedInstanced((int)cmd.ElemCount, 1, (int)(cmd.IdxOffset + global_idx_offset), (int)(cmd.VtxOffset + global_vtx_offset), 1);
 
 						
 					}
@@ -289,15 +289,16 @@ namespace ClickableTransparentOverlay {
 			var viewport = new SharpDX.ViewportF(0f, 0f, drawData.DisplaySize.X, drawData.DisplaySize.Y, 0f, 1f);
 			gCmdList.SetViewport(viewport);
 
+			gCmdList.SetGraphicsRootSignature(RenderResources.rootSignature);
+			gCmdList.SetDescriptorHeaps(1, new DescriptorHeap[] { constantBufferDh });
+			gCmdList.SetGraphicsRootDescriptorTable(0, (constantBufferDh.GPUDescriptorHandleForHeapStart));
+
 			int stride = sizeof(ImDrawVert);
-			//ctx.IASetInputLayout(inputLayout);
 			gCmdList.SetVertexBuffer(0, vertexBufferView);
 			gCmdList.SetIndexBuffer(indexBufferView);
 			gCmdList.PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList;
 
-			gCmdList.SetGraphicsRootSignature(RenderResources.rootSignature);
-			gCmdList.SetDescriptorHeaps(1, new DescriptorHeap[] { constantBufferDh });
-			gCmdList.SetGraphicsRootDescriptorTable(0, (constantBufferDh.GPUDescriptorHandleForHeapStart));
+			
 
 		}
 

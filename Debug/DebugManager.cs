@@ -55,7 +55,6 @@ namespace ArcticFoxEngine.Debug {
 			if (isOpen == true) { return; }
 
 			isOpen = true;
-
 			debugManager = new DebugManager();
 			debugManager.Start();
 
@@ -68,8 +67,10 @@ namespace ArcticFoxEngine.Debug {
 			if (isOpen == false) { return; }
 
 			isOpen = false;
+
 			debugManager.Close();
 			debugManager.Dispose();
+			
 
 		}
 

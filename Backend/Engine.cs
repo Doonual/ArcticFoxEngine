@@ -3,6 +3,7 @@ using ArcticFoxEngine.Debug;
 using ArcticFoxEngine.Debug.Commands;
 using ArcticFoxEngine.Input;
 using ArcticFoxEngine.Input.Bindings;
+using ClickableTransparentOverlay;
 using CoolClassLibrary;
 using SharpDX.Windows;
 
@@ -60,6 +61,7 @@ namespace ArcticFoxEngine {
 			
 			Log.Raw("");
 			
+
 			exitButton = new KeyboardButtonInput(KeyboardButtonInput.KeyboardButton.Escape);
 			toggleDebugButton = new KeyboardButtonInput(KeyboardButtonInput.KeyboardButton.F1);
 
@@ -85,6 +87,7 @@ namespace ArcticFoxEngine {
 
 
 					if (exitButton.GetButton() == true) { Stop(); }
+					
 					if (toggleDebugButton.GetButtonDown() == true) {
 						if (DebugManager.isOpen == true) {
 							DebugManager.CloseGUI();
@@ -94,9 +97,16 @@ namespace ArcticFoxEngine {
 						}
 					}
 
+					Profiler.FrameEnd();
+
+					if (Overlay.render != false) {
+						Overlay.mainOverlay.OneLoop(Profiler.deltaTime);
+					}
+					
+
 					Graphics.Buffer();
 
-					Profiler.FrameEnd();
+					
 					Graphics.WaitForPreviousFrame();
 
 					InputManager.NextFrame();

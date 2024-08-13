@@ -116,18 +116,18 @@ namespace ArcticFoxEngine {
 			for (int i = 0; i < indices.Length; i++) {
 				indicesOffset[i] = indices[i];
 			}
-			
+
+			IntPtr writePos;
+
 			int vertexUploadBufferSize = Utilities.SizeOf<Vertex>() * vertices.Length;
-			GPU_Upload.UploadContext(vertexUploadBufferSize);
-			Utilities.Write(GPU_Upload.cpuAddress, vertices, 0, vertices.Length);
-			GPU_Upload.commandList.CopyBufferRegion(vertexBuffer, vbStartIndex * Utilities.SizeOf<Vertex>(), GPU_Upload.uploadBuffer, 0, vertexUploadBufferSize);
-			GPU_Upload.EndUpload();
-			
+			writePos = GPU_Upload.BeginBufferUpload(vertexUploadBufferSize);
+			Utilities.Write(writePos, vertices, 0, vertices.Length);
+			GPU_Upload.EndBufferUpload(vertexBuffer, dstOffset: vbStartIndex * Utilities.SizeOf<Vertex>(), srcOffset: 0);
+
 			int indexUploadBufferSize = Utilities.SizeOf<int>() * indicesOffset.Length;
-			GPU_Upload.UploadContext(indexUploadBufferSize);
-			Utilities.Write(GPU_Upload.cpuAddress, indicesOffset, 0, indicesOffset.Length);
-			GPU_Upload.commandList.CopyBufferRegion(indexBuffer, ibStartIndex * Utilities.SizeOf<int>(), GPU_Upload.uploadBuffer, 0, indexUploadBufferSize);
-			GPU_Upload.EndUpload();
+			writePos = GPU_Upload.BeginBufferUpload(indexUploadBufferSize);
+			Utilities.Write(writePos, indicesOffset, 0, indicesOffset.Length);
+			GPU_Upload.EndBufferUpload(indexBuffer, dstOffset: ibStartIndex * Utilities.SizeOf<int>(), srcOffset: 0);
 
 			#endregion
 

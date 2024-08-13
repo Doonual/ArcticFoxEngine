@@ -1,166 +1,134 @@
 ﻿using CoolClassLibrary;
 using SharpDX.Direct3D12;
+using SharpDX.DXGI;
+using Resource = SharpDX.Direct3D12.Resource;
 using Swan;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace ArcticFoxEngine.Backend {
+
+
 	internal static class GPU_Upload {
 
-		struct UploadFrame {
+		static Resource uploadResource;
 
-			public CommandAllocator commandAllocator;
-			public GraphicsCommandList commandList;
-			public Resource uploadBuffer;
-			public IntPtr cpuAddress;
-			public int fenceValue;
-			public bool ready;
-
-			public UploadFrame() {
-				commandAllocator = Graphics.device.CreateCommandAllocator(CommandListType.Copy); ;
-				commandList = Graphics.device.CreateCommandList(CommandListType.Copy, commandAllocator, null);
-				commandList.Close();
-
-				commandAllocator.Name = "Upload Command Allocator";
-				commandList.Name = "Upload Command List";
-
-				uploadBuffer = Graphics.device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None, ResourceDescription.Buffer(1024), ResourceStates.GenericRead);
-				ready = true;
-				cpuAddress = IntPtr.Zero;
-				fenceValue = 0;
-			}
-
-			public void WaitAndReset() {
-
-				if (uploadFence.CompletedValue < fenceValue) {
-					uploadFence.SetEventOnCompletion(fenceValue, fenceEvent.SafeWaitHandle.DangerousGetHandle());
-					fenceEvent.WaitOne();
-				}
-
-				uploadBuffer.Dispose();
-				uploadBuffer = null;
-				ready = true;
-				cpuAddress = IntPtr.Zero;
-
-
-			}
-
-			public void Dispose() {
-				
-				WaitAndReset();
-				commandAllocator.Dispose();
-				commandList.Dispose();
-			}
-
-		}
-
-
-		static int uploadFrameCount = 4;
-		static UploadFrame[] uploadFrames;
+		static long uploadSize;
 
 		static CommandQueue uploadCommandQueue;
+		static CommandAllocator commandAllocator;
+		static GraphicsCommandList commandList;
+
+		static AutoResetEvent fenceEvent;
 		static Fence uploadFence;
 		static int fenceValue;
-		static AutoResetEvent fenceEvent;
-		//Mutex frameMutex;
-
-		static int uploadFrameIndex;
-
-		static public GraphicsCommandList commandList;
-		static public IntPtr cpuAddress;
-		static public Resource uploadBuffer;
-
 
 
 		static GPU_Upload() {
 
-			uploadFrames = new UploadFrame[uploadFrameCount];
-			for (int i = 0; i < uploadFrameCount; i++) {
-				uploadFrames[i] = new UploadFrame();
-			}
-
-			CommandQueueDescription desc = new CommandQueueDescription();
-			desc.Flags = CommandQueueFlags.None;
-			desc.NodeMask = 0;
-			desc.Priority = ((int)CommandQueuePriority.Normal);
-			desc.Type = CommandListType.Copy;
-
+			CommandQueueDescription desc = new CommandQueueDescription() {
+				Flags = CommandQueueFlags.None,
+				NodeMask = 0,
+				Priority = ((int)CommandQueuePriority.Normal),
+				Type = CommandListType.Copy,
+			};
 			uploadCommandQueue = Graphics.device.CreateCommandQueue(desc);
 			uploadCommandQueue.Name = "Upload Copy Queue";
 
+			commandAllocator = Graphics.device.CreateCommandAllocator(CommandListType.Copy);
+			commandAllocator.Name = "Upload Command Allocator";
+
+			commandList = Graphics.device.CreateCommandList(CommandListType.Copy, commandAllocator, null);
+			commandList.Close();
+			commandList.Name = "Upload Command List";
+
 			uploadFence = Graphics.device.CreateFence(0, FenceFlags.None);
 			uploadFence.Name = "Upload Fence";
-
 			fenceEvent = new AutoResetEvent(false);
 
-		}
-
-		public static void UploadContext(int alignedSize) {
-
-
-			uploadFrameIndex = GetAvailableUploadFrame();
-			UploadFrame frame = uploadFrames[uploadFrameIndex];
-
-			frame.ready = false;
-			frame.uploadBuffer = Graphics.device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None, ResourceDescription.Buffer(alignedSize), ResourceStates.GenericRead);
-
-			frame.cpuAddress = frame.uploadBuffer.Map(0);
-			commandList = frame.commandList;
-			uploadBuffer = frame.uploadBuffer;
-			cpuAddress = frame.cpuAddress;
-
-			frame.commandAllocator.Reset();
-			frame.commandList.Reset(frame.commandAllocator, null);
-
+			uploadResource = null;
 
 		}
-		public static void EndUpload() {
 
-			UploadFrame frame = uploadFrames[uploadFrameIndex];
-			GraphicsCommandList commandList = frame.commandList;
+		internal static IntPtr BeginBufferUpload(long size) {
+			if (uploadResource != null) { Log.Error("Cannot begin upload, upload not ready"); }
+			uploadSize = size;
 
+			uploadResource = Graphics.device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None, ResourceDescription.Buffer(uploadSize), ResourceStates.GenericRead);
+			return uploadResource.Map(0);
+
+		}
+		internal static void EndBufferUpload(Resource dstBuffer, long dstOffset = 0, long srcOffset = 0) {
+
+			commandAllocator.Reset();
+			commandList.Reset(commandAllocator, null);
+			commandList.CopyBufferRegion(dstBuffer, dstOffset, uploadResource, srcOffset, uploadSize);
 			commandList.Close();
+
 			uploadCommandQueue.ExecuteCommandList(commandList);
 			fenceValue++;
-			frame.fenceValue = fenceValue;
-			uploadCommandQueue.Signal(uploadFence, frame.fenceValue);
-			frame.WaitAndReset();
+			uploadCommandQueue.Signal(uploadFence, fenceValue);
+			WaitAndReset();
 
 		}
-		static int GetAvailableUploadFrame() {
-			// Iterates through the upload frames and returns the index of the first ready one
 
-			int index = -1;
-			int count = uploadFrameCount;
+		internal static IntPtr BeginTextureUpload(int width, int height, short depth, Format format, ResourceDimension resourceDimension) {
 
-			for (int i = 0; i < uploadFrameCount; i ++) {
-				if (uploadFrames[i].ready == true) {
-					index = i;
-					break;
-				}
+			if (uploadResource != null) { Log.Error("Cannot begin upload, upload not ready"); }
+			uploadSize = width * height * depth * format.SizeOfInBytes();
+
+			ResourceDescription texResourceDesc = new ResourceDescription() {
+				MipLevels = 1,
+				Format = format,
+				Width = width,
+				Height = height,
+				DepthOrArraySize = depth,
+				Dimension = resourceDimension,
+			};
+			uploadResource = Graphics.device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None, texResourceDesc, ResourceStates.GenericRead);
+			return uploadResource.Map(0);
+			
+		}
+		internal static void EndTextureUpload(Resource dstTexture, int dstX = 0, int dstY = 0, int dstZ = 0, ResourceRegion? region = null) {
+
+			TextureCopyLocation dstLoc = new TextureCopyLocation(dstTexture, 0);
+			TextureCopyLocation srcLoc = new TextureCopyLocation(uploadResource, 0);
+
+			commandAllocator.Reset();
+			commandList.Reset(commandAllocator, null);
+			commandList.CopyTextureRegion(dstLoc, dstX, dstY, dstZ, srcLoc, region);
+			commandList.Close();
+
+			uploadCommandQueue.ExecuteCommandList(commandList);
+			fenceValue++;
+			uploadCommandQueue.Signal(uploadFence, fenceValue);
+			WaitAndReset();
+
+		}
+
+
+		private static void WaitAndReset() {
+
+			if (uploadFence.CompletedValue < fenceValue) {
+				uploadFence.SetEventOnCompletion(fenceValue, fenceEvent.SafeWaitHandle.DangerousGetHandle());
+				fenceEvent.WaitOne();
 			}
 
-			if (index == -1) {
-				index = 0;
-				while (uploadFrames[index].ready == false) {
-					index += 1;
-					index %= count;
-					Thread.Yield();
-				}
-			}
-
-			return index;
+			uploadResource.Dispose();
+			uploadResource = null;
 
 		}
 
 		internal static void Dispose() {
 
-			for (int i = 0; i < uploadFrameCount; i ++) {
-				uploadFrames[i].Dispose();
-			}
+			if (uploadResource != null) { uploadResource.Dispose(); }
+			uploadCommandQueue.Dispose();
+			commandAllocator.Dispose();
+			commandList.Dispose();
 
 			if (fenceEvent != null) {
 				fenceEvent.Close();
@@ -168,7 +136,7 @@ namespace ArcticFoxEngine.Backend {
 			}
 
 
-			uploadCommandQueue.Dispose();
+			
 			uploadFence.Dispose();
 			fenceValue = 0;
 

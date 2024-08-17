@@ -30,14 +30,14 @@ namespace ArcticFoxEngine {
 				case Primitive.Cube:
 
 				vertexData = new Vertex[] {
-					new Vertex() {Position=new Vector3(-0.5f, -0.5f, -0.5f), Color = new Color(0.0f, 0.0f, 0.0f)},
-					new Vertex() {Position=new Vector3(0.5f, -0.5f, -0.5f), Color = new Color(1.0f, 0.0f, 0.0f)},
-					new Vertex() {Position=new Vector3(-0.5f, 0.5f, -0.5f), Color = new Color(0.0f, 1.0f, 0.0f)},
-					new Vertex() {Position=new Vector3(0.5f, 0.5f, -0.5f), Color = new Color(1.0f, 1.0f, 0.0f)},
-					new Vertex() {Position=new Vector3(-0.5f, -0.5f, 0.5f), Color = new Color(0.0f, 0.0f, 1.0f)},
-					new Vertex() {Position=new Vector3(0.5f, -0.5f, 0.5f), Color = new Color(1.0f, 0.0f, 1.0f)},
-					new Vertex() {Position=new Vector3(-0.5f, 0.5f, 0.5f), Color = new Color(0.0f, 1.0f, 1.0f)},
-					new Vertex() {Position=new Vector3(0.5f, 0.5f, 0.5f), Color = new Color(1.0f, 1.0f, 1.0f)},
+					new Vertex() {position=new Vector3(-0.5f, -0.5f, -0.5f), color = new Color(0.0f, 0.0f, 0.0f), uv = new Vector2(0f, 0f)},
+					new Vertex() {position=new Vector3(0.5f, -0.5f, -0.5f), color = new Color(1.0f, 0.0f, 0.0f), uv = new Vector2(1f, 0f)},
+					new Vertex() {position=new Vector3(-0.5f, 0.5f, -0.5f), color = new Color(0.0f, 1.0f, 0.0f), uv = new Vector2(0f, 1f)},
+					new Vertex() {position=new Vector3(0.5f, 0.5f, -0.5f), color = new Color(1.0f, 1.0f, 0.0f), uv = new Vector2(1f, 1f)},
+					new Vertex() {position=new Vector3(-0.5f, -0.5f, 0.5f), color = new Color(0.0f, 0.0f, 1.0f), uv = new Vector2(1f, 1f)},
+					new Vertex() {position=new Vector3(0.5f, -0.5f, 0.5f), color = new Color(1.0f, 0.0f, 1.0f), uv = new Vector2(0f, 1f)},
+					new Vertex() {position=new Vector3(-0.5f, 0.5f, 0.5f), color = new Color(0.0f, 1.0f, 1.0f), uv = new Vector2(1f, 0f)},
+					new Vertex() {position=new Vector3(0.5f, 0.5f, 0.5f), color = new Color(1.0f, 1.0f, 1.0f), uv = new Vector2(0f, 0f)},
 				};
 				indexData = new int[] {
 					// Z+ Face
@@ -60,10 +60,10 @@ namespace ArcticFoxEngine {
 				case Primitive.Quad:
 
 				vertexData = new Vertex[] {
-					new Vertex() {Position = new Vector3(-1f, 0f, -1f), Color = new Color(0, 0, 0)},
-					new Vertex() {Position = new Vector3(1f, 0f, -1f), Color = new Color(255, 0, 0)},
-					new Vertex() {Position = new Vector3(-1f, 0f, 1f), Color = new Color(0, 255, 0)},
-					new Vertex() {Position = new Vector3(1f, 0f, 1f), Color = new Color(255, 255, 0)},
+					new Vertex() {position = new Vector3(-1f, 0f, -1f), color = new Color(0, 0, 0), uv = new Vector2(0f, 0f)},
+					new Vertex() {position = new Vector3(1f, 0f, -1f), color = new Color(255, 0, 0), uv = new Vector2(1f, 0f)},
+					new Vertex() {position = new Vector3(-1f, 0f, 1f), color = new Color(0, 255, 0), uv = new Vector2(0f, 1f)},
+					new Vertex() {position = new Vector3(1f, 0f, 1f), color = new Color(255, 255, 0), uv = new Vector2(1f, 1f)},
 				};
 				indexData = new int[] {
 					0, 1, 2,

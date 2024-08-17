@@ -8,6 +8,10 @@ namespace ArcticFoxEngine {
 	using SharpDX.Direct3D12;
 	using Swan;
 
+	/// <summary>
+	/// Contains and controls all the resources needed for rendering geometry
+	/// This is the vertex buffer, index buffers and the object buffers
+	/// </summary>
 	public class GeometryResources {
 
 		internal static int kbPerBuffer = 512;
@@ -30,7 +34,11 @@ namespace ArcticFoxEngine {
 		internal int[] objectGap;
 		internal ConstBuffer<ObjectInfo> objectBuffer;
 
-		
+		internal Texture testTexture;
+
+		/// <summary>
+		/// Creates a new instance GeometryResources
+		/// </summary>
 		public GeometryResources() {
 
 			meshRenderers = new List<MeshRenderer>();
@@ -62,12 +70,21 @@ namespace ArcticFoxEngine {
 			indexBufferView.Format = SharpDX.DXGI.Format.R32_UInt;
 
 			objectBuffer = new ConstBuffer<ObjectInfo>(numObElements);
-			objectBuffer.AddToDescriptorHeap(RenderResources.combinedDescriptorHeap, 1); // Offset by 1 to leave the render info
+			objectBuffer.AddToDescriptorHeap(RenderResources.combinedDescriptorHeap, 2);
+
+
+			Log.Info("Creating texture");
+			testTexture = new Texture(8, 8);
 
 		}
 
-
+		/// <summary>
+		/// Adds a mesh to GeometryResources
+		/// </summary>
+		/// <param name="meshRenderer">The mesh renderer to be added</param>
+		/// <returns>Whether the mesh was added successfully</returns>
 		public bool AddMesh(MeshRenderer meshRenderer) {
+			if (meshRenderer.mesh == null) { Log.Error("Failed to add mesh renderer, no mesh"); return false; }
 
 			// Find suitable space for mesh data insertion
 			int vbStartIndex = FindGap(vertexGap, meshRenderer.mesh.vertices.Length);
@@ -122,18 +139,23 @@ namespace ArcticFoxEngine {
 			int vertexUploadBufferSize = Utilities.SizeOf<Vertex>() * vertices.Length;
 			writePos = GPU_Upload.BeginBufferUpload(vertexUploadBufferSize);
 			Utilities.Write(writePos, vertices, 0, vertices.Length);
-			GPU_Upload.EndBufferUpload(vertexBuffer, dstOffset: vbStartIndex * Utilities.SizeOf<Vertex>(), srcOffset: 0);
+			GPU_Upload.EndBufferUpload(vertexBuffer, dstOffsetBytes: vbStartIndex * Utilities.SizeOf<Vertex>(), srcOffsetBytes: 0);
 
 			int indexUploadBufferSize = Utilities.SizeOf<int>() * indicesOffset.Length;
 			writePos = GPU_Upload.BeginBufferUpload(indexUploadBufferSize);
 			Utilities.Write(writePos, indicesOffset, 0, indicesOffset.Length);
-			GPU_Upload.EndBufferUpload(indexBuffer, dstOffset: ibStartIndex * Utilities.SizeOf<int>(), srcOffset: 0);
+			GPU_Upload.EndBufferUpload(indexBuffer, dstOffsetBytes: ibStartIndex * Utilities.SizeOf<int>(), srcOffsetBytes: 0);
 
 			#endregion
 
 			return true;
 			
 		}
+		
+		/// <summary>
+		/// Removes a mesh from GeometryResources
+		/// </summary>
+		/// <param name="meshRenderer">The mesh renderer to be removed</param>
 		public void RemoveMesh(MeshRenderer meshRenderer) {
 
 			// When we remove a mesh, this will create an empty space
@@ -242,7 +264,8 @@ namespace ArcticFoxEngine {
 			// back to 0. The GPU will just overwrite it when it needs to.
 
 		}
-		public int FindGap(int[] gapArray, int width) {
+		
+		private int FindGap(int[] gapArray, int width) {
 
 			int foundSpot = -1;
 			for (int i = 0; i < gapArray.Length;) {
@@ -263,9 +286,10 @@ namespace ArcticFoxEngine {
 
 		}
 
-		public void WriteObjectInfoBuffer() {
-
-			if (DebugRender.updateObjectInfo == false) { return; }
+		/// <summary>
+		/// Updates the object data buffer for all mesh renderers added to this GeometryResources
+		/// </summary>
+		internal void WriteObjectInfoBuffer() {
 
 			int maxObjectInfoIndex = -1;
 

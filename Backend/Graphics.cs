@@ -46,13 +46,14 @@ namespace ArcticFoxEngine {
 			try {
 				SetupDevice();
 
-				GPU_Render.SetupCommand();
+				GPU_Render.Init();
+				GPU_Upload.Init();
 				SetupSwapChain(width, height, refreshRate, GPU_Render.GetCommandQueue());
 				
 				RenderResources.LoadResources(width, height);
 
-				ShaderBytecode vertexShader = CompileShader(".res/shaders.hlsl", ShaderType.Vertex);
-				ShaderBytecode pixelShader = CompileShader(".res/shaders.hlsl", ShaderType.Pixel);
+				ShaderBytecode vertexShader = CompileShader(".res/VertexShader.hlsl", ShaderType.Vertex);
+				ShaderBytecode pixelShader = CompileShader(".res/PixelShader.hlsl", ShaderType.Pixel);
 				SetupPipeline(vertexShader, pixelShader);
 
 				SetupSynchronisation();
@@ -106,6 +107,7 @@ namespace ArcticFoxEngine {
 			InputElement[] inputElementDescs = new InputElement[] {
 				new InputElement("POSITION", 0, Format.R32G32B32_Float, 0, 0),
 				new InputElement("COLOR", 0, Format.R32G32B32A32_Float, 12, 0),
+				new InputElement("TEXCOORD", 0, Format.R32G32_Float, 28, 0),
 			};
 
 			DepthStencilOperationDescription defaultStencilOp = new DepthStencilOperationDescription() {

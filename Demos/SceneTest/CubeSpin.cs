@@ -33,9 +33,9 @@ namespace ArcticFoxEngine.Testing.SceneTest {
 
 				Mesh cubeMesh = Mesh.CreatePrimitive(Mesh.Primitive.Cube);
 				for (int v = 0; v < cubeMesh.vertices.Length; v ++) {
-					cubeMesh.vertices[v].Color = new Vector4(1f, 1f, 1f, 1f);
+					cubeMesh.vertices[v].color = new Vector4(1f, 1f, 1f, 1f);
 					if (v >= 4) {
-						cubeMesh.vertices[v].Color = new Vector4(1f, 0f, 0f, 1f);
+						cubeMesh.vertices[v].color = new Vector4(1f, 0f, 0f, 1f);
 					}
 					
 				}
@@ -51,9 +51,9 @@ namespace ArcticFoxEngine.Testing.SceneTest {
 
 				Mesh cubeMesh = Mesh.CreatePrimitive(Mesh.Primitive.Cube);
 				for (int v = 0; v < cubeMesh.vertices.Length; v++) {
-					cubeMesh.vertices[v].Color = new Vector4(1f, 1f, 1f, 1f);
+					cubeMesh.vertices[v].color = new Vector4(1f, 1f, 1f, 1f);
 					if (v >= 4) {
-						cubeMesh.vertices[v].Color = new Vector4(0f, 1f, 0f, 1f);
+						cubeMesh.vertices[v].color = new Vector4(0f, 1f, 0f, 1f);
 					}
 				}
 
@@ -68,9 +68,9 @@ namespace ArcticFoxEngine.Testing.SceneTest {
 
 				Mesh cubeMesh = Mesh.CreatePrimitive(Mesh.Primitive.Cube);
 				for (int v = 0; v < cubeMesh.vertices.Length; v++) {
-					cubeMesh.vertices[v].Color = new Vector4(1f, 1f, 1f, 1f);
+					cubeMesh.vertices[v].color = new Vector4(1f, 1f, 1f, 1f);
 					if (v % 4 < 2) {
-						cubeMesh.vertices[v].Color = new Vector4(0f, 0f, 1f, 1f);
+						cubeMesh.vertices[v].color = new Vector4(0f, 0f, 1f, 1f);
 					}
 				}
 

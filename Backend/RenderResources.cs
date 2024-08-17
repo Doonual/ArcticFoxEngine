@@ -81,7 +81,7 @@ namespace ArcticFoxEngine {
 
 			// Default Heap setup. Contains all the vertices and indices
 			DescriptorHeapDescription mainCombinedDescriptorHeapDesc = new DescriptorHeapDescription() {
-				DescriptorCount = 1 + 2048,
+				DescriptorCount = 1 + 1 + 2048,
 				Flags = DescriptorHeapFlags.ShaderVisible,
 				Type = DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView,
 			};
@@ -105,18 +105,31 @@ namespace ArcticFoxEngine {
 					RangeType = DescriptorRangeType.ConstantBufferView,
 					BaseShaderRegister = 0,
 					OffsetInDescriptorsFromTableStart = int.MinValue,
-					DescriptorCount = 1
+					DescriptorCount = 1,
 				}),
 				new RootParameter(ShaderVisibility.All, new DescriptorRange() {
 					RangeType = DescriptorRangeType.ConstantBufferView,
 					BaseShaderRegister = 1,
 					OffsetInDescriptorsFromTableStart = int.MinValue,
-					DescriptorCount = 1
-				})
+					DescriptorCount = 1,
+				}),
+				new RootParameter(ShaderVisibility.Pixel, new DescriptorRange() {
+					RangeType = DescriptorRangeType.ShaderResourceView,
+					BaseShaderRegister = 0,
+					OffsetInDescriptorsFromTableStart = int.MinValue,
+					DescriptorCount = 1,
+				}),
 
 			};
 
-			RootSignatureDescription rootSignatureDesc = new RootSignatureDescription(RootSignatureFlags.AllowInputAssemblerInputLayout, rootParameters);
+			StaticSamplerDescription[] staticSamplerDescription = new StaticSamplerDescription[] {
+				new StaticSamplerDescription(ShaderVisibility.Pixel, 0, 0) {
+					Filter = Filter.MinimumMinMagMipPoint,
+					AddressUVW = TextureAddressMode.Border,
+				}
+			};
+
+			RootSignatureDescription rootSignatureDesc = new RootSignatureDescription(RootSignatureFlags.AllowInputAssemblerInputLayout, rootParameters, staticSamplerDescription);
 			rootSignature = device.CreateRootSignature(rootSignatureDesc.Serialize());
 
 		}
@@ -127,11 +140,12 @@ namespace ArcticFoxEngine {
 			destCmdList.SetGraphicsRootSignature(rootSignature);
 			destCmdList.SetDescriptorHeaps(1, new DescriptorHeap[] { combinedDescriptorHeap });
 			destCmdList.SetGraphicsRootDescriptorTable(0, (combinedDescriptorHeap.GPUDescriptorHandleForHeapStart));
+			destCmdList.SetGraphicsRootDescriptorTable(2, (combinedDescriptorHeap.GPUDescriptorHandleForHeapStart + combinedDescriptorHeapIncrement));
 
 		}
 		internal static void BindCurrentObject(GraphicsCommandList descCmdList, int obStartIndex) {
 
-			GpuDescriptorHandle currentObjectHandle = combinedDescriptorHeap.GPUDescriptorHandleForHeapStart + (obStartIndex + 1) * combinedDescriptorHeapIncrement;
+			GpuDescriptorHandle currentObjectHandle = combinedDescriptorHeap.GPUDescriptorHandleForHeapStart + (obStartIndex + 2) * combinedDescriptorHeapIncrement;
 			descCmdList.SetGraphicsRootDescriptorTable(1, currentObjectHandle);
 
 		}

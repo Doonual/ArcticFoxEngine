@@ -9,15 +9,24 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using System.Runtime.InteropServices;
 
 namespace ArcticFoxEngine.Backend {
 
 
 	internal static class GPU_Upload {
 
+		// Helper class to upload data to default heaps
+
+
+		// Upload resource, data is copied from this resource into the resources in default heaps
 		static Resource uploadResource;
 
-		static long uploadSize;
+		static long uploadBytes;
+
+		static int texUploadWidth;
+		static int texUploadHeight;
+		static Format texUploadFormat;
 
 		static CommandQueue uploadCommandQueue;
 		static CommandAllocator commandAllocator;
@@ -27,8 +36,12 @@ namespace ArcticFoxEngine.Backend {
 		static Fence uploadFence;
 		static int fenceValue;
 
+		/// <summary>
+		/// Initialises all the command queue objects
+		/// </summary>
+		internal static void Init() {
 
-		static GPU_Upload() {
+			// Initialise command queues and synchronisation
 
 			CommandQueueDescription desc = new CommandQueueDescription() {
 				Flags = CommandQueueFlags.None,
@@ -54,19 +67,32 @@ namespace ArcticFoxEngine.Backend {
 
 		}
 
-		internal static IntPtr BeginBufferUpload(long size) {
-			if (uploadResource != null) { Log.Error("Cannot begin upload, upload not ready"); }
-			uploadSize = size;
 
-			uploadResource = Graphics.device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None, ResourceDescription.Buffer(uploadSize), ResourceStates.GenericRead);
+		/// <summary>
+		/// Prepares the temporary buffer for uploading
+		/// </summary>
+		/// <param name="numBytes">The number of bytes to be uploaded</param>
+		/// <returns>A pointer to the start of the temporary buffer. Use this to fill the temporary buffer with data</returns>
+		internal static IntPtr BeginBufferUpload(long numBytes) {
+			if (uploadResource != null) { Log.Error("Cannot begin buffer upload, upload not ready"); }
+			
+			uploadBytes = numBytes;
+			uploadResource = Graphics.device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None, ResourceDescription.Buffer(uploadBytes), ResourceStates.GenericRead);
 			return uploadResource.Map(0);
 
 		}
-		internal static void EndBufferUpload(Resource dstBuffer, long dstOffset = 0, long srcOffset = 0) {
+		
+		/// <summary>
+		/// Copies the data from the temporary buffer into the specified default heap buffer
+		/// </summary>
+		/// <param name="dstBuffer">The default heap buffer to upload to</param>
+		/// <param name="dstOffsetBytes">Location of the start of the data in the destination buffer</param>
+		/// <param name="srcOffsetBytes">Location of the start of the data in the source buffer</param>
+		internal static void EndBufferUpload(Resource dstBuffer, long dstOffsetBytes = 0, long srcOffsetBytes = 0) {
 
 			commandAllocator.Reset();
 			commandList.Reset(commandAllocator, null);
-			commandList.CopyBufferRegion(dstBuffer, dstOffset, uploadResource, srcOffset, uploadSize);
+			commandList.CopyBufferRegion(dstBuffer, dstOffsetBytes, uploadResource, srcOffsetBytes, uploadBytes);
 			commandList.Close();
 
 			uploadCommandQueue.ExecuteCommandList(commandList);
@@ -76,36 +102,39 @@ namespace ArcticFoxEngine.Backend {
 
 		}
 
-		internal static IntPtr BeginTextureUpload(int width, int height, short depth, Format format, ResourceDimension resourceDimension) {
-
+		/// <summary>
+		/// Prepares the temporary texture for uploading
+		/// </summary>
+		/// <param name="numBytes">The number of bytes to be uploaded</param>
+		/// <returns>A pointer to the start of the temporary texture. Use this to fill the temporary texture with data</returns>
+		internal static void Texture2DUpload(Resource dstTexture, int width, int height, Format format, byte[] textureData) {
 			if (uploadResource != null) { Log.Error("Cannot begin upload, upload not ready"); }
-			uploadSize = width * height * depth * format.SizeOfInBytes();
-
-			ResourceDescription texResourceDesc = new ResourceDescription() {
-				MipLevels = 1,
-				Format = format,
-				Width = width,
-				Height = height,
-				DepthOrArraySize = depth,
-				Dimension = resourceDimension,
-			};
-			uploadResource = Graphics.device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None, texResourceDesc, ResourceStates.GenericRead);
-			return uploadResource.Map(0);
-			
-		}
-		internal static void EndTextureUpload(Resource dstTexture, int dstX = 0, int dstY = 0, int dstZ = 0, ResourceRegion? region = null) {
-
-			TextureCopyLocation dstLoc = new TextureCopyLocation(dstTexture, 0);
-			TextureCopyLocation srcLoc = new TextureCopyLocation(uploadResource, 0);
 
 			commandAllocator.Reset();
 			commandList.Reset(commandAllocator, null);
-			commandList.CopyTextureRegion(dstLoc, dstX, dstY, dstZ, srcLoc, region);
+
+			uploadResource = Graphics.device.CreateCommittedResource(new HeapProperties(CpuPageProperty.WriteBack, MemoryPool.L0), HeapFlags.None, ResourceDescription.Texture2D(format, width, height), ResourceStates.GenericRead);
+			int texturePixelSize = format.SizeOfInBytes();
+
+			texUploadWidth = width;
+			texUploadHeight = height;
+			texUploadFormat = format;
+
+
+			GCHandle handle = GCHandle.Alloc(textureData, GCHandleType.Pinned);
+			IntPtr ptr = Marshal.UnsafeAddrOfPinnedArrayElement(textureData, 0);
+			uploadResource.WriteToSubresource(0, null, ptr, texturePixelSize * width, textureData.Length);
+			handle.Free();
+
+			commandList.CopyTextureRegion(new TextureCopyLocation(dstTexture, 0), 0, 0, 0, new TextureCopyLocation(uploadResource, 0), null);
+
 			commandList.Close();
+			
 
 			uploadCommandQueue.ExecuteCommandList(commandList);
 			fenceValue++;
 			uploadCommandQueue.Signal(uploadFence, fenceValue);
+
 			WaitAndReset();
 
 		}
@@ -122,7 +151,6 @@ namespace ArcticFoxEngine.Backend {
 			uploadResource = null;
 
 		}
-
 		internal static void Dispose() {
 
 			if (uploadResource != null) { uploadResource.Dispose(); }
@@ -141,7 +169,6 @@ namespace ArcticFoxEngine.Backend {
 			fenceValue = 0;
 
 		}
-
 
 	}
 }

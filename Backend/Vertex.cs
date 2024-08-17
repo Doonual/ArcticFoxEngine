@@ -2,8 +2,9 @@
 
 namespace ArcticFoxEngine {
 	public struct Vertex {
-		public Vector3 Position;
-		public Vector4 Color;
+		public Vector3 position;
+		public Vector4 color;
+		public Vector2 uv;
 	};
 
 }

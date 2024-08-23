@@ -23,7 +23,7 @@ Pixel_Input Vertex_Main(float4 position : POSITION, float4 color : COLOR, float2
 	
 	Pixel_Input result;
 
-	result.position = mul(cameraProjectionMatrix, mul(transformMatrix, float4(position, 1.0)));
+	result.position = mul(cameraProjectionMatrix, mul(transformMatrix, position));
 	result.color = color;
 	result.uv = uv;
 	

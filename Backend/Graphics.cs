@@ -130,13 +130,16 @@ namespace ArcticFoxEngine {
 
 			};
 
+			RasterizerStateDescription rasterState = RasterizerStateDescription.Default();
+			rasterState.CullMode = CullMode.None;
+
 			GraphicsPipelineStateDescription psonDesc = new GraphicsPipelineStateDescription() {
 
 				InputLayout = new InputLayoutDescription(inputElementDescs),
 				RootSignature = RenderResources.rootSignature,
 				VertexShader = vertexShader,
 				PixelShader = pixelShader,
-				RasterizerState = RasterizerStateDescription.Default(),
+				RasterizerState = rasterState,
 				BlendState = BlendStateDescription.Default(),
 				DepthStencilFormat = Format.D32_Float,
 				DepthStencilState = depthState,

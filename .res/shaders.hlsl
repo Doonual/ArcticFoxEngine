@@ -73,6 +73,6 @@ PS_INPUT Vertex_Main(VS_INPUT input) {
 //Texture2D texture0;
 
 float4 Pixel_Main(PS_INPUT input) : SV_Target {
-	return float4(input.uv, 0.0, 1.0);
+	return input.col;
 	//return input.col * texture0.Sample(sampler0, input.uv);
 }

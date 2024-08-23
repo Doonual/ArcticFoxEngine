@@ -68,6 +68,7 @@ namespace ArcticFoxEngine {
 			if (init != null) {
 				init();
 			}
+			DebugManager.OpenGUI();
 
 			// Main game loop
 			using (loop = new RenderLoop(form)) {

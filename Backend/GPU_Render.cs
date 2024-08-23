@@ -42,27 +42,26 @@ namespace ArcticFoxEngine {
 			// However, when ExecuteCommandList() is called on a particular command 
 			// list, that command list can then be reset at any time and must be before 
 			// re-recording
+			
+			#region Normal rendering
 
 			Profiler.MetricBegin();
 			cmdAllocator.Reset();
 			cmdList.Reset(cmdAllocator, Graphics.pipelineState);
 
 
-
-			
-
 			// Bind shader resources
 
 
-			//camera.WriteCameraInfoBuffer();
-			//geometry.WriteObjectInfoBuffer();
-			//RenderResources.BindShaderResources(cmdList);
+			camera.WriteCameraInfoBuffer();
+			geometry.WriteObjectInfoBuffer();
+			RenderResources.BindShaderResources(cmdList);
 
 
 
 			// Viewport and render target
-			//cmdList.SetViewport(camera.viewport);
-			//cmdList.SetScissorRectangles(camera.scissorRect);
+			cmdList.SetViewport(camera.viewport);
+			cmdList.SetScissorRectangles(camera.scissorRect);
 			// Indicate that the back buffer will be used as a render target
 			cmdList.ResourceBarrierTransition(RenderResources.renderTargets[Graphics.frameIndex], ResourceStates.Present, ResourceStates.RenderTarget);
 
@@ -73,15 +72,13 @@ namespace ArcticFoxEngine {
 			CpuDescriptorHandle dsvHandle = RenderResources.depthStencilDescriptorHeap.CPUDescriptorHandleForHeapStart;
 			rtvHandle += Graphics.frameIndex * RenderResources.renderTargetViewDescriptorSize;
 			cmdList.SetRenderTargets(rtvHandle, dsvHandle);
-			cmdList.ClearRenderTargetView(rtvHandle, new Color4(0f, 0f, 0f, 1), 0, null);
+			cmdList.ClearRenderTargetView(rtvHandle, new Color4(0f, 0f, 0f, 1f), 0, null);
 			cmdList.ClearDepthStencilView(dsvHandle, ClearFlags.FlagsDepth, 1f, 0);
 
-			if (Overlay.render != false) {
-				Overlay.mainOverlay.OneLoop(Profiler.deltaTime, cmdList);
-			}
+			
 
 
-			/*
+			
 
 			// Set geometry
 			cmdList.PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList;
@@ -98,7 +95,7 @@ namespace ArcticFoxEngine {
 				cmdList.DrawIndexedInstanced(indexCount, 1, ibStart, vbStart, vbStart);
 
 			}
-			*/
+			
 
 			// Indicate that the back buffer will now be used to present
 			cmdList.ResourceBarrierTransition(RenderResources.renderTargets[Graphics.frameIndex], ResourceStates.RenderTarget, ResourceStates.Present);
@@ -111,6 +108,46 @@ namespace ArcticFoxEngine {
 			cmdQueue.ExecuteCommandList(cmdList);
 			Profiler.MetricEnd("Render");
 
+			#endregion
+
+			
+
+
+			// IMGui Render
+			#region ImGui render
+
+			if (Overlay.render != false) {
+				Graphics.WaitForPreviousFrame();
+				cmdAllocator.Reset();
+				cmdList.Reset(cmdAllocator, Overlay.mainOverlay.renderer.pipelineState);
+
+				// Indicate that the back buffer will be used as a render target
+				cmdList.ResourceBarrierTransition(RenderResources.renderTargets[Graphics.frameIndex], ResourceStates.Present, ResourceStates.RenderTarget);
+
+
+
+				// Set render target and depth stencil
+				rtvHandle = RenderResources.renderTargetViewHeap.CPUDescriptorHandleForHeapStart;
+				dsvHandle = RenderResources.depthStencilDescriptorHeap.CPUDescriptorHandleForHeapStart;
+				rtvHandle += Graphics.frameIndex * RenderResources.renderTargetViewDescriptorSize;
+				cmdList.SetRenderTargets(rtvHandle, dsvHandle);
+				cmdList.ClearDepthStencilView(dsvHandle, ClearFlags.FlagsDepth, 1f, 0);
+
+
+			
+				Overlay.mainOverlay.OneLoop(Profiler.deltaTime, cmdList);
+			
+
+
+				cmdList.ResourceBarrierTransition(RenderResources.renderTargets[Graphics.frameIndex], ResourceStates.RenderTarget, ResourceStates.Present);
+
+
+				cmdList.Close();
+				cmdQueue.ExecuteCommandList(cmdList);
+
+			}
+
+			#endregion
 
 		}
 

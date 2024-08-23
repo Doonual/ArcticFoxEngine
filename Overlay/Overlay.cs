@@ -39,7 +39,7 @@ namespace ClickableTransparentOverlay {
 		private ID3D11Texture2D backBuffer;
 		private ID3D11RenderTargetView renderView;
 
-		private ImGuiRenderer renderer;
+		internal ImGuiRenderer renderer;
 		private ImGuiInputHandler inputhandler;
 
 		private bool _disposedValue;

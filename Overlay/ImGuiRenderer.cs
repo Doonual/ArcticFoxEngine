@@ -22,8 +22,8 @@ namespace ClickableTransparentOverlay {
 	using ArcticFoxEngine.Backend;
 	using CoolClassLibrary;
 
-	unsafe internal sealed class ImGuiRenderer : IDisposable
-	{
+	unsafe internal sealed class ImGuiRenderer : IDisposable {
+		
 		const int VertexConstantBufferSize = 16 * 4;
 
 		Resource vertexBuffer;
@@ -35,16 +35,11 @@ namespace ClickableTransparentOverlay {
 		ConstBuffer<Matrix> constantBuffer;
 		DescriptorHeap constantBufferDh;
 
+		internal PipelineState pipelineState;
+		RootSignature rootSignature;
 
 		ID3D11Device device;
-		ID3D11DeviceContext deviceContext;
-		//ID3D11Buffer vertexBuffer;
-		//ID3D11Buffer indexBuffer;
-		Blob vertexShaderBlob;
-		ID3D11VertexShader vertexShader;
 		ID3D11InputLayout inputLayout;
-		Blob pixelShaderBlob;
-		ID3D11PixelShader pixelShader;
 		ID3D11SamplerState fontSampler;
 		ID3D11RasterizerState rasterizerState;
 		ID3D11BlendState blendState;
@@ -52,10 +47,8 @@ namespace ClickableTransparentOverlay {
 		int vertexBufferSize = 5000, indexBufferSize = 10000;
 		readonly Dictionary<IntPtr, ID3D11ShaderResourceView> textureResources = new();
 
-		public ImGuiRenderer(ID3D11Device device, ID3D11DeviceContext deviceContext, int width, int height)
-		{
+		public ImGuiRenderer(ID3D11Device device, ID3D11DeviceContext deviceContext, int width, int height) {
 			this.device = device;
-			this.deviceContext = deviceContext;
 
 			device.AddRef();
 			deviceContext.AddRef();
@@ -70,13 +63,11 @@ namespace ClickableTransparentOverlay {
 			this.CreateDeviceObjects();
 		}
 
-		public void Start()
-		{
+		public void Start() {
 			ImGui.NewFrame();
 		}
 
-		public void Update(float deltaTime, Action DoRender)
-		{
+		public void Update(float deltaTime, Action DoRender) {
 			var io = ImGui.GetIO();
 			io.DeltaTime = deltaTime;
 			ImGui.NewFrame();
@@ -85,15 +76,14 @@ namespace ClickableTransparentOverlay {
 		}
 
 		public void Render(GraphicsCommandList gCmdList) {
+			
 			ImDrawDataPtr data = ImGui.GetDrawData();
 			// Avoid rendering when minimized
-			if (data.DisplaySize.X <= 0.0f || data.DisplaySize.Y <= 0.0f)
-				return;
+			if (data.DisplaySize.X <= 0.0f || data.DisplaySize.Y <= 0.0f) { return; }
 
-			ID3D11DeviceContext ctx = deviceContext;
+			#region Vertex buffer creation
 
-			if (vertexBuffer == null || vertexBufferSize < data.TotalVtxCount)
-			{
+			if (vertexBuffer == null || vertexBufferSize < data.TotalVtxCount) {
 				vertexBuffer?.Dispose();
 
 				vertexBufferSize = data.TotalVtxCount + 5000;
@@ -103,8 +93,10 @@ namespace ClickableTransparentOverlay {
 				vertexBufferView.SizeInBytes = vertexBufferSize * sizeof(ImDrawVert);
 			}
 
-			if (indexBuffer == null || indexBufferSize < data.TotalIdxCount)
-			{
+			#endregion
+			#region Index buffer creation
+
+			if (indexBuffer == null || indexBufferSize < data.TotalIdxCount) {
 				indexBuffer?.Dispose();
 
 				indexBufferSize = data.TotalIdxCount + 10000;
@@ -115,6 +107,10 @@ namespace ClickableTransparentOverlay {
 				indexBufferView.Format = SharpDX.DXGI.Format.R16_UInt;
 
 			}
+
+			#endregion
+
+			#region Uploading to vertex buffer and index buffer
 
 			// Upload vertex/index data into a single contiguous GPU buffer
 			ImDrawVert* vertexResourcePointer = (ImDrawVert*)vertexBuffer.Map(0);
@@ -136,9 +132,12 @@ namespace ClickableTransparentOverlay {
 			vertexBuffer.Unmap(0);
 			indexBuffer.Unmap(0);
 
+			#endregion
+
+			#region Viewport matrix
+
 			// Setup orthographic projection matrix into our constant buffer
 			// Our visible imgui space lies from draw_data.DisplayPos (top left) to draw_data.DisplayPos+data_data.DisplaySize (bottom right). DisplayPos is (0,0) for single viewport apps.
-
 			float L = data.DisplayPos.X;
 			float R = data.DisplayPos.X + data.DisplaySize.X;
 			float T = data.DisplayPos.Y;
@@ -151,44 +150,42 @@ namespace ClickableTransparentOverlay {
 			);
 			constantBuffer.Write(new Matrix[] { projMat }, 0);
 
+			#endregion
+
+			#region Rendering
 
 			SetupRenderState(data, gCmdList);
 			// Render command lists
 			// (Because we merged all buffers into a single one, we maintain our own offset into them)
 			int global_idx_offset = 0;
 			int global_vtx_offset = 0;
-			for (int n = 0; n < data.CmdListsCount; n++)
-			{
+			for (int n = 0; n < data.CmdListsCount; n++) {
 				var cmdList = data.CmdListsRange[n];
-				for (int i = 0; i < cmdList.CmdBuffer.Size; i++)
-				{
+				for (int i = 0; i < cmdList.CmdBuffer.Size; i++) {
 					var cmd = cmdList.CmdBuffer[i];
-					if (cmd.UserCallback != IntPtr.Zero)
-					{
+					if (cmd.UserCallback != IntPtr.Zero) {
 						throw new NotImplementedException("user callbacks not implemented");
 					}
-					else
-					{
+					else {
+
 						gCmdList.SetScissorRectangles(new SharpDX.Mathematics.Interop.RawRectangle((int)cmd.ClipRect.X, (int)cmd.ClipRect.Y, (int)cmd.ClipRect.Z, (int)cmd.ClipRect.W));
 
-						if (textureResources.TryGetValue(cmd.GetTexID(), out var texture))
-						{
+						if (textureResources.TryGetValue(cmd.GetTexID(), out var texture)) {
 							//ctx.PSSetShaderResource(0, texture);
 						}
 						gCmdList.DrawIndexedInstanced((int)cmd.ElemCount, 1, (int)(cmd.IdxOffset + global_idx_offset), (int)(cmd.VtxOffset + global_vtx_offset), 1);
 
-						
 					}
 				}
 				global_idx_offset += cmdList.IdxBuffer.Size;
 				global_vtx_offset += cmdList.VtxBuffer.Size;
 			}
 
-			//RestoreDX11State(ctx); // only required if imgui is injected + drawn on existing process.
+			#endregion
+
 		}
 
-		public void Dispose()
-		{
+		public void Dispose() {
 			if (device == null)
 				return;
 
@@ -199,18 +196,31 @@ namespace ClickableTransparentOverlay {
 			blendState?.Release();
 			depthStencilState?.Release();
 			rasterizerState?.Release();
-			pixelShader?.Release();
-			pixelShaderBlob?.Release();
 			constantBuffer?.Dispose();
 			inputLayout?.Release();
-			vertexShader?.Release();
-			vertexShaderBlob?.Release();
 		}
 
-		public void Resize(int width, int height)
-		{
+		public void Resize(int width, int height) {
 			ImGui.GetIO().DisplaySize = new System.Numerics.Vector2(width, height);
 		}
+
+		void SetupRenderState(ImDrawDataPtr drawData, GraphicsCommandList gCmdList) {
+
+			var viewport = new SharpDX.ViewportF(0f, 0f, drawData.DisplaySize.X, drawData.DisplaySize.Y, 0f, 1f);
+			gCmdList.SetViewport(viewport);
+
+			gCmdList.SetGraphicsRootSignature(rootSignature);
+			gCmdList.SetDescriptorHeaps(1, new DescriptorHeap[] { constantBufferDh });
+			gCmdList.SetGraphicsRootDescriptorTable(0, (constantBufferDh.GPUDescriptorHandleForHeapStart));
+
+			int stride = sizeof(ImDrawVert);
+			gCmdList.SetVertexBuffer(0, vertexBufferView);
+			gCmdList.SetIndexBuffer(indexBufferView);
+			gCmdList.PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList;
+
+		}
+
+		#region Textures
 
 		public IntPtr CreateImageTexture(Image<Rgba32> image, Format format)
 		{
@@ -283,27 +293,7 @@ namespace ClickableTransparentOverlay {
 			ImGuiNative.ImFontConfig_destroy(config);
 		}
 
-		void SetupRenderState(ImDrawDataPtr drawData, GraphicsCommandList gCmdList)
-		{
-
-			var viewport = new SharpDX.ViewportF(0f, 0f, drawData.DisplaySize.X, drawData.DisplaySize.Y, 0f, 1f);
-			gCmdList.SetViewport(viewport);
-
-			gCmdList.SetGraphicsRootSignature(RenderResources.rootSignature);
-			gCmdList.SetDescriptorHeaps(1, new DescriptorHeap[] { constantBufferDh });
-			gCmdList.SetGraphicsRootDescriptorTable(0, (constantBufferDh.GPUDescriptorHandleForHeapStart));
-
-			int stride = sizeof(ImDrawVert);
-			gCmdList.SetVertexBuffer(0, vertexBufferView);
-			gCmdList.SetIndexBuffer(indexBufferView);
-			gCmdList.PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList;
-
-			
-
-		}
-
-		void CreateFontsTexture()
-		{
+		void CreateFontsTexture() {
 			var io = ImGui.GetIO();
 			io.Fonts.GetTexDataAsRGBA32(out byte* pixels, out var width, out var height);
 			var texDesc = new Texture2DDescription(Format.R8G8B8A8_UNorm, width, height, 1, 1);
@@ -314,13 +304,13 @@ namespace ClickableTransparentOverlay {
 				Vortice.Direct3D.ShaderResourceViewDimension.Texture2D,
 				Format.R8G8B8A8_UNorm,
 				0,
-				texDesc.MipLevels);
+				texDesc.MipLevels
+			);
 			io.Fonts.SetTexID(RegisterTexture(device.CreateShaderResourceView(texture, resViewDesc)));
 			io.Fonts.ClearTexData();
 		}
 
-		void CreateFontSampler()
-		{
+		void CreateFontSampler() {
 			var samplerDesc = new SamplerDescription(
 				Vortice.Direct3D11.Filter.MinMagMipLinear,
 				Vortice.Direct3D11.TextureAddressMode.Wrap,
@@ -330,86 +320,56 @@ namespace ClickableTransparentOverlay {
 				0,
 				ComparisonFunction.Always,
 				0f,
-				0f);
+				0f
+			);
 
 			this.fontSampler = device.CreateSamplerState(samplerDesc);
 		}
 
-		IntPtr RegisterTexture(ID3D11ShaderResourceView texture)
-		{
-			var imguiID = texture.NativePointer;
+		IntPtr RegisterTexture(ID3D11ShaderResourceView texture) {
+			IntPtr imguiID = texture.NativePointer;
 			textureResources.TryAdd(imguiID, texture);
 			return imguiID;
 		}
 
-		ID3D11ShaderResourceView? DeRegisterTexture(IntPtr texturePtr)
-		{
-			if (textureResources.Remove(texturePtr, out var texture))
-			{
+		ID3D11ShaderResourceView? DeRegisterTexture(IntPtr texturePtr) {
+			if (textureResources.Remove(texturePtr, out var texture)) {
 				return texture;
 			}
-			else
-			{
+			else {
 				return null;
 			}
 		}
 
-		void DeRegisterAllTexture()
-		{
-			foreach (var key in textureResources.Keys.ToArray())
-			{
+		void DeRegisterAllTexture() {
+			foreach (var key in textureResources.Keys.ToArray()) {
 				this.DeRegisterTexture(key)?.Release();
 			}
 		}
 
-		void CreateDeviceObjects()
-		{
-			var vertexShaderCode =
-				@"
-					cbuffer vertexBuffer : register(b0)
-					{
-						float4x4 ProjectionMatrix;
-					};
+		#endregion
 
-					struct VS_INPUT
-					{
-						float2 pos : POSITION;
-						float4 col : COLOR0;
-						float2 uv  : TEXCOORD0;
-					};
+		void CreateDeviceObjects() {
 
-					struct PS_INPUT
-					{
-						float4 pos : SV_POSITION;
-						float4 col : COLOR0;
-						float2 uv  : TEXCOORD0;
-					};
+			#region Root signature
 
-					PS_INPUT main(VS_INPUT input)
-					{
-						PS_INPUT output;
-						output.pos = mul(ProjectionMatrix, float4(input.pos.xy, 0.f, 1.f));
-						output.col = input.col;
-						output.uv  = input.uv;
-						return output;
-					}";
-			Compiler.Compile(vertexShaderCode, "main", "vs", "vs_4_0", out vertexShaderBlob, out _);
-			if (vertexShaderBlob == null)
-				throw new Exception("error compiling vertex shader");
+			// Basically what constants are you going to pass to the shaders
+			// Create a root signature with one root argument
+			RootParameter[] rootParameters = new RootParameter[] {
 
-			vertexShader = device.CreateVertexShader(vertexShaderBlob);
+				new RootParameter(ShaderVisibility.All, new DescriptorRange() {
+					RangeType = DescriptorRangeType.ConstantBufferView,
+					BaseShaderRegister = 0,
+					OffsetInDescriptorsFromTableStart = int.MinValue,
+					DescriptorCount = 1
+				}),
 
-			var inputElements = new[]
-			{
-				new InputElementDescription( "POSITION", 0, Format.R32G32_Float,   0, 0, Vortice.Direct3D11.InputClassification.PerVertexData, 0 ),
-				new InputElementDescription( "TEXCOORD", 0, Format.R32G32_Float,   8,  0, Vortice.Direct3D11.InputClassification.PerVertexData, 0 ),
-				new InputElementDescription( "COLOR",	0, Format.R8G8B8A8_UNorm, 16, 0, Vortice.Direct3D11.InputClassification.PerVertexData, 0 ),
 			};
 
-			inputLayout = device.CreateInputLayout(inputElements, vertexShaderBlob);
+			RootSignatureDescription rootSignatureDesc = new RootSignatureDescription(RootSignatureFlags.AllowInputAssemblerInputLayout, rootParameters);
+			rootSignature = Graphics.device.CreateRootSignature(rootSignatureDesc.Serialize());
 
-
-
+			#endregion
 
 			DescriptorHeapDescription dhd = new DescriptorHeapDescription() {
 				DescriptorCount = 1,
@@ -420,42 +380,69 @@ namespace ClickableTransparentOverlay {
 			constantBuffer = new ConstBuffer<Matrix>(1);
 			constantBuffer.AddToDescriptorHeap(constantBufferDh, 0);
 
-			var pixelShaderCode =
-				@"struct PS_INPUT
-					{
-						float4 pos : SV_POSITION;
-						float4 col : COLOR0;
-						float2 uv  : TEXCOORD0;
-					};
+			CreateFontsTexture();
+			CreateFontSampler();
+			CreatePipelineState();
 
-					sampler sampler0;
-					Texture2D texture0;
+		}
 
-					float4 main(PS_INPUT input) : SV_Target
-					{
-						return input.col * texture0.Sample(sampler0, input.uv);
-					}";
-			Compiler.Compile(pixelShaderCode, "main", "ps", "ps_4_0", out pixelShaderBlob, out _);
-			if (pixelShaderBlob == null)
-				throw new Exception("error compiling pixel shader");
+		void CreatePipelineState() {
 
-			pixelShader = device.CreatePixelShader(pixelShaderBlob);
+			ShaderBytecode vertexShader = Graphics.CompileShader(".res/ImGui_shaders.hlsl", Graphics.ShaderType.Vertex);
+			ShaderBytecode pixelShader = Graphics.CompileShader(".res/ImGui_shaders.hlsl", Graphics.ShaderType.Pixel);
 
-			var blendDesc = new BlendDescription(Blend.SourceAlpha, Blend.InverseSourceAlpha, Blend.One, Blend.InverseSourceAlpha);
-			blendState = device.CreateBlendState(blendDesc);
-
-			var rasterDesc = new RasterizerDescription(Vortice.Direct3D11.CullMode.None, Vortice.Direct3D11.FillMode.Solid)
-			{
-				MultisampleEnable = false,
-				ScissorEnable = true
+			// Input format
+			InputElement[] inputElementDescs = new InputElement[] {
+				new InputElement("POSITION", 0, SharpDX.DXGI.Format.R32G32_Float, 0, 0),
+				new InputElement("TEXCOORD", 0, SharpDX.DXGI.Format.R32G32_Float, 8, 0),
+				new InputElement("COLOR", 0, SharpDX.DXGI.Format.R8G8B8A8_UNorm, 16, 0),
 			};
-			rasterizerState = device.CreateRasterizerState(rasterDesc);
 
-			var depthDesc = new DepthStencilDescription(false, Vortice.Direct3D11.DepthWriteMask.All, ComparisonFunction.Always);
-			depthStencilState = device.CreateDepthStencilState(depthDesc);
+			SharpDX.Direct3D12.DepthStencilOperationDescription defaultStencilOp = new SharpDX.Direct3D12.DepthStencilOperationDescription() {
+				FailOperation = SharpDX.Direct3D12.StencilOperation.Keep,
+				DepthFailOperation = SharpDX.Direct3D12.StencilOperation.Keep,
+				PassOperation = SharpDX.Direct3D12.StencilOperation.Keep,
+				Comparison = Comparison.Always
+			};
+			DepthStencilStateDescription depthState = new DepthStencilStateDescription() {
 
-			this.CreateFontsTexture();
-			this.CreateFontSampler();
+				IsDepthEnabled = true,
+				DepthWriteMask = SharpDX.Direct3D12.DepthWriteMask.All,
+				//DepthComparison = Comparison.Less,
+				DepthComparison = Comparison.Always,
+
+				IsStencilEnabled = false,
+				StencilReadMask = 0xff,
+				StencilWriteMask = 0xff,
+				FrontFace = defaultStencilOp,
+				BackFace = defaultStencilOp,
+
+			};
+
+			RasterizerStateDescription rasterState = RasterizerStateDescription.Default();
+			rasterState.CullMode = SharpDX.Direct3D12.CullMode.None;
+
+			GraphicsPipelineStateDescription psonDesc = new GraphicsPipelineStateDescription() {
+
+				InputLayout = new InputLayoutDescription(inputElementDescs),
+				RootSignature = RenderResources.rootSignature,
+				VertexShader = vertexShader,
+				PixelShader = pixelShader,
+				RasterizerState = rasterState,
+				BlendState = BlendStateDescription.Default(),
+				DepthStencilFormat = SharpDX.DXGI.Format.D32_Float,
+				DepthStencilState = depthState,
+				SampleMask = int.MaxValue,
+				PrimitiveTopologyType = PrimitiveTopologyType.Triangle,
+				RenderTargetCount = 1,
+				Flags = PipelineStateFlags.None,
+				SampleDescription = new SharpDX.DXGI.SampleDescription(1, 0),
+				StreamOutput = new StreamOutputDescription()
+
+			};
+			psonDesc.RenderTargetFormats[0] = SharpDX.DXGI.Format.R8G8B8A8_UNorm;
+			pipelineState = Graphics.device.CreateGraphicsPipelineState(psonDesc);
+			
 		}
 
 	}

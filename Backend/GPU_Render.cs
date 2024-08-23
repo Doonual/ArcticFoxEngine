@@ -7,6 +7,10 @@ using SharpDX;
 using SharpDX.Direct3D12;
 
 namespace ArcticFoxEngine {
+
+	/// <summary>
+	/// Encapsulates all the tasks required to render a GeometryResources instance
+	/// </summary>
 	public static class GPU_Render {
 
 		
@@ -15,7 +19,10 @@ namespace ArcticFoxEngine {
 		internal static CommandQueue cmdQueue;
 		private static GraphicsCommandList cmdList;
 
-		internal static void SetupCommand() {
+		/// <summary>
+		/// Initialises all the command queue objects
+		/// </summary>
+		internal static void Init() {
 
 			// Create the command list
 			// Command lists are created in the recording state, but there is nothing
@@ -32,7 +39,11 @@ namespace ArcticFoxEngine {
 			return cmdQueue;
 		}
 
-
+		/// <summary>
+		/// Renders the geometry
+		/// </summary>
+		/// <param name="camera">The camera used to render the geometry</param>
+		/// <param name="geometry">The geometry to be rendered</param>
 		public static void Render(Camera camera, GeometryResources geometry) {
 
 			// Command list allocators can only be reset when the associated 

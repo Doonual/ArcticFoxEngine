@@ -3,6 +3,11 @@ using SharpDX;
 using SharpDX.Direct3D12;
 
 namespace ArcticFoxEngine.Backend {
+
+	/// <summary>
+	/// A constant buffer on the GPU
+	/// </summary>
+	/// <typeparam name="T">The type of data contained in this buffer</typeparam>
 	internal class ConstBuffer<T> where T : struct {
 
 		private Resource constantBuffer;
@@ -13,6 +18,10 @@ namespace ArcticFoxEngine.Backend {
 		public readonly long size;
 		
 
+		/// <summary>
+		/// Creates a new constant buffer
+		/// </summary>
+		/// <param name="numElements">The number of elements of type T the buffer can store</param>
 		internal ConstBuffer(int numElements) {
 
 			this.numElements = numElements;
@@ -27,8 +36,12 @@ namespace ArcticFoxEngine.Backend {
 
 		}
 
+		/// <summary>
+		/// Creates a constant buffer view on the descriptor heap of this constant buffer
+		/// </summary>
+		/// <param name="destDescriptorHeap">The descriptor heap to create the constant buffer view on</param>
+		/// <param name="offset">The offset into the descriptor heap the constant buffer view will be created at</param>
 		internal void AddToDescriptorHeap(DescriptorHeap destDescriptorHeap, int offset) {
-
 
 			for (int i = 0; i < numElements; i ++) {
 
@@ -36,14 +49,17 @@ namespace ArcticFoxEngine.Backend {
 					BufferLocation = constantBuffer.GPUVirtualAddress + stride * i,
 					SizeInBytes = stride
 				};
-
 				Graphics.device.CreateConstantBufferView(cbvDesc, destDescriptorHeap.CPUDescriptorHandleForHeapStart + (offset + i) * RenderResources.combinedDescriptorHeapIncrement);
 
 			}
 			
-
 		}
 
+		/// <summary>
+		/// Writes data to the constant buffer
+		/// </summary>
+		/// <param name="data">The data to be written to the constant buffer</param>
+		/// <param name="offset">The the position of the 1st element</param>
 		internal void Write(T[] data, int offset) {
 
 			// Writes the T[] array to the buffer, ensuring each element starts at a 256 byte aligned location

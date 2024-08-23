@@ -17,6 +17,13 @@ namespace ArcticFoxEngine {
 		static ButtonBinding exitButton;
 		static ButtonBinding toggleDebugButton;
 
+		/// <summary>
+		/// Runs ArcticFoxEngine
+		/// </summary>
+		/// <param name="width">The width of the window</param>
+		/// <param name="height">The height of the window</param>
+		/// <param name="title">The title of the window</param>
+		/// <param name="iconPath">The path to the icon the window will use</param>
 		public static void Run(int width, int height, string title = "Arctic Fox", string iconPath = ".res/icon.ico") {
 
 			CommandController.Init(new List<Command>() {
@@ -117,6 +124,10 @@ namespace ArcticFoxEngine {
 			DebugManager.CloseGUI();
 
 		}
+		
+		/// <summary>
+		/// Closes ArcticFoxEngine
+		/// </summary>
 		public static void Stop() {
 			loop.Dispose();
 			loop = null;

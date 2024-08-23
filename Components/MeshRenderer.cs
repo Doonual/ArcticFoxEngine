@@ -75,7 +75,7 @@ namespace ArcticFoxEngine.Components {
 			if (ImGui.Button("Update") == true) {
 
 				for (int i = 0; i < mesh.vertices.Length; i ++) {
-					mesh.vertices[i].Color = vertexColSet;
+					mesh.vertices[i].color = vertexColSet;
 				}
 				SetMesh(mesh);
 

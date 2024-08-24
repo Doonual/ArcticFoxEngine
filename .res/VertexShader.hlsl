@@ -22,8 +22,7 @@ struct Pixel_Input {
 Pixel_Input Vertex_Main(float4 position : POSITION, float4 color : COLOR, float2 uv : TEXCOORD) {
 	
 	Pixel_Input result;
-	
-	
+
 	result.position = mul(cameraProjectionMatrix, mul(transformMatrix, position));
 	result.color = color;
 	result.uv = uv;

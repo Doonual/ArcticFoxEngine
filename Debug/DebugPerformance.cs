@@ -162,7 +162,7 @@ namespace ArcticFoxEngine.Debug {
 			#region Plot Options
 
 			ImGui.Columns(2);
-			ImGui.SliderFloat("Max ms", ref plotMaxMs, 1f, 40f);
+			ImGui.SliderFloat("Max ms", ref plotMaxMs, 0.1f, 40f, null, ImGuiSliderFlags.Logarithmic);
 			ImGui.NextColumn();
 			ImGui.Checkbox("Update Plot", ref updatePlot);
 			ImGui.Columns();

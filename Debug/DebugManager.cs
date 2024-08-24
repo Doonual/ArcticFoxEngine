@@ -2,22 +2,26 @@
 using ArcticFoxEngine.Testing.SceneTest;
 using ArcticFoxEngine.Testing.ChildTest;
 using ArcticFoxEngine.Demos.RenderingStressTest;
-using ClickableTransparentOverlay;
+using ArcticFoxEngine;
 using CoolClassLibrary;
 using ImGuiNET;
+using System.Windows.Forms;
+using SharpDX.Windows;
 
 namespace ArcticFoxEngine.Debug {
-	public class DebugManager : Overlay {
+	public static class DebugManager {
 
-		static DebugManager debugManager;
-		public static bool isOpen { get; private set; }
-
+		private static bool isOpen;
 		private static List<DebugWindow> windows;
 		private static bool showImGuiDemo;
 
 		private static List<DemoScene> demoScenes;
 
-		internal static void Init() {
+		internal static void Init(RenderForm form) {
+
+			ImGuiRenderer.Init(1920, 1080);
+			ImGuiInput.Init(form.Handle);
+
 			isOpen = false;
 			windows = new List<DebugWindow>() {
 				new DebugLog(),
@@ -52,28 +56,32 @@ namespace ArcticFoxEngine.Debug {
 
 		public static void OpenGUI() {
 
-			if (isOpen == true) { return; }
-
-			isOpen = true;
-
-			debugManager = new DebugManager();
-			debugManager.Start();
-
 			LoadWindowOptions();
-
+			isOpen = true;
 
 		}
 		public static void CloseGUI() {
+			SaveWindowOptions();
+			isOpen = false;
+		}
+		public static void ToggleGUI() {
+			if (isOpen == false) {
+				OpenGUI();
+			}
+			else {
+				CloseGUI();
+			}
+		}
+
+		public static void UpdateImGui() {
 
 			if (isOpen == false) { return; }
-
-			isOpen = false;
-			debugManager.Close();
-			debugManager.Dispose();
+			Graphics.WaitForPreviousFrame();
+			GPU_Render.RenderImGui();
 
 		}
 
-		protected override void Render() {
+		internal static void Render() {
 
 			if (ImGui.BeginMainMenuBar() == true) {
 				if (ImGui.BeginMenu("Window") == true) {
@@ -142,6 +150,10 @@ namespace ArcticFoxEngine.Debug {
 				saveValue >>= 1;
 			}
 
+		}
+
+		public static void Dispose() {
+			ImGuiRenderer.Dispose();
 		}
 
 	}

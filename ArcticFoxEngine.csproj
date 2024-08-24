@@ -22,7 +22,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="ClickableTransparentOverlay" Version="6.2.1" />
 		<PackageReference Include="ImGui.NET" Version="1.89.7.1" />
 		<PackageReference Include="SharpDX" Version="4.2.0" />
 		<PackageReference Include="SharpDX.D3DCompiler" Version="4.2.0" />
@@ -38,6 +37,8 @@
 		</PackageReference>
 		<PackageReference Include="SixLabors.ImageSharp" Version="2.1.9" />
 		<PackageReference Include="Veldrid.ImGui" Version="5.72.0" />
+		<PackageReference Include="Vortice.D3DCompiler" Version="2.2.0" />
+		<PackageReference Include="Vortice.Direct3D11" Version="2.2.0" />
 		<PackageReference Include="Vortice.Mathematics" Version="1.6.2" />
 	</ItemGroup>
 	
@@ -61,6 +62,7 @@
 	  <None Include=".Documentation\Terms.txt" />
 	  <None Include=".res\icon.ico" />
 	  <None Include=".res\mandelbrot_shader.hlsl" />
+	  <None Include=".res\PixelShader.hlsl" />
 	</ItemGroup>
 	
 	

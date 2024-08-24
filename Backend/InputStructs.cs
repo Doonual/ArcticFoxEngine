@@ -14,7 +14,7 @@ namespace ArcticFoxEngine.Backend {
 
 		public int screenWidth;			// 4 bytes
 		public int screenHeight;		// 4 bytes
-		public float aspectRatio;       // 4 bytes
+		public float aspectRatio;	   // 4 bytes
 
 	};
 

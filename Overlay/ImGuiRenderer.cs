@@ -40,19 +40,13 @@ namespace ClickableTransparentOverlay {
 		RootSignature rootSignature;
 
 
-
-
 		int vertexBufferSize = 5000, indexBufferSize = 10000;
 		readonly Dictionary<IntPtr, (Texture, int)> textureResources = new();
 
 		int descriptorHeapIndex;
 
-		public ImGuiRenderer(ID3D11Device device, ID3D11DeviceContext deviceContext, int width, int height) {
-
+		public ImGuiRenderer(int width, int height) {
 			descriptorHeapIndex = 1;
-
-			device.AddRef();
-			deviceContext.AddRef();
 
 			ImGui.CreateContext();
 			var io = ImGui.GetIO();
@@ -189,7 +183,6 @@ namespace ClickableTransparentOverlay {
 
 		public void Dispose() {
 
-
 			this.DeRegisterAllTexture();
 			indexBuffer?.Dispose();
 			vertexBuffer?.Dispose();
@@ -222,12 +215,9 @@ namespace ClickableTransparentOverlay {
 
 			Texture texture = new Texture(image.Width, image.Height, constantBufferDh, descriptorHeapIndex);
 
-			
-
 			if (!image.DangerousTryGetSinglePixelMemory(out Memory<Rgba32> memory)) {
 				throw new Exception("Make sure to initialize MemoryAllocator.Default!");
 			}
-
 			
 			Rgba32[] pixelArray = memory.ToArray();
 			byte[] imageData = new byte[pixelArray.Length * 4];
@@ -312,40 +302,9 @@ namespace ClickableTransparentOverlay {
 
 			fontTex.SetData(pixelArray);
 
-			/*
-			var texDesc = new Texture2DDescription(Format.R8G8B8A8_UNorm, width, height, 1, 1);
-			var subResource = new SubresourceData(pixels, texDesc.Width * 4);
-			using var texture = device.CreateTexture2D(texDesc, new[] { subResource });
-			var resViewDesc = new Vortice.Direct3D11.ShaderResourceViewDescription(
-				texture,
-				Vortice.Direct3D.ShaderResourceViewDimension.Texture2D,
-				Format.R8G8B8A8_UNorm,
-				0,
-				texDesc.MipLevels
-			);
-			io.Fonts.SetTexID(RegisterTexture(device.CreateShaderResourceView(texture, resViewDesc)));
-			io.Fonts.ClearTexData();
-			*/
-
 			io.Fonts.SetTexID(RegisterTexture(fontTex));
 			io.Fonts.ClearTexData();
 
-		}
-
-		void CreateFontSampler() {
-			var samplerDesc = new SamplerDescription(
-				Vortice.Direct3D11.Filter.MinMagMipLinear,
-				Vortice.Direct3D11.TextureAddressMode.Wrap,
-				Vortice.Direct3D11.TextureAddressMode.Wrap,
-				Vortice.Direct3D11.TextureAddressMode.Wrap,
-				0f,
-				0,
-				ComparisonFunction.Always,
-				0f,
-				0f
-			);
-
-			//this.fontSampler = device.CreateSamplerState(samplerDesc);
 		}
 
 		IntPtr RegisterTexture(Texture texture) {
@@ -408,8 +367,6 @@ namespace ClickableTransparentOverlay {
 
 			#endregion
 
-			CreatePipelineState();
-
 			DescriptorHeapDescription dhd = new DescriptorHeapDescription() {
 				DescriptorCount = 1 + 2048,
 				Flags = DescriptorHeapFlags.ShaderVisible,
@@ -419,13 +376,9 @@ namespace ClickableTransparentOverlay {
 			constantBuffer = new ConstBuffer<Matrix>(1);
 			constantBuffer.AddToDescriptorHeap(constantBufferDh, 0);
 
+			CreatePipelineState();
 			CreateFontsTexture();
-			CreateFontSampler();
 			
-
-			
-
-
 		}
 
 		void CreatePipelineState() {
@@ -462,8 +415,6 @@ namespace ClickableTransparentOverlay {
 
 			RasterizerStateDescription rasterState = RasterizerStateDescription.Default();
 			rasterState.CullMode = SharpDX.Direct3D12.CullMode.None;
-
-			//var blendDesc = new BlendDescription(Blend.SourceAlpha, Blend.InverseSourceAlpha, Blend.One, Blend.InverseSourceAlpha);
 
 			BlendStateDescription blendState = BlendStateDescription.Default();
 			blendState.RenderTarget[0].IsBlendEnabled = true;

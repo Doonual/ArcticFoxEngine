@@ -10,7 +10,7 @@ using SharpDX.Windows;
 namespace ArcticFoxEngine {
 	public static class Engine {
 
-		private static RenderForm form;
+		internal static RenderForm form;
 		public static Action init;
 		private static RenderLoop loop;
 

@@ -62,6 +62,7 @@
 	  <None Include=".Documentation\Terms.txt" />
 	  <None Include=".res\icon.ico" />
 	  <None Include=".res\mandelbrot_shader.hlsl" />
+	  <None Include=".res\PixelShader.hlsl" />
 	</ItemGroup>
 	
 	

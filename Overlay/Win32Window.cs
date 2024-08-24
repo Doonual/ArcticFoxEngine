@@ -1,6 +1,7 @@
 ﻿namespace ClickableTransparentOverlay
 {
 	using ClickableTransparentOverlay.Win32;
+	using SharpDX.Windows;
 	using System;
 	using System.Drawing;
 
@@ -15,6 +16,10 @@
 			this.Handle = User32.CreateWindowEx((int)exStyle, wndClass, title, (int)style,
 				this.Dimensions.X, this.Dimensions.Y, this.Dimensions.Width, this.Dimensions.Height,
 				IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero);
+		}
+		public Win32Window(RenderForm form) {
+			this.Handle = form.Handle;
+			this.Dimensions = new Rectangle(form.Location, form.Size);
 		}
 
 		public void PumpEvents()

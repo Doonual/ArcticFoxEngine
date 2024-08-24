@@ -70,6 +70,7 @@
 		{
 			Clickable = (WindowExStyles)User32.GetWindowLong(handle, (int)WindowLongParam.GWL_EXSTYLE);
 			NotClickable = Clickable | WindowExStyles.WS_EX_LAYERED | WindowExStyles.WS_EX_TRANSPARENT;
+			//NotClickable = Clickable | WindowExStyles.WS_EX_LAYERED;
 			var margins = new Dwmapi.Margins(-1);
 			_ = Dwmapi.DwmExtendFrameIntoClientArea(handle, ref margins);
 			SetOverlayClickable(handle, true);

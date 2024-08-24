@@ -7,9 +7,9 @@ using CoolClassLibrary;
 using ImGuiNET;
 
 namespace ArcticFoxEngine.Debug {
-	public class DebugManager : Overlay {
+	public static class DebugManager {
 
-		static DebugManager debugManager;
+
 		public static bool isOpen { get; private set; }
 
 		private static List<DebugWindow> windows;
@@ -55,8 +55,7 @@ namespace ArcticFoxEngine.Debug {
 			if (isOpen == true) { return; }
 
 			isOpen = true;
-			debugManager = new DebugManager();
-			debugManager.Start();
+			Overlay.Start();
 
 			LoadWindowOptions();
 
@@ -68,13 +67,13 @@ namespace ArcticFoxEngine.Debug {
 
 			isOpen = false;
 
-			debugManager.Close();
-			debugManager.Dispose();
+			Overlay.Close();
+			Overlay.Dispose();
 			
 
 		}
 
-		protected override void Render() {
+		public static void Render() {
 
 			if (ImGui.BeginMainMenuBar() == true) {
 				if (ImGui.BeginMenu("Window") == true) {

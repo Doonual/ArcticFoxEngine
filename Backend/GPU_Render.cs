@@ -125,7 +125,7 @@ namespace ArcticFoxEngine {
 			if (Overlay.render != false) {
 				//Graphics.WaitForPreviousFrame();
 				cmdAllocator.Reset();
-				cmdList.Reset(cmdAllocator, Overlay.mainOverlay.renderer.pipelineState);
+				cmdList.Reset(cmdAllocator, Overlay.renderer.pipelineState);
 
 				// Indicate that the back buffer will be used as a render target
 				cmdList.ResourceBarrierTransition(RenderResources.renderTargets[Graphics.frameIndex], ResourceStates.Present, ResourceStates.RenderTarget);
@@ -141,7 +141,7 @@ namespace ArcticFoxEngine {
 
 
 			
-				Overlay.mainOverlay.OneLoop(Profiler.deltaTime, cmdList);
+				Overlay.OneLoop(Profiler.deltaTime, cmdList);
 			
 
 

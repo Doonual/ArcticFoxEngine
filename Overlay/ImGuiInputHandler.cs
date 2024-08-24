@@ -42,8 +42,7 @@
 			return io.WantCaptureMouse;
 		}
 
-		public bool ProcessMessage(WindowMessage msg, UIntPtr wParam, IntPtr lParam)
-		{
+		public bool ProcessMessage(WindowMessage msg, UIntPtr wParam, IntPtr lParam) {
 			if (ImGui.GetCurrentContext() == IntPtr.Zero)
 				return false;
 

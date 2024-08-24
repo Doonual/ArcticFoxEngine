@@ -22,31 +22,44 @@ namespace ArcticFoxEngine {
 	using ArcticFoxEngine.Backend;
 	using CoolClassLibrary;
 	using SixLabors.ImageSharp.Formats;
+	using ArcticFoxEngine.Debug;
 
-	unsafe internal sealed class ImGuiRenderer : IDisposable {
-		
-		const int VertexConstantBufferSize = 16 * 4;
+	unsafe internal static class ImGuiRenderer {
 
-		Resource vertexBuffer;
-		VertexBufferView vertexBufferView;
+#nullable enable
 
-		Resource indexBuffer;
-		IndexBufferView indexBufferView;
+		static bool disposed = false;
 
-		ConstBuffer<Matrix> constantBuffer;
-		DescriptorHeap constantBufferDh;
+		static Resource vertexBuffer;
+		static VertexBufferView vertexBufferView;
 
-		internal PipelineState pipelineState;
-		RootSignature rootSignature;
+		static Resource indexBuffer;
+		static IndexBufferView indexBufferView;
+
+		static ConstBuffer<Matrix> constantBuffer;
+		static DescriptorHeap constantBufferDh;
+
+		static internal PipelineState pipelineState;
+		static RootSignature rootSignature;
 
 
-		int vertexBufferSize = 5000, indexBufferSize = 10000;
-		readonly Dictionary<IntPtr, (Texture, int)> textureResources = new();
+		static int vertexBufferSize = 5000, indexBufferSize = 10000;
+		static readonly Dictionary<IntPtr, (Texture, int)> textureResources = new();
 
-		int descriptorHeapIndex;
+		static int descriptorHeapIndex;
 
-		public ImGuiRenderer(int width, int height) {
+		private static bool replaceFont = false;
+		private static ushort[]? fontCustomGlyphRange;
+		private static string fontPathName;
+		private static float fontSize;
+		private static FontGlyphRangeType fontLanguage;
+		private static Dictionary<string, (IntPtr Handle, uint Width, uint Height)> loadedTexturesPtrs;
+
+
+		internal static void Init(int width, int height) {
 			descriptorHeapIndex = 1;
+
+			loadedTexturesPtrs = new Dictionary<string, (IntPtr Handle, uint Width, uint Height)>();
 
 			ImGui.CreateContext();
 			var io = ImGui.GetIO();
@@ -54,15 +67,11 @@ namespace ArcticFoxEngine {
 			io.ConfigFlags |= ImGuiConfigFlags.NavEnableKeyboard;
 			io.ConfigFlags |= ImGuiConfigFlags.DockingEnable;
 			ImGui.StyleColorsDark();
-			this.Resize(width, height);
-			this.CreateDeviceObjects();
+			Resize(width, height);
+			CreateDeviceObjects();
 		}
 
-		public void Start() {
-			ImGui.NewFrame();
-		}
-
-		public void Update(float deltaTime, Action DoRender) {
+		internal static void Update(float deltaTime, Action DoRender) {
 			var io = ImGui.GetIO();
 			io.DeltaTime = deltaTime;
 			ImGui.NewFrame();
@@ -70,8 +79,12 @@ namespace ArcticFoxEngine {
 			ImGui.Render();
 		}
 
-		public void Render(GraphicsCommandList gCmdList) {
-			
+		internal static void Render(float deltaTime, GraphicsCommandList gCmdList) {
+			if (disposed == true) { return; }
+
+			ImGuiInput.Update();
+			Update(deltaTime, DebugManager.Render);
+
 			ImDrawDataPtr data = ImGui.GetDrawData();
 			// Avoid rendering when minimized
 			if (data.DisplaySize.X <= 0.0f || data.DisplaySize.Y <= 0.0f) { return; }
@@ -179,21 +192,32 @@ namespace ArcticFoxEngine {
 
 			#endregion
 
+
+			ReplaceFontIfRequired();
+
 		}
 
-		public void Dispose() {
+		internal static void Dispose() {
 
-			this.DeRegisterAllTexture();
+			if (disposed == true) { return; }
+			disposed = true;
+			if (loadedTexturesPtrs != null) {
+				foreach (var key in loadedTexturesPtrs.Keys.ToArray()) {
+					RemoveImage(key);
+				}
+			}
+
+			DeRegisterAllTexture();
 			indexBuffer?.Dispose();
 			vertexBuffer?.Dispose();
 			constantBuffer?.Dispose();
 		}
 
-		public void Resize(int width, int height) {
+		internal static void Resize(int width, int height) {
 			ImGui.GetIO().DisplaySize = new System.Numerics.Vector2(width, height);
 		}
 
-		void SetupRenderState(ImDrawDataPtr drawData, GraphicsCommandList gCmdList) {
+		static void SetupRenderState(ImDrawDataPtr drawData, GraphicsCommandList gCmdList) {
 
 			var viewport = new SharpDX.ViewportF(0f, 0f, drawData.DisplaySize.X, drawData.DisplaySize.Y, 0f, 1f);
 			gCmdList.SetViewport(viewport);
@@ -211,7 +235,7 @@ namespace ArcticFoxEngine {
 
 		#region Textures
 
-		public IntPtr CreateImageTexture(Image<Rgba32> image, SharpDX.DXGI.Format format) {
+		internal static IntPtr CreateImageTexture(Image<Rgba32> image, SharpDX.DXGI.Format format) {
 
 			Texture texture = new Texture(image.Width, image.Height, constantBufferDh, descriptorHeapIndex);
 
@@ -235,14 +259,14 @@ namespace ArcticFoxEngine {
 			
 		}
 
-		public bool RemoveImageTexture(IntPtr handle) {
-			var tex = this.DeRegisterTexture(handle);
+		internal static bool RemoveImageTexture(IntPtr handle) {
+			var tex = ImGuiRenderer.DeRegisterTexture(handle);
 			return tex != null;
 		}
 
-		public void UpdateFontTexture(string fontPathName, float fontSize, ushort[]? fontCustomGlyphRange, FontGlyphRangeType fontLanguage) {
+		internal static void UpdateFontTexture(string fontPathName, float fontSize, ushort[]? fontCustomGlyphRange, FontGlyphRangeType fontLanguage) {
 			var io = ImGui.GetIO();
-			this.DeRegisterTexture(io.Fonts.TexID)?.Dispose();
+			DeRegisterTexture(io.Fonts.TexID)?.Dispose();
 			io.Fonts.Clear();
 			var config = ImGuiNative.ImFontConfig_ImFontConfig();
 			if (fontCustomGlyphRange == null) {
@@ -283,11 +307,11 @@ namespace ArcticFoxEngine {
 				}
 			}
 
-			this.CreateFontsTexture();
+			CreateFontsTexture();
 			ImGuiNative.ImFontConfig_destroy(config);
 		}
 
-		void CreateFontsTexture() {
+		static void CreateFontsTexture() {
 			var io = ImGui.GetIO();
 
 			io.Fonts.GetTexDataAsRGBA32(out byte* pixels, out var width, out var height);
@@ -307,14 +331,14 @@ namespace ArcticFoxEngine {
 
 		}
 
-		IntPtr RegisterTexture(Texture texture) {
+		static IntPtr RegisterTexture(Texture texture) {
 			IntPtr imguiID = texture.GetNativePointer();
 			textureResources.TryAdd(imguiID, (texture, descriptorHeapIndex));
 			descriptorHeapIndex++;
 			return imguiID;
 		}
 
-		Texture? DeRegisterTexture(IntPtr texturePtr) {
+		static Texture? DeRegisterTexture(IntPtr texturePtr) {
 			if (textureResources.Remove(texturePtr, out var texture)) {
 				return texture.Item1;
 			}
@@ -323,15 +347,126 @@ namespace ArcticFoxEngine {
 			}
 		}
 
-		void DeRegisterAllTexture() {
+		static void DeRegisterAllTexture() {
 			foreach (var key in textureResources.Keys.ToArray()) {
-				this.DeRegisterTexture(key)?.Dispose();
+				DeRegisterTexture(key)?.Dispose();
 			}
 		}
 
 		#endregion
 
-		void CreateDeviceObjects() {
+		#region Fonts
+
+		/// <summary>
+		/// Replaces the ImGui font with another one.
+		/// </summary>
+		/// <param name="pathName">pathname to the TTF font file.</param>
+		/// <param name="size">font size to load.</param>
+		/// <param name="language">supported language by the font.</param>
+		/// <returns>true if the font replacement is valid otherwise false.</returns>
+		public static bool ReplaceFont(string pathName, int size, FontGlyphRangeType language) {
+			if (!File.Exists(pathName)) {
+				return false;
+			}
+
+			fontPathName = pathName;
+			fontSize = size;
+			fontLanguage = language;
+			replaceFont = true;
+			fontCustomGlyphRange = null;
+			return true;
+		}
+
+		/// <summary>
+		/// Replaces the ImGui font with another one.
+		/// </summary>
+		/// <param name="pathName">pathname to the TTF font file.</param>
+		/// <param name="size">font size to load.</param>
+		/// <param name="glyphRange">custom glyph range of the font to load. Read <see cref="FontGlyphRangeType"/> for more detail.</param>
+		/// <returns>>true if the font replacement is valid otherwise false.</returns>
+		public static bool ReplaceFont(string pathName, int size, ushort[] glyphRange) {
+			if (!File.Exists(pathName)) {
+				return false;
+			}
+
+			fontPathName = pathName;
+			fontSize = size;
+			fontCustomGlyphRange = glyphRange;
+			replaceFont = true;
+			return true;
+		}
+
+		internal static void ReplaceFontIfRequired() {
+			if (replaceFont == true) {
+				ImGuiRenderer.UpdateFontTexture(fontPathName, fontSize, fontCustomGlyphRange, fontLanguage);
+				replaceFont = false;
+			}
+		}
+
+		/// <summary>
+		/// Adds the image to the Graphic Device as a texture.
+		/// Then returns the pointer of the added texture. It also
+		/// cache the image internally rather than creating a new texture on every call,
+		/// so this function can be called multiple times per frame.
+		/// </summary>
+		/// <param name="filePath">Path to the image on disk.</param>
+		/// <param name="srgb"> a value indicating whether pixel format is srgb or not.</param>
+		/// <param name="handle">output pointer to the image in the graphic device.</param>
+		/// <param name="width">width of the loaded texture.</param>
+		/// <param name="height">height of the loaded texture.</param>
+		public static void AddOrGetImagePointer(string filePath, bool srgb, out IntPtr handle, out uint width, out uint height) {
+			if (loadedTexturesPtrs.TryGetValue(filePath, out var data)) {
+				handle = data.Handle;
+				width = data.Width;
+				height = data.Height;
+			}
+			else {
+				var configuration = Configuration.Default.Clone();
+				configuration.PreferContiguousImageBuffers = true;
+				using var image = Image.Load<Rgba32>(configuration, filePath);
+				handle = ImGuiRenderer.CreateImageTexture(image, srgb ? SharpDX.DXGI.Format.R8G8B8A8_UNorm_SRgb : SharpDX.DXGI.Format.R8G8B8A8_UNorm);
+				width = (uint)image.Width;
+				height = (uint)image.Height;
+				loadedTexturesPtrs.Add(filePath, new(handle, width, height));
+			}
+		}
+
+		/// <summary>
+		/// Adds the image to the Graphic Device as a texture.
+		/// Then returns the pointer of the added texture. It also
+		/// cache the image internally rather than creating a new texture on every call,
+		/// so this function can be called multiple times per frame.
+		/// </summary>
+		/// <param name="name">user friendly name given to the image.</param>
+		/// <param name="image">Image data in <see cref="Image"> format.</param>
+		/// <param name="srgb"> a value indicating whether pixel format is srgb or not.</param>
+		/// <param name="handle">output pointer to the image in the graphic device.</param>
+		public static void AddOrGetImagePointer(string name, Image<Rgba32> image, bool srgb, out IntPtr handle) {
+			if (loadedTexturesPtrs.TryGetValue(name, out var data)) {
+				handle = data.Handle;
+			}
+			else {
+				handle = ImGuiRenderer.CreateImageTexture(image, srgb ? SharpDX.DXGI.Format.R8G8B8A8_UNorm_SRgb : SharpDX.DXGI.Format.R8G8B8A8_UNorm);
+				loadedTexturesPtrs.Add(name, new(handle, (uint)image.Width, (uint)image.Height));
+			}
+		}
+
+		/// <summary>
+		/// Removes the image from the Overlay.
+		/// </summary>
+		/// <param name="key">name or pathname which was used to add the image in the first place.</param>
+		/// <returns> true if the image is removed otherwise false.</returns>
+		public static bool RemoveImage(string key) {
+			if (loadedTexturesPtrs.Remove(key, out var data)) {
+				return ImGuiRenderer.RemoveImageTexture(data.Handle);
+			}
+
+			return false;
+		}
+
+		#endregion
+
+		static void CreateDeviceObjects() {
 
 			#region Root signature
 
@@ -381,7 +516,7 @@ namespace ArcticFoxEngine {
 			
 		}
 
-		void CreatePipelineState() {
+		static void CreatePipelineState() {
 
 			ShaderBytecode vertexShader = Graphics.CompileShader(".res/ImGui_shaders.hlsl", Graphics.ShaderType.Vertex);
 			ShaderBytecode pixelShader = Graphics.CompileShader(".res/ImGui_shaders.hlsl", Graphics.ShaderType.Pixel);
@@ -446,7 +581,53 @@ namespace ArcticFoxEngine {
 			
 		}
 
+#nullable restore
+
 	}
+
+	public enum FontGlyphRangeType {
+		/// <summary>
+		/// Glyph range enough for english language
+		/// </summary>
+		English,
+
+		/// <summary>
+		/// Glyph range enough for english and chinese simplified common language
+		/// </summary>
+		ChineseSimplifiedCommon,
+
+		/// <summary>
+		/// Glyph range enough for english and full chinese language
+		/// </summary>
+		ChineseFull,
+
+		/// <summary>
+		/// Glyph range enough for english and Japanese language
+		/// </summary>
+		Japanese,
+
+		/// <summary>
+		/// Glyph range enough for english and korean language
+		/// </summary>
+		Korean,
+
+		/// <summary>
+		/// Glyph range enough for english and Thai language
+		/// </summary>
+		Thai,
+
+		/// <summary>
+		/// Glyph range enough for english and Vietnamese language
+		/// </summary>
+		Vietnamese,
+
+		/// <summary>
+		/// Glyph range enough for english and few special chars.
+		/// </summary>
+		Cyrillic,
+	}
+
+
 
 }
 

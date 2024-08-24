@@ -1,5 +1,4 @@
-﻿namespace ArcticFoxEngine.Win32
-{
+﻿namespace ArcticFoxEngine {
 	using System;
 	using System.Drawing;
 	using System.Runtime.InteropServices;
@@ -1046,8 +1045,7 @@
 
 	#endregion Structures
 
-	internal static class User32
-	{
+	internal static class User32 {
 		public const string LibraryName = "user32.dll";
 
 		[DllImport(LibraryName, CharSet = CharSet.Unicode)]

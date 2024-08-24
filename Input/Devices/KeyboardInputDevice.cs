@@ -1,4 +1,5 @@
 ﻿using CoolClassLibrary;
+using ImGuiNET;
 using SharpDX.DirectInput;
 using Swan;
 using System;
@@ -31,10 +32,10 @@ namespace ArcticFoxEngine.Input.Devices {
 			if (initialised == false) { return; }
 			KeyboardUpdate[] updates = keyboard.GetBufferedData();
 			for (int i = 0; i < updates.Length; i ++) {
+				ImGuiInput.UpdateKeyboard(updates[i]);
 				for (int n = 0; n < deviceUpdate.Count; n ++) {
 					deviceUpdate[n](updates[i]);
 				}
-				ImGuiInput.UpdateKeyboard(updates[i]);
 			}
 
 		}

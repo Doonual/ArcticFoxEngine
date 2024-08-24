@@ -30,7 +30,7 @@ namespace ArcticFoxEngine {
 				new HelpCommand(),
 				new AddObjectCommand(),
 			});
-			DebugManager.Init();
+			
 
 			#region Create the main window
 
@@ -57,34 +57,29 @@ namespace ArcticFoxEngine {
 
 			try {
 				Graphics.SetupRenderer(form);
+				DebugManager.Init(form);
 				Log.Success("Engine initialisation complete");
 			}
 			catch (Exception e) {
 				Log.Error("Failed to initialise engine");
 				Log.Raw(e);
 			}
+			Log.Raw("");
 
 			#endregion
-			
-			Log.Raw("");
-			
 
 			exitButton = new KeyboardButtonInput(KeyboardButtonInput.KeyboardButton.Escape);
 			toggleDebugButton = new KeyboardButtonInput(KeyboardButtonInput.KeyboardButton.F1);
 
-			if (init != null) {
-				init();
-			}
-			DebugManager.OpenGUI();
+
+			if (init != null) {	init();	} // Run the main init code
 
 			// Main game loop
 			using (loop = new RenderLoop(form)) {
 				while (loop != null && loop.NextFrame()) {
 
 					Profiler.FrameBegin();
-
 					Scene.PerformSceneSwap();
-
 					InputManager.GetInputDeviceUpdates();
 
 					
@@ -93,28 +88,15 @@ namespace ArcticFoxEngine {
 						GPU_Render.Render(Scene.activeScene.mainCamera, Scene.activeScene.mainGeometry);
 					}
 
-
 					if (exitButton.GetButton() == true) { Stop(); }
-					
-					if (toggleDebugButton.GetButtonDown() == true) {
-						if (DebugManager.isOpen == true) {
-							DebugManager.CloseGUI();
-						}
-						else {
-							DebugManager.OpenGUI();
-						}
-					}
+					if (toggleDebugButton.GetButtonDown() == true) { DebugManager.ToggleGUI(); }
 
 					Profiler.FrameEnd();
 
-					
-					
+					DebugManager.UpdateImGui();
 
 					Graphics.Buffer();
-
-					
 					Graphics.WaitForPreviousFrame();
-
 					InputManager.NextFrame();
 
 				}
@@ -132,6 +114,7 @@ namespace ArcticFoxEngine {
 			loop.Dispose();
 			loop = null;
 			CommandController.Stop();
+			DebugManager.Dispose();
 		}
 
 	}

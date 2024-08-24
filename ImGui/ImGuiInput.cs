@@ -14,7 +14,6 @@
 	using System.Security.Policy;
 	using System.Threading;
 	using System.Windows.Forms;
-	using Win32;
 	using static System.Formats.Asn1.AsnWriter;
 	using static System.Net.Mime.MediaTypeNames;
 	using static System.Windows.Forms.VisualStyles.VisualStyleElement;

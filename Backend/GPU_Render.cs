@@ -27,7 +27,6 @@ namespace ArcticFoxEngine {
 			// Create the command list
 			// Command lists are created in the recording state, but there is nothing
 			// to record yet. The main loop expects it to be closed, so close it now.
-
 			cmdAllocator = Graphics.device.CreateCommandAllocator(CommandListType.Direct);
 			cmdQueue = Graphics.device.CreateCommandQueue(new CommandQueueDescription(CommandListType.Direct));
 			cmdList = Graphics.device.CreateCommandList(CommandListType.Direct, cmdAllocator, Graphics.pipelineState);
@@ -46,19 +45,7 @@ namespace ArcticFoxEngine {
 		/// <param name="geometry">The geometry to be rendered</param>
 		public static void Render(Camera camera, GeometryResources geometry) {
 
-			CpuDescriptorHandle rtvHandle;
-			CpuDescriptorHandle dsvHandle;
 
-			// Command list allocators can only be reset when the associated 
-			// command lists have finished execution on the GPU; apps should use 
-			// fences to determine GPU execution progress
-			//
-			// However, when ExecuteCommandList() is called on a particular command 
-			// list, that command list can then be reset at any time and must be before 
-			// re-recording
-
-			#region Normal rendering
-			
 			Profiler.MetricBegin();
 			cmdAllocator.Reset();
 			cmdList.Reset(cmdAllocator, Graphics.pipelineState);
@@ -76,10 +63,10 @@ namespace ArcticFoxEngine {
 			// Indicate that the back buffer will be used as a render target
 			cmdList.ResourceBarrierTransition(RenderResources.renderTargets[Graphics.frameIndex], ResourceStates.Present, ResourceStates.RenderTarget);
 
-			
+
 			// Set render target and depth stencil
-			rtvHandle = RenderResources.renderTargetViewHeap.CPUDescriptorHandleForHeapStart;
-			dsvHandle = RenderResources.depthStencilDescriptorHeap.CPUDescriptorHandleForHeapStart;
+			CpuDescriptorHandle rtvHandle = RenderResources.renderTargetViewHeap.CPUDescriptorHandleForHeapStart;
+			CpuDescriptorHandle dsvHandle = RenderResources.depthStencilDescriptorHeap.CPUDescriptorHandleForHeapStart;
 			rtvHandle += Graphics.frameIndex * RenderResources.renderTargetViewDescriptorSize;
 			cmdList.SetRenderTargets(rtvHandle, dsvHandle);
 			cmdList.ClearRenderTargetView(rtvHandle, new Color4(0f, 0f, 0f, 1f), 0, null);
@@ -92,14 +79,12 @@ namespace ArcticFoxEngine {
 			cmdList.SetIndexBuffer(geometry.indexBufferView);
 
 			
+			// Render each mesh
 			for (int i = 0; i < geometry.meshRenderers.Count; i ++) {
-
 				int indexCount = geometry.meshRenderers[i].mesh.indices.Length;
 				(int vbStart, int ibStart, int obStart) = geometry.meshRendererPositions[i];
-
 				RenderResources.BindCurrentObject(cmdList, obStart);
 				cmdList.DrawIndexedInstanced(indexCount, 1, ibStart, vbStart, vbStart);
-
 			}
 			
 
@@ -113,44 +98,35 @@ namespace ArcticFoxEngine {
 			Profiler.MetricBegin();
 			cmdQueue.ExecuteCommandList(cmdList);
 			Profiler.MetricEnd("Render");
-			
-			#endregion
-
-
-
-
-			// IMGui Render
-			#region ImGui render
-
-			if (Overlay.render != false) {
-				//Graphics.WaitForPreviousFrame();
-				cmdAllocator.Reset();
-				cmdList.Reset(cmdAllocator, Overlay.renderer.pipelineState);
-
-				// Indicate that the back buffer will be used as a render target
-				cmdList.ResourceBarrierTransition(RenderResources.renderTargets[Graphics.frameIndex], ResourceStates.Present, ResourceStates.RenderTarget);
-
-				// Set render target and depth stencil
-				rtvHandle = RenderResources.renderTargetViewHeap.CPUDescriptorHandleForHeapStart;
-				dsvHandle = RenderResources.depthStencilDescriptorHeap.CPUDescriptorHandleForHeapStart;
-				rtvHandle += Graphics.frameIndex * RenderResources.renderTargetViewDescriptorSize;
-				cmdList.SetRenderTargets(rtvHandle, dsvHandle);
-				cmdList.ClearDepthStencilView(dsvHandle, ClearFlags.FlagsDepth, 1f, 0);
-
-				Overlay.OneLoop(Profiler.deltaTime, cmdList);
-	
-				cmdList.ResourceBarrierTransition(RenderResources.renderTargets[Graphics.frameIndex], ResourceStates.RenderTarget, ResourceStates.Present);
-
-
-				cmdList.Close();
-				cmdQueue.ExecuteCommandList(cmdList);
-
-			}
-
-			#endregion
 
 		}
 
+		public static void RenderImGui() {
+
+			cmdAllocator.Reset();
+			cmdList.Reset(cmdAllocator, ImGuiRenderer.pipelineState);
+
+			// Indicate that the back buffer will be used as a render target
+			cmdList.ResourceBarrierTransition(RenderResources.renderTargets[Graphics.frameIndex], ResourceStates.Present, ResourceStates.RenderTarget);
+
+			// Set render target and depth stencil
+			CpuDescriptorHandle rtvHandle = RenderResources.renderTargetViewHeap.CPUDescriptorHandleForHeapStart;
+			CpuDescriptorHandle dsvHandle = RenderResources.depthStencilDescriptorHeap.CPUDescriptorHandleForHeapStart;
+			rtvHandle += Graphics.frameIndex * RenderResources.renderTargetViewDescriptorSize;
+			cmdList.SetRenderTargets(rtvHandle, dsvHandle);
+			cmdList.ClearDepthStencilView(dsvHandle, ClearFlags.FlagsDepth, 1f, 0);
+
+			ImGuiRenderer.Render(Profiler.deltaTime, cmdList);
+
+			cmdList.ResourceBarrierTransition(RenderResources.renderTargets[Graphics.frameIndex], ResourceStates.RenderTarget, ResourceStates.Present);
+
+
+			cmdList.Close();
+			cmdQueue.ExecuteCommandList(cmdList);
+
+
+
+		}
 
 		internal static void Dispose() {
 

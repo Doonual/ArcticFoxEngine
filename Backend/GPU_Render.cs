@@ -1,7 +1,7 @@
 ﻿using ArcticFoxEngine.Backend;
 using ArcticFoxEngine.Components;
 using ArcticFoxEngine.Debug;
-using ClickableTransparentOverlay;
+using ArcticFoxEngine;
 using CoolClassLibrary;
 using SharpDX;
 using SharpDX.Direct3D12;
@@ -130,8 +130,6 @@ namespace ArcticFoxEngine {
 				// Indicate that the back buffer will be used as a render target
 				cmdList.ResourceBarrierTransition(RenderResources.renderTargets[Graphics.frameIndex], ResourceStates.Present, ResourceStates.RenderTarget);
 
-
-
 				// Set render target and depth stencil
 				rtvHandle = RenderResources.renderTargetViewHeap.CPUDescriptorHandleForHeapStart;
 				dsvHandle = RenderResources.depthStencilDescriptorHeap.CPUDescriptorHandleForHeapStart;
@@ -139,12 +137,8 @@ namespace ArcticFoxEngine {
 				cmdList.SetRenderTargets(rtvHandle, dsvHandle);
 				cmdList.ClearDepthStencilView(dsvHandle, ClearFlags.FlagsDepth, 1f, 0);
 
-
-			
 				Overlay.OneLoop(Profiler.deltaTime, cmdList);
-			
-
-
+	
 				cmdList.ResourceBarrierTransition(RenderResources.renderTargets[Graphics.frameIndex], ResourceStates.RenderTarget, ResourceStates.Present);
 
 

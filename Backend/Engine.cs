@@ -3,7 +3,7 @@ using ArcticFoxEngine.Debug;
 using ArcticFoxEngine.Debug.Commands;
 using ArcticFoxEngine.Input;
 using ArcticFoxEngine.Input.Bindings;
-using ClickableTransparentOverlay;
+using ArcticFoxEngine;
 using CoolClassLibrary;
 using SharpDX.Windows;
 

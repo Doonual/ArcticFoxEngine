@@ -35,6 +35,7 @@ namespace ArcticFoxEngine.Input.Devices {
 				for (int n = 0; n < deviceUpdate.Count; n++) {
 					deviceUpdate[n](updates[i]);
 				}
+				ImGuiInput.UpdateMouse(updates[i]);
 			}
 		}
 

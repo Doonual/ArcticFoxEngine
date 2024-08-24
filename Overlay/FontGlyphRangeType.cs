@@ -1,4 +1,4 @@
-﻿namespace ClickableTransparentOverlay
+﻿namespace ArcticFoxEngine
 {
 	/// <summary>
 	/// ImGui provides some default Glyph Ranges for different languages, this enum helps select one of those glyph ranges

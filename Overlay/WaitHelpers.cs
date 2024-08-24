@@ -1,4 +1,4 @@
-﻿namespace ClickableTransparentOverlay
+﻿namespace ArcticFoxEngine
 {
 	using System;
 	using System.Threading;

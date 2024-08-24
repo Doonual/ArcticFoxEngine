@@ -1,17 +1,14 @@
-﻿namespace ClickableTransparentOverlay
-{
-	using ClickableTransparentOverlay.Win32;
+﻿namespace ArcticFoxEngine {
+	using ArcticFoxEngine.Win32;
 	using SharpDX.Windows;
 	using System;
 	using System.Drawing;
 
-	internal sealed class Win32Window : IDisposable
-	{
+	internal sealed class Win32Window : IDisposable {
 		public IntPtr Handle;
 		public Rectangle Dimensions;
 
-		public Win32Window(string wndClass, int width, int height, int x, int y, string title, WindowStyles style, WindowExStyles exStyle)
-		{
+		public Win32Window(string wndClass, int width, int height, int x, int y, string title, WindowStyles style, WindowExStyles exStyle) {
 			this.Dimensions = new Rectangle(x, y, width, height);
 			this.Handle = User32.CreateWindowEx((int)exStyle, wndClass, title, (int)style,
 				this.Dimensions.X, this.Dimensions.Y, this.Dimensions.Width, this.Dimensions.Height,

@@ -2,7 +2,7 @@
 using ArcticFoxEngine.Testing.SceneTest;
 using ArcticFoxEngine.Testing.ChildTest;
 using ArcticFoxEngine.Demos.RenderingStressTest;
-using ClickableTransparentOverlay;
+using ArcticFoxEngine;
 using CoolClassLibrary;
 using ImGuiNET;
 

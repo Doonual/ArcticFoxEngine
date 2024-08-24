@@ -1,4 +1,4 @@
-﻿namespace ClickableTransparentOverlay.Win32
+﻿namespace ArcticFoxEngine.Win32
 {
 	using System;
 	using System.Runtime.InteropServices;

@@ -1,5 +1,5 @@
 ﻿using ImGuiNET;
-using ClickableTransparentOverlay;
+using ArcticFoxEngine;
 
 namespace ArcticFoxEngine.Debug {
 	internal class DebugScene : DebugWindow {

@@ -1,9 +1,9 @@
 ﻿#pragma warning disable CS8618
 
-namespace ClickableTransparentOverlay {
+namespace ArcticFoxEngine {
 	using ArcticFoxEngine;
 	using ArcticFoxEngine.Debug;
-	using ClickableTransparentOverlay.Win32;
+	using ArcticFoxEngine.Win32;
 	using SharpDX.Direct3D12;
 	using SixLabors.ImageSharp;
 	using SixLabors.ImageSharp.PixelFormats;
@@ -34,7 +34,6 @@ namespace ClickableTransparentOverlay {
 
 
 		internal static ImGuiRenderer renderer;
-		private static ImGuiInputHandler inputhandler;
 
 		
 		private static bool replaceFont = false;
@@ -197,7 +196,7 @@ namespace ClickableTransparentOverlay {
 
 		public static void OneLoop(float deltaTime, GraphicsCommandList gCmdList) {
 
-			inputhandler.Update();
+			ImGuiInput.Update();
 			renderer.Update(deltaTime, DebugManager.Render);
 			renderer.Render(gCmdList);
 			ReplaceFontIfRequired();
@@ -217,7 +216,7 @@ namespace ClickableTransparentOverlay {
 		private static void InitializeResources() {
 
 			renderer = new ImGuiRenderer(1920, 1080);
-			inputhandler = new ImGuiInputHandler(Engine.form.Handle);
+			ImGuiInput.Init(Engine.form.Handle);
 
 		}
 

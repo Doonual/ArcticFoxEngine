@@ -17,9 +17,14 @@ namespace ArcticFoxEngine.Backend {
 	internal class Texture {
 
 		Resource texture;
+		int width;
+		int height;
 
-		internal Texture(int width, int height) {
+		internal Texture(int width, int height, DescriptorHeap destDescriptorHeap, int descriptorHeapIndex) {
 
+			Log.Info("Creating texture");
+			this.width = width;
+			this.height = height;
 			ResourceDescription textureDesc = ResourceDescription.Texture2D(Format.R8G8B8A8_UNorm, width, height);
 			texture = Graphics.device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.None, textureDesc, ResourceStates.CopyDestination);
 
@@ -29,34 +34,26 @@ namespace ArcticFoxEngine.Backend {
 				Dimension = ShaderResourceViewDimension.Texture2D,
 				Texture2D = { MipLevels = 1 },
 			};
-			Graphics.device.CreateShaderResourceView(texture, srvDesc, RenderResources.combinedDescriptorHeap.CPUDescriptorHandleForHeapStart + RenderResources.combinedDescriptorHeapIncrement);
-
-			Log.Info("Created texture");
-
-			
-			byte[] textureData = new byte[4 * width * height];
-			for (int x = 0; x < width; x ++) {
-				for (int y = 0; y < height; y ++) {
-
-					bool checker = ((x % 2) ^ (y % 2)) == 1;
-
-					int writePos = (x + y * width) * 4;
-					textureData[writePos + 0] = (byte)(checker ? 0xff : 0x00);
-					textureData[writePos + 1] = (byte)(checker ? 0x00 : 0xff);
-					textureData[writePos + 2] = 0x00;
-					textureData[writePos + 3] = 0xff;
-
-				}
-			}
-
-			GPU_Upload.Texture2DUpload(texture, width, height, Format.R8G8B8A8_UNorm, textureData);
+			Graphics.device.CreateShaderResourceView(texture, srvDesc, destDescriptorHeap.CPUDescriptorHandleForHeapStart + RenderResources.combinedDescriptorHeapIncrement * descriptorHeapIndex);
 
 			
 			
 
 		}
+		
+		public void SetData(byte[] data) {
+			GPU_Upload.Texture2DUpload(texture, width, height, Format.R8G8B8A8_UNorm, data);
+		}
 
-		public static int ComponentMapping(int src0, int src1, int src2, int src3) {
+		public IntPtr GetNativePointer() {
+			return texture.NativePointer;
+		}
+
+		public void Dispose() {
+			texture.Dispose();
+		}
+
+		private static int ComponentMapping(int src0, int src1, int src2, int src3) {
 
 			int componentMappingMask = 0x7;
 			int componentMappingShift = 3;

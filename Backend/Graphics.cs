@@ -3,6 +3,7 @@ using ArcticFoxEngine.Input;
 
 namespace ArcticFoxEngine {
 	using ArcticFoxEngine.Backend;
+	using ArcticFoxEngine.Debug;
 	using CoolClassLibrary;
 	using SharpDX;
 	using SharpDX.Direct3D12;
@@ -46,9 +47,10 @@ namespace ArcticFoxEngine {
 
 			try {
 				SetupDevice();
-
+				
 				GPU_Render.Init();
 				GPU_Upload.Init();
+				
 				SetupSwapChain(width, height, refreshRate, GPU_Render.GetCommandQueue());
 				
 				RenderResources.LoadResources(width, height);
@@ -56,7 +58,7 @@ namespace ArcticFoxEngine {
 				ShaderBytecode vertexShader = CompileShader(".res/VertexShader.hlsl", ShaderType.Vertex);
 				ShaderBytecode pixelShader = CompileShader(".res/PixelShader.hlsl", ShaderType.Pixel);
 				SetupPipeline(vertexShader, pixelShader);
-
+				
 				SetupSynchronisation();
 
 				Screen.InitScreen(mainRenderForm, swapChain);

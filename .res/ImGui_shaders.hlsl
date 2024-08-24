@@ -1,47 +1,4 @@
-﻿/*
-cbuffer RenderInfo : register(b0) {
-	
-	float4x4 cameraProjectionMatrix;
-
-	int screenWidth;
-	int screenHeight;
-	float aspectRatio;
-	
-};
-cbuffer ObjectInfo : register(b1) {
-	
-	float4x4 transformMatrix;
-	
-};
-
-struct Pixel_Input {
-	
-	// The SV_Position and COLOR tell the shader that these
-	// are the values to be passed into the rasteriser stage
-	float4 position : SV_Position;
-	float4 color : COLOR;
-	
-};
-
-Pixel_Input Vertex_Main(float4 position : POSITION, float4 color : COLOR) {
-	
-	Pixel_Input result;
-	
-	
-	result.position = mul(cameraProjectionMatrix, mul(transformMatrix, position));
-	result.color = color;
-	
-	return result;
-	
-}
-
-float4 Pixel_Main(Pixel_Input input) : SV_TARGET {
-
-	float4 outCol = input.color;
-	return outCol;
-	
-}
-*/
+﻿
 
 cbuffer vertexBuffer : register(b0) {
 	float4x4 ProjectionMatrix;
@@ -69,10 +26,9 @@ PS_INPUT Vertex_Main(VS_INPUT input) {
 
 
 
-//sampler sampler0;
-//Texture2D texture0;
+Texture2D g_texture : register(t0);
+SamplerState g_sampler : register(s0);
 
 float4 Pixel_Main(PS_INPUT input) : SV_Target {
-	return input.col;
-	//return input.col * texture0.Sample(sampler0, input.uv);
+	return input.col * g_texture.Sample(g_sampler, input.uv);
 }

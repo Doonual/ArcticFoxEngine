@@ -73,8 +73,24 @@ namespace ArcticFoxEngine {
 			objectBuffer.AddToDescriptorHeap(RenderResources.combinedDescriptorHeap, 2);
 
 
-			Log.Info("Creating texture");
-			testTexture = new Texture(8, 8);
+			testTexture = new Texture(8, 8, RenderResources.combinedDescriptorHeap, 1);
+
+			byte[] data = new byte[4 * 8 * 8];
+			for (int x = 0; x < 8; x++) {
+				for (int y = 0; y < 8; y++) {
+
+					bool checker = ((x % 2) ^ (y % 2)) == 1;
+
+					int writePos = (x + y * 8) * 4;
+					data[writePos + 0] = 0x00;
+					data[writePos + 1] = (byte)(checker ? 0x00 : 0xff);
+					data[writePos + 2] = (byte)(checker ? 0xff : 0x00);
+					data[writePos + 3] = 0xff;
+
+				}
+			}
+			testTexture.SetData(data);
+
 
 		}
 

@@ -46,6 +46,9 @@ namespace ArcticFoxEngine {
 		/// <param name="geometry">The geometry to be rendered</param>
 		public static void Render(Camera camera, GeometryResources geometry) {
 
+			CpuDescriptorHandle rtvHandle;
+			CpuDescriptorHandle dsvHandle;
+
 			// Command list allocators can only be reset when the associated 
 			// command lists have finished execution on the GPU; apps should use 
 			// fences to determine GPU execution progress
@@ -53,21 +56,18 @@ namespace ArcticFoxEngine {
 			// However, when ExecuteCommandList() is called on a particular command 
 			// list, that command list can then be reset at any time and must be before 
 			// re-recording
-			
-			#region Normal rendering
 
+			#region Normal rendering
+			
 			Profiler.MetricBegin();
 			cmdAllocator.Reset();
 			cmdList.Reset(cmdAllocator, Graphics.pipelineState);
 
 
 			// Bind shader resources
-
-
 			camera.WriteCameraInfoBuffer();
 			geometry.WriteObjectInfoBuffer();
 			RenderResources.BindShaderResources(cmdList);
-
 
 
 			// Viewport and render target
@@ -77,20 +77,15 @@ namespace ArcticFoxEngine {
 			cmdList.ResourceBarrierTransition(RenderResources.renderTargets[Graphics.frameIndex], ResourceStates.Present, ResourceStates.RenderTarget);
 
 			
-
 			// Set render target and depth stencil
-			CpuDescriptorHandle rtvHandle = RenderResources.renderTargetViewHeap.CPUDescriptorHandleForHeapStart;
-			CpuDescriptorHandle dsvHandle = RenderResources.depthStencilDescriptorHeap.CPUDescriptorHandleForHeapStart;
+			rtvHandle = RenderResources.renderTargetViewHeap.CPUDescriptorHandleForHeapStart;
+			dsvHandle = RenderResources.depthStencilDescriptorHeap.CPUDescriptorHandleForHeapStart;
 			rtvHandle += Graphics.frameIndex * RenderResources.renderTargetViewDescriptorSize;
 			cmdList.SetRenderTargets(rtvHandle, dsvHandle);
 			cmdList.ClearRenderTargetView(rtvHandle, new Color4(0f, 0f, 0f, 1f), 0, null);
 			cmdList.ClearDepthStencilView(dsvHandle, ClearFlags.FlagsDepth, 1f, 0);
 
 			
-
-
-			
-
 			// Set geometry
 			cmdList.PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList;
 			cmdList.SetVertexBuffer(0, geometry.vertexBufferView);
@@ -118,17 +113,17 @@ namespace ArcticFoxEngine {
 			Profiler.MetricBegin();
 			cmdQueue.ExecuteCommandList(cmdList);
 			Profiler.MetricEnd("Render");
-
+			
 			#endregion
 
-			
+
 
 
 			// IMGui Render
 			#region ImGui render
 
 			if (Overlay.render != false) {
-				Graphics.WaitForPreviousFrame();
+				//Graphics.WaitForPreviousFrame();
 				cmdAllocator.Reset();
 				cmdList.Reset(cmdAllocator, Overlay.mainOverlay.renderer.pipelineState);
 

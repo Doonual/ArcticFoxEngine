@@ -21,6 +21,7 @@ namespace ClickableTransparentOverlay {
 	using ArcticFoxEngine;
 	using ArcticFoxEngine.Backend;
 	using CoolClassLibrary;
+	using SixLabors.ImageSharp.Formats;
 
 	unsafe internal sealed class ImGuiRenderer : IDisposable {
 		
@@ -38,17 +39,17 @@ namespace ClickableTransparentOverlay {
 		internal PipelineState pipelineState;
 		RootSignature rootSignature;
 
-		ID3D11Device device;
-		ID3D11InputLayout inputLayout;
-		ID3D11SamplerState fontSampler;
-		ID3D11RasterizerState rasterizerState;
-		ID3D11BlendState blendState;
-		ID3D11DepthStencilState depthStencilState;
+
+
+
 		int vertexBufferSize = 5000, indexBufferSize = 10000;
-		readonly Dictionary<IntPtr, ID3D11ShaderResourceView> textureResources = new();
+		readonly Dictionary<IntPtr, (Texture, int)> textureResources = new();
+
+		int descriptorHeapIndex;
 
 		public ImGuiRenderer(ID3D11Device device, ID3D11DeviceContext deviceContext, int width, int height) {
-			this.device = device;
+
+			descriptorHeapIndex = 1;
 
 			device.AddRef();
 			deviceContext.AddRef();
@@ -171,6 +172,7 @@ namespace ClickableTransparentOverlay {
 						gCmdList.SetScissorRectangles(new SharpDX.Mathematics.Interop.RawRectangle((int)cmd.ClipRect.X, (int)cmd.ClipRect.Y, (int)cmd.ClipRect.Z, (int)cmd.ClipRect.W));
 
 						if (textureResources.TryGetValue(cmd.GetTexID(), out var texture)) {
+							gCmdList.SetGraphicsRootDescriptorTable(1, constantBufferDh.GPUDescriptorHandleForHeapStart + RenderResources.combinedDescriptorHeapIncrement * texture.Item2);
 							//ctx.PSSetShaderResource(0, texture);
 						}
 						gCmdList.DrawIndexedInstanced((int)cmd.ElemCount, 1, (int)(cmd.IdxOffset + global_idx_offset), (int)(cmd.VtxOffset + global_vtx_offset), 1);
@@ -186,18 +188,12 @@ namespace ClickableTransparentOverlay {
 		}
 
 		public void Dispose() {
-			if (device == null)
-				return;
+
 
 			this.DeRegisterAllTexture();
-			fontSampler?.Release();
 			indexBuffer?.Dispose();
 			vertexBuffer?.Dispose();
-			blendState?.Release();
-			depthStencilState?.Release();
-			rasterizerState?.Release();
 			constantBuffer?.Dispose();
-			inputLayout?.Release();
 		}
 
 		public void Resize(int width, int height) {
@@ -222,37 +218,45 @@ namespace ClickableTransparentOverlay {
 
 		#region Textures
 
-		public IntPtr CreateImageTexture(Image<Rgba32> image, Format format)
-		{
-			var texDesc = new Texture2DDescription(format, image.Width, image.Height, 1, 1);
-			if (!image.DangerousTryGetSinglePixelMemory(out Memory<Rgba32> memory))
-			{
+		public IntPtr CreateImageTexture(Image<Rgba32> image, SharpDX.DXGI.Format format) {
+
+			Texture texture = new Texture(image.Width, image.Height, constantBufferDh, descriptorHeapIndex);
+
+			
+
+			if (!image.DangerousTryGetSinglePixelMemory(out Memory<Rgba32> memory)) {
 				throw new Exception("Make sure to initialize MemoryAllocator.Default!");
 			}
 
-			using MemoryHandle imageMemoryHandle = memory.Pin();
-			var subResource = new SubresourceData(imageMemoryHandle.Pointer, texDesc.Width * 4);
-			using var texture = device.CreateTexture2D(texDesc, new[] { subResource });
-			var resViewDesc = new Vortice.Direct3D11.ShaderResourceViewDescription(texture, Vortice.Direct3D.ShaderResourceViewDimension.Texture2D, format, 0, texDesc.MipLevels);
-			return RegisterTexture(device.CreateShaderResourceView(texture, resViewDesc));
+			
+			Rgba32[] pixelArray = memory.ToArray();
+			byte[] imageData = new byte[pixelArray.Length * 4];
+			for (int i = 0; i < pixelArray.Length; i ++) {
+				imageData[i * 4 + 0] = pixelArray[i].R;
+				imageData[i * 4 + 1] = pixelArray[i].G;
+				imageData[i * 4 + 2] = pixelArray[i].B;
+				imageData[i * 4 + 3] = pixelArray[i].A;
+			}
+
+			
+			texture.SetData(imageData);
+
+			return RegisterTexture(texture);
+			
 		}
 
-		public bool RemoveImageTexture(IntPtr handle)
-		{
-			using var tex = this.DeRegisterTexture(handle);
+		public bool RemoveImageTexture(IntPtr handle) {
+			var tex = this.DeRegisterTexture(handle);
 			return tex != null;
 		}
 
-		public void UpdateFontTexture(string fontPathName, float fontSize, ushort[]? fontCustomGlyphRange, FontGlyphRangeType fontLanguage)
-		{
+		public void UpdateFontTexture(string fontPathName, float fontSize, ushort[]? fontCustomGlyphRange, FontGlyphRangeType fontLanguage) {
 			var io = ImGui.GetIO();
 			this.DeRegisterTexture(io.Fonts.TexID)?.Dispose();
 			io.Fonts.Clear();
 			var config = ImGuiNative.ImFontConfig_ImFontConfig();
-			if (fontCustomGlyphRange == null)
-			{
-				switch (fontLanguage)
-				{
+			if (fontCustomGlyphRange == null) {
+				switch (fontLanguage) {
 					case FontGlyphRangeType.English:
 						io.Fonts.AddFontFromFileTTF(fontPathName, fontSize, config, io.Fonts.GetGlyphRangesDefault());
 						break;
@@ -295,7 +299,20 @@ namespace ClickableTransparentOverlay {
 
 		void CreateFontsTexture() {
 			var io = ImGui.GetIO();
+
 			io.Fonts.GetTexDataAsRGBA32(out byte* pixels, out var width, out var height);
+
+			byte[] pixelArray = new byte[width * height * 4];
+			for (int i = 0; i < pixelArray.Length; i ++) {
+				pixelArray[i] = pixels[i];
+			}
+
+			Log.Info($"Fonts texture (Width: {width}, Height: {height}, Descriptor index: {descriptorHeapIndex})");
+			Texture fontTex = new Texture(width, height, constantBufferDh, descriptorHeapIndex);
+
+			fontTex.SetData(pixelArray);
+
+			/*
 			var texDesc = new Texture2DDescription(Format.R8G8B8A8_UNorm, width, height, 1, 1);
 			var subResource = new SubresourceData(pixels, texDesc.Width * 4);
 			using var texture = device.CreateTexture2D(texDesc, new[] { subResource });
@@ -308,6 +325,11 @@ namespace ClickableTransparentOverlay {
 			);
 			io.Fonts.SetTexID(RegisterTexture(device.CreateShaderResourceView(texture, resViewDesc)));
 			io.Fonts.ClearTexData();
+			*/
+
+			io.Fonts.SetTexID(RegisterTexture(fontTex));
+			io.Fonts.ClearTexData();
+
 		}
 
 		void CreateFontSampler() {
@@ -323,18 +345,19 @@ namespace ClickableTransparentOverlay {
 				0f
 			);
 
-			this.fontSampler = device.CreateSamplerState(samplerDesc);
+			//this.fontSampler = device.CreateSamplerState(samplerDesc);
 		}
 
-		IntPtr RegisterTexture(ID3D11ShaderResourceView texture) {
-			IntPtr imguiID = texture.NativePointer;
-			textureResources.TryAdd(imguiID, texture);
+		IntPtr RegisterTexture(Texture texture) {
+			IntPtr imguiID = texture.GetNativePointer();
+			textureResources.TryAdd(imguiID, (texture, descriptorHeapIndex));
+			descriptorHeapIndex++;
 			return imguiID;
 		}
 
-		ID3D11ShaderResourceView? DeRegisterTexture(IntPtr texturePtr) {
+		Texture? DeRegisterTexture(IntPtr texturePtr) {
 			if (textureResources.Remove(texturePtr, out var texture)) {
-				return texture;
+				return texture.Item1;
 			}
 			else {
 				return null;
@@ -343,7 +366,7 @@ namespace ClickableTransparentOverlay {
 
 		void DeRegisterAllTexture() {
 			foreach (var key in textureResources.Keys.ToArray()) {
-				this.DeRegisterTexture(key)?.Release();
+				this.DeRegisterTexture(key)?.Dispose();
 			}
 		}
 
@@ -363,16 +386,32 @@ namespace ClickableTransparentOverlay {
 					OffsetInDescriptorsFromTableStart = int.MinValue,
 					DescriptorCount = 1
 				}),
+				new RootParameter(ShaderVisibility.Pixel, new DescriptorRange() {
+					RangeType = DescriptorRangeType.ShaderResourceView,
+					BaseShaderRegister = 0,
+					OffsetInDescriptorsFromTableStart = int.MinValue,
+					DescriptorCount = 1,
+				}),
 
 			};
 
-			RootSignatureDescription rootSignatureDesc = new RootSignatureDescription(RootSignatureFlags.AllowInputAssemblerInputLayout, rootParameters);
+			StaticSamplerDescription[] staticSamplerDescription = new StaticSamplerDescription[] {
+				new StaticSamplerDescription(ShaderVisibility.Pixel, 0, 0) {
+					Filter = SharpDX.Direct3D12.Filter.MinimumMinMagMipPoint,
+					AddressUVW = SharpDX.Direct3D12.TextureAddressMode.Border,
+				}
+			};
+
+
+			RootSignatureDescription rootSignatureDesc = new RootSignatureDescription(RootSignatureFlags.AllowInputAssemblerInputLayout, rootParameters, staticSamplerDescription);
 			rootSignature = Graphics.device.CreateRootSignature(rootSignatureDesc.Serialize());
 
 			#endregion
 
+			CreatePipelineState();
+
 			DescriptorHeapDescription dhd = new DescriptorHeapDescription() {
-				DescriptorCount = 1,
+				DescriptorCount = 1 + 2048,
 				Flags = DescriptorHeapFlags.ShaderVisible,
 				Type = DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView,
 			};
@@ -382,7 +421,10 @@ namespace ClickableTransparentOverlay {
 
 			CreateFontsTexture();
 			CreateFontSampler();
-			CreatePipelineState();
+			
+
+			
+
 
 		}
 
@@ -408,7 +450,6 @@ namespace ClickableTransparentOverlay {
 
 				IsDepthEnabled = true,
 				DepthWriteMask = SharpDX.Direct3D12.DepthWriteMask.All,
-				//DepthComparison = Comparison.Less,
 				DepthComparison = Comparison.Always,
 
 				IsStencilEnabled = false,
@@ -422,14 +463,23 @@ namespace ClickableTransparentOverlay {
 			RasterizerStateDescription rasterState = RasterizerStateDescription.Default();
 			rasterState.CullMode = SharpDX.Direct3D12.CullMode.None;
 
+			//var blendDesc = new BlendDescription(Blend.SourceAlpha, Blend.InverseSourceAlpha, Blend.One, Blend.InverseSourceAlpha);
+
+			BlendStateDescription blendState = BlendStateDescription.Default();
+			blendState.RenderTarget[0].IsBlendEnabled = true;
+			blendState.RenderTarget[0].SourceBlend = BlendOption.SourceAlpha;
+			blendState.RenderTarget[0].DestinationBlend = BlendOption.InverseSourceAlpha;
+			blendState.RenderTarget[0].SourceAlphaBlend = BlendOption.One;
+			blendState.RenderTarget[0].DestinationAlphaBlend = BlendOption.InverseSourceAlpha;
+
 			GraphicsPipelineStateDescription psonDesc = new GraphicsPipelineStateDescription() {
 
 				InputLayout = new InputLayoutDescription(inputElementDescs),
-				RootSignature = RenderResources.rootSignature,
+				RootSignature = rootSignature,
 				VertexShader = vertexShader,
 				PixelShader = pixelShader,
 				RasterizerState = rasterState,
-				BlendState = BlendStateDescription.Default(),
+				BlendState = blendState,
 				DepthStencilFormat = SharpDX.DXGI.Format.D32_Float,
 				DepthStencilState = depthState,
 				SampleMask = int.MaxValue,

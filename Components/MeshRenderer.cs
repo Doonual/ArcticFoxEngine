@@ -8,6 +8,9 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace ArcticFoxEngine.Components {
+
+	using ArcticFoxEngine.Backend.Render;
+	
 	public class MeshRenderer : Component {
 
 		public Mesh mesh { get; private set; }

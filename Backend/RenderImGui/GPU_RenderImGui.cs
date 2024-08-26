@@ -5,12 +5,6 @@ namespace ArcticFoxEngine {
 
 	using ImGuiNET;
 	using ImDrawIdx = System.UInt16;
-	using Vortice.DXGI;
-	using Vortice.Direct3D;
-	using Vortice.Direct3D11;
-	using Vortice.D3DCompiler;
-	using Vortice.Mathematics;
-	using System.Numerics;
 	using System.Collections.Generic;
 	using System;
 	using System.Linq;
@@ -18,35 +12,33 @@ namespace ArcticFoxEngine {
 	using SixLabors.ImageSharp.PixelFormats;
 	using System.Buffers;
 	using SharpDX.Direct3D12;
-	using ArcticFoxEngine;
 	using ArcticFoxEngine.Backend;
 	using CoolClassLibrary;
-	using SixLabors.ImageSharp.Formats;
 	using ArcticFoxEngine.Debug;
 
-	unsafe internal static class ImGuiRenderer {
+	unsafe internal static class GPU_RenderImGui {
 
 #nullable enable
 
-		static bool disposed = false;
+		static internal PipelineState pipelineState;
+		static RootSignature rootSignature;
+		static DescriptorHeap descriptorHeap;
+		static int descriptorHeapIndex;
 
 		static Resource vertexBuffer;
 		static VertexBufferView vertexBufferView;
+		static int vertexBufferSize = 5000, indexBufferSize = 10000;
 
 		static Resource indexBuffer;
 		static IndexBufferView indexBufferView;
 
 		static ConstBuffer<Matrix> constantBuffer;
-		static DescriptorHeap constantBufferDh;
+		
 
-		static internal PipelineState pipelineState;
-		static RootSignature rootSignature;
-
-
-		static int vertexBufferSize = 5000, indexBufferSize = 10000;
+		
 		static readonly Dictionary<IntPtr, (Texture, int)> textureResources = new();
 
-		static int descriptorHeapIndex;
+		
 
 		private static bool replaceFont = false;
 		private static ushort[]? fontCustomGlyphRange;
@@ -79,15 +71,15 @@ namespace ArcticFoxEngine {
 			ImGui.Render();
 		}
 
-		internal static void Render(float deltaTime, GraphicsCommandList gCmdList) {
-			if (disposed == true) { return; }
+
+		private static ImDrawDataPtr? UpdateImGuiDrawList() {
 
 			ImGuiInput.Update();
-			Update(deltaTime, DebugManager.Render);
+			Update(Profiler.deltaTime, DebugManager.Render);
 
 			ImDrawDataPtr data = ImGui.GetDrawData();
 			// Avoid rendering when minimized
-			if (data.DisplaySize.X <= 0.0f || data.DisplaySize.Y <= 0.0f) { return; }
+			if (data.DisplaySize.X <= 0.0f || data.DisplaySize.Y <= 0.0f) { return null; }
 
 			#region Vertex buffer creation
 
@@ -117,7 +109,6 @@ namespace ArcticFoxEngine {
 			}
 
 			#endregion
-
 			#region Uploading to vertex buffer and index buffer
 
 			// Upload vertex/index data into a single contiguous GPU buffer
@@ -141,7 +132,6 @@ namespace ArcticFoxEngine {
 			indexBuffer.Unmap(0);
 
 			#endregion
-
 			#region Viewport matrix
 
 			// Setup orthographic projection matrix into our constant buffer
@@ -160,34 +150,74 @@ namespace ArcticFoxEngine {
 
 			#endregion
 
+			return data;
+
+		}
+
+		internal static void Render(Resource renderTarget, DescriptorHeap rtvDescHeap, DescriptorHeap dsvDescHeap) {
+
+
+
+			ImDrawDataPtr? dataNull = UpdateImGuiDrawList();
+			if (dataNull == null) { return; }
+			ImDrawDataPtr data = (ImDrawDataPtr)dataNull;
+
+
+			Graphics.WaitForCmdList();
+			Graphics.cmdAllocator.Reset();
+			Graphics.cmdList.Reset(Graphics.cmdAllocator, pipelineState);
+			GraphicsCommandList cmdList = Graphics.cmdList;
+
+			// Indicate that the back buffer will be used as a render target
+			cmdList.ResourceBarrierTransition(renderTarget, ResourceStates.Present, ResourceStates.RenderTarget);
+
+			// Set render target and depth stencil
+			CpuDescriptorHandle rtvHandle = rtvDescHeap.CPUDescriptorHandleForHeapStart;
+			CpuDescriptorHandle dsvHandle = dsvDescHeap.CPUDescriptorHandleForHeapStart;
+			rtvHandle += Graphics.frameIndex * Graphics.rtvHeapIncrement;
+			cmdList.SetRenderTargets(rtvHandle, dsvHandle);
+			cmdList.ClearDepthStencilView(dsvHandle, ClearFlags.FlagsDepth, 1f, 0);
+
+
+
 			#region Rendering
 
-			SetupRenderState(data, gCmdList);
+			SharpDX.ViewportF viewport = new SharpDX.ViewportF(0f, 0f, data.DisplaySize.X, data.DisplaySize.Y, 0f, 1f);
+			cmdList.SetViewport(viewport);
+
+			cmdList.SetGraphicsRootSignature(rootSignature);
+			cmdList.SetDescriptorHeaps(1, new DescriptorHeap[] { descriptorHeap });
+			cmdList.SetGraphicsRootDescriptorTable(0, (descriptorHeap.GPUDescriptorHandleForHeapStart));
+
+			int stride = sizeof(ImDrawVert);
+			cmdList.SetVertexBuffer(0, vertexBufferView);
+			cmdList.SetIndexBuffer(indexBufferView);
+			cmdList.PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList;
+
 			// Render command lists
 			// (Because we merged all buffers into a single one, we maintain our own offset into them)
 			int global_idx_offset = 0;
 			int global_vtx_offset = 0;
 			for (int n = 0; n < data.CmdListsCount; n++) {
-				var cmdList = data.CmdListsRange[n];
-				for (int i = 0; i < cmdList.CmdBuffer.Size; i++) {
-					var cmd = cmdList.CmdBuffer[i];
+				ImDrawListPtr imDrawList = data.CmdListsRange[n];
+				for (int i = 0; i < imDrawList.CmdBuffer.Size; i++) {
+					ImDrawCmdPtr cmd = imDrawList.CmdBuffer[i];
 					if (cmd.UserCallback != IntPtr.Zero) {
 						throw new NotImplementedException("user callbacks not implemented");
 					}
 					else {
 
-						gCmdList.SetScissorRectangles(new SharpDX.Mathematics.Interop.RawRectangle((int)cmd.ClipRect.X, (int)cmd.ClipRect.Y, (int)cmd.ClipRect.Z, (int)cmd.ClipRect.W));
+						cmdList.SetScissorRectangles(new SharpDX.Mathematics.Interop.RawRectangle((int)cmd.ClipRect.X, (int)cmd.ClipRect.Y, (int)cmd.ClipRect.Z, (int)cmd.ClipRect.W));
 
 						if (textureResources.TryGetValue(cmd.GetTexID(), out var texture)) {
-							gCmdList.SetGraphicsRootDescriptorTable(1, constantBufferDh.GPUDescriptorHandleForHeapStart + RenderResources.combinedDescriptorHeapIncrement * texture.Item2);
-							//ctx.PSSetShaderResource(0, texture);
+							cmdList.SetGraphicsRootDescriptorTable(1, descriptorHeap.GPUDescriptorHandleForHeapStart + Backend.Render.GPU_Render.descHeapIncrement * texture.Item2);
 						}
-						gCmdList.DrawIndexedInstanced((int)cmd.ElemCount, 1, (int)(cmd.IdxOffset + global_idx_offset), (int)(cmd.VtxOffset + global_vtx_offset), 1);
+						cmdList.DrawIndexedInstanced((int)cmd.ElemCount, 1, (int)(cmd.IdxOffset + global_idx_offset), (int)(cmd.VtxOffset + global_vtx_offset), 1);
 
 					}
 				}
-				global_idx_offset += cmdList.IdxBuffer.Size;
-				global_vtx_offset += cmdList.VtxBuffer.Size;
+				global_idx_offset += imDrawList.IdxBuffer.Size;
+				global_vtx_offset += imDrawList.VtxBuffer.Size;
 			}
 
 			#endregion
@@ -195,49 +225,29 @@ namespace ArcticFoxEngine {
 
 			ReplaceFontIfRequired();
 
+			cmdList.ResourceBarrierTransition(renderTarget, ResourceStates.RenderTarget, ResourceStates.Present);
+
+
+			cmdList.Close();
+			
+			Graphics.cmdQueue.ExecuteCommandList(cmdList);
+			
+
 		}
 
-		internal static void Dispose() {
 
-			if (disposed == true) { return; }
-			disposed = true;
-			if (loadedTexturesPtrs != null) {
-				foreach (var key in loadedTexturesPtrs.Keys.ToArray()) {
-					RemoveImage(key);
-				}
-			}
 
-			DeRegisterAllTexture();
-			indexBuffer?.Dispose();
-			vertexBuffer?.Dispose();
-			constantBuffer?.Dispose();
-		}
-
+		
 		internal static void Resize(int width, int height) {
 			ImGui.GetIO().DisplaySize = new System.Numerics.Vector2(width, height);
 		}
 
-		static void SetupRenderState(ImDrawDataPtr drawData, GraphicsCommandList gCmdList) {
-
-			var viewport = new SharpDX.ViewportF(0f, 0f, drawData.DisplaySize.X, drawData.DisplaySize.Y, 0f, 1f);
-			gCmdList.SetViewport(viewport);
-
-			gCmdList.SetGraphicsRootSignature(rootSignature);
-			gCmdList.SetDescriptorHeaps(1, new DescriptorHeap[] { constantBufferDh });
-			gCmdList.SetGraphicsRootDescriptorTable(0, (constantBufferDh.GPUDescriptorHandleForHeapStart));
-
-			int stride = sizeof(ImDrawVert);
-			gCmdList.SetVertexBuffer(0, vertexBufferView);
-			gCmdList.SetIndexBuffer(indexBufferView);
-			gCmdList.PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList;
-
-		}
 
 		#region Textures
 
 		internal static IntPtr CreateImageTexture(Image<Rgba32> image, SharpDX.DXGI.Format format) {
 
-			Texture texture = new Texture(image.Width, image.Height, constantBufferDh, descriptorHeapIndex);
+			Texture texture = new Texture(image.Width, image.Height, descriptorHeap, descriptorHeapIndex);
 
 			if (!image.DangerousTryGetSinglePixelMemory(out Memory<Rgba32> memory)) {
 				throw new Exception("Make sure to initialize MemoryAllocator.Default!");
@@ -260,7 +270,7 @@ namespace ArcticFoxEngine {
 		}
 
 		internal static bool RemoveImageTexture(IntPtr handle) {
-			var tex = ImGuiRenderer.DeRegisterTexture(handle);
+			var tex = GPU_RenderImGui.DeRegisterTexture(handle);
 			return tex != null;
 		}
 
@@ -322,7 +332,7 @@ namespace ArcticFoxEngine {
 			}
 
 			Log.Info($"Fonts texture (Width: {width}, Height: {height}, Descriptor index: {descriptorHeapIndex})");
-			Texture fontTex = new Texture(width, height, constantBufferDh, descriptorHeapIndex);
+			Texture fontTex = new Texture(width, height, descriptorHeap, descriptorHeapIndex);
 
 			fontTex.SetData(pixelArray);
 
@@ -354,7 +364,6 @@ namespace ArcticFoxEngine {
 		}
 
 		#endregion
-
 		#region Fonts
 
 		/// <summary>
@@ -398,7 +407,7 @@ namespace ArcticFoxEngine {
 
 		internal static void ReplaceFontIfRequired() {
 			if (replaceFont == true) {
-				ImGuiRenderer.UpdateFontTexture(fontPathName, fontSize, fontCustomGlyphRange, fontLanguage);
+				GPU_RenderImGui.UpdateFontTexture(fontPathName, fontSize, fontCustomGlyphRange, fontLanguage);
 				replaceFont = false;
 			}
 		}
@@ -424,7 +433,7 @@ namespace ArcticFoxEngine {
 				var configuration = Configuration.Default.Clone();
 				configuration.PreferContiguousImageBuffers = true;
 				using var image = Image.Load<Rgba32>(configuration, filePath);
-				handle = ImGuiRenderer.CreateImageTexture(image, srgb ? SharpDX.DXGI.Format.R8G8B8A8_UNorm_SRgb : SharpDX.DXGI.Format.R8G8B8A8_UNorm);
+				handle = GPU_RenderImGui.CreateImageTexture(image, srgb ? SharpDX.DXGI.Format.R8G8B8A8_UNorm_SRgb : SharpDX.DXGI.Format.R8G8B8A8_UNorm);
 				width = (uint)image.Width;
 				height = (uint)image.Height;
 				loadedTexturesPtrs.Add(filePath, new(handle, width, height));
@@ -446,7 +455,7 @@ namespace ArcticFoxEngine {
 				handle = data.Handle;
 			}
 			else {
-				handle = ImGuiRenderer.CreateImageTexture(image, srgb ? SharpDX.DXGI.Format.R8G8B8A8_UNorm_SRgb : SharpDX.DXGI.Format.R8G8B8A8_UNorm);
+				handle = GPU_RenderImGui.CreateImageTexture(image, srgb ? SharpDX.DXGI.Format.R8G8B8A8_UNorm_SRgb : SharpDX.DXGI.Format.R8G8B8A8_UNorm);
 				loadedTexturesPtrs.Add(name, new(handle, (uint)image.Width, (uint)image.Height));
 			}
 		}
@@ -458,7 +467,7 @@ namespace ArcticFoxEngine {
 		/// <returns> true if the image is removed otherwise false.</returns>
 		public static bool RemoveImage(string key) {
 			if (loadedTexturesPtrs.Remove(key, out var data)) {
-				return ImGuiRenderer.RemoveImageTexture(data.Handle);
+				return GPU_RenderImGui.RemoveImageTexture(data.Handle);
 			}
 
 			return false;
@@ -507,9 +516,9 @@ namespace ArcticFoxEngine {
 				Flags = DescriptorHeapFlags.ShaderVisible,
 				Type = DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView,
 			};
-			constantBufferDh = Graphics.device.CreateDescriptorHeap(dhd);
+			descriptorHeap = Graphics.device.CreateDescriptorHeap(dhd);
 			constantBuffer = new ConstBuffer<Matrix>(1);
-			constantBuffer.AddToDescriptorHeap(constantBufferDh, 0);
+			constantBuffer.AddToDescriptorHeap(descriptorHeap, 0);
 
 			CreatePipelineState();
 			CreateFontsTexture();
@@ -580,6 +589,21 @@ namespace ArcticFoxEngine {
 			pipelineState = Graphics.device.CreateGraphicsPipelineState(psonDesc);
 			
 		}
+
+		internal static void Dispose() {
+
+			if (loadedTexturesPtrs != null) {
+				foreach (var key in loadedTexturesPtrs.Keys.ToArray()) {
+					RemoveImage(key);
+				}
+			}
+
+			DeRegisterAllTexture();
+			indexBuffer?.Dispose();
+			vertexBuffer?.Dispose();
+			constantBuffer?.Dispose();
+		}
+
 
 #nullable restore
 

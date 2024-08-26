@@ -11,6 +11,9 @@ using ArcticFoxEngine.Testing;
 using ArcticFoxEngine.Backend;
 
 namespace ArcticFoxEngine {
+
+	using ArcticFoxEngine.Backend.Render;
+
 	public class Scene {
 
 		internal static Scene activeScene;				// Scene that is currently shown
@@ -93,17 +96,20 @@ namespace ArcticFoxEngine {
 
 		#endregion
 
-		internal void NewFrame() {
+		internal void Update() {
 
 			Profiler.MetricBegin();
 			for (int i = 0; i < objects.Count; i ++) {
 				objects[i].UpdateEvent();
 			}
+			Profiler.MetricEnd("Update");
+			Profiler.MetricBegin();
 			for (int i = 0; i < objects.Count; i++) {
 				objects[i].RenderEvent();
 			}
+			Profiler.MetricEnd("Render");
 
-			Profiler.MetricEnd("Update");
+			
 
 		}
 

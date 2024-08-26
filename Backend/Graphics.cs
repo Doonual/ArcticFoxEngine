@@ -19,20 +19,34 @@ namespace ArcticFoxEngine {
 		static RenderForm mainRenderForm;
 		internal static SwapChain3 swapChain;
 		internal const int swapChainFrameCount = 2;
-
-		
-		internal static PipelineState pipelineState;
-
 		internal static int frameIndex;
-		private static AutoResetEvent fenceEvent;
 
+
+		// Render target view descriptor heap
+		internal static DescriptorHeap rtvHeap;
+		internal static Resource[] renderTargets;
+		internal static int rtvHeapIncrement;
+
+		// Depth Stencil descriptor heap
+		internal static DescriptorHeap dsvHeap;
+		internal static Resource depthStencilBuffer;
+
+
+		#region Command queue objects
+
+		internal static CommandAllocator cmdAllocator;
+		internal static CommandQueue cmdQueue;
+		internal static GraphicsCommandList cmdList;
+		private static AutoResetEvent fenceEvent;
 		private static Fence fence;
 		private static int fenceValue;
+
+		#endregion
 
 
 		// Main setup function
 		// Combines all the individual steps to setting up rendering
-		public static void SetupRenderer(RenderForm form) {
+		internal static void Init(RenderForm form) {
 
 			if (isDebug == true) {
 				// Enable the D3D12 debug layer
@@ -43,23 +57,21 @@ namespace ArcticFoxEngine {
 
 			int width = form.ClientSize.Width;
 			int height = form.ClientSize.Height;
-			int refreshRate = 60;
+			int refreshRate = 240;
 
 			try {
-				SetupDevice();
-				
-				GPU_Render.Init();
-				GPU_Upload.Init();
-				
-				SetupSwapChain(width, height, refreshRate, GPU_Render.GetCommandQueue());
-				
-				RenderResources.LoadResources(width, height);
 
-				ShaderBytecode vertexShader = CompileShader(".res/VertexShader.hlsl", ShaderType.Vertex);
-				ShaderBytecode pixelShader = CompileShader(".res/PixelShader.hlsl", ShaderType.Pixel);
-				SetupPipeline(vertexShader, pixelShader);
+				SetupDevice();
+
+				SetupCommandList();
+				SetupSwapChain(width, height, refreshRate, cmdQueue);
 				
-				SetupSynchronisation();
+
+				Backend.Render.GPU_Render.Init(width, height);
+				GPU_Upload.Init();
+
+
+
 
 				Screen.InitScreen(mainRenderForm, swapChain);
 				InputManager.InitInput();
@@ -74,6 +86,8 @@ namespace ArcticFoxEngine {
 			
 
 		}
+
+		
 
 		private static void SetupDevice() {
 			// Create the graphics device
@@ -102,71 +116,90 @@ namespace ArcticFoxEngine {
 
 			}
 
-		}
 
-		private static void SetupPipeline(ShaderBytecode vertexShader, ShaderBytecode pixelShader) {
+			#region Setup RTV descripto heaps and resources
 
-			// Input format
-			InputElement[] inputElementDescs = new InputElement[] {
-				new InputElement("POSITION", 0, Format.R32G32B32_Float, 0, 0),
-				new InputElement("COLOR", 0, Format.R32G32B32A32_Float, 12, 0),
-				new InputElement("TEXCOORD", 0, Format.R32G32_Float, 28, 0),
+			// Create a render target view (RTV) descriptor heap
+			DescriptorHeapDescription rtvHeapDesc = new DescriptorHeapDescription() {
+				DescriptorCount = swapChainFrameCount,
+				Flags = DescriptorHeapFlags.None,
+				Type = DescriptorHeapType.RenderTargetView
 			};
+			rtvHeap = device.CreateDescriptorHeap(rtvHeapDesc);
+			rtvHeapIncrement = device.GetDescriptorHandleIncrementSize(DescriptorHeapType.RenderTargetView);
 
-			DepthStencilOperationDescription defaultStencilOp = new DepthStencilOperationDescription() {
-				FailOperation = StencilOperation.Keep,
-				DepthFailOperation = StencilOperation.Keep,
-				PassOperation = StencilOperation.Keep,
-				Comparison = Comparison.Always
+
+			// Add render target resources to RTV descriptor heap
+			CpuDescriptorHandle rtvHandle = rtvHeap.CPUDescriptorHandleForHeapStart;
+			renderTargets = new Resource[swapChainFrameCount];
+			for (int n = 0; n < swapChainFrameCount; n++) {
+				renderTargets[n] = swapChain.GetBackBuffer<Resource>(n);
+				device.CreateRenderTargetView(renderTargets[n], null, rtvHandle);
+				rtvHandle += rtvHeapIncrement;
+			}
+
+			#endregion
+			#region Setup DSV descriptor heap and resources
+
+			DescriptorHeapDescription dsvHeapDesc = new DescriptorHeapDescription() {
+				DescriptorCount = 1,
+				Type = DescriptorHeapType.DepthStencilView,
+				Flags = DescriptorHeapFlags.None
 			};
-			DepthStencilStateDescription depthState = new DepthStencilStateDescription() {
+			dsvHeap = device.CreateDescriptorHeap(dsvHeapDesc);
 
-				IsDepthEnabled = true,
-				DepthWriteMask = DepthWriteMask.All,
-				DepthComparison = Comparison.Less,
-
-				IsStencilEnabled = false,
-				StencilReadMask = 0xff,
-				StencilWriteMask = 0xff,
-				FrontFace = defaultStencilOp,
-				BackFace = defaultStencilOp,
-
+			DepthStencilViewDescription depthStencilDesc = new DepthStencilViewDescription() {
+				Format = Format.D32_Float,
+				Dimension = DepthStencilViewDimension.Texture2D,
+				Flags = DepthStencilViewFlags.None
 			};
+			depthStencilBuffer = device.CreateCommittedResource(
+				new HeapProperties(HeapType.Default),
+				HeapFlags.None, ResourceDescription.Texture2D(Format.D32_Float, width, height, flags: ResourceFlags.AllowDepthStencil),
+				ResourceStates.DepthWrite
+			);
+			depthStencilBuffer.Name = "Depth / Stencil Resource Heap";
+			device.CreateDepthStencilView(depthStencilBuffer, depthStencilDesc, dsvHeap.CPUDescriptorHandleForHeapStart);
 
+			#endregion
 
-			GraphicsPipelineStateDescription psonDesc = new GraphicsPipelineStateDescription() {
-
-				InputLayout = new InputLayoutDescription(inputElementDescs),
-				RootSignature = RenderResources.rootSignature,
-				VertexShader = vertexShader,
-				PixelShader = pixelShader,
-				RasterizerState = RasterizerStateDescription.Default(),
-				BlendState = BlendStateDescription.Default(),
-				DepthStencilFormat = Format.D32_Float,
-				DepthStencilState = depthState,
-				SampleMask = int.MaxValue,
-				PrimitiveTopologyType = PrimitiveTopologyType.Triangle,
-				RenderTargetCount = 1,
-				Flags = PipelineStateFlags.None,
-				SampleDescription = new SampleDescription(1, 0),
-				StreamOutput = new StreamOutputDescription()
-
-			};
-			psonDesc.RenderTargetFormats[0] = Format.R8G8B8A8_UNorm;
-			pipelineState = device.CreateGraphicsPipelineState(psonDesc);
 
 		}
+		private static void SetupCommandList() {
 
-		private static void SetupSynchronisation() {
+			// Create the command list
+			// Command lists are created in the recording state, but there is nothing
+			// to record yet. The main loop expects it to be closed, so close it now.
+			cmdAllocator = device.CreateCommandAllocator(CommandListType.Direct);
+			cmdQueue = device.CreateCommandQueue(new CommandQueueDescription(CommandListType.Direct));
+			cmdList = device.CreateCommandList(CommandListType.Direct, cmdAllocator, Backend.Render.GPU_Render.pipelineState);
+			cmdList.Close();
 
 			// Create synchronisation objects
 			fence = device.CreateFence(0, FenceFlags.None);
 			fenceValue = 1;
-
 			// Create an event handle to use for frame synchronisation
 			fenceEvent = new AutoResetEvent(false);
 
 		}
+
+		internal static void WaitForCmdList() {
+			// WAITING FOR THE FRAME TO COMPLETE BEFORE CONTINUING IS NOT BEST PRACTICE. 
+			// This is code implemented as such for simplicity. 
+
+			int localFence = fenceValue;
+			cmdQueue.Signal(fence, localFence);
+			fenceValue++;
+
+			// Wait until the previous frame is finished.
+			if (fence.CompletedValue < localFence) {
+				fence.SetEventOnCompletion(localFence, fenceEvent.SafeWaitHandle.DangerousGetHandle());
+				fenceEvent.WaitOne();
+			}
+
+			
+		}
+
 
 		internal enum ShaderType {
 			Vertex,
@@ -230,29 +263,12 @@ namespace ArcticFoxEngine {
 		}
 		
 
-		// Wait the previous command list to finish executing.
-		internal static void WaitForPreviousFrame() {
-			// WAITING FOR THE FRAME TO COMPLETE BEFORE CONTINUING IS NOT BEST PRACTICE. 
-			// This is code implemented as such for simplicity. 
-
-			int localFence = fenceValue;
-			GPU_Render.GetCommandQueue().Signal(fence, localFence);
-			fenceValue++;
-
-			// Wait until the previous frame is finished.
-			if (fence.CompletedValue < localFence) {
-				fence.SetEventOnCompletion(localFence, fenceEvent.SafeWaitHandle.DangerousGetHandle());
-				fenceEvent.WaitOne();
-			}
-
-			frameIndex = swapChain.CurrentBackBufferIndex;
-		}
-
-		public static void Buffer() {
+		internal static void Buffer() {
 
 			// Present the frame
 			try {
 				CheckHRESULT(swapChain.Present(1, 0));
+				frameIndex = swapChain.CurrentBackBufferIndex;
 			}
 			catch (Exception e) {
 				CheckHRESULT(device.DeviceRemovedReason);
@@ -276,18 +292,14 @@ namespace ArcticFoxEngine {
 
 		}
 
-		public static void Dispose() {
+		internal static void Dispose() {
 
-
-			// Wait for the GPU to be done with all resources.
-			WaitForPreviousFrame();
-
-			RenderResources.Dispose();
-			pipelineState.Dispose();
-			fence.Dispose();
 			swapChain.Dispose();
 			device.Dispose();
-			GPU_Render.Dispose();
+			fence.Dispose();
+			cmdAllocator.Dispose();
+			cmdQueue.Dispose();
+			cmdList.Dispose();
 
 		}
 

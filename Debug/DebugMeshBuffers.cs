@@ -25,7 +25,7 @@ namespace ArcticFoxEngine.Debug {
 				return;
 			}
 
-			GeometryResources geometry = Scene.activeScene.mainGeometry;
+			Backend.Render.GeometryResources geometry = Scene.activeScene.mainGeometry;
 			MeshRenderer delMeshFilter = null;
 
 			ImGui.InputInt("Max Display Entries", ref maxEntries);

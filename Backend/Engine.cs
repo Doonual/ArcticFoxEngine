@@ -26,12 +26,6 @@ namespace ArcticFoxEngine {
 		/// <param name="iconPath">The path to the icon the window will use</param>
 		public static void Run(int width, int height, string title = "Arctic Fox", string iconPath = ".res/icon.ico") {
 
-			CommandController.Init(new List<Command>() {
-				new HelpCommand(),
-				new AddObjectCommand(),
-			});
-			
-
 			#region Create the main window
 
 			try {
@@ -52,11 +46,17 @@ namespace ArcticFoxEngine {
 				Log.Raw(e);
 			}
 
+			CommandController.Init(new List<Command>() {
+				new HelpCommand(),
+				new AddObjectCommand(),
+			});
+
+
 			#endregion
 			#region Setup rendering
 
 			try {
-				Graphics.SetupRenderer(form);
+				Graphics.Init(form);
 				DebugManager.Init(form);
 				Log.Success("Engine initialisation complete");
 			}
@@ -78,31 +78,33 @@ namespace ArcticFoxEngine {
 			using (loop = new RenderLoop(form)) {
 				while (loop != null && loop.NextFrame()) {
 
+
 					Profiler.FrameBegin();
+					InputManager.NextFrame();
 					Scene.PerformSceneSwap();
 					InputManager.GetInputDeviceUpdates();
-
 					
 					if (Scene.activeScene != null) {
-						Scene.activeScene.NewFrame();
-						GPU_Render.Render(Scene.activeScene.mainCamera, Scene.activeScene.mainGeometry);
+						Scene.activeScene.Update();
 					}
 
-					if (exitButton.GetButton() == true) { Stop(); }
+					
 					if (toggleDebugButton.GetButtonDown() == true) { DebugManager.ToggleGUI(); }
 
 					Profiler.FrameEnd();
 
 					DebugManager.UpdateImGui();
+					if (exitButton.GetButton() == true) { Stop(); }
 
 					Graphics.Buffer();
-					Graphics.WaitForPreviousFrame();
-					InputManager.NextFrame();
+					
 
 				}
 			}
 			
 			Graphics.Dispose();
+			Backend.Render.GPU_Render.Dispose();
+
 			DebugManager.CloseGUI();
 
 		}

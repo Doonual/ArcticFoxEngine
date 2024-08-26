@@ -49,7 +49,7 @@ namespace ArcticFoxEngine.Backend {
 					BufferLocation = constantBuffer.GPUVirtualAddress + stride * i,
 					SizeInBytes = stride
 				};
-				Graphics.device.CreateConstantBufferView(cbvDesc, destDescriptorHeap.CPUDescriptorHandleForHeapStart + (offset + i) * RenderResources.combinedDescriptorHeapIncrement);
+				Graphics.device.CreateConstantBufferView(cbvDesc, destDescriptorHeap.CPUDescriptorHandleForHeapStart + (offset + i) * Backend.Render.GPU_Render.descHeapIncrement);
 
 			}
 			

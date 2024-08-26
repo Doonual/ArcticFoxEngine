@@ -1,6 +1,6 @@
 ﻿using SharpDX;
 
-namespace ArcticFoxEngine {
+namespace ArcticFoxEngine.Backend.Render {
 	using ArcticFoxEngine.Backend;
 	using ArcticFoxEngine.Components;
 	using ArcticFoxEngine.Debug;
@@ -70,10 +70,10 @@ namespace ArcticFoxEngine {
 			indexBufferView.Format = SharpDX.DXGI.Format.R32_UInt;
 
 			objectBuffer = new ConstBuffer<ObjectInfo>(numObElements);
-			objectBuffer.AddToDescriptorHeap(RenderResources.combinedDescriptorHeap, 2);
+			objectBuffer.AddToDescriptorHeap(GPU_Render.descHeap, 2);
 
 
-			testTexture = new Texture(8, 8, RenderResources.combinedDescriptorHeap, 1);
+			testTexture = new Texture(8, 8, GPU_Render.descHeap, 1);
 
 			byte[] data = new byte[4 * 8 * 8];
 			for (int x = 0; x < 8; x++) {
@@ -305,7 +305,7 @@ namespace ArcticFoxEngine {
 		/// <summary>
 		/// Updates the object data buffer for all mesh renderers added to this GeometryResources
 		/// </summary>
-		internal void WriteObjectInfoBuffer() {
+		internal void UpdateObjectInfoBuffer() {
 
 			int maxObjectInfoIndex = -1;
 

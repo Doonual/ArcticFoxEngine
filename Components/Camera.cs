@@ -4,6 +4,9 @@ using ImGuiNET;
 using ArcticFoxEngine.Backend;
 
 namespace ArcticFoxEngine {
+
+	using ArcticFoxEngine.Backend.Render;
+
 	public class Camera : Component {
 
 		public int renderWidth { 
@@ -93,14 +96,19 @@ namespace ArcticFoxEngine {
 			gameObject.scene.mainCamera = this;
 		}
 
-		internal void WriteCameraInfoBuffer() {
+		internal void UpdateCameraInfoBuffer(ConstBuffer<RenderInfo> renderInfo) {
 
 			RenderInfo info = new RenderInfo();
 			info.projectionMatrix = projectionMatrix;
 			info.screenWidth = renderWidth;
 			info.screenHeight = renderHeight;
 			info.aspectRatio = (float)renderWidth / renderHeight;
-			RenderResources.renderInfo.Write(new RenderInfo[] { info }, 0);
+			renderInfo.Write(new RenderInfo[] { info }, 0);
+
+		}
+		public override void OnRender() {
+
+			GPU_Render.Render(Graphics.renderTargets[Graphics.frameIndex], Graphics.rtvHeap, Graphics.dsvHeap, gameObject.scene.mainCamera, gameObject.scene.mainGeometry);
 
 		}
 

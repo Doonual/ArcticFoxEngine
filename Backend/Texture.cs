@@ -34,10 +34,7 @@ namespace ArcticFoxEngine.Backend {
 				Dimension = ShaderResourceViewDimension.Texture2D,
 				Texture2D = { MipLevels = 1 },
 			};
-			Graphics.device.CreateShaderResourceView(texture, srvDesc, destDescriptorHeap.CPUDescriptorHandleForHeapStart + RenderResources.combinedDescriptorHeapIncrement * descriptorHeapIndex);
-
-			
-			
+			Graphics.device.CreateShaderResourceView(texture, srvDesc, destDescriptorHeap.CPUDescriptorHandleForHeapStart + Backend.Render.GPU_Render.descHeapIncrement * descriptorHeapIndex);
 
 		}
 		

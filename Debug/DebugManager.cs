@@ -19,7 +19,7 @@ namespace ArcticFoxEngine.Debug {
 
 		internal static void Init(RenderForm form) {
 
-			ImGuiRenderer.Init(1920, 1080);
+			GPU_RenderImGui.Init(1920, 1080);
 			ImGuiInput.Init(form.Handle);
 
 			isOpen = false;
@@ -76,8 +76,7 @@ namespace ArcticFoxEngine.Debug {
 		public static void UpdateImGui() {
 
 			if (isOpen == false) { return; }
-			Graphics.WaitForPreviousFrame();
-			GPU_Render.RenderImGui();
+			GPU_RenderImGui.Render(Graphics.renderTargets[Graphics.frameIndex], Graphics.rtvHeap, Graphics.dsvHeap);
 
 		}
 
@@ -153,7 +152,7 @@ namespace ArcticFoxEngine.Debug {
 		}
 
 		public static void Dispose() {
-			ImGuiRenderer.Dispose();
+			GPU_RenderImGui.Dispose();
 		}
 
 	}

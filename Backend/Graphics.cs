@@ -65,10 +65,11 @@ namespace ArcticFoxEngine {
 
 				SetupCommandList();
 				SetupSwapChain(width, height, refreshRate, cmdQueue);
-				
 
-				Backend.Render.GPU_Render.Init(width, height);
+
 				GPU_Upload.Init();
+				Backend.Render.GPU_Render.Init(width, height);
+				
 
 
 
@@ -203,12 +204,46 @@ namespace ArcticFoxEngine {
 
 		internal enum ShaderType {
 			Vertex,
-			Pixel
+			Geometry,
+			Pixel,
 		}
 		internal static ShaderBytecode CompileShader(string path, ShaderType type) {
 
+			#region Changing root folder of #includes
+
+			string rootPath = "";
+			for (int i = path.Length - 1; i >= 0; i --) {
+				if (path[i] == '/') {
+					rootPath = new string(path.Take(i + 1).ToArray());
+				}
+			}
 
 			string shaderCode = File.ReadAllText(path);
+			string includeDirective = "#include \"";
+
+			string includeEditedShaderCode = "";
+			for (int i = 0; i < shaderCode.Length; i ++) {
+				
+
+				if (includeDirective.Length == 0) {
+					includeEditedShaderCode += rootPath;
+					includeDirective = "#include \"";
+				}
+				else {
+					if (shaderCode[i] == includeDirective[0]) {
+						includeDirective = new string(includeDirective.Skip(1).ToArray());
+					}
+					else {
+						includeDirective = "#include \"";
+					}
+				}
+
+				includeEditedShaderCode += shaderCode[i];
+
+			}
+
+			#endregion
+
 
 			SharpDX.D3DCompiler.ShaderFlags flags = isDebug ? SharpDX.D3DCompiler.ShaderFlags.None : SharpDX.D3DCompiler.ShaderFlags.Debug;
 			SharpDX.D3DCompiler.Include include = new StandardIncludeHandler();
@@ -223,6 +258,11 @@ namespace ArcticFoxEngine {
 				profile = "vs_5_0";
 				break;
 
+				case ShaderType.Geometry:
+				entrypoint = "Geometry_Main";
+				profile = "gs_5_0";
+				break;
+
 				case ShaderType.Pixel:
 				entrypoint = "Pixel_Main";
 				profile = "ps_5_0";
@@ -231,10 +271,14 @@ namespace ArcticFoxEngine {
 			}
 			ShaderBytecode compiledShader = null;
 			try {
-				compiledShader = new ShaderBytecode(SharpDX.D3DCompiler.ShaderBytecode.Compile(shaderCode, entrypoint, profile, flags, SharpDX.D3DCompiler.EffectFlags.None, new SharpDX.Direct3D.ShaderMacro[0], include));
+				compiledShader = new ShaderBytecode(SharpDX.D3DCompiler.ShaderBytecode.Compile(includeEditedShaderCode, entrypoint, profile, flags, SharpDX.D3DCompiler.EffectFlags.None, new SharpDX.Direct3D.ShaderMacro[0], include));
 				switch (type) {
 					case ShaderType.Vertex:
 					Log.Success("Compiled vertex shader");
+					break;
+
+					case ShaderType.Geometry:
+					Log.Success("Compiled geometry shader");
 					break;
 
 					case ShaderType.Pixel:
@@ -247,6 +291,10 @@ namespace ArcticFoxEngine {
 				switch (type) {
 					case ShaderType.Vertex:
 					Log.Error("Failed to compile vertex shader");
+					break;
+
+					case ShaderType.Geometry:
+					Log.Error("Failed to compile geometry shader");
 					break;
 
 					case ShaderType.Pixel:
@@ -264,7 +312,7 @@ namespace ArcticFoxEngine {
 		
 
 		internal static void Buffer() {
-
+			Graphics.WaitForCmdList();
 			// Present the frame
 			try {
 				CheckHRESULT(swapChain.Present(1, 0));
@@ -310,6 +358,7 @@ namespace ArcticFoxEngine {
 		internal StandardIncludeHandler() : base(new IntPtr(1)) { }
 		public void Close(Stream stream) { }
 		public Stream Open(SharpDX.D3DCompiler.IncludeType type, string fileName, Stream parentStream) {
+			Log.Info("Hi");
 			throw new NotImplementedException();
 		}
 	}

@@ -35,7 +35,8 @@ namespace ArcticFoxEngine {
 					Icon = new Icon(iconPath),
 					FormBorderStyle = FormBorderStyle.None,
 				};
-				form.Show();
+				form.BackColor = new Color(0, 0, 0);
+				
 				form.Width = 1920;
 				form.Height = 1080;
 				form.Location = new Point(0, 0);
@@ -74,6 +75,7 @@ namespace ArcticFoxEngine {
 
 			if (init != null) {	init();	} // Run the main init code
 
+			
 			// Main game loop
 			using (loop = new RenderLoop(form)) {
 				while (loop != null && loop.NextFrame()) {
@@ -96,9 +98,9 @@ namespace ArcticFoxEngine {
 					DebugManager.UpdateImGui();
 					if (exitButton.GetButton() == true) { Stop(); }
 
-					Graphics.Buffer();
 					
-
+					Graphics.Buffer();
+					form.Show();
 				}
 			}
 			

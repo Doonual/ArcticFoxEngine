@@ -157,7 +157,6 @@ namespace ArcticFoxEngine {
 		internal static void Render(Resource renderTarget, DescriptorHeap rtvDescHeap, DescriptorHeap dsvDescHeap) {
 
 
-
 			ImDrawDataPtr? dataNull = UpdateImGuiDrawList();
 			if (dataNull == null) { return; }
 			ImDrawDataPtr data = (ImDrawDataPtr)dataNull;
@@ -247,7 +246,8 @@ namespace ArcticFoxEngine {
 
 		internal static IntPtr CreateImageTexture(Image<Rgba32> image, SharpDX.DXGI.Format format) {
 
-			Texture texture = new Texture(image.Width, image.Height, descriptorHeap, descriptorHeapIndex);
+			Texture texture = new Texture(image.Width, image.Height);
+			texture.AddToDescriptorHeap(descriptorHeap, descriptorHeapIndex);
 
 			if (!image.DangerousTryGetSinglePixelMemory(out Memory<Rgba32> memory)) {
 				throw new Exception("Make sure to initialize MemoryAllocator.Default!");
@@ -332,7 +332,8 @@ namespace ArcticFoxEngine {
 			}
 
 			Log.Info($"Fonts texture (Width: {width}, Height: {height}, Descriptor index: {descriptorHeapIndex})");
-			Texture fontTex = new Texture(width, height, descriptorHeap, descriptorHeapIndex);
+			Texture fontTex = new Texture(width, height);
+			fontTex.AddToDescriptorHeap(descriptorHeap, descriptorHeapIndex);
 
 			fontTex.SetData(pixelArray);
 

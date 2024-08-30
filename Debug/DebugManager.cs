@@ -31,6 +31,7 @@ namespace ArcticFoxEngine.Debug {
 				new DebugScene(),
 			};
 			LoadWindowOptions();
+			
 			demoScenes = new List<DemoScene>() {
 				new HelloSceneDemo(),
 				new ChildTestDemo(),
@@ -57,11 +58,14 @@ namespace ArcticFoxEngine.Debug {
 		public static void OpenGUI() {
 
 			LoadWindowOptions();
+			ImGui.LoadIniSettingsFromDisk("imgui.ini");
 			isOpen = true;
 
 		}
 		public static void CloseGUI() {
 			SaveWindowOptions();
+			ImGui.SaveIniSettingsToDisk("imgui.ini");
+
 			isOpen = false;
 		}
 		public static void ToggleGUI() {

@@ -36,10 +36,6 @@
 		  <NoWarn>NU1701</NoWarn>
 		</PackageReference>
 		<PackageReference Include="SixLabors.ImageSharp" Version="2.1.9" />
-		<PackageReference Include="Veldrid.ImGui" Version="5.72.0" />
-		<PackageReference Include="Vortice.D3DCompiler" Version="2.2.0" />
-		<PackageReference Include="Vortice.Direct3D11" Version="2.2.0" />
-		<PackageReference Include="Vortice.Mathematics" Version="1.6.2" />
 	</ItemGroup>
 	
 	
@@ -63,6 +59,7 @@
 	  <None Include=".res\icon.ico" />
 	  <None Include=".res\mandelbrot_shader.hlsl" />
 	  <None Include=".res\PixelShader.hlsl" />
+	  <None Include=".res\Common.hlsl" />
 	</ItemGroup>
 	
 	

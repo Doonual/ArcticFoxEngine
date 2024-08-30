@@ -215,7 +215,7 @@ namespace ArcticFoxEngine.Debug {
 
 			ImGui.SameLine();
 			histWidth = (int)(ImGui.GetCursorPosX() - histWidth - ImGui.GetStyle().FramePadding.X * 2 - ImGui.GetStyle().ItemSpacing.X);
-			numElements = histWidth;
+			numElements = Math.Max(1, histWidth);
 			ImGui.NewLine();
 			System.Numerics.Vector2 histCurEnd = ImGui.GetCursorPos();
 

@@ -22,14 +22,14 @@ namespace ArcticFoxEngine.Backend.Render {
 		internal static RootSignature rootSignature;
 		internal static DescriptorHeap descHeap;
 
-		static int dh_renderInfoStart = 0;
-		static int dh_textureDataStart = 1;
-		static int dh_objectDataStart = 16;
+		internal static int dh_renderInfoStart = 0;
+		internal static int dh_textureDataStart = 1;
+		internal static int dh_objectDataStart = 16;
 
 		// Descriptor heap usage
-		// 0 - Render info
-		// [1, 16] - Texture
-		// [16, 2063] - Object data
+		// [0]			Render info
+		// [1, 16]		Texture data
+		// [16, 2063]	Object data
 
 		internal static int descHeapIncrement;
 		internal static ConstBuffer<RenderInfo> renderInfo;
@@ -48,12 +48,12 @@ namespace ArcticFoxEngine.Backend.Render {
 		private static void SetupPipeline() {
 
 			ShaderBytecode vertexShader = Graphics.CompileShader(".res/VertexShader.hlsl", Graphics.ShaderType.Vertex);
+			ShaderBytecode geometryShader = Graphics.CompileShader(".res/GeometryShader.hlsl", Graphics.ShaderType.Geometry);
 			ShaderBytecode pixelShader = Graphics.CompileShader(".res/PixelShader.hlsl", Graphics.ShaderType.Pixel);
-
 
 			// Input format
 			InputElement[] inputElementDescs = new InputElement[] {
-				new InputElement("POSITION", 0, Format.R32G32B32_Float, 0, 0),
+				new InputElement("SV_Position", 0, Format.R32G32B32_Float, 0, 0),
 				new InputElement("COLOR", 0, Format.R32G32B32A32_Float, 12, 0),
 				new InputElement("TEXCOORD", 0, Format.R32G32_Float, 28, 0),
 			};
@@ -78,14 +78,17 @@ namespace ArcticFoxEngine.Backend.Render {
 
 			};
 
+			RasterizerStateDescription rasterState = RasterizerStateDescription.Default();
+			//rasterState.CullMode = CullMode.None;
 
 			GraphicsPipelineStateDescription psonDesc = new GraphicsPipelineStateDescription() {
 
 				InputLayout = new InputLayoutDescription(inputElementDescs),
 				RootSignature = rootSignature,
 				VertexShader = vertexShader,
+				GeometryShader = geometryShader,
 				PixelShader = pixelShader,
-				RasterizerState = RasterizerStateDescription.Default(),
+				RasterizerState = rasterState,
 				BlendState = BlendStateDescription.Default(),
 				DepthStencilFormat = Format.D32_Float,
 				DepthStencilState = depthState,
@@ -100,8 +103,6 @@ namespace ArcticFoxEngine.Backend.Render {
 			psonDesc.RenderTargetFormats[0] = Format.R8G8B8A8_UNorm;
 			pipelineState = Graphics.device.CreateGraphicsPipelineState(psonDesc);
 
-
-			
 
 		}
 
@@ -139,7 +140,7 @@ namespace ArcticFoxEngine.Backend.Render {
 			StaticSamplerDescription[] staticSamplerDescription = new StaticSamplerDescription[] {
 				new StaticSamplerDescription(ShaderVisibility.Pixel, 0, 0) {
 					Filter = Filter.MinimumMinMagMipPoint,
-					AddressUVW = TextureAddressMode.Border,
+					AddressUVW = TextureAddressMode.Wrap,
 				}
 			};
 
@@ -147,7 +148,6 @@ namespace ArcticFoxEngine.Backend.Render {
 			rootSignature = Graphics.device.CreateRootSignature(rootSignatureDesc.Serialize());
 
 			#endregion
-
 			#region Create main combined descriptor heap
 
 			// Default Heap setup. Contains all the vertices and indices
@@ -163,7 +163,7 @@ namespace ArcticFoxEngine.Backend.Render {
 			#endregion
 
 			renderInfo = new ConstBuffer<RenderInfo>(1);
-			renderInfo.AddToDescriptorHeap(descHeap, 0);
+			renderInfo.AddToDescriptorHeap(descHeap, dh_renderInfoStart);
 
 		}
 
@@ -221,7 +221,7 @@ namespace ArcticFoxEngine.Backend.Render {
 
 
 				GpuDescriptorHandle currentObjectHandle = descHeap.GPUDescriptorHandleForHeapStart + (obStart + dh_objectDataStart) * descHeapIncrement;
-				GpuDescriptorHandle currentTextureHandle = descHeap.GPUDescriptorHandleForHeapStart + (obStart + dh_textureDataStart) * descHeapIncrement;
+				GpuDescriptorHandle currentTextureHandle = descHeap.GPUDescriptorHandleForHeapStart + (dh_textureDataStart) * descHeapIncrement;
 
 				cmdList.SetGraphicsRootDescriptorTable(1, currentObjectHandle);
 				cmdList.SetGraphicsRootDescriptorTable(2, currentTextureHandle);
@@ -240,6 +240,7 @@ namespace ArcticFoxEngine.Backend.Render {
 			Profiler.MetricBegin();
 			Graphics.cmdQueue.ExecuteCommandList(cmdList);
 			Profiler.MetricEnd("Render");
+			
 
 		}
 

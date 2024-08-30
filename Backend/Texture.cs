@@ -1,18 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using CoolClassLibrary;
+﻿using CoolClassLibrary;
+
 
 using SharpDX.DXGI;
-using SharpDX.Mathematics.Interop;
+
 
 namespace ArcticFoxEngine.Backend {
 
-	using SharpDX;
+
 	using SharpDX.Direct3D12;
-	using System.Runtime.InteropServices;
+	using SixLabors.ImageSharp;
+	using SixLabors.ImageSharp.PixelFormats;
 
 	internal class Texture {
 
@@ -20,7 +17,7 @@ namespace ArcticFoxEngine.Backend {
 		int width;
 		int height;
 
-		internal Texture(int width, int height, DescriptorHeap destDescriptorHeap, int descriptorHeapIndex) {
+		internal Texture(int width, int height) {
 
 			Log.Info("Creating texture");
 			this.width = width;
@@ -28,25 +25,54 @@ namespace ArcticFoxEngine.Backend {
 			ResourceDescription textureDesc = ResourceDescription.Texture2D(Format.R8G8B8A8_UNorm, width, height);
 			texture = Graphics.device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.None, textureDesc, ResourceStates.CopyDestination);
 
+		}
+
+		internal Texture(string path) {
+
+
+			Image<Rgba32> image = Image.Load<Rgba32>(path);
+
+			width = image.Width;
+			height = image.Height;
+			ResourceDescription textureDesc = ResourceDescription.Texture2D(Format.R8G8B8A8_UNorm, width, height);
+			texture = Graphics.device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.None, textureDesc, ResourceStates.CopyDestination);
+
+
+			byte[] imageData = new byte[image.Width * image.Height * 4];
+			for (int i = 0; i < image.Width; i++) {
+				for (int n = 0; n < image.Height; n++) {
+					imageData[(i + n * image.Width) * 4 + 0] = image[i, n].R;
+					imageData[(i + n * image.Width) * 4 + 1] = image[i, n].G;
+					imageData[(i + n * image.Width) * 4 + 2] = image[i, n].B;
+					imageData[(i + n * image.Width) * 4 + 3] = image[i, n].A;
+				}
+			}
+			image.Dispose();
+			SetData(imageData);
+
+		}
+
+		internal void AddToDescriptorHeap(DescriptorHeap destDescriptorHeap, int offset) {
+
 			ShaderResourceViewDescription srvDesc = new ShaderResourceViewDescription() {
 				Shader4ComponentMapping = ComponentMapping(0, 1, 2, 3),
 				Format = Format.R8G8B8A8_UNorm,
 				Dimension = ShaderResourceViewDimension.Texture2D,
 				Texture2D = { MipLevels = 1 },
 			};
-			Graphics.device.CreateShaderResourceView(texture, srvDesc, destDescriptorHeap.CPUDescriptorHandleForHeapStart + Backend.Render.GPU_Render.descHeapIncrement * descriptorHeapIndex);
+			Graphics.device.CreateShaderResourceView(texture, srvDesc, destDescriptorHeap.CPUDescriptorHandleForHeapStart + Backend.Render.GPU_Render.descHeapIncrement * offset);
 
 		}
 		
-		public void SetData(byte[] data) {
+		internal void SetData(byte[] data) {
 			GPU_Upload.Texture2DUpload(texture, width, height, Format.R8G8B8A8_UNorm, data);
 		}
 
-		public IntPtr GetNativePointer() {
+		internal IntPtr GetNativePointer() {
 			return texture.NativePointer;
 		}
 
-		public void Dispose() {
+		internal void Dispose() {
 			texture.Dispose();
 		}
 

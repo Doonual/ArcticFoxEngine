@@ -6,7 +6,10 @@ namespace ArcticFoxEngine.Backend.Render {
 	using ArcticFoxEngine.Debug;
 	using CoolClassLibrary;
 	using SharpDX.Direct3D12;
+	using SixLabors.ImageSharp.PixelFormats;
+	using SixLabors.ImageSharp;
 	using Swan;
+	using System.IO;
 
 	/// <summary>
 	/// Contains and controls all the resources needed for rendering geometry
@@ -14,7 +17,7 @@ namespace ArcticFoxEngine.Backend.Render {
 	/// </summary>
 	public class GeometryResources {
 
-		internal static int kbPerBuffer = 512;
+		internal static int kbPerBuffer = 2048;
 
 		internal static int numVbElements = kbPerBuffer * 1024 / Utilities.SizeOf<Vertex>();
 		internal static int numIbElements = kbPerBuffer * 1024 / sizeof(int);
@@ -70,26 +73,12 @@ namespace ArcticFoxEngine.Backend.Render {
 			indexBufferView.Format = SharpDX.DXGI.Format.R32_UInt;
 
 			objectBuffer = new ConstBuffer<ObjectInfo>(numObElements);
-			objectBuffer.AddToDescriptorHeap(GPU_Render.descHeap, 2);
+			objectBuffer.AddToDescriptorHeap(GPU_Render.descHeap, GPU_Render.dh_objectDataStart);
 
 
-			testTexture = new Texture(8, 8, GPU_Render.descHeap, 1);
 
-			byte[] data = new byte[4 * 8 * 8];
-			for (int x = 0; x < 8; x++) {
-				for (int y = 0; y < 8; y++) {
-
-					bool checker = ((x % 2) ^ (y % 2)) == 1;
-
-					int writePos = (x + y * 8) * 4;
-					data[writePos + 0] = 0x00;
-					data[writePos + 1] = (byte)(checker ? 0x00 : 0xff);
-					data[writePos + 2] = (byte)(checker ? 0xff : 0x00);
-					data[writePos + 3] = 0xff;
-
-				}
-			}
-			testTexture.SetData(data);
+			testTexture = new Texture(".res/Textures/uv_512.png");
+			testTexture.AddToDescriptorHeap(GPU_Render.descHeap, GPU_Render.dh_textureDataStart);
 
 
 		}
@@ -125,7 +114,6 @@ namespace ArcticFoxEngine.Backend.Render {
 			meshRenderers.Add(meshRenderer);
 			meshRendererPositions.Add((vbStartIndex, ibStartIndex, obStartIndex));
 
-
 			// Shortcuts to the mesh data
 			Vertex[] vertices = meshRenderer.mesh.vertices;
 			int[] indices = meshRenderer.mesh.indices;
@@ -151,6 +139,7 @@ namespace ArcticFoxEngine.Backend.Render {
 			}
 
 			IntPtr writePos;
+			
 
 			int vertexUploadBufferSize = Utilities.SizeOf<Vertex>() * vertices.Length;
 			writePos = GPU_Upload.BeginBufferUpload(vertexUploadBufferSize);
@@ -205,7 +194,7 @@ namespace ArcticFoxEngine.Backend.Render {
 			// When a gap is created the algorithm marks its size and position
 			// When a gap joins multiple gaps together, it merges them
 
-			
+
 
 
 			// Find the start of the mesh within the buffers

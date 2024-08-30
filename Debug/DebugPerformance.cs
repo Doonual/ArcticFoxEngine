@@ -15,6 +15,7 @@ namespace ArcticFoxEngine.Debug {
 
 		float[] totalFrameTimes;
 		Dictionary<string, float[]> profilerVals;
+		float lastFrameTime = 0f;
 		List<(string, float)> profilerUpdateQueue;
 
 		int numElements;
@@ -53,6 +54,7 @@ namespace ArcticFoxEngine.Debug {
 				return;
 			}
 
+			lastFrameTime = Profiler.frameTime;
 
 			float ms = frameTime * 1000;
 			if (ms > msMax) {
@@ -257,7 +259,7 @@ namespace ArcticFoxEngine.Debug {
 				for (int i = 0; i < profilerVals.Count(); i ++) {
 
 					int wrapForMisc = (i + 1) % profilerVals.Count();
-					float pieEnd = pieStart + (profilerVals.ElementAt(wrapForMisc).Value.Last() / Profiler.frameTime / 1000f);
+					float pieEnd = pieStart + (profilerVals.ElementAt(wrapForMisc).Value.Last() / lastFrameTime / 1000f);
 					int segments = (int)((pieEnd - pieStart) * 64);
 					segments = Math.Max(segments, 3);
 

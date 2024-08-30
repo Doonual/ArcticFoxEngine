@@ -31,35 +31,35 @@ namespace ArcticFoxEngine {
 
 				vertexData = new Vertex[] {
 
-					new Vertex() {position=new Vector3(-0.5f, -0.5f, -0.5f), color = new Color(0.0f, 0.0f, 0.0f), uv = new Vector2(0f, 1f)},
-					new Vertex() {position=new Vector3(0.5f, -0.5f, -0.5f), color = new Color(1.0f, 0.0f, 0.0f), uv = new Vector2(1f, 1f)},
-					new Vertex() {position=new Vector3(-0.5f, 0.5f, -0.5f), color = new Color(0.0f, 1.0f, 0.0f), uv = new Vector2(0f, 0f)},
-					new Vertex() {position=new Vector3(0.5f, 0.5f, -0.5f), color = new Color(1.0f, 1.0f, 0.0f), uv = new Vector2(1f, 0f)},
+					new Vertex() {position=new Vector3(-0.5f, -0.5f, -0.5f), color = new Color(1.0f, 1.0f, 1.0f), uv = new Vector2(0f, 1f)},
+					new Vertex() {position=new Vector3(0.5f, -0.5f, -0.5f), color = new Color(1.0f, 1.0f, 1.0f), uv = new Vector2(1f, 1f)},
+					new Vertex() {position=new Vector3(-0.5f, 0.5f, -0.5f), color = new Color(1.0f, 1.0f, 1.0f), uv = new Vector2(0f, 0f)},
+					new Vertex() {position=new Vector3(0.5f, 0.5f, -0.5f), color = new Color(1.0f, 1.0f, 1.0f), uv = new Vector2(1f, 0f)},
 
-					new Vertex() {position=new Vector3(-0.5f, -0.5f, -0.5f), color = new Color(0.0f, 0.0f, 0.0f), uv = new Vector2(0f, 1f)},
-					new Vertex() {position=new Vector3(-0.5f, 0.5f, -0.5f), color = new Color(1.0f, 0.0f, 0.0f), uv = new Vector2(1f, 1f)},
-					new Vertex() {position=new Vector3(-0.5f, -0.5f, 0.5f), color = new Color(0.0f, 1.0f, 0.0f), uv = new Vector2(0f, 0f)},
-					new Vertex() {position=new Vector3(-0.5f, 0.5f, 0.5f), color = new Color(1.0f, 1.0f, 0.0f), uv = new Vector2(1f, 0f)},
+					new Vertex() {position=new Vector3(-0.5f, -0.5f, -0.5f), color = new Color(1.0f, 1.0f, 1.0f), uv = new Vector2(0f, 1f)},
+					new Vertex() {position=new Vector3(-0.5f, 0.5f, -0.5f), color = new Color(1.0f, 1.0f, 1.0f), uv = new Vector2(1f, 1f)},
+					new Vertex() {position=new Vector3(-0.5f, -0.5f, 0.5f), color = new Color(1.0f, 1.0f, 1.0f), uv = new Vector2(0f, 0f)},
+					new Vertex() {position=new Vector3(-0.5f, 0.5f, 0.5f), color = new Color(1.0f, 1.0f, 1.0f), uv = new Vector2(1f, 0f)},
 
-					new Vertex() {position=new Vector3(-0.5f, -0.5f, -0.5f), color = new Color(0.0f, 0.0f, 0.0f), uv = new Vector2(0f, 1f)},
-					new Vertex() {position=new Vector3(-0.5f, -0.5f, 0.5f), color = new Color(1.0f, 0.0f, 0.0f), uv = new Vector2(1f, 1f)},
-					new Vertex() {position=new Vector3(0.5f, -0.5f, -0.5f), color = new Color(0.0f, 1.0f, 0.0f), uv = new Vector2(0f, 0f)},
-					new Vertex() {position=new Vector3(0.5f, -0.5f, 0.5f), color = new Color(1.0f, 1.0f, 0.0f), uv = new Vector2(1f, 0f)},
+					new Vertex() {position=new Vector3(-0.5f, -0.5f, -0.5f), color = new Color(1.0f, 1.0f, 1.0f), uv = new Vector2(0f, 1f)},
+					new Vertex() {position=new Vector3(-0.5f, -0.5f, 0.5f), color = new Color(1.0f, 1.0f, 1.0f), uv = new Vector2(1f, 1f)},
+					new Vertex() {position=new Vector3(0.5f, -0.5f, -0.5f), color = new Color(1.0f, 1.0f, 1.0f), uv = new Vector2(0f, 0f)},
+					new Vertex() {position=new Vector3(0.5f, -0.5f, 0.5f), color = new Color(1.0f, 1.0f, 1.0f), uv = new Vector2(1f, 0f)},
 
-					new Vertex() {position=new Vector3(0.5f, 0.5f, 0.5f), color = new Color(0.0f, 0.0f, 0.0f), uv = new Vector2(0f, 1f)},
-					new Vertex() {position=new Vector3(-0.5f, 0.5f, 0.5f), color = new Color(1.0f, 0.0f, 0.0f), uv = new Vector2(1f, 1f)},
-					new Vertex() {position=new Vector3(0.5f, -0.5f, 0.5f), color = new Color(0.0f, 1.0f, 0.0f), uv = new Vector2(0f, 0f)},
-					new Vertex() {position=new Vector3(-0.5f, -0.5f, 0.5f), color = new Color(1.0f, 1.0f, 0.0f), uv = new Vector2(1f, 0f)},
+					new Vertex() {position=new Vector3(0.5f, 0.5f, 0.5f), color = new Color(1.0f, 1.0f, 1.0f), uv = new Vector2(0f, 1f)},
+					new Vertex() {position=new Vector3(-0.5f, 0.5f, 0.5f), color = new Color(1.0f, 1.0f, 1.0f), uv = new Vector2(1f, 1f)},
+					new Vertex() {position=new Vector3(0.5f, -0.5f, 0.5f), color = new Color(1.0f, 1.0f, 1.0f), uv = new Vector2(0f, 0f)},
+					new Vertex() {position=new Vector3(-0.5f, -0.5f, 0.5f), color = new Color(1.0f, 1.0f, 1.0f), uv = new Vector2(1f, 0f)},
 
-					new Vertex() {position=new Vector3(0.5f, 0.5f, 0.5f), color = new Color(0.0f, 0.0f, 0.0f), uv = new Vector2(0f, 1f)},
-					new Vertex() {position=new Vector3(0.5f, -0.5f, 0.5f), color = new Color(1.0f, 0.0f, 0.0f), uv = new Vector2(1f, 1f)},
-					new Vertex() {position=new Vector3(0.5f, 0.5f, -0.5f), color = new Color(0.0f, 1.0f, 0.0f), uv = new Vector2(0f, 0f)},
-					new Vertex() {position=new Vector3(0.5f, -0.5f, -0.5f), color = new Color(1.0f, 1.0f, 0.0f), uv = new Vector2(1f, 0f)},
+					new Vertex() {position=new Vector3(0.5f, 0.5f, 0.5f), color = new Color(1.0f, 1.0f, 1.0f), uv = new Vector2(0f, 1f)},
+					new Vertex() {position=new Vector3(0.5f, -0.5f, 0.5f), color = new Color(1.0f, 1.0f, 1.0f), uv = new Vector2(1f, 1f)},
+					new Vertex() {position=new Vector3(0.5f, 0.5f, -0.5f), color = new Color(1.0f, 1.0f, 1.0f), uv = new Vector2(0f, 0f)},
+					new Vertex() {position=new Vector3(0.5f, -0.5f, -0.5f), color = new Color(1.0f, 1.0f, 1.0f), uv = new Vector2(1f, 0f)},
 
-					new Vertex() {position=new Vector3(0.5f, 0.5f, 0.5f), color = new Color(0.0f, 0.0f, 0.0f), uv = new Vector2(0f, 1f)},
-					new Vertex() {position=new Vector3(0.5f, 0.5f, -0.5f), color = new Color(1.0f, 0.0f, 0.0f), uv = new Vector2(1f, 1f)},
-					new Vertex() {position=new Vector3(-0.5f, 0.5f, 0.5f), color = new Color(0.0f, 1.0f, 0.0f), uv = new Vector2(0f, 0f)},
-					new Vertex() {position=new Vector3(-0.5f, 0.5f, -0.5f), color = new Color(1.0f, 1.0f, 0.0f), uv = new Vector2(1f, 0f)},
+					new Vertex() {position=new Vector3(0.5f, 0.5f, 0.5f), color = new Color(1.0f, 1.0f, 1.0f), uv = new Vector2(0f, 1f)},
+					new Vertex() {position=new Vector3(0.5f, 0.5f, -0.5f), color = new Color(1.0f, 1.0f, 1.0f), uv = new Vector2(1f, 1f)},
+					new Vertex() {position=new Vector3(-0.5f, 0.5f, 0.5f), color = new Color(1.0f, 1.0f, 1.0f), uv = new Vector2(0f, 0f)},
+					new Vertex() {position=new Vector3(-0.5f, 0.5f, -0.5f), color = new Color(1.0f, 1.0f, 1.0f), uv = new Vector2(1f, 0f)},
 
 				};
 				indexData = new int[] {

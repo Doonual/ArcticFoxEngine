@@ -230,7 +230,8 @@ namespace ArcticFoxEngine {
 			cmdList.Close();
 			
 			Graphics.cmdQueue.ExecuteCommandList(cmdList);
-			
+
+			ImGuiInput.ReSetLastCursor();
 
 		}
 

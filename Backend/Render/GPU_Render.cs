@@ -79,7 +79,7 @@ namespace ArcticFoxEngine.Backend.Render {
 			};
 
 			RasterizerStateDescription rasterState = RasterizerStateDescription.Default();
-			//rasterState.CullMode = CullMode.None;
+
 
 			GraphicsPipelineStateDescription psonDesc = new GraphicsPipelineStateDescription() {
 

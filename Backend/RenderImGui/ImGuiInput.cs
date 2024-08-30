@@ -26,6 +26,8 @@
 		static ButtonBinding shiftKey;
 		static float scrollDelta;
 
+		static ImGuiIOPtr io;
+
 		public static void Init(IntPtr hwnd) {
 			ImGuiInput.hwnd = hwnd;
 			shiftKey = new KeyboardButtonInput(KeyboardButtonInput.KeyboardButton.LeftShift);
@@ -34,14 +36,14 @@
 
 
 		public static bool Update() {
-			var io = ImGui.GetIO();
+			io = ImGui.GetIO();
 			UpdateMousePosition(io, hwnd);
 			io.AddMouseWheelEvent(0f, scrollDelta);
 			scrollDelta = 0f;
 
 
 			var mouseCursor = io.MouseDrawCursor ? ImGuiMouseCursor.None : ImGui.GetMouseCursor();
-			if (mouseCursor != lastCursor) {
+			if (mouseCursor != lastCursor || true) {
 				lastCursor = mouseCursor;
 
 				// only required if mouse icon changes
@@ -93,6 +95,10 @@
 			}
 
 			return true;
+		}
+
+		internal static void ReSetLastCursor() {
+			UpdateMouseCursor(io, lastCursor);
 		}
 
 		internal static void UpdateKeyboard(KeyboardUpdate keyboardUpdate) {

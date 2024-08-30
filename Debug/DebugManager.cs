@@ -19,8 +19,10 @@ namespace ArcticFoxEngine.Debug {
 
 		internal static void Init(RenderForm form) {
 
+			
 			GPU_RenderImGui.Init(1920, 1080);
 			ImGuiInput.Init(form.Handle);
+			ImGui.LoadIniSettingsFromDisk("imgui.ini");
 
 			isOpen = false;
 			windows = new List<DebugWindow>() {
@@ -58,14 +60,13 @@ namespace ArcticFoxEngine.Debug {
 		public static void OpenGUI() {
 
 			LoadWindowOptions();
-			ImGui.LoadIniSettingsFromDisk("imgui.ini");
+			
 			isOpen = true;
 
 		}
 		public static void CloseGUI() {
 			SaveWindowOptions();
 			ImGui.SaveIniSettingsToDisk("imgui.ini");
-
 			isOpen = false;
 		}
 		public static void ToggleGUI() {

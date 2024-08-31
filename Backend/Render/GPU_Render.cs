@@ -221,7 +221,7 @@ namespace ArcticFoxEngine.Backend.Render {
 
 
 				GpuDescriptorHandle currentObjectHandle = descHeap.GPUDescriptorHandleForHeapStart + (obStart + dh_objectDataStart) * descHeapIncrement;
-				GpuDescriptorHandle currentTextureHandle = descHeap.GPUDescriptorHandleForHeapStart + (dh_textureDataStart) * descHeapIncrement;
+				GpuDescriptorHandle currentTextureHandle = descHeap.GPUDescriptorHandleForHeapStart + (geometry.meshRenderers[i].textureId + dh_textureDataStart) * descHeapIncrement;
 
 				cmdList.SetGraphicsRootDescriptorTable(1, currentObjectHandle);
 				cmdList.SetGraphicsRootDescriptorTable(2, currentTextureHandle);

@@ -14,6 +14,8 @@ namespace ArcticFoxEngine.Components {
 	public class MeshRenderer : Component {
 
 		public Mesh mesh { get; private set; }
+		public int textureId = 2;
+
 		private bool meshLoaded = false;
 
 		public MeshRenderer() {
@@ -76,34 +78,7 @@ namespace ArcticFoxEngine.Components {
 
 			base.Debug();
 
-			//ImGui.BeginListBox("Verticies");
-
-			bool changed = false;
-
-			for (int i = 0; i < mesh.vertices.Length; i ++) {
-				if (ImGui.TreeNode("Vertex #" + i) == true) {
-
-					
-
-					System.Numerics.Vector2 sysVec2;
-					System.Numerics.Vector3 sysVec3;
-
-					sysVec3 = mesh.vertices[i].position;
-					changed |= ImGui.SliderFloat3("Position", ref sysVec3, -2f, 2f);
-					mesh.vertices[i].position = sysVec3;
-
-					sysVec2 = mesh.vertices[i].uv;
-					changed |= ImGui.SliderFloat2("UV", ref sysVec2, -2f, 2f);
-					mesh.vertices[i].uv = sysVec2;
-
-				}
-			}
-
-			if (changed == true) {
-				SetMesh(mesh);
-			}
-
-			//ImGui.EndListBox();
+			ImGui.InputInt("Texture ID", ref textureId);
 
 			System.Numerics.Vector3 vec3 = new System.Numerics.Vector3(vertexColSet.x, vertexColSet.y, vertexColSet.z);
 			ImGui.ColorPicker3("Vertex Col", ref vec3);

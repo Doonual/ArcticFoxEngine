@@ -28,6 +28,9 @@ namespace ArcticFoxEngine.Backend {
 			frameBegin = gpuTimestamp;
 			deltaTime = (gpuTimestamp - prevGpuTimestamp) / (float)Graphics.cmdQueue.TimestampFrequency;
 			prevGpuTimestamp = gpuTimestamp;
+
+			DebugManager.GetDebugWindow<DebugPerformance>().FrameBegin();
+
 		}
 		internal static void FrameEnd() {
 

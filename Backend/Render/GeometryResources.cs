@@ -37,7 +37,7 @@ namespace ArcticFoxEngine.Backend.Render {
 		internal int[] objectGap;
 		internal ConstBuffer<ObjectInfo> objectBuffer;
 
-		internal Texture testTexture;
+		internal Texture[] testTextures;
 
 		/// <summary>
 		/// Creates a new instance GeometryResources
@@ -75,11 +75,19 @@ namespace ArcticFoxEngine.Backend.Render {
 			objectBuffer = new ConstBuffer<ObjectInfo>(numObElements);
 			objectBuffer.AddToDescriptorHeap(GPU_Render.descHeap, GPU_Render.dh_objectDataStart);
 
+			testTextures = new Texture[4];
 
+			testTextures[0] = new Texture(".res/Textures/white_pixel.png");
+			testTextures[0].AddToDescriptorHeap(GPU_Render.descHeap, GPU_Render.dh_textureDataStart + 0);
 
-			testTexture = new Texture(".res/Textures/uv_512.png");
-			testTexture.AddToDescriptorHeap(GPU_Render.descHeap, GPU_Render.dh_textureDataStart);
+			testTextures[1] = new Texture(".res/Textures/uv_512.png");
+			testTextures[1].AddToDescriptorHeap(GPU_Render.descHeap, GPU_Render.dh_textureDataStart + 1);
 
+			testTextures[2] = new Texture(".res/Textures/uv_blender.jpg");
+			testTextures[2].AddToDescriptorHeap(GPU_Render.descHeap, GPU_Render.dh_textureDataStart + 2);
+
+			testTextures[3] = new Texture(".res/Textures/tiger.png");
+			testTextures[3].AddToDescriptorHeap(GPU_Render.descHeap, GPU_Render.dh_textureDataStart + 3);
 
 		}
 

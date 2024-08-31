@@ -103,11 +103,9 @@ namespace ArcticFoxEngine {
 				objects[i].UpdateEvent();
 			}
 			Profiler.MetricEnd("Update");
-			Profiler.MetricBegin();
 			for (int i = 0; i < objects.Count; i++) {
 				objects[i].RenderEvent();
 			}
-			Profiler.MetricEnd("Render");
 
 			
 

@@ -82,10 +82,14 @@ namespace ArcticFoxEngine {
 
 
 					Profiler.FrameBegin();
+
+					Profiler.MetricBegin();
 					InputManager.NextFrame();
-					Scene.PerformSceneSwap();
 					InputManager.GetInputDeviceUpdates();
-					
+					Profiler.MetricEnd("Input events");
+
+					Scene.PerformSceneSwap();
+
 					if (Scene.activeScene != null) {
 						Scene.activeScene.Update();
 					}

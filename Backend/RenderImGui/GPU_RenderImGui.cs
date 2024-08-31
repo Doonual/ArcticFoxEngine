@@ -331,8 +331,6 @@ namespace ArcticFoxEngine {
 			for (int i = 0; i < pixelArray.Length; i ++) {
 				pixelArray[i] = pixels[i];
 			}
-
-			Log.Info($"Fonts texture (Width: {width}, Height: {height}, Descriptor index: {descriptorHeapIndex})");
 			Texture fontTex = new Texture(width, height);
 			fontTex.AddToDescriptorHeap(descriptorHeap, descriptorHeapIndex);
 

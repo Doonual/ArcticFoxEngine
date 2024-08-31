@@ -26,7 +26,7 @@ namespace ArcticFoxEngine {
 			this.r = r;
 			this.g = g;
 			this.b = b;
-			a = 0x00;
+			a = 0xff;
 		}
 
 		public Color(float r, float g, float b, float a) {
@@ -39,7 +39,7 @@ namespace ArcticFoxEngine {
 			this.r = (byte)MathF.Round(r * 255f);
 			this.g = (byte)MathF.Round(g * 255f);
 			this.b = (byte)MathF.Round(b * 255f);
-			a = 0x00;
+			a = 0xff;
 		}
 
 		public Color(int r, int g, int b, int a) {
@@ -52,7 +52,7 @@ namespace ArcticFoxEngine {
 			this.r = (byte)r;
 			this.g = (byte)g;
 			this.b = (byte)b;
-			a = 0x00;
+			a = 0xff;
 		}
 
 

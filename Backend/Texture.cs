@@ -19,7 +19,6 @@ namespace ArcticFoxEngine.Backend {
 
 		internal Texture(int width, int height) {
 
-			Log.Info("Creating texture");
 			this.width = width;
 			this.height = height;
 			ResourceDescription textureDesc = ResourceDescription.Texture2D(Format.R8G8B8A8_UNorm, width, height);

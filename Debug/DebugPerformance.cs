@@ -3,31 +3,43 @@ using CoolClassLibrary;
 using ArcticFoxEngine.Backend;
 using System.Linq;
 using Newtonsoft.Json.Linq;
+using SharpDX.Direct3D12;
+using ArcticFoxEngine.Backend.Render;
+using System;
 
 namespace ArcticFoxEngine.Debug {
 	internal class DebugPerformance : DebugWindow {
 
-		private class Metric {
+		internal class Metric {
 
-			static float palettePos = 0f;
+			internal Metric parentMetric;
+			List<Metric> subMetrics;
+
+			static float palettePos;
 			static float[] redParams = { 0.5f, 0.5f, 1.0f, 0.8f };
 			static float[] greenParams = { 0.5f, 0.5f, 1.0f, 0.9f };
 			static float[] blueParams = { 0.5f, 0.5f, 0.5f, 0.3f };
 
 
 			internal string name;
-			float[] vals;
 			internal Color col;
+
+			internal float[] startMs;
+			internal float[] endMs;
 
 			internal Metric(string name) {
 
+
+				subMetrics = new List<Metric>();
+
 				this.name = name;
-				vals = new float[2000];
+				startMs = new float[2000];
+				endMs = new float[2000];
 
 				float red = redParams[0] + redParams[1] * MathF.Cos(2f * MathF.PI * (redParams[2] * palettePos + redParams[3]));
 				float green = greenParams[0] + greenParams[1] * MathF.Cos(2f * MathF.PI * (greenParams[2] * palettePos + greenParams[3]));
 				float blue = blueParams[0] + blueParams[1] * MathF.Cos(2f * MathF.PI * (blueParams[2] * palettePos + blueParams[3]));
-				palettePos += 0.24f;
+				palettePos += 0.21f;
 
 				col = new Color(red, green, blue);
 				if (name == "Untracked") {
@@ -35,17 +47,44 @@ namespace ArcticFoxEngine.Debug {
 				}
 
 			}
+			internal Metric(Metric parentMetric, string name) {
 
-			internal void UpdateTime(float time) {
-				vals[vals.Length - 1] = time;
-			}
-			internal void NewFrame() {
-				for (int i = 0; i < vals.Length - 1; i++) {
-					vals[i] = vals[i + 1];
+				this.parentMetric = parentMetric;
+				subMetrics = new List<Metric>();
+
+				this.name = name;
+				startMs = new float[2000];
+				endMs = new float[2000];
+
+				float red = redParams[0] + redParams[1] * MathF.Cos(2f * MathF.PI * (redParams[2] * palettePos + redParams[3]));
+				float green = greenParams[0] + greenParams[1] * MathF.Cos(2f * MathF.PI * (greenParams[2] * palettePos + greenParams[3]));
+				float blue = blueParams[0] + blueParams[1] * MathF.Cos(2f * MathF.PI * (blueParams[2] * palettePos + blueParams[3]));
+				palettePos += 0.13f;
+
+				col = new Color(red, green, blue);
+				if (name == "Untracked") {
+					col = new Color(170, 170, 170);
 				}
-				vals[vals.Length - 1] = 0f;
 			}
 
+
+			internal void NewFrame() {
+				for (int i = 0; i < startMs.Length - 1; i++) {
+					startMs[i] = startMs[i + 1];
+				}
+				startMs[startMs.Length - 1] = 0;
+
+				for (int i = 0; i < endMs.Length - 1; i++) {
+					endMs[i] = endMs[i + 1];
+				}
+				endMs[endMs.Length - 1] = 0;
+
+				for (int i = 0; i < subMetrics.Count; i ++) {
+					subMetrics[i].NewFrame();
+				}
+
+			}
+			/*
 			internal float[] GetPlottable(int numSamples) {
 				return SquishPlot(vals, numSamples);
 			}
@@ -58,10 +97,11 @@ namespace ArcticFoxEngine.Debug {
 				return plotTimes;
 
 			}
+			
 			internal float GetLast() {
 				return vals[vals.Length - 1];
 			}
-
+			*/
 			private float[] SquishPlot(float[] inVals, int targetNumVals) {
 
 				float[] outVals = new float[targetNumVals];
@@ -93,25 +133,96 @@ namespace ArcticFoxEngine.Debug {
 
 			}
 
+			internal void DrawMetric(Vector2 topLeft, float width, float totalMs) {
 
+				ImGui.PushID(name + "metric total");
+				float start = startMs.Last() / totalMs;
+				float end = endMs.Last() / totalMs;
+
+				float ms = (endMs.Last() - startMs.Last());
+
+				Vector2 buttonSize = new Vector2((end - start) * width, 20f);
+				ImGui.SetCursorPos(topLeft + Vector2.right * start * width);
+				Vector2 buttonCursorStartPos = ImGui.GetCursorPos();
+
+				ImGui.ColorButton(name + " metric", (Vector4)col, ImGuiColorEditFlags.NoTooltip, buttonSize);
+				
+
+				ImGui.SetCursorPos(buttonCursorStartPos);
+				ImGui.BeginChild(name + "metric text", buttonSize);
+				ImGui.SetCursorPos(buttonSize / 2f - (Vector2)ImGui.CalcTextSize(name) * new Vector2(0.5f, 0.5f));
+				ImGui.Text(name);
+				ImGui.EndChild();
+				if (ImGui.IsItemHovered() == true) {
+					ImGui.BeginTooltip();
+					ImGui.Text(name);
+					ImGui.Text(ms.ToString("F3") + " ms");
+					ImGui.EndTooltip();
+				}
+
+				for (int i = 0; i < subMetrics.Count; i ++) {
+					subMetrics[i].DrawMetric(topLeft - Vector2.down * 20f, width, totalMs);
+				}
+				
+				ImGui.PopID();
+
+			}
+			internal void DrawMetricHist(int numSamples, Vector2 minCoord, Vector2 maxCoord, float maxMs) {
+
+				float[] startMsSquished = SquishPlot(startMs, numSamples);
+				float[] endMsSquished = SquishPlot(endMs, numSamples);
+
+				for (int i = 0; i < numSamples; i ++) {
+					float currentX = (float)i / numSamples;
+					currentX *= (maxCoord.x - minCoord.x);
+					currentX += minCoord.x;
+
+					float startHeight = startMsSquished[i];
+					startHeight /= maxMs;
+					if (startHeight >= 1f) { continue; }
+					startHeight *= minCoord.y - maxCoord.y;
+					startHeight += maxCoord.y;
+
+					float endHeight = endMsSquished[i];
+					endHeight /= maxMs;
+					endHeight = MathF.Min(endHeight, 1f);
+					endHeight *= minCoord.y - maxCoord.y;
+					endHeight += maxCoord.y;
+
+					ImGui.GetWindowDrawList().AddLine(new Vector2(currentX, startHeight), new Vector2(currentX, endHeight), ImGui.ColorConvertFloat4ToU32((Vector4)col));
+				}
+				
+				for (int i = 0; i < subMetrics.Count; i ++) {
+					subMetrics[i].DrawMetricHist(numSamples, minCoord, maxCoord, maxMs);
+				}
+
+
+			}
+
+			internal Metric GetOrCreateChildMetric(string name) {
+
+				for (int i = 0; i < subMetrics.Count; i ++) {
+					if (subMetrics[i].name == name) {
+						return subMetrics[i];
+					}
+				}
+				Metric newMetric = new Metric(this, name);
+				subMetrics.Add(newMetric);
+				return newMetric;
+
+			}
 
 		}
 
+		long frameStartTimestamp;
 		float lastFrameTime = 0f;
 		float msMax = 0.0f;
 		float msMaxView = 0.0f;
 		float msMin = 0.0f;
 		float msMinView = 0.0f;
 
-		List<Metric> metrics;
-
-		// First element is the index of the first metric
-		// Last element is the index of the last metric
-		List<int> naturalOrder;
-		List<int> timeOrder;
-		List<int> metricDrawOrder;
-		int prevSortColumn = -1;
-		ImGuiSortDirection prevSortDirection = ImGuiSortDirection.None;
+		internal Metric metric;
+		private static Metric currentMetric;
 
 		int numElements;
 		float plotMaxMs = 10f;
@@ -127,78 +238,25 @@ namespace ArcticFoxEngine.Debug {
 		internal DebugPerformance() {
 
 			numElements = 2000;
-			metrics = new List<Metric>();
-
-			naturalOrder = new List<int>();
-			timeOrder = new List<int>();
-			metricDrawOrder = new List<int>();
+			metric = new Metric("Frame time");
 
 		}
 
-		internal void UpdateVal(string metric, float value) {
-
+		internal void ProcessMetrics() {
+			if (updatePlotActual == false) { return; }
+			metric.NewFrame();
+			metric.startMs[metric.startMs.Length - 1] = 0f;
+			currentMetric = metric;
+		}
+		internal void FrameStart(long timestamp) {
 			if (updatePlotActual == false) { return; }
 
-			bool foundTimeOrder;
-
-			for (int i = 0; i < metrics.Count; i ++) {
-				if (metrics[i].name == metric) {
-					metrics[i].UpdateTime(value * 1000);
-
-					naturalOrder.Add(i);
-
-					foundTimeOrder = false;
-					for (int n = 0; n < timeOrder.Count; n ++) {
-						if (metrics[timeOrder[n]].GetLast() > value * 1000f) {
-							timeOrder.Insert(n, i);
-							foundTimeOrder = true;
-							break;
-						}
-					}
-					if (foundTimeOrder == false) {
-						timeOrder.Add(i);
-					}
-
-					return;
-				}
-			}
-			Metric newMetric = new Metric(metric);
-			newMetric.UpdateTime(value * 1000);
-			metrics.Add(newMetric);
-			naturalOrder.Add(metrics.Count - 1);
-
-			foundTimeOrder = false;
-			for (int n = 0; n < timeOrder.Count; n++) {
-				if (metrics[timeOrder[n]].GetLast() > value * 1000f) {
-					timeOrder.Insert(n, metrics.Count - 1);
-					foundTimeOrder = true;
-					break;
-				}
-			}
-			if (foundTimeOrder == false) {
-				timeOrder.Add(metrics.Count - 1);
-			}
+			frameStartTimestamp = timestamp;
+			
 
 		}
+		internal void FrameDone(long timestamp, float frameTime) {
 
-		internal void FrameBegin() {
-
-			if (updatePlotActual == false) { return; }
-			naturalOrder.Clear();
-			timeOrder.Clear();
-			for (int i = 0; i < metrics.Count; i ++) {
-				metrics[i].NewFrame();
-			}
-
-		}
-
-		internal void FrameDone(float frameTime) {
-
-			float untrackedTime = frameTime;
-			for (int i = 0; i < metrics.Count; i++) {
-				untrackedTime -= metrics[i].GetLast() / 1000f;
-			}
-			UpdateVal("Untracked", untrackedTime);
 
 			if (updatePlotActual == false) {
 				updatePlotActual = updatePlot;
@@ -221,12 +279,24 @@ namespace ArcticFoxEngine.Debug {
 			msMin = (msMin - ms) * 0.994f + ms;
 
 
-			
+			metric.endMs[metric.endMs.Length - 1] = 1000f * (float)(timestamp - frameStartTimestamp) / Graphics.cmdQueue.TimestampFrequency;
 
+		}
+
+		internal void MetricBegin(long timestamp, string name) {
+			if (updatePlotActual == false) { return; }
+			currentMetric = currentMetric.GetOrCreateChildMetric(name);
+			currentMetric.startMs[metric.startMs.Length - 1] = 1000f * (float)(timestamp - frameStartTimestamp) / Graphics.cmdQueue.TimestampFrequency;
+		}
+		internal void MetricEnd(long timestamp) {
+			if (updatePlotActual == false) { return; }
+			currentMetric.endMs[metric.endMs.Length - 1] = 1000f * (float)(timestamp - frameStartTimestamp) / Graphics.cmdQueue.TimestampFrequency;
+			currentMetric = currentMetric.parentMetric;
 		}
 
 		internal override void Render() {
 
+			
 			#region FPS Table
 
 			ImGuiTableFlags flags = ImGuiTableFlags.Borders;
@@ -270,6 +340,7 @@ namespace ArcticFoxEngine.Debug {
 			Vector2 histStartScreen;
 			Vector2 histEndScreen;
 
+			ImGui.Checkbox("Update plot", ref updatePlot);
 
 			#region Histogram plot
 
@@ -279,45 +350,24 @@ namespace ArcticFoxEngine.Debug {
 			System.Numerics.Vector2 histCurStart = ImGui.GetCursorPos();
 			int histWidth = (int)ImGui.GetCursorPosX();
 
-			float[][] plotVals = new float[metricDrawOrder.Count][];
-			for (int i = 0; i < metricDrawOrder.Count; i ++) {
+			ImGui.PushStyleColor(ImGuiCol.FrameBg, new System.Numerics.Vector4(0.2f, 0.2f, 0.2f, 138f / 255f));
+			float dummyPlot = 0f;
+			ImGui.SetCursorPos(histCurStart);
 
+			
+			ImGui.PlotHistogram("", ref dummyPlot, 1, 0, "", 0f, plotMaxMs, new Vector2(-1f, 150f));
 
+			
+			
 
-				if (i == 0) {
-					plotVals[i] = metrics[metricDrawOrder[i]].GetPlottable(numElements);
-				}
-				else {
-					plotVals[i] = metrics[metricDrawOrder[i]].GetPlottable(plotVals[i - 1]);
-				}
-
-			}
-			for (int i = metricDrawOrder.Count - 1; i >= 0; i --) {
-
-				Vector4 plotCol = metrics[metricDrawOrder[i]].col;
-				
-				ImGui.PushStyleColor(ImGuiCol.PlotHistogram, plotCol); // Set the colour of the current histogram
-				// Remove background if not first
-				if (i == metricDrawOrder.Count - 1) {
-					ImGui.PushStyleColor(ImGuiCol.FrameBg, new System.Numerics.Vector4(0.2f, 0.2f, 0.2f, 138f / 255f));
-				}
-				else {
-					ImGui.PushStyleColor(ImGuiCol.FrameBg, new System.Numerics.Vector4(0f, 0f, 0f, 0f));
-				}
-				ImGui.SetCursorPos(histCurStart);
-
-				// Plot
-				ImGui.PlotHistogram("", ref plotVals[i][0], numElements, 0, "", 0f, plotMaxMs, new Vector2(-1f, 150f));
-
-				ImGui.PopStyleColor();
-				ImGui.PopStyleColor();
-
-			}
+			ImGui.PopStyleColor();
 
 			ImGui.SameLine();
 			histWidth = (int)(ImGui.GetCursorPosX() - histWidth - ImGui.GetStyle().FramePadding.X * 2 - ImGui.GetStyle().ItemSpacing.X);
 			histEndScreen = histStartScreen + new Vector2(histWidth, 150 - ImGui.GetStyle().FramePadding.Y * 2);
 			numElements = Math.Max(1, histWidth);
+
+			metric.DrawMetricHist(numElements, histStartScreen, histEndScreen, plotMaxMs);
 
 			if (ImGui.GetMousePos().X > histStartScreen.x && ImGui.GetMousePos().X < histEndScreen.x && ImGui.GetMousePos().Y > histStartScreen.y && ImGui.GetMousePos().Y < histEndScreen.y) {
 				plotMaxMs *= MathF.Exp(ImGui.GetIO().MouseWheel * -0.2f);
@@ -356,110 +406,24 @@ namespace ArcticFoxEngine.Debug {
 			#endregion
 
 			ImGui.NewLine();
-			ImGui.Checkbox("Update plot", ref updatePlot);
-			ImGui.SameLine();
-			ImGui.Checkbox("More options", ref showMoreOptions);
 
-			if (showMoreOptions == true) {
+			ImGui.PushStyleColor(ImGuiCol.FrameBg, new System.Numerics.Vector4(0.2f, 0.2f, 0.2f, 138f / 255f));
+			ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, new Vector2(0f, 0f));
+			ImGui.BeginChildFrame((uint)"metric recursive child".GetHashCode(), new Vector2(-1f, -1f));
+			
 
-				ImGui.PushID("Performance breakdown pie");
+			Vector2 childStart = ImGui.GetCursorPos();
+			float width = ImGui.GetColumnWidth();
 
-				#region Pie chart
+			metric.DrawMetric(childStart, width, metric.endMs.Last());
 
-				Vector2 circleCenter = (Vector2)ImGui.GetCursorScreenPos() + new Vector2(100f, 100f);
-				ImGui.BeginChild((uint)"Performance pie child".GetHashCode(), new System.Numerics.Vector2(200f, 200f));
-
-				float circleRadius = 100f;
-				float pieStart = 0f;
-				for (int i = 0; i < metricDrawOrder.Count(); i ++) {
-
-					int currentMetricIndex = metricDrawOrder[i];
-
-					float pieEnd = pieStart + (metrics[currentMetricIndex].GetLast() / lastFrameTime);
-					int segments = (int)((pieEnd - pieStart) * 64);
-					segments = Math.Max(segments, 3);
-
-					uint currentCol = ImGui.ColorConvertFloat4ToU32((Vector4)metrics[currentMetricIndex].col);
-
-					for (int n = 0; n < segments; n ++) {
-						float currentPieStart = MathUtil.Lerp((float)n / segments, pieStart, pieEnd);
-						float currentPieEnd = MathUtil.Lerp(((float)n + 1.1f) / segments, pieStart, pieEnd);
-
-						currentPieStart *= MathF.PI * 2f;
-						currentPieEnd *= MathF.PI * 2f;
-
-						ImGui.GetWindowDrawList().AddTriangleFilled(circleCenter - Vector2.Angle(currentPieStart - MathF.PI / 2f, 0f), circleCenter + Vector2.Angle(currentPieStart - MathF.PI / 2f, circleRadius), circleCenter + Vector2.Angle(currentPieEnd - MathF.PI / 2f, circleRadius), currentCol);
-					}
-					pieStart = pieEnd;
-
-				}
-				ImGui.GetWindowDrawList().AddCircle(circleCenter, circleRadius, ImGui.ColorConvertFloat4ToU32(new Vector4(1f, 1f, 1f, 1f)));
-
-
-				ImGui.EndChild();
-
-
-				#endregion
-
-				ImGui.SameLine();
-
-				ImGuiTableFlags tableFlags = ImGuiTableFlags.Sortable | ImGuiTableFlags.SortMulti | ImGuiTableFlags.RowBg | ImGuiTableFlags.BordersOuter | ImGuiTableFlags.BordersV | ImGuiTableFlags.ScrollY | ImGuiTableFlags.NoBordersInBody;
-				if (ImGui.BeginTable("Profiler metrics", 4, tableFlags) == true) {
-					ImGui.TableSetupColumn("ID", ImGuiTableColumnFlags.DefaultSort | ImGuiTableColumnFlags.WidthFixed);
-					ImGui.TableSetupColumn("Col", ImGuiTableColumnFlags.NoSort | ImGuiTableColumnFlags.WidthFixed);
-					ImGui.TableSetupColumn("Name", ImGuiTableColumnFlags.NoSort);
-					ImGui.TableSetupColumn("Time", ImGuiTableColumnFlags.DefaultSort);
-					ImGui.TableSetupScrollFreeze(0, 1);
-					ImGui.TableHeadersRow();
-
-					ImGuiTableSortSpecsPtr sortSpecs = ImGui.TableGetSortSpecs();
-
-					if (prevSortColumn != sortSpecs.Specs.ColumnIndex || prevSortDirection != sortSpecs.Specs.SortDirection) {
-						metricDrawOrder.Clear();
-						if (sortSpecs.Specs.ColumnIndex == 0) {
-							metricDrawOrder.AddRange(naturalOrder);
-							if (sortSpecs.Specs.SortDirection == ImGuiSortDirection.Descending) {
-								metricDrawOrder.Reverse();
-							}
-						}
-						if (sortSpecs.Specs.ColumnIndex == 3) {
-							metricDrawOrder.AddRange(timeOrder);
-							if (sortSpecs.Specs.SortDirection == ImGuiSortDirection.Descending) {
-								metricDrawOrder.Reverse();
-							}
-						}
-					}
-					prevSortColumn = sortSpecs.Specs.ColumnIndex;
-					prevSortDirection = sortSpecs.Specs.SortDirection;
-
-					
-
-					for (int i = 0; i < metricDrawOrder.Count; i++) {
-
-						int currentMetricIndex = metricDrawOrder[i];
-						
-						ImGui.TableNextRow();
-						ImGui.TableNextColumn();
-						ImGui.Text(currentMetricIndex.ToString("00"));
-						ImGui.TableNextColumn();
-
-						ImGui.ColorButton(metrics[currentMetricIndex].name + " plot colour", (Vector4)metrics[currentMetricIndex].col, ImGuiColorEditFlags.NoTooltip, new Vector2(15f, 15f));
-						ImGui.TableNextColumn();
-						ImGui.Text(metrics[currentMetricIndex].name);
-						ImGui.TableNextColumn();
-						ImGui.Text(metrics[currentMetricIndex].GetLast().ToString("F3") + " ms");
-
-					}
-
-					ImGui.EndTable();
-				}
-				
+			ImGui.EndChildFrame();
+			ImGui.PopStyleVar();
+			ImGui.PopStyleColor();
 
 
 
-				ImGui.PopID();
-
-			}
+			
 
 		}
 

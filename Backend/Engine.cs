@@ -83,16 +83,17 @@ namespace ArcticFoxEngine {
 
 					Profiler.FrameBegin();
 
-					Profiler.MetricBegin();
+					Profiler.MetricBegin("Update input");
 					InputManager.NextFrame();
 					InputManager.GetInputDeviceUpdates();
-					Profiler.MetricEnd("Input events");
+					Profiler.MetricEnd();
 
+					Profiler.MetricBegin("Update scene");
 					Scene.PerformSceneSwap();
-
 					if (Scene.activeScene != null) {
 						Scene.activeScene.Update();
 					}
+					Profiler.MetricEnd();
 
 					
 					if (toggleDebugButton.GetButtonDown() == true) { DebugManager.ToggleGUI(); }

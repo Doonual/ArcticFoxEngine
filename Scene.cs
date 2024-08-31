@@ -98,14 +98,16 @@ namespace ArcticFoxEngine {
 
 		internal void Update() {
 
-			Profiler.MetricBegin();
+			Profiler.MetricBegin("Object update event");
 			for (int i = 0; i < objects.Count; i ++) {
 				objects[i].UpdateEvent();
 			}
-			Profiler.MetricEnd("Update");
+			Profiler.MetricEnd();
+			Profiler.MetricBegin("Object render event");
 			for (int i = 0; i < objects.Count; i++) {
 				objects[i].RenderEvent();
 			}
+			Profiler.MetricEnd();
 
 			
 

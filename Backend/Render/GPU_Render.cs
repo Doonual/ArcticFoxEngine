@@ -175,7 +175,7 @@ namespace ArcticFoxEngine.Backend.Render {
 		/// <param name="geometry">The geometry to be rendered</param>
 		internal static void Render(Resource renderTarget, DescriptorHeap rtvDescHeap, DescriptorHeap dsvDescHeap, Camera camera, GeometryResources geometry) {
 
-			Profiler.MetricBegin();
+			Profiler.MetricBegin("Render setup");
 
 			Graphics.cmdAllocator.Reset();
 			Graphics.cmdList.Reset(Graphics.cmdAllocator, pipelineState);
@@ -236,10 +236,10 @@ namespace ArcticFoxEngine.Backend.Render {
 			
 			cmdList.Close();
 
-			Profiler.MetricEnd("Render setup");
-			Profiler.MetricBegin();
+			Profiler.MetricEnd();
+			Profiler.MetricBegin("Render");
 			Graphics.cmdQueue.ExecuteCommandList(cmdList);
-			Profiler.MetricEnd("Render");
+			Profiler.MetricEnd();
 			
 
 		}

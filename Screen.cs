@@ -5,11 +5,9 @@ namespace ArcticFoxEngine {
 	internal static class Screen {
 
 		private static RenderForm window;
-		private static SwapChain3 swapChain;
 
-		internal static void InitScreen(RenderForm window, SwapChain3 swapChain) {
+		internal static void InitScreen(RenderForm window) {
 			Screen.window = window;
-			Screen.swapChain = swapChain;
 		}
 
 

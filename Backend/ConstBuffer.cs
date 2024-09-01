@@ -10,6 +10,8 @@ namespace ArcticFoxEngine.Backend {
 	/// <typeparam name="T">The type of data contained in this buffer</typeparam>
 	internal class ConstBuffer<T> where T : struct {
 
+		bool disposed = true;
+
 		private Resource constantBuffer;
 		private IntPtr constantBufferPointer;
 
@@ -23,6 +25,7 @@ namespace ArcticFoxEngine.Backend {
 		/// </summary>
 		/// <param name="numElements">The number of elements of type T the buffer can store</param>
 		internal ConstBuffer(int numElements) {
+			disposed = false;
 
 			this.numElements = numElements;
 			this.stride = (Utilities.SizeOf<T>() + 255) & ~255; // CB size is required to be 256-byte aligned
@@ -70,10 +73,11 @@ namespace ArcticFoxEngine.Backend {
 		}
 
 
-		bool disposed = false;
+		
 		internal void Dispose() {
 			if (disposed == true) { return; }
 			disposed = true;
+
 			constantBuffer.Unmap(0);
 			constantBuffer.Dispose();
 		}

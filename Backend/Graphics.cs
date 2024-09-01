@@ -46,6 +46,15 @@ namespace ArcticFoxEngine {
 
 		// Main setup function
 		// Combines all the individual steps to setting up rendering
+
+
+		/// <summary>
+		/// Initialises Graphics, this includes
+		/// attaching the graphics device,
+		/// setting up the command lists and synchronisation,
+		/// settup up the swap chain and resources for rendering to the screen.
+		/// </summary>
+		/// <param name="form"></param>
 		internal static void Init(RenderForm form) {
 
 			if (isDebug == true) {
@@ -66,17 +75,6 @@ namespace ArcticFoxEngine {
 				SetupCommandList();
 				SetupSwapChain(width, height, refreshRate, cmdQueue);
 
-
-				GPU_Upload.Init();
-				Backend.Render.GPU_Render.Init(width, height);
-				
-
-
-
-
-				Screen.InitScreen(mainRenderForm, swapChain);
-				InputManager.InitInput();
-
 				Log.Success("Initialised renderer");
 			}
 			catch (Exception e) {
@@ -88,11 +86,26 @@ namespace ArcticFoxEngine {
 
 		}
 
-		
-
 		private static void SetupDevice() {
 			// Create the graphics device
 			device = new Device(null, SharpDX.Direct3D.FeatureLevel.Level_11_0);
+		}
+		private static void SetupCommandList() {
+
+			// Create the command list
+			// Command lists are created in the recording state, but there is nothing
+			// to record yet. The main loop expects it to be closed, so close it now.
+			cmdAllocator = device.CreateCommandAllocator(CommandListType.Direct);
+			cmdQueue = device.CreateCommandQueue(new CommandQueueDescription(CommandListType.Direct));
+			cmdList = device.CreateCommandList(CommandListType.Direct, cmdAllocator, Backend.Render.GPU_Render.pipelineState);
+			cmdList.Close();
+
+			// Create synchronisation objects
+			fence = device.CreateFence(0, FenceFlags.None);
+			fenceValue = 1;
+			// Create an event handle to use for frame synchronisation
+			fenceEvent = new AutoResetEvent(false);
+
 		}
 		private static void SetupSwapChain(int width, int height, int refreshRate, CommandQueue commandQueue) {
 
@@ -166,47 +179,18 @@ namespace ArcticFoxEngine {
 
 
 		}
-		private static void SetupCommandList() {
-
-			// Create the command list
-			// Command lists are created in the recording state, but there is nothing
-			// to record yet. The main loop expects it to be closed, so close it now.
-			cmdAllocator = device.CreateCommandAllocator(CommandListType.Direct);
-			cmdQueue = device.CreateCommandQueue(new CommandQueueDescription(CommandListType.Direct));
-			cmdList = device.CreateCommandList(CommandListType.Direct, cmdAllocator, Backend.Render.GPU_Render.pipelineState);
-			cmdList.Close();
-
-			// Create synchronisation objects
-			fence = device.CreateFence(0, FenceFlags.None);
-			fenceValue = 1;
-			// Create an event handle to use for frame synchronisation
-			fenceEvent = new AutoResetEvent(false);
-
-		}
-
-		internal static void WaitForCmdList() {
-			// WAITING FOR THE FRAME TO COMPLETE BEFORE CONTINUING IS NOT BEST PRACTICE. 
-			// This is code implemented as such for simplicity. 
-
-			int localFence = fenceValue;
-			cmdQueue.Signal(fence, localFence);
-			fenceValue++;
-
-			// Wait until the previous frame is finished.
-			if (fence.CompletedValue < localFence) {
-				fence.SetEventOnCompletion(localFence, fenceEvent.SafeWaitHandle.DangerousGetHandle());
-				fenceEvent.WaitOne();
-			}
-
-			
-		}
-
-
+		
 		internal enum ShaderType {
 			Vertex,
 			Geometry,
 			Pixel,
 		}
+		/// <summary>
+		/// Compiles the shader specified by the path
+		/// </summary>
+		/// <param name="path">Path to the shader code</param>
+		/// <param name="type">The type of shader being compiled</param>
+		/// <returns>The bytecode for that shader</returns>
 		internal static ShaderBytecode CompileShader(string path, ShaderType type) {
 
 			#region Changing root folder of #includes
@@ -309,10 +293,31 @@ namespace ArcticFoxEngine {
 
 
 		}
-		
 
+		/// <summary>
+		/// Blocks execution until the command list is free
+		/// </summary>
+		internal static void WaitForCmdList() {
+			// WAITING FOR THE FRAME TO COMPLETE BEFORE CONTINUING IS NOT BEST PRACTICE. 
+			// This is code implemented as such for simplicity. 
+
+			int localFence = fenceValue;
+			cmdQueue.Signal(fence, localFence);
+			fenceValue++;
+
+			// Wait until the previous frame is finished.
+			if (fence.CompletedValue < localFence) {
+				fence.SetEventOnCompletion(localFence, fenceEvent.SafeWaitHandle.DangerousGetHandle());
+				fenceEvent.WaitOne();
+			}
+
+
+		}
+		/// <summary>
+		/// Shows the render target to the screen and swaps which resource is the render target
+		/// </summary>
 		internal static void Buffer() {
-			Graphics.WaitForCmdList();
+			WaitForCmdList();
 			// Present the frame
 			try {
 				CheckHRESULT(swapChain.Present(1, 0));
@@ -325,6 +330,10 @@ namespace ArcticFoxEngine {
 
 		}
 
+		/// <summary>
+		/// Checks the HRESULT and throws an error if it is an error
+		/// </summary>
+		/// <param name="result">The HRESULT to check</param>
 		internal static void CheckHRESULT(Result result) {
 			// https://learn.microsoft.com/en-us/windows/win32/com/structure-of-com-error-codes
 
@@ -339,7 +348,10 @@ namespace ArcticFoxEngine {
 			}
 
 		}
-
+		
+		/// <summary>
+		/// Disposes all resources held by Graphics
+		/// </summary>
 		internal static void Dispose() {
 
 			swapChain.Dispose();

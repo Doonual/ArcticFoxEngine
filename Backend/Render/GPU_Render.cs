@@ -17,6 +17,7 @@ namespace ArcticFoxEngine.Backend.Render {
 	/// </summary>
 	public static class GPU_Render {
 
+		private static bool disposed = true;
 		
 		internal static PipelineState pipelineState;
 		internal static RootSignature rootSignature;
@@ -36,16 +37,27 @@ namespace ArcticFoxEngine.Backend.Render {
 
 
 		/// <summary>
-		/// Initialises all the command queue objects
+		/// Initialises the main render pipeline
+		/// Includes creating the root signature and descriptor heap
+		/// As well as setting up the rendering pipeline
 		/// </summary>
+		/// <param name="renderWidth">The width of the render target</param>
+		/// <param name="renderHeight">The height of the render target</param>
 		internal static void Init(int renderWidth, int renderHeight) {
+			if (disposed == false) { Log.Warn("Cannot initialise GPU_Render, already initialised"); return; }
+			disposed = false;
 
 			LoadResources(renderWidth, renderHeight);
+			pipelineState = null;
 			SetupPipeline();
 
 		}
 
+
 		private static void SetupPipeline() {
+
+			if (pipelineState != null) { pipelineState.Dispose(); }
+
 
 			ShaderBytecode vertexShader = Graphics.CompileShader(".res/VertexShader.hlsl", Graphics.ShaderType.Vertex);
 			ShaderBytecode geometryShader = Graphics.CompileShader(".res/GeometryShader.hlsl", Graphics.ShaderType.Geometry);
@@ -80,7 +92,6 @@ namespace ArcticFoxEngine.Backend.Render {
 
 			RasterizerStateDescription rasterState = RasterizerStateDescription.Default();
 
-
 			GraphicsPipelineStateDescription psonDesc = new GraphicsPipelineStateDescription() {
 
 				InputLayout = new InputLayoutDescription(inputElementDescs),
@@ -105,9 +116,6 @@ namespace ArcticFoxEngine.Backend.Render {
 
 
 		}
-
-
-		// Main load for the GraphicsResources
 		private static void LoadResources(int renderWidth, int renderHeight) {
 
 			#region Create root signature
@@ -167,20 +175,22 @@ namespace ArcticFoxEngine.Backend.Render {
 
 		}
 
-
 		/// <summary>
-		/// Renders the geometry
+		/// Renders a camera's view
 		/// </summary>
-		/// <param name="camera">The camera used to render the geometry</param>
-		/// <param name="geometry">The geometry to be rendered</param>
-		internal static void Render(Resource renderTarget, DescriptorHeap rtvDescHeap, DescriptorHeap dsvDescHeap, Camera camera, GeometryResources geometry) {
+		/// <param name="renderTarget">The render target resource to render to</param>
+		/// <param name="rtvDescHeap">The descriptor heap containing the render target</param>
+		/// <param name="dsvDescHeap">The descriptor heap containing the depth stencil</param>
+		/// <param name="camera">The camera to render from</param>
+		internal static void Render(Resource renderTarget, DescriptorHeap rtvDescHeap, DescriptorHeap dsvDescHeap, Camera camera) {
+
+			GeometryResources geometry = camera.gameObject.scene.mainGeometry;
 
 			Profiler.MetricBegin("Render setup");
 
 			Graphics.cmdAllocator.Reset();
 			Graphics.cmdList.Reset(Graphics.cmdAllocator, pipelineState);
 			GraphicsCommandList cmdList = Graphics.cmdList;
-
 
 			cmdList.SetGraphicsRootSignature(rootSignature);
 			cmdList.SetDescriptorHeaps(1, new DescriptorHeap[] { descHeap });
@@ -246,7 +256,11 @@ namespace ArcticFoxEngine.Backend.Render {
 
 
 		internal static void Dispose() {
+			if (disposed == true) { Log.Warn("Cannot dispose GPU_Render, not initialised"); return; }
+			disposed = true;
+
 			pipelineState.Dispose();
+			descHeap.Dispose();
 			
 		}
 

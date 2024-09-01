@@ -98,12 +98,12 @@ namespace ArcticFoxEngine {
 
 		internal void Update() {
 
-			Profiler.MetricBegin("Object update event");
+			Profiler.MetricBegin("Object update");
 			for (int i = 0; i < objects.Count; i ++) {
 				objects[i].UpdateEvent();
 			}
 			Profiler.MetricEnd();
-			Profiler.MetricBegin("Object render event");
+			Profiler.MetricBegin("Object render");
 			for (int i = 0; i < objects.Count; i++) {
 				objects[i].RenderEvent();
 			}
@@ -180,6 +180,7 @@ namespace ArcticFoxEngine {
 				
 
 				#endregion
+
 
 				if (debugObjectSelected == obj) {
 					ImGui.PushStyleColor(ImGuiCol.Button,			new System.Numerics.Vector4(0.2588f / 2f, 0.5882f / 2f, 0.9804f / 2f, 0.4f));

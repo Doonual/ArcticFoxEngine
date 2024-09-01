@@ -16,8 +16,7 @@ namespace ArcticFoxEngine.Backend {
 
 	internal static class GPU_Upload {
 
-		// Helper class to upload data to default heaps
-
+		private static bool disposed = true;
 
 		// Upload resource, data is copied from this resource into the resources in default heaps
 		static Resource uploadResource;
@@ -37,9 +36,11 @@ namespace ArcticFoxEngine.Backend {
 		static int fenceValue;
 
 		/// <summary>
-		/// Initialises all the command queue objects
+		/// Initialises all GPU_Upload
 		/// </summary>
 		internal static void Init() {
+			if (disposed == false) { Log.Warn("Cannot initialise GPU_Upload, already initialised"); return; }
+			disposed = false;
 
 			// Initialise command queues and synchronisation
 
@@ -98,7 +99,7 @@ namespace ArcticFoxEngine.Backend {
 			uploadCommandQueue.ExecuteCommandList(commandList);
 			fenceValue++;
 			uploadCommandQueue.Signal(uploadFence, fenceValue);
-			WaitAndReset();
+			WaitForCmdList();
 
 		}
 
@@ -135,12 +136,12 @@ namespace ArcticFoxEngine.Backend {
 			fenceValue++;
 			uploadCommandQueue.Signal(uploadFence, fenceValue);
 
-			WaitAndReset();
+			WaitForCmdList();
 
 		}
 
 
-		private static void WaitAndReset() {
+		private static void WaitForCmdList() {
 
 			if (uploadFence.CompletedValue < fenceValue) {
 				uploadFence.SetEventOnCompletion(fenceValue, fenceEvent.SafeWaitHandle.DangerousGetHandle());
@@ -151,7 +152,14 @@ namespace ArcticFoxEngine.Backend {
 			uploadResource = null;
 
 		}
+
+
+		/// <summary>
+		/// Disposes the resources held by GPU_Upload
+		/// </summary>
 		internal static void Dispose() {
+			if (disposed == true) { Log.Warn("Cannot dispose GPU_Upload, not initialised"); return; }
+			disposed = true;
 
 			if (uploadResource != null) { uploadResource.Dispose(); }
 			uploadCommandQueue.Dispose();

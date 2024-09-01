@@ -108,7 +108,7 @@ namespace ArcticFoxEngine {
 		}
 		public override void OnRender() {
 
-			GPU_Render.Render(Graphics.renderTargets[Graphics.frameIndex], Graphics.rtvHeap, Graphics.dsvHeap, gameObject.scene.mainCamera, gameObject.scene.mainGeometry);
+			GPU_Render.Render(Graphics.renderTargets[Graphics.frameIndex], Graphics.rtvHeap, Graphics.dsvHeap, this);
 
 		}
 

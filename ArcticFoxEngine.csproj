@@ -47,14 +47,13 @@
 	
 	
 	<ItemGroup>
-	  <Content Include=".Documentation\GraphicsResources.txt" />
+	  <Content Include=".documentation\Graphics.txt" />
 	  <Content Include=".Documentation\Input.txt" />
 	</ItemGroup>
 	
 	
 	<ItemGroup>
-	  <None Include=".Documentation\EventLoop.txt" />
-	  <None Include=".Documentation\Setup.txt" />
+	  <None Include=".Documentation\Engine.txt" />
 	  <None Include=".Documentation\Terms.txt" />
 	  <None Include=".res\icon.ico" />
 	  <None Include=".res\mandelbrot_shader.hlsl" />

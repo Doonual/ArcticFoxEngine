@@ -34,7 +34,7 @@ namespace ArcticFoxEngine.Input.Devices {
 			MouseUpdate[] updates = mouse.GetBufferedData();
 			for (int i = 0; i < updates.Length; i++) {
 				ImGuiInput.UpdateMouse(updates[i]);
-				if (ImGui.GetIO().WantCaptureMouse == true) { continue; }
+				//if (ImGui.GetIO().WantCaptureMouse == true) { continue; }
 				for (int n = 0; n < deviceUpdate.Count; n++) {
 					deviceUpdate[n](updates[i]);
 				}

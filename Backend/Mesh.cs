@@ -15,11 +15,21 @@ namespace ArcticFoxEngine {
 			Quad,
 		}
 
+		/// <summary>
+		/// Creates a new mesh
+		/// </summary>
+		/// <param name="vertices">The verticies of the mesh</param>
+		/// <param name="indices">The indices of the mesh</param>
 		public Mesh(Vertex[] vertices, int[] indices) {
 			this.vertices = vertices;
 			this.indices = indices;
 		}
 
+		/// <summary>
+		/// Creates a mesh of the specified primitive
+		/// </summary>
+		/// <param name="primitive">The type of primitive to create</param>
+		/// <returns>The mesh of the specified primitive</returns>
 		public static Mesh CreatePrimitive(Primitive primitive) {
 
 			Vertex[] vertexData = null;

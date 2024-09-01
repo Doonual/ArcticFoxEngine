@@ -6,6 +6,8 @@ using Newtonsoft.Json.Linq;
 using SharpDX.Direct3D12;
 using ArcticFoxEngine.Backend.Render;
 using System;
+using static ArcticFoxEngine.Debug.DebugPerformance;
+using System.Xml.Linq;
 
 namespace ArcticFoxEngine.Debug {
 	internal class DebugPerformance : DebugWindow {
@@ -84,24 +86,7 @@ namespace ArcticFoxEngine.Debug {
 				}
 
 			}
-			/*
-			internal float[] GetPlottable(int numSamples) {
-				return SquishPlot(vals, numSamples);
-			}
-			internal float[] GetPlottable(float[] startVals) {
-				
-				float[] plotTimes = SquishPlot(vals, startVals.Length);
-				for (int i = 0; i < plotTimes.Length; i ++) {
-					plotTimes[i] += startVals[i];
-				}
-				return plotTimes;
 
-			}
-			
-			internal float GetLast() {
-				return vals[vals.Length - 1];
-			}
-			*/
 			private float[] SquishPlot(float[] inVals, int targetNumVals) {
 
 				float[] outVals = new float[targetNumVals];
@@ -133,7 +118,7 @@ namespace ArcticFoxEngine.Debug {
 
 			}
 
-			internal void DrawMetric(Vector2 topLeft, float width, float totalMs) {
+			internal void DrawMetric(Vector2 topLeft, float width, float totalMs, bool rowChecker) {
 
 				ImGui.PushID(name + "metric total");
 				float start = startMs.Last() / totalMs;
@@ -141,27 +126,48 @@ namespace ArcticFoxEngine.Debug {
 
 				float ms = (endMs.Last() - startMs.Last());
 
-				Vector2 buttonSize = new Vector2((end - start) * width, 20f);
-				ImGui.SetCursorPos(topLeft + Vector2.right * start * width);
+				Vector2 buttonSize = new Vector2(MathF.Round((end - start) * width), 19f);
+				ImGui.SetCursorPos(topLeft + Vector2.right * MathF.Round(start * width));
 				Vector2 buttonCursorStartPos = ImGui.GetCursorPos();
 
+				Vector2 windowPosOffset = (Vector2)ImGui.GetWindowPos();
 				ImGui.ColorButton(name + " metric", (Vector4)col, ImGuiColorEditFlags.NoTooltip, buttonSize);
+
+				uint filledCol;
+				unsafe {
+					filledCol = ImGui.ColorConvertFloat4ToU32(*ImGui.GetStyleColorVec4(ImGuiCol.TableRowBg));
+					if (rowChecker == true) {
+						filledCol = ImGui.ColorConvertFloat4ToU32(*ImGui.GetStyleColorVec4(ImGuiCol.TableRowBgAlt));
+					}
+				}
 				
+				ImGui.GetWindowDrawList().AddRectFilled(topLeft + windowPosOffset, topLeft + windowPosOffset + new Vector2(width, 19f), filledCol);
+
 
 				ImGui.SetCursorPos(buttonCursorStartPos);
-				ImGui.BeginChild(name + "metric text", buttonSize);
-				ImGui.SetCursorPos(buttonSize / 2f - (Vector2)ImGui.CalcTextSize(name) * new Vector2(0.5f, 0.5f));
+				ImGui.BeginChild(name + "metric text", buttonSize - Vector2.right * 5);
+
+
+
+				ImGui.SetCursorPos(buttonSize * new Vector2(0f, 0.5f) - (Vector2)ImGui.CalcTextSize(name) * new Vector2(0.0f, 0.5f) + Vector2.right * 5);
 				ImGui.Text(name);
 				ImGui.EndChild();
 				if (ImGui.IsItemHovered() == true) {
 					ImGui.BeginTooltip();
-					ImGui.Text(name);
-					ImGui.Text(ms.ToString("F3") + " ms");
+
+					ImGui.SeparatorText(name);
+					ImGui.Text("Total time: " + ms.ToString("F3") + " ms");
+					
+					if (parentMetric != null) {
+						float percentage = 100 * ms / (parentMetric.endMs.Last() - parentMetric.startMs.Last());
+						ImGui.Text("Percentage: " + (percentage.ToString("F0") + "%%"));
+					}
+					
 					ImGui.EndTooltip();
 				}
 
 				for (int i = 0; i < subMetrics.Count; i ++) {
-					subMetrics[i].DrawMetric(topLeft - Vector2.down * 20f, width, totalMs);
+					subMetrics[i].DrawMetric(topLeft - Vector2.down * 19f, width, totalMs, !rowChecker);
 				}
 				
 				ImGui.PopID();
@@ -198,6 +204,43 @@ namespace ArcticFoxEngine.Debug {
 
 
 			}
+			internal void DrawMetricTable() {
+
+				for (int i = 0; i < subMetrics.Count; i ++) {
+					
+					ImGui.TableNextRow();
+					ImGui.TableNextColumn();
+
+
+					bool open = false;
+
+					Metric metric = subMetrics[i];
+					if (metric.subMetrics.Count > 0) {
+						open = ImGui.TreeNodeEx(metric.name, ImGuiTreeNodeFlags.SpanFullWidth);
+					}
+					else {
+						ImGui.TreeNodeEx(metric.name, ImGuiTreeNodeFlags.SpanFullWidth | ImGuiTreeNodeFlags.Leaf | ImGuiTreeNodeFlags.Bullet | ImGuiTreeNodeFlags.NoTreePushOnOpen);
+					}
+					
+					ImGui.TableNextColumn();
+					ImGui.ColorButton(metric.name + " table col button", (Vector4)metric.col, ImGuiColorEditFlags.None, (Vector2)ImGui.CalcTextSize("Colour") - Vector2.right * ImGui.GetStyle().FramePadding.X * 1f);
+					ImGui.TableNextColumn();
+					ImGui.Text((metric.endMs.Last() - metric.startMs.Last()).ToString("F3") + " ms");
+					ImGui.TableNextColumn();
+					ImGui.Text((100 * (metric.endMs.Last() - metric.startMs.Last()) / (endMs.Last() - startMs.Last())).ToString("F0") + "%%");
+
+					
+					
+
+					if (open == true) {
+						metric.DrawMetricTable();
+						ImGui.TreePop();
+					}
+
+
+				}
+
+			}
 
 			internal Metric GetOrCreateChildMetric(string name) {
 
@@ -226,11 +269,10 @@ namespace ArcticFoxEngine.Debug {
 
 		int numElements;
 		float plotMaxMs = 10f;
+		bool autoAdjustPlotMaxMs = false;
 
 		bool updatePlot = true;
 		bool updatePlotActual = true;
-		bool showMoreOptions = true;
-
 
 
 		internal override string name => "Performance";
@@ -281,6 +323,11 @@ namespace ArcticFoxEngine.Debug {
 
 			metric.endMs[metric.endMs.Length - 1] = 1000f * (float)(timestamp - frameStartTimestamp) / Graphics.cmdQueue.TimestampFrequency;
 
+			if (autoAdjustPlotMaxMs == true) {
+				plotMaxMs = msMin * 6f;
+			}
+			autoAdjustPlotMaxMs = true;
+
 		}
 
 		internal void MetricBegin(long timestamp, string name) {
@@ -296,6 +343,7 @@ namespace ArcticFoxEngine.Debug {
 
 		internal override void Render() {
 
+			autoAdjustPlotMaxMs = false;
 			
 			#region FPS Table
 
@@ -405,25 +453,46 @@ namespace ArcticFoxEngine.Debug {
 
 			#endregion
 
+			#region Recursive time view
+
 			ImGui.NewLine();
 
 			ImGui.PushStyleColor(ImGuiCol.FrameBg, new System.Numerics.Vector4(0.2f, 0.2f, 0.2f, 138f / 255f));
 			ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, new Vector2(0f, 0f));
-			ImGui.BeginChildFrame((uint)"metric recursive child".GetHashCode(), new Vector2(-1f, -1f));
+			ImGui.BeginChildFrame((uint)"metric recursive child".GetHashCode(), new Vector2(-1f, 76f));
 			
 
 			Vector2 childStart = ImGui.GetCursorPos();
 			float width = ImGui.GetColumnWidth();
 
-			metric.DrawMetric(childStart, width, metric.endMs.Last());
+			metric.DrawMetric(childStart, width, metric.endMs.Last(), false);
 
 			ImGui.EndChildFrame();
 			ImGui.PopStyleVar();
 			ImGui.PopStyleColor();
 
+			#endregion
+
+			#region Table
+
+			ImGuiTableFlags recursiveTableFlags = ImGuiTableFlags.BordersV | ImGuiTableFlags.BordersOuterH | ImGuiTableFlags.Resizable | ImGuiTableFlags.RowBg | ImGuiTableFlags.None | ImGuiTableFlags.ScrollY;
+
+			if (ImGui.BeginTable("Recursive metric table", 4, recursiveTableFlags) == true) {
+				ImGui.TableSetupColumn("Name");
+				ImGui.TableSetupColumn("Colour");
+				ImGui.TableSetupColumn("Time");
+				ImGui.TableSetupColumn("Percentage");
+				ImGui.TableHeadersRow();
+
+				metric.DrawMetricTable();
+
+				ImGui.EndTable();
+			}
 
 
-			
+			#endregion
+
+
 
 		}
 

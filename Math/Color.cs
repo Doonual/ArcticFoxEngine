@@ -76,6 +76,9 @@ namespace ArcticFoxEngine {
 		public static implicit operator Vector4(Color col) {
 			return new Vector4(col.r / 255f, col.g / 255f, col.b / 255f, col.a / 255f);
 		}
+		public static implicit operator Color(Vector4 vec) {
+			return new Color(vec.x / 255f, vec.y / 255f, vec.z / 255f, vec.w / 255f);
+		}
 		public static implicit operator System.Drawing.Color(Color d) {
 			return System.Drawing.Color.FromArgb(d.r, d.g, d.b);
 		}

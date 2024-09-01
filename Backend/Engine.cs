@@ -6,9 +6,12 @@ using ArcticFoxEngine.Input.Bindings;
 using ArcticFoxEngine;
 using CoolClassLibrary;
 using SharpDX.Windows;
+using SharpDX.DXGI;
 
 namespace ArcticFoxEngine {
 	public static class Engine {
+
+		private static bool disposed = true;
 
 		internal static RenderForm form;
 		public static Action init;
@@ -25,6 +28,8 @@ namespace ArcticFoxEngine {
 		/// <param name="title">The title of the window</param>
 		/// <param name="iconPath">The path to the icon the window will use</param>
 		public static void Run(int width, int height, string title = "Arctic Fox", string iconPath = ".res/icon.ico") {
+			if (disposed == false) { Log.Warn("Cannot run ArcticFoxEngine, already running"); return; }
+			disposed = false;
 
 			#region Create the main window
 
@@ -58,6 +63,12 @@ namespace ArcticFoxEngine {
 
 			try {
 				Graphics.Init(form);
+
+				GPU_Upload.Init();
+				Backend.Render.GPU_Render.Init(width, height);
+				Screen.InitScreen(form);
+				InputManager.InitInput();
+
 				DebugManager.Init(form);
 				Log.Success("Engine initialisation complete");
 			}
@@ -83,12 +94,12 @@ namespace ArcticFoxEngine {
 
 					Profiler.FrameBegin();
 
-					Profiler.MetricBegin("Update input");
+					Profiler.MetricBegin("Input update");
 					InputManager.NextFrame();
 					InputManager.GetInputDeviceUpdates();
 					Profiler.MetricEnd();
 
-					Profiler.MetricBegin("Update scene");
+					Profiler.MetricBegin("Scene update");
 					Scene.PerformSceneSwap();
 					if (Scene.activeScene != null) {
 						Scene.activeScene.Update();
@@ -120,6 +131,9 @@ namespace ArcticFoxEngine {
 		/// Closes ArcticFoxEngine
 		/// </summary>
 		public static void Stop() {
+			if (disposed == true) { Log.Warn("Cannot stop ArcticFoxEngine, not running"); return; }
+			disposed = true;
+
 			loop.Dispose();
 			loop = null;
 			CommandController.Stop();

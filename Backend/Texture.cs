@@ -13,11 +13,20 @@ namespace ArcticFoxEngine.Backend {
 
 	internal class Texture {
 
+		private bool disposed = true;
+
 		Resource texture;
 		int width;
 		int height;
 
+
+		/// <summary>
+		/// Creates an empty texture
+		/// </summary>
+		/// <param name="width">Width of the texture</param>
+		/// <param name="height">Height of the texture</param>
 		internal Texture(int width, int height) {
+			disposed = false;
 
 			this.width = width;
 			this.height = height;
@@ -26,6 +35,10 @@ namespace ArcticFoxEngine.Backend {
 
 		}
 
+		/// <summary>
+		/// Creates a texture and uploads the contents of the specified image to it
+		/// </summary>
+		/// <param name="path">The path to the image containing the data to be uploaded</param>
 		internal Texture(string path) {
 
 
@@ -51,6 +64,11 @@ namespace ArcticFoxEngine.Backend {
 
 		}
 
+		/// <summary>
+		/// Adds the texture to a descriptor heap
+		/// </summary>
+		/// <param name="destDescriptorHeap">The descriptor heap to add the texture to</param>
+		/// <param name="offset">The offset into the descriptor heap the texture should be added to</param>
 		internal void AddToDescriptorHeap(DescriptorHeap destDescriptorHeap, int offset) {
 
 			ShaderResourceViewDescription srvDesc = new ShaderResourceViewDescription() {
@@ -63,17 +81,22 @@ namespace ArcticFoxEngine.Backend {
 
 		}
 		
+		/// <summary>
+		/// Uploads data to the textue
+		/// </summary>
+		/// <param name="data">The data to be uploaded</param>
 		internal void SetData(byte[] data) {
 			GPU_Upload.Texture2DUpload(texture, width, height, Format.R8G8B8A8_UNorm, data);
 		}
 
+		/// <summary>
+		/// Gets the native pointer of the texture
+		/// </summary>
+		/// <returns>The native pointer of the texture</returns>
 		internal IntPtr GetNativePointer() {
 			return texture.NativePointer;
 		}
 
-		internal void Dispose() {
-			texture.Dispose();
-		}
 
 		private static int ComponentMapping(int src0, int src1, int src2, int src3) {
 
@@ -81,13 +104,27 @@ namespace ArcticFoxEngine.Backend {
 			int componentMappingShift = 3;
 			int componentMappingAlwaysSetBitAvoidingZeromemMistakes = (1 << (componentMappingShift * 4));
 
-			return	((((src0) & componentMappingMask) |
+			return ((((src0) & componentMappingMask) |
 					(((src1) & componentMappingMask) << componentMappingShift) |
 					(((src2) & componentMappingMask) << (componentMappingShift * 2)) |
 					(((src3) & componentMappingMask) << (componentMappingShift * 3)) |
 					componentMappingAlwaysSetBitAvoidingZeromemMistakes));
 
 		}
+
+		/// <summary>
+		/// Disposes the resources held by Texture
+		/// </summary>
+		internal void Dispose() {
+			if (disposed == true) { return; }
+			disposed = true;
+			texture.Dispose();
+		}
+		~Texture() {
+			Dispose();
+		}
+
+		
 
 
 	}

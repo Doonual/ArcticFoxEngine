@@ -6,7 +6,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Numerics;
-using ArcticFoxEngine.Components;
+using ArcticFoxEngine.Nodes;
+using ArcticFoxEngine.Backend.Render;
 
 namespace ArcticFoxEngine.Debug {
 	internal class DebugMeshBuffers : DebugWindow {
@@ -20,12 +21,8 @@ namespace ArcticFoxEngine.Debug {
 		internal override string name => "Mesh Buffer Viewer";
 		internal override void Render() {
 
-			if (Scene.activeScene == null) {
-				ImGui.Text("Load a scene to debug the mesh buffers");
-				return;
-			}
 
-			Backend.Render.GeometryResources geometry = Scene.activeScene.mainGeometry;
+			Backend.Render.GeometryResources geometry = GPU_Render.mainGeometry;
 			MeshRenderer delMeshFilter = null;
 
 			ImGui.InputInt("Max Display Entries", ref maxEntries);
@@ -252,8 +249,8 @@ namespace ArcticFoxEngine.Debug {
 			if (ImGui.Button("Add Cube") == true) {
 
 				Log.Info("Adding Cube");
-				GameObject cubeObj = Scene.activeScene.InstantiateObject("Cube #" + cubeCount);
-				MeshRenderer cubeMeshFilter = cubeObj.AddComponent<MeshRenderer>();
+				Node cubeObj = Node.rootNode.CreateChild<EmptyNode>("Cube #" + cubeCount);
+				MeshRenderer cubeMeshFilter = cubeObj.CreateChild<MeshRenderer>();
 				cubeMeshFilter.SetMesh(Mesh.CreatePrimitive(Mesh.Primitive.Cube));
 				cubeCount++;
 
@@ -262,8 +259,8 @@ namespace ArcticFoxEngine.Debug {
 			if (ImGui.Button("Add Quad") == true) {
 
 				Log.Info("Adding quad");
-				GameObject quadObj = Scene.activeScene.InstantiateObject("Quad #" + quadCount);
-				MeshRenderer quadMeshFilter = quadObj.AddComponent<MeshRenderer>();
+				Node quadObj = Node.rootNode.CreateChild<EmptyNode>("Quad #" + quadCount);
+				MeshRenderer quadMeshFilter = quadObj.CreateChild<MeshRenderer>();
 				quadMeshFilter.SetMesh(Mesh.CreatePrimitive(Mesh.Primitive.Quad));
 				quadCount++;
 

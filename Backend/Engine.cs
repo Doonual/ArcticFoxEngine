@@ -100,9 +100,13 @@ namespace ArcticFoxEngine {
 					Profiler.MetricEnd();
 
 					Profiler.MetricBegin("Scene update");
-					Scene.PerformSceneSwap();
-					if (Scene.activeScene != null) {
-						Scene.activeScene.Update();
+					if (Node.rootNode != null) {
+						Profiler.MetricBegin("Node update");
+						Node.rootNode.UpdateEvent();
+						Profiler.MetricEnd();
+						Profiler.MetricBegin("Node render");
+						Node.rootNode.RenderEvent();
+						Profiler.MetricEnd();
 					}
 					Profiler.MetricEnd();
 
@@ -112,7 +116,11 @@ namespace ArcticFoxEngine {
 					Profiler.FrameEnd();
 
 					DebugManager.UpdateImGui();
-					if (exitButton.GetButton() == true) { Stop(); }
+					if (exitButton.GetButton() == true) {
+						Graphics.WaitForCmdList();
+						Stop();
+						break;
+					}
 
 					
 					Graphics.Buffer();

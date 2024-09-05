@@ -118,13 +118,13 @@ namespace ArcticFoxEngine.Debug {
 
 			}
 
-			internal void DrawMetric(Vector2 topLeft, float width, float totalMs, bool rowChecker) {
+			internal void DrawMetric(Vector2 topLeft, float width, float totalMs, int viewSample, bool rowChecker) {
 
 				ImGui.PushID(name + "metric total");
-				float start = startMs.Last() / totalMs;
-				float end = endMs.Last() / totalMs;
+				float start = startMs[viewSample] / totalMs;
+				float end = endMs[viewSample] / totalMs;
 
-				float ms = (endMs.Last() - startMs.Last());
+				float ms = (endMs[viewSample] - startMs[viewSample]);
 
 				Vector2 buttonSize = new Vector2(MathF.Round((end - start) * width), 19f);
 				ImGui.SetCursorPos(topLeft + Vector2.right * MathF.Round(start * width));
@@ -159,7 +159,7 @@ namespace ArcticFoxEngine.Debug {
 					ImGui.Text("Total time: " + ms.ToString("F3") + " ms");
 					
 					if (parentMetric != null) {
-						float percentage = 100 * ms / (parentMetric.endMs.Last() - parentMetric.startMs.Last());
+						float percentage = 100 * ms / (parentMetric.endMs[viewSample] - parentMetric.startMs[viewSample]);
 						ImGui.Text("Percentage: " + (percentage.ToString("F0") + "%%"));
 					}
 					
@@ -167,13 +167,13 @@ namespace ArcticFoxEngine.Debug {
 				}
 
 				for (int i = 0; i < subMetrics.Count; i ++) {
-					subMetrics[i].DrawMetric(topLeft - Vector2.down * 19f, width, totalMs, !rowChecker);
+					subMetrics[i].DrawMetric(topLeft - Vector2.down * 19f, width, totalMs, viewSample, !rowChecker);
 				}
 				
 				ImGui.PopID();
 
 			}
-			internal void DrawMetricHist(int numSamples, Vector2 minCoord, Vector2 maxCoord, float maxMs) {
+			internal void DrawMetricHist(int numSamples, Vector2 minCoord, Vector2 maxCoord, float maxMs, bool drawRecursive) {
 
 				float[] startMsSquished = SquishPlot(startMs, numSamples);
 				float[] endMsSquished = SquishPlot(endMs, numSamples);
@@ -198,13 +198,16 @@ namespace ArcticFoxEngine.Debug {
 					ImGui.GetWindowDrawList().AddLine(new Vector2(currentX, startHeight), new Vector2(currentX, endHeight), ImGui.ColorConvertFloat4ToU32((Vector4)col));
 				}
 				
-				for (int i = 0; i < subMetrics.Count; i ++) {
-					subMetrics[i].DrawMetricHist(numSamples, minCoord, maxCoord, maxMs);
+				if (drawRecursive == true) {
+					for (int i = 0; i < subMetrics.Count; i++) {
+						subMetrics[i].DrawMetricHist(numSamples, minCoord, maxCoord, maxMs, drawRecursive);
+					}
 				}
+				
 
 
 			}
-			internal void DrawMetricTable() {
+			internal void DrawMetricTable(int viewSample) {
 
 				for (int i = 0; i < subMetrics.Count; i ++) {
 					
@@ -225,15 +228,15 @@ namespace ArcticFoxEngine.Debug {
 					ImGui.TableNextColumn();
 					ImGui.ColorButton(metric.name + " table col button", (Vector4)metric.col, ImGuiColorEditFlags.None, (Vector2)ImGui.CalcTextSize("Colour") - Vector2.right * ImGui.GetStyle().FramePadding.X * 1f);
 					ImGui.TableNextColumn();
-					ImGui.Text((metric.endMs.Last() - metric.startMs.Last()).ToString("F3") + " ms");
+					ImGui.Text((metric.endMs[viewSample] - metric.startMs[viewSample]).ToString("F3") + " ms");
 					ImGui.TableNextColumn();
-					ImGui.Text((100 * (metric.endMs.Last() - metric.startMs.Last()) / (endMs.Last() - startMs.Last())).ToString("F0") + "%%");
+					ImGui.Text((100 * (metric.endMs[viewSample] - metric.startMs[viewSample]) / (endMs[viewSample] - startMs[viewSample])).ToString("F0") + "%%");
 
 					
 					
 
 					if (open == true) {
-						metric.DrawMetricTable();
+						metric.DrawMetricTable(viewSample);
 						ImGui.TreePop();
 					}
 
@@ -272,8 +275,10 @@ namespace ArcticFoxEngine.Debug {
 		bool autoAdjustPlotMaxMs = false;
 
 		bool updatePlot = true;
+		bool drawHistogramColour = false;
 		bool updatePlotActual = true;
 
+		int viewSample = 1999;
 
 		internal override string name => "Performance";
 
@@ -389,6 +394,22 @@ namespace ArcticFoxEngine.Debug {
 			Vector2 histEndScreen;
 
 			ImGui.Checkbox("Update plot", ref updatePlot);
+			ImGui.SameLine();
+			ImGui.Checkbox("Draw histogram colour", ref drawHistogramColour);
+
+			/*
+			ImGui.SliderInt("", ref viewSample, 0, 2000 - 1);
+			ImGui.SameLine();
+			if (ImGui.Button("-") == true) {
+				viewSample -= 1;
+			}
+			ImGui.SameLine();
+			if (ImGui.Button("+") == true) {
+				viewSample += 1;
+			}
+			ImGui.SameLine();
+			ImGui.Text("View sample");
+			*/
 
 			#region Histogram plot
 
@@ -402,11 +423,7 @@ namespace ArcticFoxEngine.Debug {
 			float dummyPlot = 0f;
 			ImGui.SetCursorPos(histCurStart);
 
-			
 			ImGui.PlotHistogram("", ref dummyPlot, 1, 0, "", 0f, plotMaxMs, new Vector2(-1f, 150f));
-
-			
-			
 
 			ImGui.PopStyleColor();
 
@@ -415,7 +432,10 @@ namespace ArcticFoxEngine.Debug {
 			histEndScreen = histStartScreen + new Vector2(histWidth, 150 - ImGui.GetStyle().FramePadding.Y * 2);
 			numElements = Math.Max(1, histWidth);
 
-			metric.DrawMetricHist(numElements, histStartScreen, histEndScreen, plotMaxMs);
+			metric.DrawMetricHist(numElements, histStartScreen, histEndScreen, plotMaxMs, drawHistogramColour);
+
+			//float xCoord = MathUtil.Lerp((float)viewSample / 2000, histStartScreen.x, histEndScreen.x);
+			//ImGui.GetWindowDrawList().AddLine(new Vector2(xCoord, histStartScreen.y), new Vector2(xCoord, histEndScreen.y), ImGui.ColorConvertFloat4ToU32(new Vector4(1f, 1f, 1f, 1f)));
 
 			if (ImGui.GetMousePos().X > histStartScreen.x && ImGui.GetMousePos().X < histEndScreen.x && ImGui.GetMousePos().Y > histStartScreen.y && ImGui.GetMousePos().Y < histEndScreen.y) {
 				plotMaxMs *= MathF.Exp(ImGui.GetIO().MouseWheel * -0.2f);
@@ -465,7 +485,7 @@ namespace ArcticFoxEngine.Debug {
 			Vector2 childStart = ImGui.GetCursorPos();
 			float width = ImGui.GetColumnWidth();
 
-			metric.DrawMetric(childStart, width, metric.endMs.Last(), false);
+			metric.DrawMetric(childStart, width, metric.endMs[viewSample], viewSample, false);
 
 			ImGui.EndChildFrame();
 			ImGui.PopStyleVar();
@@ -484,7 +504,7 @@ namespace ArcticFoxEngine.Debug {
 				ImGui.TableSetupColumn("Percentage");
 				ImGui.TableHeadersRow();
 
-				metric.DrawMetricTable();
+				metric.DrawMetricTable(viewSample);
 
 				ImGui.EndTable();
 			}

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ArcticFoxEngine.Nodes;
 
 namespace ArcticFoxEngine.Debug.Commands {
 	internal class AddObjectCommand : Command {
@@ -11,7 +12,7 @@ namespace ArcticFoxEngine.Debug.Commands {
 
 		public void Execute(string[] args) {
 
-			Scene.activeScene.InstantiateObject(args[0]);
+			Node.rootNode.CreateChild<EmptyNode>();
 
 		}
 

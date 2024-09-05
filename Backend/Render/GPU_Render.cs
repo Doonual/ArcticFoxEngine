@@ -1,5 +1,5 @@
 ﻿using ArcticFoxEngine.Backend;
-using ArcticFoxEngine.Components;
+using ArcticFoxEngine.Nodes;
 using ArcticFoxEngine.Debug;
 using ArcticFoxEngine;
 using CoolClassLibrary;
@@ -35,6 +35,7 @@ namespace ArcticFoxEngine.Backend.Render {
 		internal static int descHeapIncrement;
 		internal static ConstBuffer<RenderInfo> renderInfo;
 
+		internal static GeometryResources mainGeometry;
 
 		/// <summary>
 		/// Initialises the main render pipeline
@@ -50,6 +51,8 @@ namespace ArcticFoxEngine.Backend.Render {
 			LoadResources(renderWidth, renderHeight);
 			pipelineState = null;
 			SetupPipeline();
+
+			mainGeometry = new GeometryResources();
 
 		}
 
@@ -184,7 +187,7 @@ namespace ArcticFoxEngine.Backend.Render {
 		/// <param name="camera">The camera to render from</param>
 		internal static void Render(Resource renderTarget, DescriptorHeap rtvDescHeap, DescriptorHeap dsvDescHeap, Camera camera) {
 
-			GeometryResources geometry = camera.gameObject.scene.mainGeometry;
+			GeometryResources geometry = mainGeometry;
 
 			Profiler.MetricBegin("Render setup");
 

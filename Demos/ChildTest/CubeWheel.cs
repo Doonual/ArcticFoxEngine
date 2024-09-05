@@ -1,5 +1,5 @@
 ﻿using ArcticFoxEngine.Backend;
-using ArcticFoxEngine.Components;
+using ArcticFoxEngine.Nodes;
 using CoolClassLibrary;
 using ImGuiNET;
 using System;
@@ -9,55 +9,52 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace ArcticFoxEngine.Testing.ChildTest {
-	public class CubeWheel : Component {
+	public class CubeWheel : Node {
 
 		float radius;
 		float angle;
 		float omega;
 
-		GameObject meshRenderObj;
-
-		public override void Start() {
-
+		public CubeWheel() {
 			radius = 7f;
 			angle = MathUtil.RandomFloat(0f, MathF.PI * 2);
 			omega = MathUtil.RandomFloat(0.1f, 0.4f);
 
-			meshRenderObj = gameObject.InstantiateChild("Mesh renderer obj");
-			meshRenderObj.AddComponent<MeshRenderer>().SetMesh(Mesh.CreatePrimitive(Mesh.Primitive.Cube));
-			meshRenderObj.transform.scale = new Vector3(radius, radius / 10f, radius / 10f);
-			meshRenderObj.transform.position.x = -radius / 2f;
+			CreateChild<Transform>();
 
-
+			SetName("Cube Wheel");
+			Enable();
 		}
 
+		public void Stop() {
+			omega = 0f;
+			angle = 0f;
+		}
 
 		public override void Update() {
 
-			transform.rotation = Quaternion.RotationYawPitchRoll(0f, 0f, angle);
-			transform.position = transform.Right * radius;
+			transformChild.rotation = Quaternion.RotationYawPitchRoll(0f, 0f, angle);
 
 			angle += omega * Profiler.deltaTime;
 			angle %= MathF.PI * 2f;
 
 		}
 
-		public void Stop() {
-			omega = 0f;
-			angle = MathF.PI / 2f;
-		}
 
 		public void Propagate(int count, float radiusUpdate) {
 
 			radius = radiusUpdate;
-			meshRenderObj.transform.scale = new Vector3(radius, radius / 10f, radius / 10f);
-			meshRenderObj.transform.position.x = -radius / 2f;
+
+			Node cubeChild = CreateChild<EmptyNode>("Cube");
+			cubeChild.CreateChild<Transform>();
+			cubeChild.CreateChild<MeshRenderer>().SetMesh(Mesh.CreatePrimitive(Mesh.Primitive.Cube));
+			cubeChild.transformChild.position.y = radiusUpdate / 2f;
+			cubeChild.transformChild.scale = new Vector3(radiusUpdate / 10f, radiusUpdate, radiusUpdate / 10f);
 
 			if (count <= 0) { return; }
 
-			GameObject nextCube = gameObject.InstantiateChild("Count: " + count);
-			nextCube.AddComponent<MeshRenderer>();
-			CubeWheel cw = nextCube.AddComponent<CubeWheel>();
+			CubeWheel cw = CreateChild<CubeWheel>();
+			cw.transformChild.position.y = radiusUpdate;
 			cw.Propagate(count - 1, MathUtil.RandomFloat(radius * 0.4f, radius * 0.7f));
 
 		}
@@ -69,7 +66,8 @@ namespace ArcticFoxEngine.Testing.ChildTest {
 			ImGui.SliderFloat("Omega", ref omega, 0.004f, 0.01f);
 
 			if (ImGui.Button("Adopt Camera") == true) {
-				gameObject.scene.mainCamera.gameObject.SetParent(gameObject);
+				Log.Warn("Not implemented yet");
+				//gameObject.scene.mainCamera.gameObject.SetParent(gameObject);
 			}
 
 		}

@@ -2,7 +2,7 @@
 
 namespace ArcticFoxEngine.Backend.Render {
 	using ArcticFoxEngine.Backend;
-	using ArcticFoxEngine.Components;
+	using ArcticFoxEngine.Nodes;
 	using ArcticFoxEngine.Debug;
 	using CoolClassLibrary;
 	using SharpDX.Direct3D12;

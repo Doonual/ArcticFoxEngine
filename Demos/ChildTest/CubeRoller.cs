@@ -1,5 +1,5 @@
 ﻿using ArcticFoxEngine.Backend;
-using ArcticFoxEngine.Components;
+using ArcticFoxEngine.Nodes;
 using ImGuiNET;
 using System;
 using System.Collections.Generic;
@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace ArcticFoxEngine.Testing.ChildTest {
-	public class CubeRoller : Component {
+	public class CubeRoller : Node {
 
 		float rotationAngle;
 		float rotationSpeed;
@@ -16,13 +16,14 @@ namespace ArcticFoxEngine.Testing.ChildTest {
 
 		float rotationMagnitude = 2f;
 
-
-		public override void Start() {
-
-			
+		public CubeRoller() : base() {
 			rotationAngle = 0f;
 			rotationSpeed = 0.007f;
+
+			SetName("Cube Roller");
+			Enable();
 		}
+
 		public override void Update() {
 
 			rotationAngle += rotationSpeed;

@@ -6,8 +6,13 @@ using ArcticFoxEngine.Backend;
 namespace ArcticFoxEngine {
 
 	using ArcticFoxEngine.Backend.Render;
+	using CoolClassLibrary;
 
-	public class Camera : Component {
+	public class Camera : Node {
+
+		internal override string debugName => "Camera";
+		internal override string debugDescription => "Renders the scene from the camera's point of view";
+		internal override string nodeIconPath => ".res/NodeIcons/Camera.png";
 
 		public int renderWidth { 
 			get {
@@ -59,11 +64,13 @@ namespace ArcticFoxEngine {
 			Orthographic
 		}
 
-		public Camera() {
+		public Camera() : base() {
 
 			viewportWidth = Screen.width;
 			viewportHeight = Screen.height;
 
+			SetName("Camera");
+			Enable();
 		}
 
 		private Matrix CalculateProjectionMatrix() {
@@ -76,13 +83,12 @@ namespace ArcticFoxEngine {
 				projectionMatrix = Matrix.OrthoRH(Screen.aspectRatio, 1f, nearPlane, farPlane);
 			}
 
-			Matrix cameraTransform = gameObject.transform.transformationMatrix.Invert();
+			Matrix cameraTransform = Transform.CalculateFromNode(this).Invert();
 			return cameraTransform * projectionMatrix;
 			
 		}
 
-		internal override string debugName => "Camera";
-		internal override string debugDescription => "Renders the scene from the camera's point of view";
+		
 
 		public override void Debug() {
 
@@ -91,9 +97,6 @@ namespace ArcticFoxEngine {
 			ImGui.SliderFloat("Near plane", ref nearPlane, 0f, 1f, null, ImGuiSliderFlags.Logarithmic);
 			ImGui.SliderFloat("Far plane", ref farPlane, 20f, 6000f, null, ImGuiSliderFlags.Logarithmic);
 
-		}
-		public override void OnEnable() {
-			gameObject.scene.mainCamera = this;
 		}
 
 		internal void UpdateCameraInfoBuffer(ConstBuffer<RenderInfo> renderInfo) {
@@ -106,10 +109,8 @@ namespace ArcticFoxEngine {
 			renderInfo.Write(new RenderInfo[] { info }, 0);
 
 		}
-		public override void OnRender() {
-
+		public override void Render() {
 			GPU_Render.Render(Graphics.renderTargets[Graphics.frameIndex], Graphics.rtvHeap, Graphics.dsvHeap, this);
-
 		}
 
 

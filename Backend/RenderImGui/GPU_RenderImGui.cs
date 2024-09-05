@@ -15,6 +15,7 @@ namespace ArcticFoxEngine {
 	using ArcticFoxEngine.Backend;
 	using CoolClassLibrary;
 	using ArcticFoxEngine.Debug;
+	using ArcticFoxEngine.Backend.RenderImGui;
 
 	unsafe internal static class GPU_RenderImGui {
 
@@ -53,6 +54,7 @@ namespace ArcticFoxEngine {
 
 			loadedTexturesPtrs = new Dictionary<string, (IntPtr Handle, uint Width, uint Height)>();
 
+			NodeIconBank.Init();
 			ImGui.CreateContext();
 			var io = ImGui.GetIO();
 			io.BackendFlags |= ImGuiBackendFlags.RendererHasVtxOffset;  // We can honor the ImDrawCmd::VtxOffset field, allowing for large meshes.

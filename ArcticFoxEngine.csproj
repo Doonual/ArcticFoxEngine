@@ -65,6 +65,11 @@
 	<ItemGroup>
 	  <ProjectReference Include="..\CoolClassLibrary\CoolClassLibrary.csproj" />
 	</ItemGroup>
+	
+	
+	<ItemGroup>
+	  <Folder Include=".res\NodeIcons\" />
+	</ItemGroup>
 
 
 </Project>

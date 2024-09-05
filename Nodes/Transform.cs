@@ -1,22 +1,42 @@
-﻿using ImGuiNET;
+﻿using CoolClassLibrary;
+using ImGuiNET;
 
 namespace ArcticFoxEngine {
 
-	public class Transform : Component {
+	public class Transform : Node {
+
+		internal override string debugName => "Transform";
+		internal override string debugDescription => "Gives an object a position, rotation and scale.";
+		internal override string nodeIconPath => ".res/NodeIcons/Transform.png";
 
 		public Vector3 position;
 		public Quaternion rotation;
 		public Vector3 scale;
 		public Matrix transformationMatrix {
 			get {
-				if (gameObject.parent == null) {
-					return Matrix.Transformation(position, rotation, scale);
-				}
-				else {
-					return Matrix.Transformation(position, rotation, scale) * gameObject.parent.transform.transformationMatrix;
-				}
-				
+				return Matrix.Transformation(position, rotation, scale);
 			}
+		}
+		public static Matrix CalculateFromNode(Node node) {
+
+			Node searchForNextTf = node;
+			Matrix accumTransform = Matrix.Identity;
+			int numTransformsAccumed = 0;
+
+			while (true) {
+				if (searchForNextTf == null) {
+					break;
+				}
+				Transform transformSib = searchForNextTf.transform;
+				if (transformSib != null) {
+					accumTransform = accumTransform * Matrix.Transformation(transformSib.position, transformSib.rotation, transformSib.scale);
+					numTransformsAccumed += 1;
+				}
+				searchForNextTf = searchForNextTf.parentNode;
+			}
+
+			return accumTransform;
+
 		}
 
 		#region Directions
@@ -55,11 +75,15 @@ namespace ArcticFoxEngine {
 		
 		#endregion
 
-		public Transform() {
+		public Transform() : base() {
 
 			position = Vector3.Zero;
 			rotation = Quaternion.Identity;
 			scale = Vector3.One;
+
+			SetName("Transform");
+			Enable();
+
 		}
 		public void ResetTransform() {
 			position = Vector3.Zero;
@@ -67,9 +91,7 @@ namespace ArcticFoxEngine {
 			scale = Vector3.One;
 		}
 
-		internal override string debugName => "Transform";
-
-		internal override string debugDescription => "Gives an object a position, rotation and scale.";
+		
 
 
 		public override void Debug() {

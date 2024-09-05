@@ -7,19 +7,25 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ArcticFoxEngine.Components {
+namespace ArcticFoxEngine.Nodes {
 
 	using ArcticFoxEngine.Backend.Render;
 	
-	public class MeshRenderer : Component {
+	public class MeshRenderer : Node {
+
+		internal override string debugName => "Mesh Renderer";
+		internal override string debugDescription => "Renders the mesh to the scene geometry";
+		internal override string nodeIconPath => ".res/NodeIcons/MeshRenderer.png";
 
 		public Mesh mesh { get; private set; }
 		public int textureId = 2;
 
 		private bool meshLoaded = false;
 
-		public MeshRenderer() {
+		public MeshRenderer() : base() {
 			mesh = null;
+			SetName("Mesh Renderer");
+			Enable();
 		}
 
 		public void SetMesh(Mesh mesh) {
@@ -40,26 +46,20 @@ namespace ArcticFoxEngine.Components {
 
 		private void LoadMesh() {
 			if (mesh == null || meshLoaded == true) { return; }
-			
-			bool meshAdded = gameObject.scene.mainGeometry.AddMesh(this);
+			bool meshAdded = GPU_Render.mainGeometry.AddMesh(this);
 			if (meshAdded == true) {
 				meshLoaded = true;
-				//Enable();
-			}
-			else {
-				//Disable();
 			}
 		}
 		private void UnloadMesh() {
 			if (meshLoaded == false) { return; }
-			gameObject.scene.mainGeometry.RemoveMesh(this);
+			GPU_Render.mainGeometry.RemoveMesh(this);
 			meshLoaded = false;
-			//Disable();
 		}
 
 		internal ObjectInfo GetObjectInfo() {
 			ObjectInfo info = new ObjectInfo();
-			info.transformationMatrix = gameObject.transform.transformationMatrix;
+			info.transformationMatrix = Transform.CalculateFromNode(this); ;
 			return info;
 		}
 
@@ -72,8 +72,7 @@ namespace ArcticFoxEngine.Components {
 		}
 
 		Vector4 vertexColSet;
-		internal override string debugName => "Mesh Filter";
-		internal override string debugDescription => "Adds the mesh to the scene geometry";
+		
 		public override void Debug() {
 
 			base.Debug();

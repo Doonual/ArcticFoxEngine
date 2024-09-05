@@ -15,7 +15,7 @@ namespace ArcticFoxEngine.Debug {
 		private static List<DebugWindow> windows;
 		private static bool showImGuiDemo;
 
-		private static List<DemoScene> demoScenes;
+		private static List<Type> demoNodes;
 
 		internal static void Init(RenderForm form) {
 
@@ -33,11 +33,11 @@ namespace ArcticFoxEngine.Debug {
 				new DebugScene(),
 			};
 			LoadWindowOptions();
-			
-			demoScenes = new List<DemoScene>() {
-				new HelloSceneDemo(),
-				new ChildTestDemo(),
-				new RenderingStressTestDemo(),
+
+			demoNodes = new List<Type>() {
+				typeof(CubeSpin),
+				typeof(ChildTestNode),
+				typeof(RenderingStressTestNode),
 			};
 
 
@@ -105,9 +105,13 @@ namespace ArcticFoxEngine.Debug {
 					ImGui.PushStyleColor(ImGuiCol.Text, new System.Numerics.Vector4(0.5f, 0.5f, 0.5f, 1.0f));
 					ImGui.Text("Demos");
 					ImGui.PopStyleColor();
-					for (int i = 0; i < demoScenes.Count; i ++) {
-						if (ImGui.MenuItem(demoScenes[i].name) == true) {
-							Scene.LoadDemoScene(demoScenes[i]);
+					for (int i = 0; i < demoNodes.Count; i ++) {
+						if (ImGui.MenuItem(demoNodes[i].Name) == true) {
+							if (Node.rootNode != null) {
+								Node.rootNode.DisposeEvent();
+							}
+							Node newNode = (Node)Activator.CreateInstance(demoNodes[i]);
+							Node.SetRootNode(newNode);
 						}
 					}
 					

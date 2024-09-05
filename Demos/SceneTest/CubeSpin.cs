@@ -1,5 +1,5 @@
 ﻿using ArcticFoxEngine.Backend;
-using ArcticFoxEngine.Components;
+using ArcticFoxEngine.Nodes;
 using CoolClassLibrary;
 using ImGuiNET;
 using System;
@@ -9,11 +9,11 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace ArcticFoxEngine.Testing.SceneTest {
-	public class CubeSpin : Component {
+	public class CubeSpin : Node {
 
-		List<GameObject> xSpin;
-		List<GameObject> ySpin;
-		List<GameObject> zSpin;
+		List<Node> xSpin;
+		List<Node> ySpin;
+		List<Node> zSpin;
 		int numPerRing = 8;
 		bool animate;
 		float speed;
@@ -21,13 +21,25 @@ namespace ArcticFoxEngine.Testing.SceneTest {
 		float ringSize = 14f;
 		
 
-		public override void Start() {
+		public CubeSpin() : base() {
 
-			xSpin = new List<GameObject>();
-			ySpin = new List<GameObject>();
-			zSpin = new List<GameObject>();
+			Node cameraObj = CreateChild<EmptyNode>("Main Camera");
+			cameraObj.CreateChild<Transform>();
+			Camera mainCam = cameraObj.CreateChild<Camera>();
+			cameraObj.CreateChild<CameraController>();
+			cameraObj.GetChild<Transform>().position = Vector3.Back * 25f;
 
 
+			xSpin = new List<Node>();
+			ySpin = new List<Node>();
+			zSpin = new List<Node>();
+
+			Node xRing = CreateChild<EmptyNode>("X Ring");
+			xRing.CreateChild<Transform>();
+			Node yRing = CreateChild<EmptyNode>("Y Ring");
+			yRing.CreateChild<Transform>();
+			Node zRing = CreateChild<EmptyNode>("Z Ring");
+			zRing.CreateChild<Transform>();
 
 			for (int i = 0; i < numPerRing; i++) {
 
@@ -40,13 +52,12 @@ namespace ArcticFoxEngine.Testing.SceneTest {
 					
 				}
 
-				GameObject xObj = gameObject.scene.InstantiateObject("X" + (i + 1));
-				xObj.SetParent(gameObject);
-				xObj.AddComponent<MeshRenderer>().SetMesh(cubeMesh);
+				Node xObj = xRing.CreateChild<EmptyNode>("X" + (i + 1));
+				xObj.CreateChild<Transform>();
+				xObj.CreateChild<MeshRenderer>().SetMesh(cubeMesh);
 				xSpin.Add(xObj);
 
 			}
-
 			for (int i = 0; i < numPerRing; i++) {
 
 				Mesh cubeMesh = Mesh.CreatePrimitive(Mesh.Primitive.Cube);
@@ -57,13 +68,12 @@ namespace ArcticFoxEngine.Testing.SceneTest {
 					}
 				}
 
-				GameObject yObj = gameObject.scene.InstantiateObject("Y" + (i + 1));
-				yObj.SetParent(gameObject);
-				yObj.AddComponent<MeshRenderer>().SetMesh(cubeMesh);
+				Node yObj = yRing.CreateChild<EmptyNode>("Y" + (i + 1));
+				yObj.CreateChild<Transform>();
+				yObj.CreateChild<MeshRenderer>().SetMesh(cubeMesh);
 				ySpin.Add(yObj);
 
 			}
-
 			for (int i = 0; i < numPerRing; i++) {
 
 				Mesh cubeMesh = Mesh.CreatePrimitive(Mesh.Primitive.Cube);
@@ -74,9 +84,9 @@ namespace ArcticFoxEngine.Testing.SceneTest {
 					}
 				}
 
-				GameObject zObj = gameObject.scene.InstantiateObject("Z" + (i + 1));
-				zObj.SetParent(gameObject);
-				zObj.AddComponent<MeshRenderer>().SetMesh(cubeMesh);
+				Node zObj = zRing.CreateChild<EmptyNode>("Z" + (i + 1));
+				zObj.CreateChild<Transform>();
+				zObj.CreateChild<MeshRenderer>().SetMesh(cubeMesh);
 				zSpin.Add(zObj);
 
 			}
@@ -85,7 +95,8 @@ namespace ArcticFoxEngine.Testing.SceneTest {
 			speed = 0.5f;
 			t = 0f;
 
-
+			SetName("Cube Spin");
+			Enable();
 		}
 
 		public override void Update() {
@@ -98,27 +109,27 @@ namespace ArcticFoxEngine.Testing.SceneTest {
 			for (int i = 0; i < xSpin.Count; i ++) {
 
 				float proportion = (float)i / xSpin.Count;
-				GameObject obj = xSpin[i];
-				obj.transform.rotation = Quaternion.RotationYawPitchRoll(0f, ((proportion + t) % 1) * MathF.PI * 2f, 0f);
-				obj.transform.position = obj.transform.Back * ringSize;
+				Node obj = xSpin[i];
+				obj.GetChild<Transform>().rotation = Quaternion.RotationYawPitchRoll(0f, ((proportion + t) % 1) * MathF.PI * 2f, 0f);
+				obj.GetChild<Transform>().position = obj.GetChild<Transform>().Back * ringSize;
 
 			}
 
 			for (int i = 0; i < ySpin.Count; i++) {
 
 				float proportion = (float)i / ySpin.Count;
-				GameObject obj = ySpin[i];
-				obj.transform.rotation = Quaternion.RotationYawPitchRoll(((proportion + t + (1f / 24f)) % 1) * MathF.PI * 2f, 0f, 0f);
-				obj.transform.position = obj.transform.Back * ringSize;
+				Node obj = ySpin[i];
+				obj.GetChild<Transform>().rotation = Quaternion.RotationYawPitchRoll(((proportion + t + (1f / 24f)) % 1) * MathF.PI * 2f, 0f, 0f);
+				obj.GetChild<Transform>().position = obj.GetChild<Transform>().Back * ringSize;
 
 			}
 
 			for (int i = 0; i < zSpin.Count; i++) {
 
 				float proportion = (float)i / zSpin.Count;
-				GameObject obj = zSpin[i];
-				obj.transform.rotation = Quaternion.RotationYawPitchRoll(0f, 0f, ((proportion + t + (2f / 24f)) % 1) * MathF.PI * 2f);
-				obj.transform.position = obj.transform.Up * ringSize;
+				Node obj = zSpin[i];
+				obj.GetChild<Transform>().rotation = Quaternion.RotationYawPitchRoll(0f, 0f, ((proportion + t + (2f / 24f)) % 1) * MathF.PI * 2f);
+				obj.GetChild<Transform>().position = obj.GetChild<Transform>().Up * ringSize;
 
 			}
 
@@ -132,6 +143,7 @@ namespace ArcticFoxEngine.Testing.SceneTest {
 			ImGui.SliderFloat("Speed", ref speed, -1f, 1f);
 			if (animate == false) { ImGui.EndDisabled(); }
 			ImGui.SliderFloat("T", ref t, 0f, 1f);
+
 		}
 
 	}

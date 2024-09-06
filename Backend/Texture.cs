@@ -122,7 +122,6 @@ namespace ArcticFoxEngine.Backend {
 		/// </summary>
 		public void Dispose() {
 			if (disposed == true) { return; }
-			Log.Info("Texture disposing");
 			disposed = true;
 			texture.Dispose();
 		}

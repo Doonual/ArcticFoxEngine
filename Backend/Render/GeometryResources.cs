@@ -37,7 +37,6 @@ namespace ArcticFoxEngine.Backend.Render {
 		internal int[] objectGap;
 		internal ConstBuffer<ObjectInfo> objectBuffer;
 
-		internal Texture[] testTextures;
 
 		/// <summary>
 		/// Creates a new instance GeometryResources

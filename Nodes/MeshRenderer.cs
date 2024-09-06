@@ -17,43 +17,58 @@ namespace ArcticFoxEngine.Nodes {
 		internal override string debugDescription => "Renders the mesh to the scene geometry";
 		internal override string nodeIconPath => ".res/NodeIcons/MeshRenderer.png";
 
+		private string renderPipeline;
 		public Mesh mesh { get; private set; }
 		public int textureId = 2;
 
+
 		private bool meshLoaded = false;
+
 
 		public MeshRenderer() : base() {
 			mesh = null;
+			renderPipeline = "normal";
 			SetName("Mesh Renderer");
 			Enable();
 		}
 
+		public void SetRenderPipeline(string renderPipeline) {
+
+			if (mesh != null && enabled == true) {
+				UnloadMesh(this.renderPipeline);
+			}
+
+			this.renderPipeline = renderPipeline;
+
+			if (mesh != null && enabled == true) {
+				LoadMesh(renderPipeline);
+			}
+
+		}
 		public void SetMesh(Mesh mesh) {
 
 			// If the object has a mesh already loaded, delete it
 			bool prevEnabled = enabled;
 			if (this.mesh != null && enabled == true) {
-				UnloadMesh();
+				UnloadMesh(renderPipeline);
 			}
 			
 			this.mesh = mesh;
 			if (this.mesh != null && enabled == true) {
-				LoadMesh();
+				LoadMesh(renderPipeline);
 			}
 			
-
 		}
-
-		private void LoadMesh() {
+		private void LoadMesh(string renderPipeline) {
 			if (mesh == null || meshLoaded == true) { return; }
-			bool meshAdded = GPU_Render.mainGeometry.AddMesh(this);
+			bool meshAdded = GPU_Render.renderPipelines[renderPipeline].geometryResources.AddMesh(this);
 			if (meshAdded == true) {
 				meshLoaded = true;
 			}
 		}
-		private void UnloadMesh() {
+		private void UnloadMesh(string renderPipeline) {
 			if (meshLoaded == false) { return; }
-			GPU_Render.mainGeometry.RemoveMesh(this);
+			GPU_Render.renderPipelines[renderPipeline].geometryResources.RemoveMesh(this);
 			meshLoaded = false;
 		}
 
@@ -65,17 +80,24 @@ namespace ArcticFoxEngine.Nodes {
 
 
 		public override void OnDisable() {
-			UnloadMesh();
+			UnloadMesh(renderPipeline);
 		}
 		public override void OnEnable() {
-			LoadMesh();
+			LoadMesh(renderPipeline);
 		}
 
 		Vector4 vertexColSet;
-		
+
+		private int renderPipelineComboSelected = 0;
 		public override void Debug() {
 
 			base.Debug();
+
+			string[] renderPipelines = GPU_Render.renderPipelines.Keys.ToArray();
+			ImGui.Combo("Render pipeline", ref renderPipelineComboSelected, renderPipelines, renderPipelines.Length);
+			if (renderPipelines[renderPipelineComboSelected] != renderPipeline) {
+				SetRenderPipeline(renderPipelines[renderPipelineComboSelected]);
+			}
 
 			ImGui.InputInt("Texture ID", ref textureId);
 

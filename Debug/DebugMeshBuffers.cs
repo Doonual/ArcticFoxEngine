@@ -22,7 +22,7 @@ namespace ArcticFoxEngine.Debug {
 		internal override void Render() {
 
 
-			Backend.Render.GeometryResources geometry = GPU_Render.mainGeometry;
+			GeometryResources geometry = GPU_Render.renderPipelines["normal"].Item2;
 			MeshRenderer delMeshFilter = null;
 
 			ImGui.InputInt("Max Display Entries", ref maxEntries);

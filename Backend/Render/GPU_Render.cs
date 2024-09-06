@@ -17,16 +17,15 @@ namespace ArcticFoxEngine.Backend.Render {
 	/// </summary>
 	public static class GPU_Render {
 
-		internal static RenderPipeline renderPipeline;
 		internal static ConstBuffer<RenderInfo> renderInfo;
-
-		internal static GeometryResources mainGeometry;
-
 		internal static Texture[] textures;
+
+		internal static Dictionary<string, (RenderPipeline renderPipeline, GeometryResources geometryResources)> renderPipelines;
+
 
 		internal static void Init() {
 
-			mainGeometry = new GeometryResources();
+			
 			renderInfo = new ConstBuffer<RenderInfo>(1);
 
 			textures = new Texture[4];
@@ -35,11 +34,19 @@ namespace ArcticFoxEngine.Backend.Render {
 			textures[2] = new Texture(".res/Textures/uv_blender.jpg");
 			textures[3] = new Texture(".res/Textures/tiger.png");
 
-			ShaderBytecode vertexShader = Graphics.CompileShader(".res/VertexShader.hlsl", Graphics.ShaderType.Vertex);
-			ShaderBytecode geometryShader = Graphics.CompileShader(".res/GeometryShader.hlsl", Graphics.ShaderType.Geometry);
-			ShaderBytecode pixelShader = Graphics.CompileShader(".res/PixelShader.hlsl", Graphics.ShaderType.Pixel);
+			renderPipelines = new Dictionary<string, (RenderPipeline renderPipeline, GeometryResources geometryResources)>();
 
-			renderPipeline = new RenderPipeline();
+			SetupMainRP();
+			SetupWireframeRP();
+			
+
+		}
+
+		private static void SetupMainRP() {
+
+
+			GeometryResources mainGeometry = new GeometryResources();
+			RenderPipeline renderPipeline = new RenderPipeline();
 
 			renderPipeline.BindBuffer(renderInfo, ShaderVisibility.All, (int mrIndex) => { return 0; });
 			renderPipeline.BindBuffer(mainGeometry.objectBuffer, ShaderVisibility.All, (int mrIndex) => { return mainGeometry.meshRendererPositions[mrIndex].obStart; });
@@ -56,13 +63,51 @@ namespace ArcticFoxEngine.Backend.Render {
 			renderPipeline.BindTexture(textures[2], ShaderVisibility.Pixel);
 			renderPipeline.BindTexture(textures[3], ShaderVisibility.Pixel);
 
+			ShaderBytecode vertexShader = Graphics.CompileShader(".res/VertexShader.hlsl", Graphics.ShaderType.Vertex);
+			ShaderBytecode geometryShader = Graphics.CompileShader(".res/GeometryShader.hlsl", Graphics.ShaderType.Geometry);
+			ShaderBytecode pixelShader = Graphics.CompileShader(".res/PixelShader.hlsl", Graphics.ShaderType.Pixel);
 
 			renderPipeline.Finalise(vertexShader, pixelShader, geometryShader);
+
+			renderPipelines.Add("normal", (renderPipeline, mainGeometry));
+
+		}
+		private static void SetupWireframeRP() {
+
+
+			GeometryResources mainGeometry = new GeometryResources();
+			RenderPipeline renderPipeline = new RenderPipeline();
+
+			renderPipeline.BindBuffer(renderInfo, ShaderVisibility.All, (int mrIndex) => { return 0; });
+			renderPipeline.BindBuffer(mainGeometry.objectBuffer, ShaderVisibility.All, (int mrIndex) => { return mainGeometry.meshRendererPositions[mrIndex].obStart; });
+
+			RenderPipeline.TextureSamplerOptions textureSamplerOptions = new RenderPipeline.TextureSamplerOptions() {
+				addressUVW = TextureAddressMode.Wrap,
+				filter = Filter.MinimumMinMagMipPoint,
+			};
+			renderPipeline.BindTextureSampler(textureSamplerOptions, ShaderVisibility.Pixel);
+
+			renderPipeline.CreateTextureSlot(ShaderVisibility.Pixel, (int mrIndex) => { return mainGeometry.meshRenderers[mrIndex].textureId; });
+			renderPipeline.BindTexture(textures[0], ShaderVisibility.Pixel);
+			renderPipeline.BindTexture(textures[1], ShaderVisibility.Pixel);
+			renderPipeline.BindTexture(textures[2], ShaderVisibility.Pixel);
+			renderPipeline.BindTexture(textures[3], ShaderVisibility.Pixel);
+
+			ShaderBytecode vertexShader = Graphics.CompileShader(".res/VertexShader.hlsl", Graphics.ShaderType.Vertex);
+			ShaderBytecode geometryShader = Graphics.CompileShader(".res/GeometryShader.hlsl", Graphics.ShaderType.Geometry);
+			ShaderBytecode pixelShader = Graphics.CompileShader(".res/PixelShader.hlsl", Graphics.ShaderType.Pixel);
+
+			RasterizerStateDescription rasterState = RasterizerStateDescription.Default();
+			rasterState.FillMode = FillMode.Wireframe;
+
+			renderPipeline.Finalise(vertexShader, pixelShader, geometryShader, rasterState: rasterState);
+
+			renderPipelines.Add("wireframe", (renderPipeline, mainGeometry));
 
 		}
 
 
-		
+
 		/// <summary>
 		/// Renders a camera's view
 		/// </summary>
@@ -72,17 +117,30 @@ namespace ArcticFoxEngine.Backend.Render {
 		/// <param name="camera">The camera to render from</param>
 		internal static void Render(Resource renderTarget, DescriptorHeap rtvDescHeap, DescriptorHeap dsvDescHeap, Camera camera) {
 
-
-			mainGeometry.UpdateObjectInfoBuffer();
 			camera.UpdateCameraInfoBuffer(renderInfo);
-			renderPipeline.Render(mainGeometry, camera, renderTarget, rtvDescHeap, dsvDescHeap);
+
+			for (int i = 0; i < renderPipelines.Count; i ++) {
+
+				RenderPipeline currentRenderPipeline = renderPipelines.ElementAt(i).Value.Item1;
+				GeometryResources currentGeometryResources = renderPipelines.ElementAt(i).Value.Item2;
+
+				currentGeometryResources.UpdateObjectInfoBuffer();
+				currentRenderPipeline.Render(currentGeometryResources, camera, renderTarget, rtvDescHeap, dsvDescHeap, i == 0);
+
+			}
 
 
 		}
 
 
 		internal static void Dispose() {
-			renderPipeline.Dispose();
+			for (int i = 0; i < renderPipelines.Count; i++) {
+				RenderPipeline currentRenderPipeline = renderPipelines.ElementAt(i).Value.Item1;
+				GeometryResources currentGeometryResources = renderPipelines.ElementAt(i).Value.Item2;
+				currentRenderPipeline.Dispose();
+				currentGeometryResources.Dispose();
+			}
+
 		}
 
 

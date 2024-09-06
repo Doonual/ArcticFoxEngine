@@ -311,7 +311,7 @@ namespace ArcticFoxEngine.Backend {
 
 		}
 
-		public void Render(GeometryResources geometry, Camera camera, Resource renderTarget, DescriptorHeap rtvDescHeap, DescriptorHeap dsvDescHeap) {
+		public void Render(GeometryResources geometry, Camera camera, Resource renderTarget, DescriptorHeap rtvDescHeap, DescriptorHeap dsvDescHeap, bool clearBackground = false) {
 
 			Profiler.MetricBegin("Render setup");
 
@@ -335,8 +335,12 @@ namespace ArcticFoxEngine.Backend {
 			CpuDescriptorHandle dsvHandle = dsvDescHeap.CPUDescriptorHandleForHeapStart;
 			rtvHandle += Graphics.frameIndex * Graphics.rtvHeapIncrement;
 			cmdList.SetRenderTargets(rtvHandle, dsvHandle);
-			cmdList.ClearRenderTargetView(rtvHandle, new Color4(0f, 0f, 0f, 1f), 0, null);
-			cmdList.ClearDepthStencilView(dsvHandle, ClearFlags.FlagsDepth, 1f, 0);
+
+			if (clearBackground == true) {
+				cmdList.ClearRenderTargetView(rtvHandle, new Color4(0f, 0f, 0f, 1f), 0, null);
+				cmdList.ClearDepthStencilView(dsvHandle, ClearFlags.FlagsDepth, 1f, 0);
+			}
+			
 
 
 			// Set geometry

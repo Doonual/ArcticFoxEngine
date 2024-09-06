@@ -64,8 +64,9 @@ namespace ArcticFoxEngine {
 			try {
 				Graphics.Init(form);
 
+
 				GPU_Upload.Init();
-				Backend.Render.GPU_Render.Init(width, height);
+				Backend.Render.GPU_Render.Init();
 				Screen.InitScreen(form);
 				InputManager.InitInput();
 

@@ -11,7 +11,7 @@ namespace ArcticFoxEngine.Backend {
 	using SixLabors.ImageSharp;
 	using SixLabors.ImageSharp.PixelFormats;
 
-	internal class Texture {
+	public class Texture {
 
 		private bool disposed = true;
 
@@ -25,12 +25,15 @@ namespace ArcticFoxEngine.Backend {
 		/// </summary>
 		/// <param name="width">Width of the texture</param>
 		/// <param name="height">Height of the texture</param>
-		internal Texture(int width, int height) {
+		public Texture(int width, int height, bool allowUnorderedAccess = false) {
 			disposed = false;
 
 			this.width = width;
 			this.height = height;
 			ResourceDescription textureDesc = ResourceDescription.Texture2D(Format.R8G8B8A8_UNorm, width, height);
+
+			textureDesc.Flags |= allowUnorderedAccess ? ResourceFlags.AllowUnorderedAccess : ResourceFlags.None;
+
 			texture = Graphics.device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.None, textureDesc, ResourceStates.CopyDestination);
 
 		}
@@ -39,7 +42,7 @@ namespace ArcticFoxEngine.Backend {
 		/// Creates a texture and uploads the contents of the specified image to it
 		/// </summary>
 		/// <param name="path">The path to the image containing the data to be uploaded</param>
-		internal Texture(string path) {
+		public Texture(string path) {
 
 
 			Image<Rgba32> image = Image.Load<Rgba32>(path);
@@ -77,15 +80,17 @@ namespace ArcticFoxEngine.Backend {
 				Dimension = ShaderResourceViewDimension.Texture2D,
 				Texture2D = { MipLevels = 1 },
 			};
-			Graphics.device.CreateShaderResourceView(texture, srvDesc, destDescriptorHeap.CPUDescriptorHandleForHeapStart + Backend.Render.GPU_Render.descHeapIncrement * offset);
+
+			Graphics.device.CreateShaderResourceView(texture, srvDesc, destDescriptorHeap.CPUDescriptorHandleForHeapStart + Graphics.device.GetDescriptorHandleIncrementSize(DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView) * offset);
+
 
 		}
-		
+
 		/// <summary>
 		/// Uploads data to the textue
 		/// </summary>
 		/// <param name="data">The data to be uploaded</param>
-		internal void SetData(byte[] data) {
+		public void SetData(byte[] data) {
 			GPU_Upload.Texture2DUpload(texture, width, height, Format.R8G8B8A8_UNorm, data);
 		}
 
@@ -115,8 +120,9 @@ namespace ArcticFoxEngine.Backend {
 		/// <summary>
 		/// Disposes the resources held by Texture
 		/// </summary>
-		internal void Dispose() {
+		public void Dispose() {
 			if (disposed == true) { return; }
+			Log.Info("Texture disposing");
 			disposed = true;
 			texture.Dispose();
 		}

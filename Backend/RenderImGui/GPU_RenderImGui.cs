@@ -199,6 +199,9 @@ namespace ArcticFoxEngine {
 			// (Because we merged all buffers into a single one, we maintain our own offset into them)
 			int global_idx_offset = 0;
 			int global_vtx_offset = 0;
+
+			int descHeapInc = Graphics.device.GetDescriptorHandleIncrementSize(DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView);
+
 			for (int n = 0; n < data.CmdListsCount; n++) {
 				ImDrawListPtr imDrawList = data.CmdListsRange[n];
 				for (int i = 0; i < imDrawList.CmdBuffer.Size; i++) {
@@ -211,7 +214,7 @@ namespace ArcticFoxEngine {
 						cmdList.SetScissorRectangles(new SharpDX.Mathematics.Interop.RawRectangle((int)cmd.ClipRect.X, (int)cmd.ClipRect.Y, (int)cmd.ClipRect.Z, (int)cmd.ClipRect.W));
 
 						if (textureResources.TryGetValue(cmd.GetTexID(), out var texture)) {
-							cmdList.SetGraphicsRootDescriptorTable(1, descriptorHeap.GPUDescriptorHandleForHeapStart + Backend.Render.GPU_Render.descHeapIncrement * texture.Item2);
+							cmdList.SetGraphicsRootDescriptorTable(1, descriptorHeap.GPUDescriptorHandleForHeapStart + descHeapInc * texture.Item2);
 						}
 						cmdList.DrawIndexedInstanced((int)cmd.ElemCount, 1, (int)(cmd.IdxOffset + global_idx_offset), (int)(cmd.VtxOffset + global_vtx_offset), 1);
 

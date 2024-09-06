@@ -97,7 +97,7 @@ namespace ArcticFoxEngine {
 			// to record yet. The main loop expects it to be closed, so close it now.
 			cmdAllocator = device.CreateCommandAllocator(CommandListType.Direct);
 			cmdQueue = device.CreateCommandQueue(new CommandQueueDescription(CommandListType.Direct));
-			cmdList = device.CreateCommandList(CommandListType.Direct, cmdAllocator, Backend.Render.GPU_Render.pipelineState);
+			cmdList = device.CreateCommandList(CommandListType.Direct, cmdAllocator, null);
 			cmdList.Close();
 
 			// Create synchronisation objects
@@ -370,7 +370,6 @@ namespace ArcticFoxEngine {
 		internal StandardIncludeHandler() : base(new IntPtr(1)) { }
 		public void Close(Stream stream) { }
 		public Stream Open(SharpDX.D3DCompiler.IncludeType type, string fileName, Stream parentStream) {
-			Log.Info("Hi");
 			throw new NotImplementedException();
 		}
 	}

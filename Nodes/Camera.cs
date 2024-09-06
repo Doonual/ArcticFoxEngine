@@ -29,9 +29,10 @@ namespace ArcticFoxEngine {
 		public float viewportHeight;
 
 		public float fov = 100f;
-
 		public float nearPlane = 0.01f;
 		public float farPlane = 1000f;
+
+		public float zoom = 1f;
 
 		public ProjectionType projectionType = ProjectionType.Perspective;
 
@@ -80,7 +81,7 @@ namespace ArcticFoxEngine {
 				projectionMatrix = Matrix.PerspectiveFovLH(fov * MathF.PI / 180f, Screen.aspectRatio, nearPlane, farPlane);
 			}
 			if (projectionType == ProjectionType.Orthographic) {
-				projectionMatrix = Matrix.OrthoRH(Screen.aspectRatio, 1f, nearPlane, farPlane);
+				projectionMatrix = Matrix.OrthoLH(zoom * Screen.aspectRatio, zoom, nearPlane, farPlane);
 			}
 
 			Matrix cameraTransform = Transform.CalculateFromNode(this).Invert();
@@ -93,9 +94,16 @@ namespace ArcticFoxEngine {
 		public override void Debug() {
 
 			base.Debug();
-			ImGui.SliderFloat("Fov", ref fov, 45f, 130f);
-			ImGui.SliderFloat("Near plane", ref nearPlane, 0f, 1f, null, ImGuiSliderFlags.Logarithmic);
-			ImGui.SliderFloat("Far plane", ref farPlane, 20f, 6000f, null, ImGuiSliderFlags.Logarithmic);
+			ImGuiExtras.ComboEnum(ref projectionType);
+
+			if (projectionType == ProjectionType.Perspective) {
+				ImGui.SliderFloat("Fov", ref fov, 45f, 130f);
+				ImGui.SliderFloat("Near plane", ref nearPlane, 0f, 1f, null, ImGuiSliderFlags.Logarithmic);
+				ImGui.SliderFloat("Far plane", ref farPlane, 20f, 6000f, null, ImGuiSliderFlags.Logarithmic);
+			}
+			else {
+				ImGui.SliderFloat("Zoom", ref zoom, 0.5f, 100f, null, ImGuiSliderFlags.Logarithmic);
+			}
 
 		}
 

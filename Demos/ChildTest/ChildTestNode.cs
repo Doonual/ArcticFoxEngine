@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ImGuiNET;
 
 namespace ArcticFoxEngine.Testing.ChildTest {
 	public class ChildTestNode : Node {
@@ -100,6 +101,25 @@ namespace ArcticFoxEngine.Testing.ChildTest {
 
 			SetName("Child Test Node");
 			Enable();
+		}
+
+		public override void Debug() {
+			if (ImGui.Button("Recurse") == true) {
+				Recurse();
+			}
+		}
+
+		public void Recurse() {
+
+			Node nextCopy = CreateChild<EmptyNode>("Next Copy");
+
+			Transform nextTransform = nextCopy.CreateChild<Transform>();
+			nextTransform.position = new Vector3(-5.25f, 0f, -6f);
+			nextTransform.scale = new Vector3(0.5f, 0.5f, 0.5f);
+
+			ChildTestNode nextChildTestNode = nextCopy.CreateChild<ChildTestNode>();
+			nextChildTestNode.GetChild(0).Disable();
+
 		}
 
 	}

@@ -20,10 +20,7 @@ namespace ArcticFoxEngine.Demos.RenderingStressTest {
 
 			int currentObject = 0;
 			
-			Node cameraObj = CreateChild<EmptyNode>("Main Camera");
-			cameraObj.CreateChild<Transform>();
-			cameraObj.CreateChild<Camera>();
-			cameraObj.CreateChild<CameraController>();
+			CreateChild<CameraController>();
 
 			Node cubeStack = CreateChild<EmptyNode>("Cube Stack");
 			cubeStack.CreateChild<Transform>();

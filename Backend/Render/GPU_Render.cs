@@ -38,7 +38,7 @@ namespace ArcticFoxEngine.Backend.Render {
 
 			SetupMainRP();
 			SetupWireframeRP();
-			
+			SetupMandelbrotRP();
 
 		}
 
@@ -63,9 +63,9 @@ namespace ArcticFoxEngine.Backend.Render {
 			renderPipeline.BindTexture(textures[2], ShaderVisibility.Pixel);
 			renderPipeline.BindTexture(textures[3], ShaderVisibility.Pixel);
 
-			ShaderBytecode vertexShader = Graphics.CompileShader(".res/VertexShader.hlsl", Graphics.ShaderType.Vertex);
-			ShaderBytecode geometryShader = Graphics.CompileShader(".res/GeometryShader.hlsl", Graphics.ShaderType.Geometry);
-			ShaderBytecode pixelShader = Graphics.CompileShader(".res/PixelShader.hlsl", Graphics.ShaderType.Pixel);
+			ShaderBytecode vertexShader = Graphics.CompileShader(".res/Shaders/VertexShader.hlsl", Graphics.ShaderType.Vertex);
+			ShaderBytecode geometryShader = Graphics.CompileShader(".res/Shaders/GeometryShader.hlsl", Graphics.ShaderType.Geometry);
+			ShaderBytecode pixelShader = Graphics.CompileShader(".res/Shaders/PixelShader.hlsl", Graphics.ShaderType.Pixel);
 
 			renderPipeline.Finalise(vertexShader, pixelShader, geometryShader);
 
@@ -93,9 +93,9 @@ namespace ArcticFoxEngine.Backend.Render {
 			renderPipeline.BindTexture(textures[2], ShaderVisibility.Pixel);
 			renderPipeline.BindTexture(textures[3], ShaderVisibility.Pixel);
 
-			ShaderBytecode vertexShader = Graphics.CompileShader(".res/VertexShader.hlsl", Graphics.ShaderType.Vertex);
-			ShaderBytecode geometryShader = Graphics.CompileShader(".res/GeometryShader.hlsl", Graphics.ShaderType.Geometry);
-			ShaderBytecode pixelShader = Graphics.CompileShader(".res/PixelShader.hlsl", Graphics.ShaderType.Pixel);
+			ShaderBytecode vertexShader = Graphics.CompileShader(".res/Shaders/VertexShader.hlsl", Graphics.ShaderType.Vertex);
+			ShaderBytecode geometryShader = Graphics.CompileShader(".res/Shaders/GeometryShader.hlsl", Graphics.ShaderType.Geometry);
+			ShaderBytecode pixelShader = Graphics.CompileShader(".res/Shaders/PixelShader.hlsl", Graphics.ShaderType.Pixel);
 
 			RasterizerStateDescription rasterState = RasterizerStateDescription.Default();
 			rasterState.FillMode = FillMode.Wireframe;
@@ -105,7 +105,35 @@ namespace ArcticFoxEngine.Backend.Render {
 			renderPipelines.Add("wireframe", (renderPipeline, mainGeometry));
 
 		}
+		private static void SetupMandelbrotRP() {
 
+			GeometryResources mainGeometry = new GeometryResources();
+			RenderPipeline renderPipeline = new RenderPipeline();
+
+			renderPipeline.BindBuffer(renderInfo, ShaderVisibility.All, (int mrIndex) => { return 0; });
+			renderPipeline.BindBuffer(mainGeometry.objectBuffer, ShaderVisibility.All, (int mrIndex) => { return mainGeometry.meshRendererPositions[mrIndex].obStart; });
+
+			RenderPipeline.TextureSamplerOptions textureSamplerOptions = new RenderPipeline.TextureSamplerOptions() {
+				addressUVW = TextureAddressMode.Wrap,
+				filter = Filter.MinimumMinMagMipPoint,
+			};
+			renderPipeline.BindTextureSampler(textureSamplerOptions, ShaderVisibility.Pixel);
+
+			renderPipeline.CreateTextureSlot(ShaderVisibility.Pixel, (int mrIndex) => { return mainGeometry.meshRenderers[mrIndex].textureId; });
+			renderPipeline.BindTexture(textures[0], ShaderVisibility.Pixel);
+			renderPipeline.BindTexture(textures[1], ShaderVisibility.Pixel);
+			renderPipeline.BindTexture(textures[2], ShaderVisibility.Pixel);
+			renderPipeline.BindTexture(textures[3], ShaderVisibility.Pixel);
+
+			ShaderBytecode vertexShader = Graphics.CompileShader(".res/Shaders/VertexShader.hlsl", Graphics.ShaderType.Vertex);
+			ShaderBytecode geometryShader = Graphics.CompileShader(".res/Shaders/GeometryShader.hlsl", Graphics.ShaderType.Geometry);
+			ShaderBytecode pixelShader = Graphics.CompileShader(".res/Shaders/mandelbrot_shader.hlsl", Graphics.ShaderType.Pixel);
+
+			renderPipeline.Finalise(vertexShader, pixelShader, geometryShader);
+
+			renderPipelines.Add("mandelbrot", (renderPipeline, mainGeometry));
+
+		}
 
 
 		/// <summary>
@@ -119,16 +147,24 @@ namespace ArcticFoxEngine.Backend.Render {
 
 			camera.UpdateCameraInfoBuffer(renderInfo);
 
+			Graphics.cmdAllocator.Reset();
 			for (int i = 0; i < renderPipelines.Count; i ++) {
+
+
 
 				RenderPipeline currentRenderPipeline = renderPipelines.ElementAt(i).Value.Item1;
 				GeometryResources currentGeometryResources = renderPipelines.ElementAt(i).Value.Item2;
 
+				Profiler.MetricBegin(renderPipelines.ElementAt(i).Key + " RP");
+
 				currentGeometryResources.UpdateObjectInfoBuffer();
 				currentRenderPipeline.Render(currentGeometryResources, camera, renderTarget, rtvDescHeap, dsvDescHeap, i == 0);
 
+				Profiler.MetricEnd();
+
 			}
 
+			Graphics.ExecuteCommandLists();
 
 		}
 

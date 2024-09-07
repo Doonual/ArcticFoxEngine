@@ -126,12 +126,18 @@ namespace ArcticFoxEngine.Debug {
 
 				float ms = (endMs[viewSample] - startMs[viewSample]);
 
+
 				Vector2 buttonSize = new Vector2(MathF.Round((end - start) * width), 19f);
 				ImGui.SetCursorPos(topLeft + Vector2.right * MathF.Round(start * width));
 				Vector2 buttonCursorStartPos = ImGui.GetCursorPos();
 
 				Vector2 windowPosOffset = (Vector2)ImGui.GetWindowPos();
+
+
+				float buttonHeight = ImGui.GetCursorScreenPos().Y;
 				ImGui.ColorButton(name + " metric", (Vector4)col, ImGuiColorEditFlags.NoTooltip, buttonSize);
+
+				
 
 				uint filledCol;
 				unsafe {
@@ -141,7 +147,7 @@ namespace ArcticFoxEngine.Debug {
 					}
 				}
 				
-				ImGui.GetWindowDrawList().AddRectFilled(topLeft + windowPosOffset, topLeft + windowPosOffset + new Vector2(width, 19f), filledCol);
+				ImGui.GetWindowDrawList().AddRectFilled(new Vector2(topLeft.x + windowPosOffset.x, buttonHeight), new Vector2(topLeft.x + windowPosOffset.x + width, buttonHeight + 19f), filledCol);
 
 
 				ImGui.SetCursorPos(buttonCursorStartPos);
@@ -150,7 +156,13 @@ namespace ArcticFoxEngine.Debug {
 
 
 				ImGui.SetCursorPos(buttonSize * new Vector2(0f, 0.5f) - (Vector2)ImGui.CalcTextSize(name) * new Vector2(0.0f, 0.5f) + Vector2.right * 5);
+				if (col.r + col.b + col.g > 127 * 3) {
+					ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(0f, 0f, 0f, 1f));
+				}
 				ImGui.Text(name);
+				if (col.r + col.b + col.g > 127 * 3) {
+					ImGui.PopStyleColor();
+				}
 				ImGui.EndChild();
 				if (ImGui.IsItemHovered() == true) {
 					ImGui.BeginTooltip();

@@ -127,7 +127,9 @@ namespace ArcticFoxEngine.Debug {
 			for (int i = 0; i < windows.Count; i++) {
 				if (windows[i].open == true) {
 					ImGui.Begin(windows[i].name, ref windows[i].open);
+					ImGui.PushID(windows[i].GetHashCode());
 					windows[i].Render();
+					ImGui.PopID();
 					ImGui.End();
 				}
 			}

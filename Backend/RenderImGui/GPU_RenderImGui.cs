@@ -158,16 +158,12 @@ namespace ArcticFoxEngine {
 
 		internal static void Render(Resource renderTarget, DescriptorHeap rtvDescHeap, DescriptorHeap dsvDescHeap) {
 
+			Graphics.WaitForCmdList();
+			GraphicsCommandList cmdList = Graphics.CreateGraphicsCommandList(pipelineState);
 
 			ImDrawDataPtr? dataNull = UpdateImGuiDrawList();
 			if (dataNull == null) { return; }
 			ImDrawDataPtr data = (ImDrawDataPtr)dataNull;
-
-
-			Graphics.WaitForCmdList();
-			Graphics.cmdAllocator.Reset();
-			Graphics.cmdList.Reset(Graphics.cmdAllocator, pipelineState);
-			GraphicsCommandList cmdList = Graphics.cmdList;
 
 			// Indicate that the back buffer will be used as a render target
 			cmdList.ResourceBarrierTransition(renderTarget, ResourceStates.Present, ResourceStates.RenderTarget);
@@ -233,8 +229,9 @@ namespace ArcticFoxEngine {
 
 
 			cmdList.Close();
-			
-			Graphics.cmdQueue.ExecuteCommandList(cmdList);
+
+			Graphics.SubmitGraphicsCommandList(cmdList);
+			Graphics.ExecuteCommandLists();
 
 			ImGuiInput.ReSetLastCursor();
 
@@ -532,8 +529,8 @@ namespace ArcticFoxEngine {
 
 		static void CreatePipelineState() {
 
-			ShaderBytecode vertexShader = Graphics.CompileShader(".res/ImGui_shaders.hlsl", Graphics.ShaderType.Vertex);
-			ShaderBytecode pixelShader = Graphics.CompileShader(".res/ImGui_shaders.hlsl", Graphics.ShaderType.Pixel);
+			ShaderBytecode vertexShader = Graphics.CompileShader(".res/Shaders/ImGui_shaders.hlsl", Graphics.ShaderType.Vertex);
+			ShaderBytecode pixelShader = Graphics.CompileShader(".res/Shaders/ImGui_shaders.hlsl", Graphics.ShaderType.Pixel);
 
 			// Input format
 			InputElement[] inputElementDescs = new InputElement[] {

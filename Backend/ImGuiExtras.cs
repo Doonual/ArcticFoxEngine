@@ -31,6 +31,9 @@ namespace ArcticFoxEngine.Backend {
 			return changed;
 
 		}
+		public static void ItemWidthForText(string text) {
+			ImGui.SetNextItemWidth(-(ImGui.CalcTextSize(text).X + ImGui.GetStyle().ItemInnerSpacing.X));
+		}
 
 	}
 }

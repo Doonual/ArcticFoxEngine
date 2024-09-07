@@ -23,11 +23,8 @@ namespace ArcticFoxEngine.Testing.SceneTest {
 
 		public CubeSpin() : base() {
 
-			Node cameraObj = CreateChild<EmptyNode>("Main Camera");
-			cameraObj.CreateChild<Transform>();
-			Camera mainCam = cameraObj.CreateChild<Camera>();
-			cameraObj.CreateChild<CameraController>();
-			cameraObj.GetChild<Transform>().position = Vector3.Back * 25f;
+
+			CreateChild<CameraController>();
 
 
 			xSpin = new List<Node>();

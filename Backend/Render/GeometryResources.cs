@@ -91,13 +91,13 @@ namespace ArcticFoxEngine.Backend.Render {
 			// If there is no suitable space for mesh data
 			if (vbStartIndex == -1 || ibStartIndex == -1 || obStartIndex == -1) {
 				if (vbStartIndex == -1) {
-					Log.Error("Failed to add mesh vertex data to vertex buffer, not enough room");
+					Log.Warn("Failed to add mesh vertex data to vertex buffer, not enough room");
 				}
 				if (ibStartIndex == -1) {
-					Log.Error("Failed to add mesh index data to index buffer, not enough room");
+					Log.Warn("Failed to add mesh index data to index buffer, not enough room");
 				}
 				if (obStartIndex == -1) {
-					Log.Error("Failed to add mesh object data to index object, not enough room");
+					Log.Warn("Failed to add mesh object data to index object, not enough room");
 				}
 				return false;
 
@@ -199,7 +199,7 @@ namespace ArcticFoxEngine.Backend.Render {
 				}
 			}
 			if (meshRendererListIndex == -1) {
-				Log.Error("Failed to remove mesh, mesh not added");
+				Log.Warn("Failed to remove mesh, mesh not added");
 				return;
 			}
 
@@ -262,6 +262,34 @@ namespace ArcticFoxEngine.Backend.Render {
 
 		}
 		
+		/// <summary>
+		/// Applies updates to per-vertex data
+		/// Do not use to add verticies or tris!!!
+		/// </summary>
+		/// <param name="meshRenderer">The Mesh Renderer containing the mesh to be updated</param>
+		public void UpdateMeshData(MeshRenderer meshRenderer) {
+
+			int meshRendererIndex = -1;
+			for (int i = 0; i < meshRenderers.Count; i ++) {
+				if (meshRenderers[i] == meshRenderer) {
+					meshRendererIndex = i;
+					break;
+				}
+			}
+			if (meshRendererIndex == -1) {
+				Log.Warn("Mesh renderer not found, ignoring");
+				return;
+			}
+
+			long vertexBufferStartPos = meshRendererPositions[meshRendererIndex].vbStart;
+
+			long numBytes = meshRenderer.mesh.vertices.Length * Utilities.SizeOf<Vertex>();
+			IntPtr writePos = GPU_Upload.BeginBufferUpload(numBytes);
+			Utilities.Write(writePos, meshRenderer.mesh.vertices, 0, meshRenderer.mesh.vertices.Length);
+			GPU_Upload.EndBufferUpload(vertexBuffer, dstOffsetBytes: vertexBufferStartPos * Utilities.SizeOf<Vertex>());
+
+		}
+
 		private int FindGap(int[] gapArray, int width) {
 
 			int foundSpot = -1;

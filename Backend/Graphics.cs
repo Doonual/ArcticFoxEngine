@@ -36,10 +36,11 @@ namespace ArcticFoxEngine {
 
 		internal static CommandAllocator cmdAllocator;
 		internal static CommandQueue cmdQueue;
-		internal static GraphicsCommandList cmdList;
 		private static AutoResetEvent fenceEvent;
 		private static Fence fence;
 		private static int fenceValue;
+
+		private static List<GraphicsCommandList> cmdLists; 
 
 		#endregion
 
@@ -68,11 +69,13 @@ namespace ArcticFoxEngine {
 			int height = form.ClientSize.Height;
 			int refreshRate = 240;
 
+			cmdLists = new List<GraphicsCommandList>();
+
 			try {
 
 				SetupDevice();
 
-				SetupCommandList();
+				SetupCommand();
 				SetupSwapChain(width, height, refreshRate, cmdQueue);
 
 				Log.Success("Initialised renderer");
@@ -90,15 +93,14 @@ namespace ArcticFoxEngine {
 			// Create the graphics device
 			device = new Device(null, SharpDX.Direct3D.FeatureLevel.Level_11_0);
 		}
-		private static void SetupCommandList() {
+		private static void SetupCommand() {
 
 			// Create the command list
 			// Command lists are created in the recording state, but there is nothing
 			// to record yet. The main loop expects it to be closed, so close it now.
 			cmdAllocator = device.CreateCommandAllocator(CommandListType.Direct);
 			cmdQueue = device.CreateCommandQueue(new CommandQueueDescription(CommandListType.Direct));
-			cmdList = device.CreateCommandList(CommandListType.Direct, cmdAllocator, null);
-			cmdList.Close();
+			
 
 			// Create synchronisation objects
 			fence = device.CreateFence(0, FenceFlags.None);
@@ -107,6 +109,22 @@ namespace ArcticFoxEngine {
 			fenceEvent = new AutoResetEvent(false);
 
 		}
+		internal static GraphicsCommandList CreateGraphicsCommandList(PipelineState pipelineState = null) {
+			GraphicsCommandList cmdList = device.CreateCommandList(CommandListType.Direct, cmdAllocator, pipelineState);
+			return cmdList;
+		}
+		internal static void SubmitGraphicsCommandList(GraphicsCommandList cmdList) {
+			cmdQueue.ExecuteCommandList(cmdList);
+			cmdLists.Add(cmdList);
+		}
+		internal static void ExecuteCommandLists() {
+			//cmdQueue.ExecuteCommandLists(cmdLists.ToArray());
+			for (int i = 0; i < cmdLists.Count; i++) {
+				cmdLists[i].Dispose();
+			}
+			cmdLists.Clear();
+		}
+
 		private static void SetupSwapChain(int width, int height, int refreshRate, CommandQueue commandQueue) {
 
 			// Creating the swap chain
@@ -199,6 +217,7 @@ namespace ArcticFoxEngine {
 			for (int i = path.Length - 1; i >= 0; i --) {
 				if (path[i] == '/') {
 					rootPath = new string(path.Take(i + 1).ToArray());
+					break;
 				}
 			}
 
@@ -317,7 +336,6 @@ namespace ArcticFoxEngine {
 		/// Shows the render target to the screen and swaps which resource is the render target
 		/// </summary>
 		internal static void Buffer() {
-			WaitForCmdList();
 			// Present the frame
 			try {
 				CheckHRESULT(swapChain.Present(1, 0));
@@ -359,7 +377,11 @@ namespace ArcticFoxEngine {
 			fence.Dispose();
 			cmdAllocator.Dispose();
 			cmdQueue.Dispose();
-			cmdList.Dispose();
+
+			for (int i = 0; i < cmdLists.Count; i ++) {
+				cmdLists[i].Dispose();
+			}
+			
 
 		}
 

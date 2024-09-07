@@ -1,42 +1,25 @@
-cbuffer ConstantBuffer : register(b0) {
-	
-	float4 offset;
-	
-};
-
-struct Pixel_Input {
-	float4 position : SV_POSITION;
-	float4 color : COLOR;
-};
+#include "Common.hlsl"
 
 
-Pixel_Input Vertex_Main(float4 position : POSITION, float4 color : COLOR) {
-	
-	Pixel_Input result;
-	result.position = position;
-	result.color = color;
-	return result;
-	
-}
 
 #define PI2 6.28318
 
 
-float4 Pixel_Main(Pixel_Input input) : SV_TARGET {
+float4 Pixel_Main(Vertex input) : SV_TARGET {
 	
 
-	float2 originalPos = input.position / 720.0;
+	float2 originalPos = input.uv;
 	originalPos -= float2(0.5 * 1280.0 / 720.0, 0.5);
 	
-	originalPos.x -= 0.25;
-	originalPos -= offset.xy;
+	originalPos.x += 0.1;
 	originalPos *= 2.5;
 	
 	float2 pos = float2(0.0, 0.0);
 	float depth = 0.0;
 	bool escaped = false;
 	
-	for (int i = 0; i < 1000; i++) {
+	int maxIterations = 100;
+	for (int i = 0; i < maxIterations; i++) {
 		
 		float2 tempPos = float2(pos.x * pos.x - pos.y * pos.y, 2 * pos.x * pos.y);
 		tempPos += originalPos;
@@ -56,7 +39,7 @@ float4 Pixel_Main(Pixel_Input input) : SV_TARGET {
 	float3 c = float3(-0.627, -0.734, -0.650);
 	float3 d = float3(0.550, 0.504, 0.672);
 	
-	float seededOffset = (a % 1000) / 1000.0;
+	float seededOffset = (a % maxIterations) / maxIterations;
 	
 	float3 col = a + b * cos(PI2 * (c * (depth + seededOffset) + d));
 	if (escaped == false) {

@@ -1,4 +1,5 @@
 ﻿using ArcticFoxEngine.Backend.RenderImGui;
+using ArcticFoxEngine.Debug;
 using CoolClassLibrary;
 using ImGuiNET;
 using SixLabors.ImageSharp.PixelFormats;
@@ -181,6 +182,7 @@ namespace ArcticFoxEngine {
 			if (callingFromRoot == false && prevCallingFromRoot == true) { inspectorNodeOpen = false; }
 			prevCallingFromRoot = callingFromRoot;
 
+			
 			ImGui.PushStyleVar(ImGuiStyleVar.ItemSpacing, new Vector2(0f, -1f));
 
 			ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0.3f, 0.3f, 0.3f, 0.0f));
@@ -191,8 +193,8 @@ namespace ArcticFoxEngine {
 
 			float cursorPosY = ImGui.GetCursorPosY();
 			ImGui.SetCursorPosY(cursorPosY + 1f);
-			inspectorNodeOpen ^= ImGui.ArrowButton(name + "drop down", inspectorNodeOpen ? ImGuiDir.Down : ImGuiDir.Right);
-			ImGui.SameLine();
+			//inspectorNodeOpen ^= ImGui.ArrowButton(name + "drop down", inspectorNodeOpen ? ImGuiDir.Down : ImGuiDir.Right);
+			//ImGui.SameLine();
 
 
 			ImGui.SetCursorPosY(cursorPosY);
@@ -210,17 +212,26 @@ namespace ArcticFoxEngine {
 			ImGui.PopStyleVar(2);
 			ImGui.PopStyleColor(3);
 
-			if (inspectorNodeOpen == true) {
-				ImGui.TreePush(GetHashCode() + " parameters");
+			
+			if (inspectorNodeOpen == true || true) {
+				ImGui.TreePush("Params and children tree");
 				if (debugDescription != "") {
 					ImGui.TextWrapped(debugDescription);
 				}
+
+				ImGui.PushID(GetHashCode() + " parameters");
 				Debug();
+				ImGui.PopID();
+				
 
-
-				for (int i = 0; i < childNodes.Count; i ++) {
-					childNodes[i].DebugEvent(false);
+				if (callingFromRoot == true) {
+					for (int i = 0; i < childNodes.Count; i++) {
+						ImGui.PushID(childNodes[i].GetHashCode() + " debug event");
+						childNodes[i].DebugEvent(false);
+						ImGui.PopID();
+					}
 				}
+				
 
 				ImGui.TreePop();
 			}
@@ -251,7 +262,9 @@ namespace ArcticFoxEngine {
 		public virtual void Dispose() { }
 
 		bool nodeOpen = false;
-		internal Node DebugNodeTree() {
+		internal Node DebugNodeTree(bool rootNode) {
+
+			nodeOpen |= rootNode;
 
 			ImGui.TableNextRow();
 			ImGui.TableNextColumn();
@@ -269,30 +282,60 @@ namespace ArcticFoxEngine {
 			
 
 			float cursorPosY = ImGui.GetCursorPosY();
+
+			// Dropdown / Bullet
 			if (childNodes.Count() > 0) {
+				// Dropdown
 				ImGui.SetCursorPosY(cursorPosY + 1f);
 				nodeOpen ^= ImGui.ArrowButton(name + "drop down", nodeOpen ? ImGuiDir.Down : ImGuiDir.Right);
 				ImGui.SameLine();
 			}
 			else {
+				// Bullet
 				ImGui.SetCursorPosY(cursorPosY + 4f);
 				ImGui.Bullet();
 			}
 
-
+			
 			ImGui.SetCursorPosY(cursorPosY);
+			Vector2 buttonStartPos = ImGui.GetCursorPos();
+
+			Node selectedNode = null;
+
+			// Cover button
+			bool nodeSelectedColourChange = false;
+			if (DebugScene.selectedNode == this) {
+				nodeSelectedColourChange = true;
+				ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(66f / 255f, 150f / 255f, 250f / 255, 102f / 255f));
+				ImGui.PushStyleColor(ImGuiCol.ButtonActive, new Vector4(66f / 255f, 150f / 255f, 250f / 255, 102f / 255f));
+				ImGui.PushStyleColor(ImGuiCol.ButtonHovered, new Vector4(66f / 255f, 150f / 255f, 250f / 255, 102f / 255f));
+			}
+			
+			
+			if (ImGui.Button("", new Vector2(-1f, 16f + 6f)) == true) {
+				selectedNode = this;
+			}
+			if (nodeSelectedColourChange == true) {
+				ImGui.PopStyleColor(3);
+			}
+
+			// Icon button
+			ImGui.SetCursorPos(buttonStartPos);
 			ImGui.ImageButton(name + "image button", nodeIconId, new Vector2(16f, 16f));
 
 			ImGui.SameLine();
 
-			
+			// Name button
 			ImGui.SetCursorPosY(cursorPosY);
 			ImGui.PushStyleVar(ImGuiStyleVar.ButtonTextAlign, new Vector2(0f, 0.5f));
-			Node selectedNode = null;
-			if (ImGui.Button(name, new Vector2(-1f, 16f + 6f)) == true) {
-				selectedNode = this;
-			}
+			
+			ImGui.Button(name, new Vector2(-1f, 16f + 6f));
+
 			ImGui.PopStyleVar();
+
+
+
+			
 
 			ImGui.TableNextColumn();
 
@@ -328,8 +371,8 @@ namespace ArcticFoxEngine {
 					float childLinesCurrentY = ImGui.GetCursorScreenPos().Y + 11f + 26f;
 					ImGui.GetWindowDrawList().AddLine(new Vector2(childLinesX, childLinesCurrentY), new Vector2(childLinesX + indentSize / 2f, childLinesCurrentY), ImGui.ColorConvertFloat4ToU32(new Vector4(0.5f, 0.5f, 0.5f, 1f)));
 
-
-					Node childSelectedNode = childNodes[i].DebugNodeTree();
+					ImGui.PushID(childNodes[i].GetHashCode() + " debug node tree");
+					Node childSelectedNode = childNodes[i].DebugNodeTree(false);
 					if (childSelectedNode != null) {
 						selectedNode = childSelectedNode;
 					}

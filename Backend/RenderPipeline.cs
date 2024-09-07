@@ -87,9 +87,6 @@ namespace ArcticFoxEngine.Backend {
 		List<TextureBinding> boundTextures;
 		List<TextureSlot> textureSlots;
 
-		List<Action<DescriptorHeap>> addTextureToDescriptorHeapQueue;
-		int numTextureSlots;
-
 		
 		int requiredDescriptorHeapSize;
 
@@ -315,9 +312,8 @@ namespace ArcticFoxEngine.Backend {
 
 			Profiler.MetricBegin("Render setup");
 
-			Graphics.cmdAllocator.Reset();
-			Graphics.cmdList.Reset(Graphics.cmdAllocator, pipelineState);
-			GraphicsCommandList cmdList = Graphics.cmdList;
+
+			GraphicsCommandList cmdList = Graphics.CreateGraphicsCommandList(pipelineState);
 
 			cmdList.SetGraphicsRootSignature(rootSignature);
 			cmdList.SetDescriptorHeaps(1, new DescriptorHeap[] { descriptorHeap });
@@ -370,6 +366,7 @@ namespace ArcticFoxEngine.Backend {
 			}
 
 
+
 			// Indicate that the back buffer will now be used to present
 			cmdList.ResourceBarrierTransition(renderTarget, ResourceStates.RenderTarget, ResourceStates.Present);
 
@@ -378,7 +375,7 @@ namespace ArcticFoxEngine.Backend {
 
 			Profiler.MetricEnd();
 			Profiler.MetricBegin("Render");
-			Graphics.cmdQueue.ExecuteCommandList(cmdList);
+			Graphics.SubmitGraphicsCommandList(cmdList);
 			Profiler.MetricEnd();
 
 

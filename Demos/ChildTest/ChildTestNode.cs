@@ -16,15 +16,15 @@ namespace ArcticFoxEngine.Testing.ChildTest {
 
 		public ChildTestNode() : base() {
 
-			Node cameraNode = CreateChild<EmptyNode>("Main camera");
-			cameraNode.CreateChild<Transform>().position = new Vector3(0f, 2f, -15f);
-			cameraNode.CreateChild<CameraController>();
-			cameraNode.CreateChild<Camera>();
 
+			CreateChild<CameraController>();
+
+			Node platformsNode = CreateChild<EmptyNode>("Platforms");
 			
+
 			#region Block tower
 
-			Node blockPlatform = CreateChild<EmptyNode>("Block tower platform");
+			Node blockPlatform = platformsNode.CreateChild<EmptyNode>("Block tower platform");
 			blockPlatform.CreateChild<Transform>();
 			blockPlatform.transformChild.position = new Vector3(0f, -0.5f, 0f);
 			blockPlatform.transformChild.scale = new Vector3(5f, 1f, 5f);
@@ -37,7 +37,9 @@ namespace ArcticFoxEngine.Testing.ChildTest {
 
 			Node blockTowerB = blockTowerA.CreateChild<EmptyNode>("Block Tower B");
 			blockTowerB.CreateChild<Transform>();
-			blockTowerB.CreateChild<MeshRenderer>().SetMesh(Mesh.CreatePrimitive(Mesh.Primitive.Cube));
+			MeshRenderer mrB = blockTowerB.CreateChild<MeshRenderer>();
+			mrB.SetMesh(Mesh.CreatePrimitive(Mesh.Primitive.Cube));
+			mrB.SetRenderPipeline("mandelbrot");
 			blockTowerB.transformChild.position = new Vector3(0f, 2f, 0f);
 
 			Node blockTowerC = blockTowerB.CreateChild<EmptyNode>("Block Tower C");
@@ -46,11 +48,9 @@ namespace ArcticFoxEngine.Testing.ChildTest {
 			blockTowerC.transformChild.position = new Vector3(0f, 2f, 0f);
 
 			#endregion
-
-			
 			#region Cube Cube
 
-			Node cubePlatform = CreateChild<EmptyNode>("Cube cube platform");
+			Node cubePlatform = platformsNode.CreateChild<EmptyNode>("Cube cube platform");
 			cubePlatform.CreateChild<Transform>();
 			cubePlatform.transformChild.position = new Vector3(-7f, -0.5f, 1f);
 			cubePlatform.transformChild.scale = new Vector3(7f, 1f, 7f);
@@ -76,16 +76,13 @@ namespace ArcticFoxEngine.Testing.ChildTest {
 				cubeObj.CreateChild<MeshRenderer>().SetMesh(Mesh.CreatePrimitive(Mesh.Primitive.Cube));
 			}
 			cubeParent.CreateChild<CubeRoller>();
-			cubeParent.CreateChild<Transform>();
 
 			#endregion
-
-			
 			#region Cube Wheel
 
 			float cubeWheelSize = 8f;
 
-			Node cubeWheelPlatform = CreateChild<EmptyNode>("Cube wheel platform");
+			Node cubeWheelPlatform = platformsNode.CreateChild<EmptyNode>("Cube wheel platform");
 			cubeWheelPlatform.CreateChild<Transform>();
 			cubeWheelPlatform.transformChild.position = new Vector3(cubeWheelSize / 2f + 3.5f, -0.5f, (cubeWheelSize / 2f) - 2.5f);
 			cubeWheelPlatform.transformChild.scale = new Vector3(cubeWheelSize, 1f, cubeWheelSize);

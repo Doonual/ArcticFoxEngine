@@ -1,4 +1,5 @@
-﻿using CoolClassLibrary;
+﻿using ArcticFoxEngine.Backend;
+using CoolClassLibrary;
 using ImGuiNET;
 
 namespace ArcticFoxEngine {
@@ -75,7 +76,7 @@ namespace ArcticFoxEngine {
 		
 		#endregion
 
-		public Transform() : base() {
+		public Transform() {
 
 			position = Vector3.Zero;
 			rotation = Quaternion.Identity;
@@ -96,14 +97,13 @@ namespace ArcticFoxEngine {
 
 		public override void Debug() {
 
-			base.Debug();
 			System.Numerics.Vector3 systemPos = (System.Numerics.Vector3)position;
 			System.Numerics.Vector4 systemRot = new System.Numerics.Vector4(rotation.x, rotation.y, rotation.z, rotation.w);
 			System.Numerics.Vector3 systemScale = (System.Numerics.Vector3)scale;
 
-			ImGui.DragFloat3("Position", ref systemPos, 0.01f);
-			ImGui.DragFloat4("Rotation", ref systemRot, 0.01f);
-			ImGui.DragFloat3("Scale", ref systemScale, 0.01f);
+			ImGuiExtras.ItemWidthForText("Rotation"); ImGui.DragFloat3("Position", ref systemPos, 0.01f);
+			ImGuiExtras.ItemWidthForText("Rotation"); ImGui.DragFloat4("Rotation", ref systemRot, 0.01f);
+			ImGuiExtras.ItemWidthForText("Rotation"); ImGui.DragFloat3("Scale", ref systemScale, 0.01f);
 
 			position = new Vector3(systemPos);
 			rotation = new Quaternion(systemRot.X, systemRot.Y, systemRot.Z, systemRot.W);

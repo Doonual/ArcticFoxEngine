@@ -59,6 +59,7 @@ namespace ArcticFoxEngine.Nodes {
 			}
 			
 		}
+		
 		private void LoadMesh(string renderPipeline) {
 			if (mesh == null || meshLoaded == true) { return; }
 			bool meshAdded = GPU_Render.renderPipelines[renderPipeline].geometryResources.AddMesh(this);
@@ -70,6 +71,10 @@ namespace ArcticFoxEngine.Nodes {
 			if (meshLoaded == false) { return; }
 			GPU_Render.renderPipelines[renderPipeline].geometryResources.RemoveMesh(this);
 			meshLoaded = false;
+		}
+		public void UpdateMeshData() {
+			if (mesh == null || meshLoaded == false) { return; }
+			GPU_Render.renderPipelines[renderPipeline].geometryResources.UpdateMeshData(this);
 		}
 
 		internal ObjectInfo GetObjectInfo() {
@@ -91,28 +96,33 @@ namespace ArcticFoxEngine.Nodes {
 		private int renderPipelineComboSelected = 0;
 		public override void Debug() {
 
-			base.Debug();
-
+			// Render Pipeline combo
 			string[] renderPipelines = GPU_Render.renderPipelines.Keys.ToArray();
+			ImGuiExtras.ItemWidthForText("Render pipeline");
 			ImGui.Combo("Render pipeline", ref renderPipelineComboSelected, renderPipelines, renderPipelines.Length);
 			if (renderPipelines[renderPipelineComboSelected] != renderPipeline) {
 				SetRenderPipeline(renderPipelines[renderPipelineComboSelected]);
 			}
 
+			// Texture ID input
+			ImGuiExtras.ItemWidthForText("Render pipeline");
 			ImGui.InputInt("Texture ID", ref textureId);
 
 			System.Numerics.Vector3 vec3 = new System.Numerics.Vector3(vertexColSet.x, vertexColSet.y, vertexColSet.z);
-			ImGui.ColorPicker3("Vertex Col", ref vec3);
-			vertexColSet = new Vector4(vec3.X, vec3.Y, vec3.Z, 1f);
 
-			if (ImGui.Button("Update") == true) {
-
-				for (int i = 0; i < mesh.vertices.Length; i ++) {
+			ImGuiExtras.ItemWidthForText("Vertex col");
+			if (ImGui.ColorEdit3("Vertex col", ref vec3, ImGuiColorEditFlags.NoInputs) == true) {
+				vertexColSet = new Vector4(vec3.X, vec3.Y, vec3.Z, 1f);
+				for (int i = 0; i < mesh.vertices.Length; i++) {
 					mesh.vertices[i].color = vertexColSet;
 				}
-				SetMesh(mesh);
-
+				UpdateMeshData();
 			}
+
+
+			
+			
+
 
 		}
 		

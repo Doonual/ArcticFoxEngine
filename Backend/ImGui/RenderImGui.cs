@@ -17,7 +17,7 @@ namespace ArcticFoxEngine {
 	using ArcticFoxEngine.Debug;
 	using ArcticFoxEngine.Backend.RenderImGui;
 
-	unsafe internal static class GPU_RenderImGui {
+	unsafe internal static class RenderImGui {
 
 #nullable enable
 
@@ -273,7 +273,7 @@ namespace ArcticFoxEngine {
 		}
 
 		internal static bool RemoveImageTexture(IntPtr handle) {
-			var tex = GPU_RenderImGui.DeRegisterTexture(handle);
+			var tex = RenderImGui.DeRegisterTexture(handle);
 			return tex != null;
 		}
 
@@ -409,7 +409,7 @@ namespace ArcticFoxEngine {
 
 		internal static void ReplaceFontIfRequired() {
 			if (replaceFont == true) {
-				GPU_RenderImGui.UpdateFontTexture(fontPathName, fontSize, fontCustomGlyphRange, fontLanguage);
+				RenderImGui.UpdateFontTexture(fontPathName, fontSize, fontCustomGlyphRange, fontLanguage);
 				replaceFont = false;
 			}
 		}
@@ -435,7 +435,7 @@ namespace ArcticFoxEngine {
 				var configuration = Configuration.Default.Clone();
 				configuration.PreferContiguousImageBuffers = true;
 				using var image = Image.Load<Rgba32>(configuration, filePath);
-				handle = GPU_RenderImGui.CreateImageTexture(image, srgb ? SharpDX.DXGI.Format.R8G8B8A8_UNorm_SRgb : SharpDX.DXGI.Format.R8G8B8A8_UNorm);
+				handle = RenderImGui.CreateImageTexture(image, srgb ? SharpDX.DXGI.Format.R8G8B8A8_UNorm_SRgb : SharpDX.DXGI.Format.R8G8B8A8_UNorm);
 				width = (uint)image.Width;
 				height = (uint)image.Height;
 				loadedTexturesPtrs.Add(filePath, new(handle, width, height));
@@ -457,7 +457,7 @@ namespace ArcticFoxEngine {
 				handle = data.Handle;
 			}
 			else {
-				handle = GPU_RenderImGui.CreateImageTexture(image, srgb ? SharpDX.DXGI.Format.R8G8B8A8_UNorm_SRgb : SharpDX.DXGI.Format.R8G8B8A8_UNorm);
+				handle = RenderImGui.CreateImageTexture(image, srgb ? SharpDX.DXGI.Format.R8G8B8A8_UNorm_SRgb : SharpDX.DXGI.Format.R8G8B8A8_UNorm);
 				loadedTexturesPtrs.Add(name, new(handle, (uint)image.Width, (uint)image.Height));
 			}
 		}
@@ -469,7 +469,7 @@ namespace ArcticFoxEngine {
 		/// <returns> true if the image is removed otherwise false.</returns>
 		public static bool RemoveImage(string key) {
 			if (loadedTexturesPtrs.Remove(key, out var data)) {
-				return GPU_RenderImGui.RemoveImageTexture(data.Handle);
+				return RenderImGui.RemoveImageTexture(data.Handle);
 			}
 
 			return false;

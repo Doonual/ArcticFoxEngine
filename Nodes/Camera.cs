@@ -10,8 +10,7 @@ namespace ArcticFoxEngine {
 
 	public class Camera : Node {
 
-		internal override string debugName => "Camera";
-		internal override string debugDescription => "Renders the scene from the camera's point of view";
+		internal override string description => "Renders the scene from the camera's point of view";
 		internal override string nodeIconPath => ".res/NodeIcons/Camera.png";
 
 		public int renderWidth { 
@@ -65,12 +64,12 @@ namespace ArcticFoxEngine {
 			Orthographic
 		}
 
-		public Camera() : base() {
+		public Camera(){
+			name = "Camera";
 
 			viewportWidth = Screen.width;
 			viewportHeight = Screen.height;
 
-			SetName("Camera");
 			Enable();
 		}
 
@@ -118,7 +117,7 @@ namespace ArcticFoxEngine {
 
 		}
 		public override void Render() {
-			GPU_Render.Render(Graphics.renderTargets[Graphics.frameIndex], Graphics.rtvHeap, Graphics.dsvHeap, this);
+            Backend.Render.Render.RenderScene(Graphics.renderTargets[Graphics.frameIndex], Graphics.rtvHeap, Graphics.dsvHeap, this);
 		}
 
 

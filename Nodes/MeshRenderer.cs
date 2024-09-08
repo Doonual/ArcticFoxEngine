@@ -13,8 +13,7 @@ namespace ArcticFoxEngine.Nodes {
 	
 	public class MeshRenderer : Node {
 
-		internal override string debugName => "Mesh Renderer";
-		internal override string debugDescription => "Renders the mesh to the scene geometry";
+		internal override string description => "Renders the mesh to the scene geometry";
 		internal override string nodeIconPath => ".res/NodeIcons/MeshRenderer.png";
 
 		private string renderPipeline;
@@ -25,10 +24,12 @@ namespace ArcticFoxEngine.Nodes {
 		private bool meshLoaded = false;
 
 
-		public MeshRenderer() : base() {
+		public MeshRenderer() {
+			name = "Mesh Renderer";
+
 			mesh = null;
 			renderPipeline = "normal";
-			SetName("Mesh Renderer");
+
 			Enable();
 		}
 
@@ -62,19 +63,19 @@ namespace ArcticFoxEngine.Nodes {
 		
 		private void LoadMesh(string renderPipeline) {
 			if (mesh == null || meshLoaded == true) { return; }
-			bool meshAdded = GPU_Render.renderPipelines[renderPipeline].geometryResources.AddMesh(this);
+			bool meshAdded = Backend.Render.Render.renderPipelines[renderPipeline].geometryResources.AddMesh(this);
 			if (meshAdded == true) {
 				meshLoaded = true;
 			}
 		}
 		private void UnloadMesh(string renderPipeline) {
 			if (meshLoaded == false) { return; }
-			GPU_Render.renderPipelines[renderPipeline].geometryResources.RemoveMesh(this);
+            Backend.Render.Render.renderPipelines[renderPipeline].geometryResources.RemoveMesh(this);
 			meshLoaded = false;
 		}
 		public void UpdateMeshData() {
 			if (mesh == null || meshLoaded == false) { return; }
-			GPU_Render.renderPipelines[renderPipeline].geometryResources.UpdateMeshData(this);
+            Backend.Render.Render.renderPipelines[renderPipeline].geometryResources.UpdateMeshData(this);
 		}
 
 		internal ObjectInfo GetObjectInfo() {
@@ -97,7 +98,7 @@ namespace ArcticFoxEngine.Nodes {
 		public override void Debug() {
 
 			// Render Pipeline combo
-			string[] renderPipelines = GPU_Render.renderPipelines.Keys.ToArray();
+			string[] renderPipelines = Backend.Render.Render.renderPipelines.Keys.ToArray();
 			ImGuiExtras.ItemWidthForText("Render pipeline");
 			ImGui.Combo("Render pipeline", ref renderPipelineComboSelected, renderPipelines, renderPipelines.Length);
 			if (renderPipelines[renderPipelineComboSelected] != renderPipeline) {

@@ -18,7 +18,7 @@ namespace ArcticFoxEngine.Backend.RenderImGui {
 		internal static IntPtr LoadIcon(string path) {
 
 			if (loadedTextures.ContainsKey(path) == false) {
-				IntPtr id = GPU_RenderImGui.CreateImageTexture(SixLabors.ImageSharp.Image.Load<Rgba32>(path), SharpDX.DXGI.Format.R8G8B8A8_UNorm);
+                IntPtr id = ArcticFoxEngine.RenderImGui.CreateImageTexture(SixLabors.ImageSharp.Image.Load<Rgba32>(path), SharpDX.DXGI.Format.R8G8B8A8_UNorm);
 				loadedTextures.Add(path, id);
 				return id;
 			}

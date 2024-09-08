@@ -109,6 +109,7 @@ namespace ArcticFoxEngine.Backend {
 				new InputElement("SV_Position", 0, Format.R32G32B32_Float, 0, 0),
 				new InputElement("COLOR", 0, Format.R32G32B32A32_Float, 12, 0),
 				new InputElement("TEXCOORD", 0, Format.R32G32_Float, 28, 0),
+				new InputElement("NORMAL", 0, Format.R32G32B32_Float, 36, 0),
 			};
 
 			RasterizerStateDescription actualRasterState;
@@ -308,7 +309,7 @@ namespace ArcticFoxEngine.Backend {
 
 		}
 
-		public void Render(GeometryResources geometry, Camera camera, Resource renderTarget, DescriptorHeap rtvDescHeap, DescriptorHeap dsvDescHeap, bool clearBackground = false) {
+		public void Render(GeometryInfo geometry, Camera camera, Resource renderTarget, DescriptorHeap rtvDescHeap, DescriptorHeap dsvDescHeap, bool clearBackground = false) {
 
 			Profiler.MetricBegin("Render setup");
 

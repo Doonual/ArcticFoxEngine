@@ -15,7 +15,7 @@ namespace ArcticFoxEngine.Backend.Render {
 	/// Contains and controls all the resources needed for rendering geometry
 	/// This is the vertex buffer, index buffers and the object buffers
 	/// </summary>
-	public class GeometryResources {
+	public class GeometryInfo {
 
 		internal static int kbPerBuffer = 2048;
 
@@ -41,7 +41,7 @@ namespace ArcticFoxEngine.Backend.Render {
 		/// <summary>
 		/// Creates a new instance GeometryResources
 		/// </summary>
-		public GeometryResources() {
+		public GeometryInfo() {
 
 			meshRenderers = new List<MeshRenderer>();
 			meshRendererPositions = new List<(int vbStart, int ibStart, int obStart)>();
@@ -134,14 +134,14 @@ namespace ArcticFoxEngine.Backend.Render {
 			
 
 			int vertexUploadBufferSize = Utilities.SizeOf<Vertex>() * vertices.Length;
-			writePos = GPU_Upload.BeginBufferUpload(vertexUploadBufferSize);
+			writePos = Upload.BeginBufferUpload(vertexUploadBufferSize);
 			Utilities.Write(writePos, vertices, 0, vertices.Length);
-			GPU_Upload.EndBufferUpload(vertexBuffer, dstOffsetBytes: vbStartIndex * Utilities.SizeOf<Vertex>(), srcOffsetBytes: 0);
+			Upload.EndBufferUpload(vertexBuffer, dstOffsetBytes: vbStartIndex * Utilities.SizeOf<Vertex>(), srcOffsetBytes: 0);
 
 			int indexUploadBufferSize = Utilities.SizeOf<int>() * indicesOffset.Length;
-			writePos = GPU_Upload.BeginBufferUpload(indexUploadBufferSize);
+			writePos = Upload.BeginBufferUpload(indexUploadBufferSize);
 			Utilities.Write(writePos, indicesOffset, 0, indicesOffset.Length);
-			GPU_Upload.EndBufferUpload(indexBuffer, dstOffsetBytes: ibStartIndex * Utilities.SizeOf<int>(), srcOffsetBytes: 0);
+			Upload.EndBufferUpload(indexBuffer, dstOffsetBytes: ibStartIndex * Utilities.SizeOf<int>(), srcOffsetBytes: 0);
 
 			#endregion
 
@@ -284,9 +284,9 @@ namespace ArcticFoxEngine.Backend.Render {
 			long vertexBufferStartPos = meshRendererPositions[meshRendererIndex].vbStart;
 
 			long numBytes = meshRenderer.mesh.vertices.Length * Utilities.SizeOf<Vertex>();
-			IntPtr writePos = GPU_Upload.BeginBufferUpload(numBytes);
+			IntPtr writePos = Upload.BeginBufferUpload(numBytes);
 			Utilities.Write(writePos, meshRenderer.mesh.vertices, 0, meshRenderer.mesh.vertices.Length);
-			GPU_Upload.EndBufferUpload(vertexBuffer, dstOffsetBytes: vertexBufferStartPos * Utilities.SizeOf<Vertex>());
+			Upload.EndBufferUpload(vertexBuffer, dstOffsetBytes: vertexBufferStartPos * Utilities.SizeOf<Vertex>());
 
 		}
 
@@ -345,7 +345,7 @@ namespace ArcticFoxEngine.Backend.Render {
 			indexBuffer.Dispose();
 			objectBuffer.Dispose();
 		}
-		~GeometryResources() {
+		~GeometryInfo() {
 			Dispose();
 		}
 

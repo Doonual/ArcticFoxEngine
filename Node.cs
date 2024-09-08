@@ -11,13 +11,11 @@ namespace ArcticFoxEngine {
 
 		private bool disposed = true;
 
-		internal virtual string debugName => GetType().Name;
-		internal virtual string debugDescription => "";
+		public string name = "";
+		internal virtual string description => "";
 		internal virtual string nodeIconPath => ".res/NodeIcons/EmptyNode.png";
 		internal IntPtr nodeIconId;
 
-		// Object properties
-		public string name;
 
 		protected bool globalEnabled;
 		public bool enabled { get; private set; }
@@ -34,11 +32,9 @@ namespace ArcticFoxEngine {
 			disposed = false;
 			childNodes = new List<Node>();
 			nodeIconId = NodeIconBank.LoadIcon(nodeIconPath);
+			name = GetType().Name;
 		}
 
-		public void SetName(string name) {
-			this.name = name;
-		}
 
 		public static void SetRootNode(Node rootNode) {
 			Node.rootNode = rootNode;
@@ -70,7 +66,7 @@ namespace ArcticFoxEngine {
 
 			T newChild = new T();
 			newChild.SetParent(this);
-			newChild.SetName(name);
+			newChild.name = name;
 			return newChild;
 
 		}
@@ -215,8 +211,8 @@ namespace ArcticFoxEngine {
 			
 			if (inspectorNodeOpen == true || true) {
 				ImGui.TreePush("Params and children tree");
-				if (debugDescription != "") {
-					ImGui.TextWrapped(debugDescription);
+				if (description != "") {
+					ImGui.TextWrapped(description);
 				}
 
 				ImGui.PushID(GetHashCode() + " parameters");

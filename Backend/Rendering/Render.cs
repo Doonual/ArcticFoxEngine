@@ -15,12 +15,12 @@ namespace ArcticFoxEngine.Backend.Render {
 	/// <summary>
 	/// Encapsulates all the tasks required to render a GeometryResources instance
 	/// </summary>
-	public static class GPU_Render {
+	public static class Render {
 
 		internal static ConstBuffer<RenderInfo> renderInfo;
 		internal static Texture[] textures;
 
-		internal static Dictionary<string, (RenderPipeline renderPipeline, GeometryResources geometryResources)> renderPipelines;
+		internal static Dictionary<string, (RenderPipeline renderPipeline, GeometryInfo geometryResources)> renderPipelines;
 
 
 		internal static void Init() {
@@ -34,7 +34,7 @@ namespace ArcticFoxEngine.Backend.Render {
 			textures[2] = new Texture(".res/Textures/uv_blender.jpg");
 			textures[3] = new Texture(".res/Textures/tiger.png");
 
-			renderPipelines = new Dictionary<string, (RenderPipeline renderPipeline, GeometryResources geometryResources)>();
+			renderPipelines = new Dictionary<string, (RenderPipeline renderPipeline, GeometryInfo geometryResources)>();
 
 			SetupMainRP();
 			SetupWireframeRP();
@@ -45,7 +45,7 @@ namespace ArcticFoxEngine.Backend.Render {
 		private static void SetupMainRP() {
 
 
-			GeometryResources mainGeometry = new GeometryResources();
+			GeometryInfo mainGeometry = new GeometryInfo();
 			RenderPipeline renderPipeline = new RenderPipeline();
 
 			renderPipeline.BindBuffer(renderInfo, ShaderVisibility.All, (int mrIndex) => { return 0; });
@@ -75,7 +75,7 @@ namespace ArcticFoxEngine.Backend.Render {
 		private static void SetupWireframeRP() {
 
 
-			GeometryResources mainGeometry = new GeometryResources();
+			GeometryInfo mainGeometry = new GeometryInfo();
 			RenderPipeline renderPipeline = new RenderPipeline();
 
 			renderPipeline.BindBuffer(renderInfo, ShaderVisibility.All, (int mrIndex) => { return 0; });
@@ -107,7 +107,7 @@ namespace ArcticFoxEngine.Backend.Render {
 		}
 		private static void SetupMandelbrotRP() {
 
-			GeometryResources mainGeometry = new GeometryResources();
+			GeometryInfo mainGeometry = new GeometryInfo();
 			RenderPipeline renderPipeline = new RenderPipeline();
 
 			renderPipeline.BindBuffer(renderInfo, ShaderVisibility.All, (int mrIndex) => { return 0; });
@@ -143,7 +143,7 @@ namespace ArcticFoxEngine.Backend.Render {
 		/// <param name="rtvDescHeap">The descriptor heap containing the render target</param>
 		/// <param name="dsvDescHeap">The descriptor heap containing the depth stencil</param>
 		/// <param name="camera">The camera to render from</param>
-		internal static void Render(Resource renderTarget, DescriptorHeap rtvDescHeap, DescriptorHeap dsvDescHeap, Camera camera) {
+		internal static void RenderScene(Resource renderTarget, DescriptorHeap rtvDescHeap, DescriptorHeap dsvDescHeap, Camera camera) {
 
 			camera.UpdateCameraInfoBuffer(renderInfo);
 
@@ -153,7 +153,7 @@ namespace ArcticFoxEngine.Backend.Render {
 
 
 				RenderPipeline currentRenderPipeline = renderPipelines.ElementAt(i).Value.Item1;
-				GeometryResources currentGeometryResources = renderPipelines.ElementAt(i).Value.Item2;
+				GeometryInfo currentGeometryResources = renderPipelines.ElementAt(i).Value.Item2;
 
 				Profiler.MetricBegin(renderPipelines.ElementAt(i).Key + " RP");
 
@@ -172,7 +172,7 @@ namespace ArcticFoxEngine.Backend.Render {
 		internal static void Dispose() {
 			for (int i = 0; i < renderPipelines.Count; i++) {
 				RenderPipeline currentRenderPipeline = renderPipelines.ElementAt(i).Value.Item1;
-				GeometryResources currentGeometryResources = renderPipelines.ElementAt(i).Value.Item2;
+				GeometryInfo currentGeometryResources = renderPipelines.ElementAt(i).Value.Item2;
 				currentRenderPipeline.Dispose();
 				currentGeometryResources.Dispose();
 			}

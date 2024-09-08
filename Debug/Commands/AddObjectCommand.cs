@@ -12,7 +12,7 @@ namespace ArcticFoxEngine.Debug.Commands {
 
 		public void Execute(string[] args) {
 
-			Node.rootNode.CreateChild<EmptyNode>();
+			Node.rootNode.CreateChild<BaseNode>();
 
 		}
 

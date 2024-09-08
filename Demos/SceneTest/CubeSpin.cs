@@ -21,7 +21,8 @@ namespace ArcticFoxEngine.Testing.SceneTest {
 		float ringSize = 14f;
 		
 
-		public CubeSpin() : base() {
+		public CubeSpin() {
+			name = "Cube Spin";
 
 
 			CreateChild<CameraController>();
@@ -31,11 +32,11 @@ namespace ArcticFoxEngine.Testing.SceneTest {
 			ySpin = new List<Node>();
 			zSpin = new List<Node>();
 
-			Node xRing = CreateChild<EmptyNode>("X Ring");
+			Node xRing = CreateChild<BaseNode>("X Ring");
 			xRing.CreateChild<Transform>();
-			Node yRing = CreateChild<EmptyNode>("Y Ring");
+			Node yRing = CreateChild<BaseNode>("Y Ring");
 			yRing.CreateChild<Transform>();
-			Node zRing = CreateChild<EmptyNode>("Z Ring");
+			Node zRing = CreateChild<BaseNode>("Z Ring");
 			zRing.CreateChild<Transform>();
 
 			for (int i = 0; i < numPerRing; i++) {
@@ -49,7 +50,7 @@ namespace ArcticFoxEngine.Testing.SceneTest {
 					
 				}
 
-				Node xObj = xRing.CreateChild<EmptyNode>("X" + (i + 1));
+				Node xObj = xRing.CreateChild<BaseNode>("X" + (i + 1));
 				xObj.CreateChild<Transform>();
 				xObj.CreateChild<MeshRenderer>().SetMesh(cubeMesh);
 				xSpin.Add(xObj);
@@ -65,7 +66,7 @@ namespace ArcticFoxEngine.Testing.SceneTest {
 					}
 				}
 
-				Node yObj = yRing.CreateChild<EmptyNode>("Y" + (i + 1));
+				Node yObj = yRing.CreateChild<BaseNode>("Y" + (i + 1));
 				yObj.CreateChild<Transform>();
 				yObj.CreateChild<MeshRenderer>().SetMesh(cubeMesh);
 				ySpin.Add(yObj);
@@ -81,7 +82,7 @@ namespace ArcticFoxEngine.Testing.SceneTest {
 					}
 				}
 
-				Node zObj = zRing.CreateChild<EmptyNode>("Z" + (i + 1));
+				Node zObj = zRing.CreateChild<BaseNode>("Z" + (i + 1));
 				zObj.CreateChild<Transform>();
 				zObj.CreateChild<MeshRenderer>().SetMesh(cubeMesh);
 				zSpin.Add(zObj);
@@ -92,7 +93,7 @@ namespace ArcticFoxEngine.Testing.SceneTest {
 			speed = 0.5f;
 			t = 0f;
 
-			SetName("Cube Spin");
+
 			Enable();
 		}
 

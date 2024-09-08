@@ -16,11 +16,12 @@ namespace ArcticFoxEngine.Testing.ChildTest {
 
 		float rotationMagnitude = 2f;
 
-		public CubeRoller() : base() {
+		public CubeRoller() {
+			name = "Cube Roller";
+
 			rotationAngle = 0f;
 			rotationSpeed = 0.007f;
 
-			SetName("Cube Roller");
 			Enable();
 		}
 

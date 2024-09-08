@@ -12,7 +12,7 @@ namespace ArcticFoxEngine.Debug {
 
 		public DebugScene() {
 
-			testTexId = GPU_RenderImGui.CreateImageTexture(SixLabors.ImageSharp.Image.Load<Rgba32>(".res/Textures/tiger.png"), SharpDX.DXGI.Format.R8G8B8A8_UNorm);
+			testTexId = RenderImGui.CreateImageTexture(SixLabors.ImageSharp.Image.Load<Rgba32>(".res/Textures/tiger.png"), SharpDX.DXGI.Format.R8G8B8A8_UNorm);
 
 		}
 

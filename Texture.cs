@@ -91,7 +91,7 @@ namespace ArcticFoxEngine.Backend {
 		/// </summary>
 		/// <param name="data">The data to be uploaded</param>
 		public void SetData(byte[] data) {
-			GPU_Upload.Texture2DUpload(texture, width, height, Format.R8G8B8A8_UNorm, data);
+			Upload.Texture2DUpload(texture, width, height, Format.R8G8B8A8_UNorm, data);
 		}
 
 		/// <summary>

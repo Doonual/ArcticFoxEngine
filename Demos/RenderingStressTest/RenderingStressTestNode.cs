@@ -10,9 +10,9 @@ using System.Threading.Tasks;
 
 namespace ArcticFoxEngine.Demos.RenderingStressTest {
 	public class RenderingStressTestNode : Node {
-		
 
-		public RenderingStressTestNode() : base() {
+		public RenderingStressTestNode() {
+			name = "Rendering Stress Test";
 
 			int numObjectPerDim = 12;
 
@@ -22,7 +22,7 @@ namespace ArcticFoxEngine.Demos.RenderingStressTest {
 			
 			CreateChild<CameraController>();
 
-			Node cubeStack = CreateChild<EmptyNode>("Cube Stack");
+			Node cubeStack = CreateChild<BaseNode>("Cube Stack");
 			cubeStack.CreateChild<Transform>();
 			cubeStack.transformChild.position = new Vector3(0f, 0f, 30f);
 
@@ -32,7 +32,7 @@ namespace ArcticFoxEngine.Demos.RenderingStressTest {
 			for (int x = 0; x < numObjectPerDim; x ++) {
 				for (int y = 0; y < numObjectPerDim; y++) {
 					for (int z = 0; z < numObjectPerDim; z++) {
-						Node newObj = cubeStack.CreateChild<EmptyNode>("Object #" + currentObject);
+						Node newObj = cubeStack.CreateChild<BaseNode>("Object #" + currentObject);
 						newObj.CreateChild<Transform>();
 						newObj.transformChild.position = new Vector3(x * 2f - maxDim / 2f + 0.5f, y * 2f - maxDim / 2f + 0.5f, z * 2f - maxDim / 2f + 0.5f);
 						newObj.CreateChild<MeshRenderer>().SetMesh(Mesh.CreatePrimitive(Mesh.Primitive.Cube));
@@ -41,10 +41,7 @@ namespace ArcticFoxEngine.Demos.RenderingStressTest {
 				}
 			}
 
-
-			SetName("Rendering Stress Test");
 			Enable();
-
 		}
 
 

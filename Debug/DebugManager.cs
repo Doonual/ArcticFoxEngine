@@ -7,6 +7,8 @@ using CoolClassLibrary;
 using ImGuiNET;
 using System.Windows.Forms;
 using SharpDX.Windows;
+using ArcticFoxEngine.Nodes;
+using ArcticFoxEngine.Demos.LightingTest;
 
 namespace ArcticFoxEngine.Debug {
 	public static class DebugManager {
@@ -20,7 +22,7 @@ namespace ArcticFoxEngine.Debug {
 		internal static void Init(RenderForm form) {
 
 			
-			GPU_RenderImGui.Init(1920, 1080);
+			RenderImGui.Init(1920, 1080);
 			ImGuiInput.Init(form.Handle);
 			ImGui.LoadIniSettingsFromDisk("imgui.ini");
 
@@ -38,6 +40,7 @@ namespace ArcticFoxEngine.Debug {
 				typeof(CubeSpin),
 				typeof(ChildTestNode),
 				typeof(RenderingStressTestNode),
+				typeof(LightingTestNode),
 			};
 
 
@@ -81,7 +84,7 @@ namespace ArcticFoxEngine.Debug {
 		public static void UpdateImGui() {
 
 			if (isOpen == false) { return; }
-			GPU_RenderImGui.Render(Graphics.renderTargets[Graphics.frameIndex], Graphics.rtvHeap, Graphics.dsvHeap);
+			RenderImGui.Render(Graphics.renderTargets[Graphics.frameIndex], Graphics.rtvHeap, Graphics.dsvHeap);
 
 		}
 
@@ -163,7 +166,7 @@ namespace ArcticFoxEngine.Debug {
 		}
 
 		public static void Dispose() {
-			GPU_RenderImGui.Dispose();
+			RenderImGui.Dispose();
 		}
 
 	}

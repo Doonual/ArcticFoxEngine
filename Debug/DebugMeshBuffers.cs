@@ -22,7 +22,7 @@ namespace ArcticFoxEngine.Debug {
 		internal override void Render() {
 
 
-			GeometryResources geometry = GPU_Render.renderPipelines["normal"].Item2;
+            GeometryInfo geometry = Backend.Render.Render.renderPipelines["normal"].Item2;
 			MeshRenderer delMeshFilter = null;
 
 			ImGui.InputInt("Max Display Entries", ref maxEntries);
@@ -249,7 +249,7 @@ namespace ArcticFoxEngine.Debug {
 			if (ImGui.Button("Add Cube") == true) {
 
 				Log.Info("Adding Cube");
-				Node cubeObj = Node.rootNode.CreateChild<EmptyNode>("Cube #" + cubeCount);
+				Node cubeObj = Node.rootNode.CreateChild<BaseNode>("Cube #" + cubeCount);
 				MeshRenderer cubeMeshFilter = cubeObj.CreateChild<MeshRenderer>();
 				cubeMeshFilter.SetMesh(Mesh.CreatePrimitive(Mesh.Primitive.Cube));
 				cubeCount++;
@@ -259,7 +259,7 @@ namespace ArcticFoxEngine.Debug {
 			if (ImGui.Button("Add Quad") == true) {
 
 				Log.Info("Adding quad");
-				Node quadObj = Node.rootNode.CreateChild<EmptyNode>("Quad #" + quadCount);
+				Node quadObj = Node.rootNode.CreateChild<BaseNode>("Quad #" + quadCount);
 				MeshRenderer quadMeshFilter = quadObj.CreateChild<MeshRenderer>();
 				quadMeshFilter.SetMesh(Mesh.CreatePrimitive(Mesh.Primitive.Quad));
 				quadCount++;

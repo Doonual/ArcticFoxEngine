@@ -16,13 +16,15 @@ namespace ArcticFoxEngine.Testing.ChildTest {
 		float omega;
 
 		public CubeWheel() {
+
+			name = "Cube Wheel";
+
 			radius = 7f;
 			angle = MathUtil.RandomFloat(0f, MathF.PI * 2);
 			omega = MathUtil.RandomFloat(0.1f, 0.4f);
 
 			CreateChild<Transform>();
 
-			SetName("Cube Wheel");
 			Enable();
 		}
 
@@ -45,7 +47,7 @@ namespace ArcticFoxEngine.Testing.ChildTest {
 
 			radius = radiusUpdate;
 
-			Node cubeChild = CreateChild<EmptyNode>("Cube");
+			Node cubeChild = CreateChild<BaseNode>("Cube");
 			cubeChild.CreateChild<Transform>();
 			cubeChild.CreateChild<MeshRenderer>().SetMesh(Mesh.CreatePrimitive(Mesh.Primitive.Cube));
 			cubeChild.transformChild.position.y = radiusUpdate / 2f;

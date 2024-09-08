@@ -65,8 +65,8 @@ namespace ArcticFoxEngine {
 				Graphics.Init(form);
 
 
-				GPU_Upload.Init();
-				Backend.Render.GPU_Render.Init();
+				Upload.Init();
+				Backend.Render.Render.Init();
 				Screen.InitScreen(form);
 				InputManager.InitInput();
 
@@ -123,14 +123,14 @@ namespace ArcticFoxEngine {
 						break;
 					}
 
-					
+					Graphics.WaitForCmdList();
 					Graphics.Buffer();
 					form.Show();
 				}
 			}
 			
 			Graphics.Dispose();
-			Backend.Render.GPU_Render.Dispose();
+			Backend.Render.Render.Dispose();
 
 			DebugManager.CloseGUI();
 

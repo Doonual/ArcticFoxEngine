@@ -36,6 +36,7 @@ namespace ArcticFoxEngine.Testing.SceneTest {
 		Transform tf;
 
 		public CameraController() {
+			name = "Camera Controller";
 
 			moveForward = new KeyboardButtonInput(KeyboardButtonInput.KeyboardButton.W);
 			moveRight = new KeyboardButtonInput(KeyboardButtonInput.KeyboardButton.D);
@@ -59,9 +60,7 @@ namespace ArcticFoxEngine.Testing.SceneTest {
 			tf = CreateChild<Transform>();
 			CreateChild<Camera>();
 
-			SetName("Camera Controller");
 			Enable();
-
 		}
 
 

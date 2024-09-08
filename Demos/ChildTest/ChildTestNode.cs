@@ -12,37 +12,35 @@ using ImGuiNET;
 namespace ArcticFoxEngine.Testing.ChildTest {
 	public class ChildTestNode : Node {
 
-		internal override string debugName => "Child Test";
 
-		public ChildTestNode() : base() {
-
+		public ChildTestNode() {
+			name = "Child Test";
 
 			CreateChild<CameraController>();
 
-			Node platformsNode = CreateChild<EmptyNode>("Platforms");
+			Node platformsNode = CreateChild<BaseNode>("Platforms");
 			
-
 			#region Block tower
 
-			Node blockPlatform = platformsNode.CreateChild<EmptyNode>("Block tower platform");
+			Node blockPlatform = platformsNode.CreateChild<BaseNode>("Block tower platform");
 			blockPlatform.CreateChild<Transform>();
 			blockPlatform.transformChild.position = new Vector3(0f, -0.5f, 0f);
 			blockPlatform.transformChild.scale = new Vector3(5f, 1f, 5f);
 			blockPlatform.CreateChild<MeshRenderer>().SetMesh(Mesh.CreatePrimitive(Mesh.Primitive.Cube));
 
-			Node blockTowerA = CreateChild<EmptyNode>("Block Tower A");
+			Node blockTowerA = CreateChild<BaseNode>("Block Tower A");
 			blockTowerA.CreateChild<Transform>();
 			blockTowerA.transformChild.position = new Vector3(0f, 0.5f, 0f);
 			blockTowerA.CreateChild<MeshRenderer>().SetMesh(Mesh.CreatePrimitive(Mesh.Primitive.Cube));
 
-			Node blockTowerB = blockTowerA.CreateChild<EmptyNode>("Block Tower B");
+			Node blockTowerB = blockTowerA.CreateChild<BaseNode>("Block Tower B");
 			blockTowerB.CreateChild<Transform>();
 			MeshRenderer mrB = blockTowerB.CreateChild<MeshRenderer>();
 			mrB.SetMesh(Mesh.CreatePrimitive(Mesh.Primitive.Cube));
 			mrB.SetRenderPipeline("mandelbrot");
 			blockTowerB.transformChild.position = new Vector3(0f, 2f, 0f);
 
-			Node blockTowerC = blockTowerB.CreateChild<EmptyNode>("Block Tower C");
+			Node blockTowerC = blockTowerB.CreateChild<BaseNode>("Block Tower C");
 			blockTowerC.CreateChild<Transform>();
 			blockTowerC.CreateChild<MeshRenderer>().SetMesh(Mesh.CreatePrimitive(Mesh.Primitive.Cube));
 			blockTowerC.transformChild.position = new Vector3(0f, 2f, 0f);
@@ -50,13 +48,13 @@ namespace ArcticFoxEngine.Testing.ChildTest {
 			#endregion
 			#region Cube Cube
 
-			Node cubePlatform = platformsNode.CreateChild<EmptyNode>("Cube cube platform");
+			Node cubePlatform = platformsNode.CreateChild<BaseNode>("Cube cube platform");
 			cubePlatform.CreateChild<Transform>();
 			cubePlatform.transformChild.position = new Vector3(-7f, -0.5f, 1f);
 			cubePlatform.transformChild.scale = new Vector3(7f, 1f, 7f);
 			cubePlatform.CreateChild<MeshRenderer>().SetMesh(Mesh.CreatePrimitive(Mesh.Primitive.Cube));
 
-			Node cubeParent = CreateChild<EmptyNode>("Cube Cube");
+			Node cubeParent = CreateChild<BaseNode>("Cube Cube");
 			cubeParent.CreateChild<Transform>();
 			cubeParent.transformChild.position = new Vector3(-7f, 4f, 1f);
 			Vector3[] positions = new Vector3[] {
@@ -70,7 +68,7 @@ namespace ArcticFoxEngine.Testing.ChildTest {
 				new Vector3(2f, 2f, 2f),
 			};
 			for (int i = 0; i < positions.Length; i++) {
-				Node cubeObj = cubeParent.CreateChild<EmptyNode>("Cube #" + i);
+				Node cubeObj = cubeParent.CreateChild<BaseNode>("Cube #" + i);
 				cubeObj.CreateChild<Transform>();
 				cubeObj.transformChild.position = positions[i];
 				cubeObj.CreateChild<MeshRenderer>().SetMesh(Mesh.CreatePrimitive(Mesh.Primitive.Cube));
@@ -82,7 +80,7 @@ namespace ArcticFoxEngine.Testing.ChildTest {
 
 			float cubeWheelSize = 8f;
 
-			Node cubeWheelPlatform = platformsNode.CreateChild<EmptyNode>("Cube wheel platform");
+			Node cubeWheelPlatform = platformsNode.CreateChild<BaseNode>("Cube wheel platform");
 			cubeWheelPlatform.CreateChild<Transform>();
 			cubeWheelPlatform.transformChild.position = new Vector3(cubeWheelSize / 2f + 3.5f, -0.5f, (cubeWheelSize / 2f) - 2.5f);
 			cubeWheelPlatform.transformChild.scale = new Vector3(cubeWheelSize, 1f, cubeWheelSize);
@@ -95,8 +93,6 @@ namespace ArcticFoxEngine.Testing.ChildTest {
 
 			#endregion
 
-
-			SetName("Child Test Node");
 			Enable();
 		}
 
@@ -108,7 +104,7 @@ namespace ArcticFoxEngine.Testing.ChildTest {
 
 		public void Recurse() {
 
-			Node nextCopy = CreateChild<EmptyNode>("Next Copy");
+			Node nextCopy = CreateChild<BaseNode>("Next Copy");
 
 			Transform nextTransform = nextCopy.CreateChild<Transform>();
 			nextTransform.position = new Vector3(-5.25f, 0f, -6f);

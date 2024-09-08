@@ -14,7 +14,7 @@ using System.Runtime.InteropServices;
 namespace ArcticFoxEngine.Backend {
 
 
-	internal static class GPU_Upload {
+	internal static class Upload {
 
 		private static bool disposed = true;
 

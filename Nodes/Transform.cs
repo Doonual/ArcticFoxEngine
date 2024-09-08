@@ -6,8 +6,7 @@ namespace ArcticFoxEngine {
 
 	public class Transform : Node {
 
-		internal override string debugName => "Transform";
-		internal override string debugDescription => "Gives an object a position, rotation and scale.";
+		internal override string description => "Gives an object a position, rotation and scale.";
 		internal override string nodeIconPath => ".res/NodeIcons/Transform.png";
 
 		public Vector3 position;
@@ -77,12 +76,12 @@ namespace ArcticFoxEngine {
 		#endregion
 
 		public Transform() {
+			name = "Transform";
 
 			position = Vector3.Zero;
 			rotation = Quaternion.Identity;
 			scale = Vector3.One;
 
-			SetName("Transform");
 			Enable();
 
 		}

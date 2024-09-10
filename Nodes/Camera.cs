@@ -5,7 +5,7 @@ using ArcticFoxEngine.Backend;
 
 namespace ArcticFoxEngine {
 
-	using ArcticFoxEngine.Backend.Render;
+	using ArcticFoxEngine.Rendering;
 	using CoolClassLibrary;
 
 	public class Camera : Node {
@@ -117,8 +117,9 @@ namespace ArcticFoxEngine {
 
 		}
 		public override void Render() {
-            Backend.Render.Render.RenderScene(Graphics.renderTargets[Graphics.frameIndex], Graphics.rtvHeap, Graphics.dsvHeap, this);
+            Rendering.Rendering.RenderScene(Graphics.renderTargets[Graphics.frameIndex], Graphics.rtvHeap, Graphics.dsvHeap, this);
 		}
+
 
 
 	}

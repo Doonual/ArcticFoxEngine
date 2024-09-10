@@ -84,7 +84,6 @@ namespace ArcticFoxEngine {
 			}
 			return null;
 		}
-		
 
 		public int GetSiblingCount() {
 			if (parentNode == null) { Log.Warn("GetSiblingCount failed, this is the root node"); return 0; }
@@ -104,6 +103,35 @@ namespace ArcticFoxEngine {
 				return null;
 			}
 			return parentNode.GetChild<T>();
+		}
+
+		public T SearchNodeTree<T>() where T : Node {
+
+			if (typeof(T) == GetType()) {
+				return (T)this;
+			}
+			for (int i = 0; i < childNodes.Count; i++) {
+				T childNodeSearch = childNodes[i].SearchNodeTree<T>();
+				if (childNodeSearch != null) {
+					return childNodeSearch;
+				}
+			}
+			return null;
+
+		}
+		public Node SearchNodeTree(string name) {
+
+			if (this.name == name) {
+				return this;
+			}
+			for (int i = 0; i < childNodes.Count; i++) {
+				Node childNodeSearch = childNodes[i].SearchNodeTree(name);
+				if (childNodeSearch != null) {
+					return childNodeSearch;
+				}
+			}
+			return null;
+
 		}
 
 

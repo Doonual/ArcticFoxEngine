@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Numerics;
 using ArcticFoxEngine.Nodes;
-using ArcticFoxEngine.Backend.Render;
+using ArcticFoxEngine.Rendering;
 
 namespace ArcticFoxEngine.Debug {
 	internal class DebugMeshBuffers : DebugWindow {
@@ -22,7 +22,7 @@ namespace ArcticFoxEngine.Debug {
 		internal override void Render() {
 
 
-            GeometryInfo geometry = Backend.Render.Render.renderPipelines["normal"].Item2;
+            GeometryInfo geometry = Rendering.Rendering.rpUnlit.geometryResources;
 			MeshRenderer delMeshFilter = null;
 
 			ImGui.InputInt("Max Display Entries", ref maxEntries);

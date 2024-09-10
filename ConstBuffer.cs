@@ -54,7 +54,7 @@ namespace ArcticFoxEngine.Backend {
 
 				ConstantBufferViewDescription cbvDesc = new ConstantBufferViewDescription() {
 					BufferLocation = constantBuffer.GPUVirtualAddress + stride * i,
-					SizeInBytes = stride
+					SizeInBytes = stride,
 				};
 				Graphics.device.CreateConstantBufferView(cbvDesc, destDescriptorHeap.CPUDescriptorHandleForHeapStart + (offset + i) * descHeapIncrement);
 

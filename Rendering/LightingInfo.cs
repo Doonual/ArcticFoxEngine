@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ArcticFoxEngine.Backend.Rendering {
+namespace ArcticFoxEngine.Rendering {
 	internal class LightingInfo {
 
 		List<Light> lights;

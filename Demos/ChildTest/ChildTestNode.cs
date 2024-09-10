@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ImGuiNET;
+using ArcticFoxEngine.Debug;
 
 namespace ArcticFoxEngine.Testing.ChildTest {
 	public class ChildTestNode : Node {
@@ -37,7 +38,7 @@ namespace ArcticFoxEngine.Testing.ChildTest {
 			blockTowerB.CreateChild<Transform>();
 			MeshRenderer mrB = blockTowerB.CreateChild<MeshRenderer>();
 			mrB.SetMesh(Mesh.CreatePrimitive(Mesh.Primitive.Cube));
-			mrB.SetRenderPipeline("mandelbrot");
+			mrB.SetRenderPipeline(Rendering.Rendering.rpMandelbrot);
 			blockTowerB.transformChild.position = new Vector3(0f, 2f, 0f);
 
 			Node blockTowerC = blockTowerB.CreateChild<BaseNode>("Block Tower C");

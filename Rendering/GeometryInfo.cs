@@ -1,6 +1,6 @@
 ﻿using SharpDX;
 
-namespace ArcticFoxEngine.Backend.Render {
+namespace ArcticFoxEngine.Rendering {
 	using ArcticFoxEngine.Backend;
 	using ArcticFoxEngine.Nodes;
 	using ArcticFoxEngine.Debug;

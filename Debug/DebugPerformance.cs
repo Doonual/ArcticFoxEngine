@@ -4,7 +4,7 @@ using ArcticFoxEngine.Backend;
 using System.Linq;
 using Newtonsoft.Json.Linq;
 using SharpDX.Direct3D12;
-using ArcticFoxEngine.Backend.Render;
+using ArcticFoxEngine.Rendering;
 using System;
 using static ArcticFoxEngine.Debug.DebugPerformance;
 using System.Xml.Linq;

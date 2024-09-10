@@ -231,7 +231,6 @@ namespace ArcticFoxEngine {
 			cmdList.Close();
 
 			Graphics.SubmitGraphicsCommandList(cmdList);
-			Graphics.ExecuteCommandLists();
 
 			ImGuiInput.ReSetLastCursor();
 

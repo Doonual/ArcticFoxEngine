@@ -66,6 +66,9 @@ namespace ArcticFoxEngine.Testing.SceneTest {
 
 
 		public override void Update() {
+			
+			if (ImGui.GetIO().WantTextInput == true) { return; }
+
 			#region Camera Controls
 
 			if (moveForward.GetButton() == true) {

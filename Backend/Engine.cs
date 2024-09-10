@@ -7,6 +7,7 @@ using ArcticFoxEngine;
 using CoolClassLibrary;
 using SharpDX.Windows;
 using SharpDX.DXGI;
+using ArcticFoxEngine.Rendering;
 
 namespace ArcticFoxEngine {
 	public static class Engine {
@@ -61,22 +62,15 @@ namespace ArcticFoxEngine {
 			#endregion
 			#region Setup rendering
 
-			try {
-				Graphics.Init(form);
+			Graphics.Init(form);
+			Upload.Init();
+			Rendering.Rendering.Init();
+			Screen.InitScreen(form);
+			InputManager.InitInput();
 
+			DebugManager.Init(form);
+			Log.Success("Engine initialisation complete");
 
-				Upload.Init();
-				Backend.Render.Render.Init();
-				Screen.InitScreen(form);
-				InputManager.InitInput();
-
-				DebugManager.Init(form);
-				Log.Success("Engine initialisation complete");
-			}
-			catch (Exception e) {
-				Log.Error("Failed to initialise engine");
-				Log.Raw(e);
-			}
 			Log.Raw("");
 
 			#endregion
@@ -102,16 +96,19 @@ namespace ArcticFoxEngine {
 
 					Profiler.MetricBegin("Scene update");
 					if (Node.rootNode != null) {
+
 						Profiler.MetricBegin("Node update");
 						Node.rootNode.UpdateEvent();
 						Profiler.MetricEnd();
-						Profiler.MetricBegin("Node render");
+
+						Profiler.MetricBegin("Render");
 						Node.rootNode.RenderEvent();
 						Profiler.MetricEnd();
+
 					}
 					Profiler.MetricEnd();
 
-					
+
 					if (toggleDebugButton.GetButtonDown() == true) { DebugManager.ToggleGUI(); }
 
 					Profiler.FrameEnd();
@@ -130,7 +127,7 @@ namespace ArcticFoxEngine {
 			}
 			
 			Graphics.Dispose();
-			Backend.Render.Render.Dispose();
+			Rendering.Rendering.Dispose();
 
 			DebugManager.CloseGUI();
 

@@ -117,13 +117,6 @@ namespace ArcticFoxEngine {
 			cmdQueue.ExecuteCommandList(cmdList);
 			cmdLists.Add(cmdList);
 		}
-		internal static void ExecuteCommandLists() {
-			//cmdQueue.ExecuteCommandLists(cmdLists.ToArray());
-			for (int i = 0; i < cmdLists.Count; i++) {
-				cmdLists[i].Dispose();
-			}
-			cmdLists.Clear();
-		}
 
 		private static void SetupSwapChain(int width, int height, int refreshRate, CommandQueue commandQueue) {
 

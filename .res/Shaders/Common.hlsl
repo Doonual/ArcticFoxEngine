@@ -5,9 +5,9 @@ struct Vertex {
 	float4 position : SV_Position;
 	float4 color : COLOR;
 	float2 uv : TEXCOORD;
+	float3 normal : NORMAL;
 	
 };
-
 
 cbuffer RenderInfo : register(b0) {
 	float4x4 cameraProjectionMatrix;
@@ -19,6 +19,3 @@ cbuffer RenderInfo : register(b0) {
 cbuffer ObjectInfo : register(b1) {
 	float4x4 transformMatrix;
 };
-
-Texture2D g_texture : register(t0);
-SamplerState g_sampler : register(s0);

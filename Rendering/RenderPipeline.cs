@@ -1,4 +1,4 @@
-﻿using ArcticFoxEngine.Backend.Render;
+﻿using ArcticFoxEngine.Rendering;
 using SharpDX;
 using SharpDX.DXGI;
 using System;
@@ -6,12 +6,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ArcticFoxEngine.Backend;
 
-namespace ArcticFoxEngine.Backend {
+namespace ArcticFoxEngine.Rendering {
 	using ArcticFoxEngine.Nodes;
 	using SharpDX.Direct3D12;
 
-	public class RenderPipeline {
+	public abstract class RenderPipeline {
+
+		public abstract string name { get; }
 
 		public struct TextureSamplerOptions {
 
@@ -55,21 +58,24 @@ namespace ArcticFoxEngine.Backend {
 			public float mipLODBias;
 
 		}
-		public struct BufferBinding {
-			public Action<DescriptorHeap> addToDescHeap;
-			public int descStartIndex;
-			public GpuDescriptorHandle descHeapStartPos;
-			public Func<int, int> perObjectIndexSelection;
+		
+		struct DataSlot {
+			public ShaderVisibility shaderVisibility;
 			public int rootParameterIndex;
 		}
-		public struct TextureSlot {
-			public Func<int, int> perObjectIndexSelection;
+		struct TextureSlot {
+			public ShaderVisibility shaderVisibility;
 			public int rootParameterIndex;
 		}
-		public struct TextureBinding {
+	
+		
+		struct BufferBinding {
 			public Action<DescriptorHeap> addToDescHeap;
 			public int descStartIndex;
-			public GpuDescriptorHandle descHeapStartPos;
+		}
+		struct TextureBinding {
+			public Action<DescriptorHeap> addToDescHeap;
+			public int descStartIndex;
 		}
 
 		bool disposed = true;
@@ -77,31 +83,51 @@ namespace ArcticFoxEngine.Backend {
 		PipelineState pipelineState;
 		RootSignature rootSignature;
 		DescriptorHeap descriptorHeap;
+		GraphicsCommandList cmdList;
+
+		public GeometryInfo geometryResources;
+
+		Dictionary<string, DataSlot> dataSlots;
+		Dictionary<string, TextureSlot> textureSlots;
+
+		Dictionary<int, BufferBinding> boundBuffers;
 
 		int descriptorHeapIncrement;
 
 		List<RootParameter> rootParameters;
 		List<StaticSamplerDescription> samplerDescriptions;
 
-		List<BufferBinding> boundBuffers;
-		List<TextureBinding> boundTextures;
-		List<TextureSlot> textureSlots;
+		Dictionary<int, TextureBinding> boundTextures;
 
 		
 		int requiredDescriptorHeapSize;
 
 		public RenderPipeline() {
 
+			geometryResources = new GeometryInfo();
+
+			
+
 			rootParameters = new List<RootParameter>();
 			samplerDescriptions = new List<StaticSamplerDescription>();
 			requiredDescriptorHeapSize = 0;
 
-			boundBuffers = new List<BufferBinding>();
-			boundTextures = new List<TextureBinding>();
-			textureSlots = new List<TextureSlot>();
+			dataSlots = new Dictionary<string, DataSlot>();
+			textureSlots = new Dictionary<string, TextureSlot>();
 
-			
+			boundBuffers = new Dictionary<int, BufferBinding>();
+			boundTextures = new Dictionary<int, TextureBinding>();
+
+
+			CreateDataSlot("Camera info", ShaderVisibility.All);
+			CreateDataSlot("Object info", ShaderVisibility.All);
+
+			BindBuffer(Rendering.renderInfo, ShaderVisibility.All);
+			BindBuffer(geometryResources.objectBuffer, ShaderVisibility.All);
+
 		}
+		public abstract Material GetDefaultMaterial();
+
 		private void SetupPipeline(ShaderBytecode vertexShader, ShaderBytecode pixelShader, ShaderBytecode? geometryShader, RasterizerStateDescription? rasterState, DepthStencilStateDescription? depthState) {
 
 			// Input format
@@ -175,71 +201,50 @@ namespace ArcticFoxEngine.Backend {
 
 		}
 
-		public void BindBuffer<T>(ConstBuffer<T> buffer, ShaderVisibility shaderVisibility, Func<int, int> perObjectIndexSelection) where T : struct {
+		public void CreateDataSlot(string name, ShaderVisibility shaderVisibility) {
 
-			BufferBinding bufferBinding = new BufferBinding();
+			int numRootParameters = rootParameters.Count;
+			int numDataSlots = dataSlots.Count;
 
-			int currentDhPos = requiredDescriptorHeapSize;
-
-			// After we know how big the descriptor heap needs to be, add this to it
-			// Each element in each buffer takes up 1 descriptor slot, starting at the accumulated position from all the other buffers
-			bufferBinding.addToDescHeap = (DescriptorHeap descriptorHeap) => { buffer.AddToDescriptorHeap(descriptorHeap, currentDhPos);};
-			bufferBinding.descStartIndex = requiredDescriptorHeapSize;
-			bufferBinding.rootParameterIndex = rootParameters.Count;
-
-			// Every time an object is to be rendered, how do we choose what element of each buffer to bind?
-			// Might be different for different render pipelines so leave this up to the user
-			bufferBinding.perObjectIndexSelection = perObjectIndexSelection;
-
-		
-
+			DataSlot newSlot = new DataSlot() {
+				shaderVisibility = shaderVisibility,
+				rootParameterIndex = numRootParameters,
+			};
+			dataSlots.Add(name, newSlot);
 
 			// Create a new Root parameter for the buffer
 			RootParameter newRootParam = new RootParameter(shaderVisibility, new DescriptorRange() {
 				RangeType = DescriptorRangeType.ConstantBufferView,
-				BaseShaderRegister = boundBuffers.Count, // What index is this buffer out of all the buffers
+				BaseShaderRegister = numDataSlots, // What index is this buffer out of all the buffers
 				OffsetInDescriptorsFromTableStart = int.MinValue,
 				DescriptorCount = 1,
 			});
 			rootParameters.Add(newRootParam);
 
-			requiredDescriptorHeapSize += buffer.numElements;
-
-			boundBuffers.Add(bufferBinding);
+			
 
 		}
+		public void CreateTextureSlot(string name, ShaderVisibility shaderVisibility) {
 
-		public void CreateTextureSlot(ShaderVisibility shaderVisibility, Func<int, int> perObjectIndexSelection) {
-		
-			TextureSlot textureSlot = new TextureSlot();
-			textureSlot.perObjectIndexSelection = perObjectIndexSelection;
-			textureSlot.rootParameterIndex = rootParameters.Count;
-			
+			int numRootParameters = rootParameters.Count;
+			int numTextureSlots = textureSlots.Count;
+
+			TextureSlot textureSlot = new TextureSlot() {
+				shaderVisibility = shaderVisibility,
+				rootParameterIndex = numRootParameters,
+			};
+			textureSlots.Add(name, textureSlot);
 
 			RootParameter newRootParam = new RootParameter(shaderVisibility, new DescriptorRange() {
 				RangeType = DescriptorRangeType.ShaderResourceView,
-				BaseShaderRegister = textureSlots.Count,
+				BaseShaderRegister = numTextureSlots,
 				OffsetInDescriptorsFromTableStart = int.MinValue,
 				DescriptorCount = 1,
 			});
 			rootParameters.Add(newRootParam);
 
-			textureSlots.Add(textureSlot);
-
 		}
-		public void BindTexture(Texture texture, ShaderVisibility shaderVisibility) {
-
-			int currentDhPos = requiredDescriptorHeapSize;
-
-			TextureBinding textureBinding = new TextureBinding();
-			textureBinding.addToDescHeap = (DescriptorHeap descriptorHeap) => { texture.AddToDescriptorHeap(descriptorHeap, currentDhPos); };
-			textureBinding.descStartIndex = requiredDescriptorHeapSize;
-
-			boundTextures.Add(textureBinding);
-			requiredDescriptorHeapSize += 1;
-
-		}
-		public void BindTextureSampler(TextureSamplerOptions samplerOptions, ShaderVisibility shaderVisibility) {
+		public void CreateTextureSampler(TextureSamplerOptions samplerOptions, ShaderVisibility shaderVisibility) {
 
 			StaticSamplerDescription desc = new StaticSamplerDescription(shaderVisibility, samplerDescriptions.Count, 0);
 			desc.AddressU = samplerOptions.addressU;
@@ -259,6 +264,53 @@ namespace ArcticFoxEngine.Backend {
 
 		}
 
+		public void BindBuffer<T>(ConstBuffer<T> buffer, ShaderVisibility shaderVisibility) where T : struct {
+
+			
+			int currentDhPos = requiredDescriptorHeapSize;
+
+			// After we know how big the descriptor heap needs to be, add this to it
+			// Each element in each buffer takes up 1 descriptor slot, starting at the accumulated position from all the other buffers
+			BufferBinding bufferBinding = new BufferBinding();
+			bufferBinding.addToDescHeap = (DescriptorHeap descriptorHeap) => { buffer.AddToDescriptorHeap(descriptorHeap, currentDhPos); };
+			bufferBinding.descStartIndex = requiredDescriptorHeapSize;
+			boundBuffers.Add(buffer.GetHashCode(), bufferBinding);
+
+			requiredDescriptorHeapSize += buffer.numElements;
+
+			
+
+		}
+		public void BindTexture(Texture texture, ShaderVisibility shaderVisibility) {
+
+			int currentDhPos = requiredDescriptorHeapSize;
+
+			TextureBinding textureBinding = new TextureBinding();
+			textureBinding.addToDescHeap = (DescriptorHeap descriptorHeap) => { texture.AddToDescriptorHeap(descriptorHeap, currentDhPos); };
+			textureBinding.descStartIndex = requiredDescriptorHeapSize;
+			boundTextures.Add(texture.GetHashCode(), textureBinding);
+			requiredDescriptorHeapSize += 1;
+
+		}
+
+
+		public void SetDataSlot<T>(string name, ConstBuffer<T> buffer, int bufferIndex) where T : struct {
+
+			DataSlot currentDataSlot = dataSlots[name];
+			BufferBinding currentBufferBinding = boundBuffers[buffer.GetHashCode()];
+
+			cmdList.SetGraphicsRootDescriptorTable(currentDataSlot.rootParameterIndex, descriptorHeap.GPUDescriptorHandleForHeapStart + (currentBufferBinding.descStartIndex + bufferIndex) * descriptorHeapIncrement);
+
+		}
+		public void SetTextureSlot(string name, Texture texture) {
+
+			TextureSlot currentTextureSlot = textureSlots[name];
+			TextureBinding currentTextureBinding = boundTextures[texture.GetHashCode()];
+
+			cmdList.SetGraphicsRootDescriptorTable(currentTextureSlot.rootParameterIndex, descriptorHeap.GPUDescriptorHandleForHeapStart + currentTextureBinding.descStartIndex * descriptorHeapIncrement);
+
+		}
+		
 		
 
 		public void Finalise(ShaderBytecode vertexShader, ShaderBytecode pixelShader, ShaderBytecode? geometryShader = null, RasterizerStateDescription? rasterState = null, DepthStencilStateDescription? depthState = null) {
@@ -286,20 +338,14 @@ namespace ArcticFoxEngine.Backend {
 
 			for (int i = 0; i < boundBuffers.Count; i ++) {
 
-				BufferBinding currentBufferBinding = boundBuffers[i];
-
+				BufferBinding currentBufferBinding = boundBuffers.ElementAt(i).Value;
 				currentBufferBinding.addToDescHeap(descriptorHeap);
-				currentBufferBinding.descHeapStartPos = descriptorHeap.GPUDescriptorHandleForHeapStart + currentBufferBinding.descStartIndex * descriptorHeapIncrement;
-
-				boundBuffers[i] = currentBufferBinding;
 
 			}
 			for (int i = 0; i < boundTextures.Count; i++) {
 
-				TextureBinding currentTextureBinding = boundTextures[i];
+				TextureBinding currentTextureBinding = boundTextures.ElementAt(i).Value;
 				currentTextureBinding.addToDescHeap(descriptorHeap);
-				currentTextureBinding.descHeapStartPos = descriptorHeap.GPUDescriptorHandleForHeapStart + currentTextureBinding.descStartIndex * descriptorHeapIncrement;
-				boundTextures[i] = currentTextureBinding;
 
 			}
 
@@ -313,12 +359,16 @@ namespace ArcticFoxEngine.Backend {
 
 			Profiler.MetricBegin("Render setup");
 
-
-			GraphicsCommandList cmdList = Graphics.CreateGraphicsCommandList(pipelineState);
+			if (cmdList == null) {
+				cmdList = Graphics.CreateGraphicsCommandList(pipelineState);
+			}
+			else {
+				cmdList.Reset(Graphics.cmdAllocator, pipelineState);
+			}
 
 			cmdList.SetGraphicsRootSignature(rootSignature);
 			cmdList.SetDescriptorHeaps(1, new DescriptorHeap[] { descriptorHeap });
-
+			SetDataSlot("Camera info", Rendering.renderInfo, 0);
 
 			// Viewport and render target
 			cmdList.SetViewport(camera.viewport);
@@ -348,20 +398,15 @@ namespace ArcticFoxEngine.Backend {
 
 			// Render each mesh
 			for (int i = 0; i < geometry.meshRenderers.Count; i++) {
+
 				int indexCount = geometry.meshRenderers[i].mesh.indices.Length;
 				(int vbStart, int ibStart, int obStart) = geometry.meshRendererPositions[i];
 
-				for (int b = 0; b < boundBuffers.Count; b ++) {
-					GpuDescriptorHandle descHandle = boundBuffers[b].descHeapStartPos + boundBuffers[b].perObjectIndexSelection(i) * descriptorHeapIncrement;
-					cmdList.SetGraphicsRootDescriptorTable(boundBuffers[b].rootParameterIndex, descHandle);
-				}
-				for (int b = 0; b < textureSlots.Count; b++) {
 
-					TextureBinding boundTexture = boundTextures[textureSlots[b].perObjectIndexSelection(i)];
+				SetDataSlot("Object info", geometryResources.objectBuffer, obStart);
 
-					GpuDescriptorHandle descHandle = boundTexture.descHeapStartPos;
-					cmdList.SetGraphicsRootDescriptorTable(textureSlots[b].rootParameterIndex, descHandle);
-				}
+				Material renderMaterial = geometry.meshRenderers[i].material;
+				renderMaterial.BindResources(this);
 
 				cmdList.DrawIndexedInstanced(indexCount, 1, ibStart, vbStart, vbStart);
 			}
@@ -392,6 +437,9 @@ namespace ArcticFoxEngine.Backend {
 			pipelineState.Dispose();
 			rootSignature.Dispose();
 			descriptorHeap.Dispose();
+			cmdList.Dispose();
+
+			geometryResources.Dispose();
 
 		}
 

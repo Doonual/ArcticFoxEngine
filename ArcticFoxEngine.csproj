@@ -56,8 +56,8 @@
 	  <None Include=".Documentation\Engine.txt" />
 	  <None Include=".Documentation\Terms.txt" />
 	  <None Include=".res\icon.ico" />
-	  <None Include=".res\Shaders\mandelbrot_shader.hlsl" />
-	  <None Include=".res\Shaders\PixelShader.hlsl" />
+	  <None Include=".res\Shaders\MandelbrotPixelShader.hlsl" />
+	  <None Include=".res\Shaders\Unlit\PixelShader.hlsl" />
 	  <None Include=".res\Shaders\Common.hlsl" />
 	</ItemGroup>
 	

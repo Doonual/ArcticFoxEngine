@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
+namespace ArcticFoxEngine.Nodes {
 
-namespace ArcticFoxEngine {
 	public class Light : Node {
 
 		internal override string nodeIconPath => ".res/NodeIcons/Light.png";

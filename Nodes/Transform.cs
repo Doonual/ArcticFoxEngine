@@ -1,8 +1,6 @@
-﻿using ArcticFoxEngine.Backend;
-using CoolClassLibrary;
-using ImGuiNET;
+﻿using ImGuiNET;
 
-namespace ArcticFoxEngine {
+namespace ArcticFoxEngine.Nodes {
 
 	public class Transform : Node {
 
@@ -72,7 +70,7 @@ namespace ArcticFoxEngine {
 			}
 		}
 
-		
+
 		#endregion
 
 		public Transform() {
@@ -91,7 +89,7 @@ namespace ArcticFoxEngine {
 			scale = Vector3.One;
 		}
 
-		
+
 
 
 		public override void Debug() {

@@ -1,11 +1,5 @@
 ﻿using CoolClassLibrary;
 using ImGuiNET;
-using SharpDX.Direct3D11;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ArcticFoxEngine.Debug {
 	internal class DebugLog : DebugWindow {
@@ -168,7 +162,7 @@ namespace ArcticFoxEngine.Debug {
 				if (i != messages.Count - 1) {
 					ImGui.NewLine();
 				}
-				
+
 
 			}
 
@@ -176,7 +170,7 @@ namespace ArcticFoxEngine.Debug {
 
 
 			ImGui.PushItemWidth(-45f);
-			
+
 
 			bool sendCommand = ImGui.InputText("", ref cmdInput, 64u, ImGuiInputTextFlags.EnterReturnsTrue);
 			if (sendCommand == true) {
@@ -184,12 +178,12 @@ namespace ArcticFoxEngine.Debug {
 			}
 			ImGui.PopItemWidth();
 			ImGui.SameLine();
-			
+
 			if (ImGui.Button("Send") == true || sendCommand == true) {
 
 				CommandController.ExecuteCommand(cmdInput);
 				cmdInput = "";
-			}	
+			}
 
 
 		}

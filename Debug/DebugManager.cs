@@ -1,14 +1,12 @@
-﻿using ArcticFoxEngine.Testing;
-using ArcticFoxEngine.Testing.SceneTest;
-using ArcticFoxEngine.Testing.ChildTest;
+﻿using ArcticFoxEngine.Demos.ChildTest;
+using ArcticFoxEngine.Demos.LightingTest;
 using ArcticFoxEngine.Demos.RenderingStressTest;
-using ArcticFoxEngine;
+using ArcticFoxEngine.Demos.SceneTest;
+using ArcticFoxEngine.ImGuiIntegration;
+using ArcticFoxEngine.Nodes;
 using CoolClassLibrary;
 using ImGuiNET;
-using System.Windows.Forms;
 using SharpDX.Windows;
-using ArcticFoxEngine.Nodes;
-using ArcticFoxEngine.Demos.LightingTest;
 
 namespace ArcticFoxEngine.Debug {
 	public static class DebugManager {
@@ -21,7 +19,7 @@ namespace ArcticFoxEngine.Debug {
 
 		internal static void Init(RenderForm form) {
 
-			
+
 			RenderImGui.Init(1920, 1080);
 			ImGuiInput.Init(form.Handle);
 			ImGui.LoadIniSettingsFromDisk("imgui.ini");
@@ -63,7 +61,7 @@ namespace ArcticFoxEngine.Debug {
 		public static void OpenGUI() {
 
 			LoadWindowOptions();
-			
+
 			isOpen = true;
 
 		}
@@ -103,12 +101,12 @@ namespace ArcticFoxEngine.Debug {
 					}
 					ImGui.EndMenu();
 				}
-				
+
 				if (ImGui.BeginMenu("Scene") == true) {
 					ImGui.PushStyleColor(ImGuiCol.Text, new System.Numerics.Vector4(0.5f, 0.5f, 0.5f, 1.0f));
 					ImGui.Text("Demos");
 					ImGui.PopStyleColor();
-					for (int i = 0; i < demoNodes.Count; i ++) {
+					for (int i = 0; i < demoNodes.Count; i++) {
 						if (ImGui.MenuItem(demoNodes[i].Name) == true) {
 							if (Node.rootNode != null) {
 								Node.rootNode.DisposeEvent();
@@ -117,10 +115,10 @@ namespace ArcticFoxEngine.Debug {
 							Node.SetRootNode(newNode);
 						}
 					}
-					
+
 					ImGui.EndMenu();
 				}
-				
+
 			}
 			ImGui.EndMenuBar();
 

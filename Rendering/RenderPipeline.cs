@@ -1,16 +1,10 @@
-﻿using ArcticFoxEngine.Rendering;
+﻿using ArcticFoxEngine.Nodes;
 using SharpDX;
+using SharpDX.Direct3D12;
 using SharpDX.DXGI;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ArcticFoxEngine.Backend;
+using Resource = SharpDX.Direct3D12.Resource;
 
 namespace ArcticFoxEngine.Rendering {
-	using ArcticFoxEngine.Nodes;
-	using SharpDX.Direct3D12;
 
 	public abstract class RenderPipeline {
 
@@ -40,7 +34,7 @@ namespace ArcticFoxEngine.Rendering {
 			public TextureAddressMode addressU;
 			public TextureAddressMode addressV;
 			public TextureAddressMode addressW;
-			public TextureAddressMode addressUVW { 
+			public TextureAddressMode addressUVW {
 				set {
 					addressU = value;
 					addressV = value;
@@ -58,7 +52,7 @@ namespace ArcticFoxEngine.Rendering {
 			public float mipLODBias;
 
 		}
-		
+
 		struct DataSlot {
 			public ShaderVisibility shaderVisibility;
 			public int rootParameterIndex;
@@ -67,8 +61,8 @@ namespace ArcticFoxEngine.Rendering {
 			public ShaderVisibility shaderVisibility;
 			public int rootParameterIndex;
 		}
-	
-		
+
+
 		struct BufferBinding {
 			public Action<DescriptorHeap> addToDescHeap;
 			public int descStartIndex;
@@ -99,14 +93,14 @@ namespace ArcticFoxEngine.Rendering {
 
 		Dictionary<int, TextureBinding> boundTextures;
 
-		
+
 		int requiredDescriptorHeapSize;
 
 		public RenderPipeline() {
 
 			geometryResources = new GeometryInfo();
 
-			
+
 
 			rootParameters = new List<RootParameter>();
 			samplerDescriptions = new List<StaticSamplerDescription>();
@@ -221,7 +215,7 @@ namespace ArcticFoxEngine.Rendering {
 			});
 			rootParameters.Add(newRootParam);
 
-			
+
 
 		}
 		public void CreateTextureSlot(string name, ShaderVisibility shaderVisibility) {
@@ -266,7 +260,7 @@ namespace ArcticFoxEngine.Rendering {
 
 		public void BindBuffer<T>(ConstBuffer<T> buffer, ShaderVisibility shaderVisibility) where T : struct {
 
-			
+
 			int currentDhPos = requiredDescriptorHeapSize;
 
 			// After we know how big the descriptor heap needs to be, add this to it
@@ -278,7 +272,7 @@ namespace ArcticFoxEngine.Rendering {
 
 			requiredDescriptorHeapSize += buffer.numElements;
 
-			
+
 
 		}
 		public void BindTexture(Texture texture, ShaderVisibility shaderVisibility) {
@@ -310,8 +304,8 @@ namespace ArcticFoxEngine.Rendering {
 			cmdList.SetGraphicsRootDescriptorTable(currentTextureSlot.rootParameterIndex, descriptorHeap.GPUDescriptorHandleForHeapStart + currentTextureBinding.descStartIndex * descriptorHeapIncrement);
 
 		}
-		
-		
+
+
 
 		public void Finalise(ShaderBytecode vertexShader, ShaderBytecode pixelShader, ShaderBytecode? geometryShader = null, RasterizerStateDescription? rasterState = null, DepthStencilStateDescription? depthState = null) {
 
@@ -336,7 +330,7 @@ namespace ArcticFoxEngine.Rendering {
 
 			#endregion
 
-			for (int i = 0; i < boundBuffers.Count; i ++) {
+			for (int i = 0; i < boundBuffers.Count; i++) {
 
 				BufferBinding currentBufferBinding = boundBuffers.ElementAt(i).Value;
 				currentBufferBinding.addToDescHeap(descriptorHeap);
@@ -387,7 +381,7 @@ namespace ArcticFoxEngine.Rendering {
 				cmdList.ClearRenderTargetView(rtvHandle, new Color4(0f, 0f, 0f, 1f), 0, null);
 				cmdList.ClearDepthStencilView(dsvHandle, ClearFlags.FlagsDepth, 1f, 0);
 			}
-			
+
 
 
 			// Set geometry

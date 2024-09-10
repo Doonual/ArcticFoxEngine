@@ -1,12 +1,11 @@
-﻿namespace ArcticFoxEngine {
-	using System;
-	using System.Drawing;
-	using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
+
+namespace ArcticFoxEngine.ImGuiIntegration {
+
 
 	#region Enums
 	[Flags]
-	public enum WindowStyles
-	{
+	public enum WindowStyles {
 		WS_BORDER = 0x00800000,
 		WS_CAPTION = 0x00C00000,
 		WS_CHILD = 0x40000000,
@@ -38,8 +37,7 @@
 	}
 
 	[Flags]
-	public enum WindowExStyles : uint
-	{
+	public enum WindowExStyles : uint {
 		WS_EX_LEFT = 0x00000000,
 		WS_EX_LTRREADING = 0x00000000,
 		WS_EX_RIGHTSCROLLBAR = 0x00000000,
@@ -76,8 +74,7 @@
 	}
 
 	[Flags]
-	public enum WindowClassStyles
-	{
+	public enum WindowClassStyles {
 		CS_BYTEALIGNCLIENT = 0x1000,
 		CS_BYTEALIGNWINDOW = 0x2000,
 		CS_CLASSDC = 0x0040,
@@ -92,8 +89,7 @@
 		CS_VREDRAW = 0x0001
 	}
 
-	public enum WindowMessage : uint
-	{
+	public enum WindowMessage : uint {
 		Null = 0x0000,
 		Create = 0x0001,
 		Destroy = 0x0002,
@@ -153,8 +149,7 @@
 		DeviceChange = 0x0219
 	}
 
-	public enum ShowWindowCommand
-	{
+	public enum ShowWindowCommand {
 		/// <summary>
 		/// Hides the window and activates another window.
 		/// </summary>
@@ -237,8 +232,7 @@
 		ForceMinimize = 11
 	}
 
-	public enum SystemCursor
-	{
+	public enum SystemCursor {
 		IDC_ARROW = 32512,
 		IDC_IBEAM = 32513,
 		IDC_WAIT = 32514,
@@ -257,8 +251,7 @@
 		IDC_HELP = 32651
 	}
 
-	public enum SizeMessage
-	{
+	public enum SizeMessage {
 		SIZE_RESTORED = 0,
 		SIZE_MINIMIZED = 1,
 		SIZE_MAXIMIZED = 2,
@@ -266,8 +259,7 @@
 		SIZE_MAXHIDE = 4,
 	}
 
-	public enum WindowLongParam
-	{
+	public enum WindowLongParam {
 		/// <summary>Sets a new address for the window procedure.</summary>
 		/// <remarks>You cannot change this attribute if the window does not belong to the same process as the calling thread.</remarks>
 		GWL_WNDPROC = -4,
@@ -305,8 +297,7 @@
 		DWLP_DLGPROC = 4
 	}
 
-	public enum VK
-	{
+	public enum VK {
 		///<summary>
 		///Left mouse button
 		///</summary>
@@ -1001,8 +992,7 @@
 
 	#region Structures
 	[StructLayout(LayoutKind.Sequential)]
-	public struct Message
-	{
+	public struct Message {
 		public IntPtr Hwnd;
 		public uint Value;
 		public UIntPtr WParam;
@@ -1014,8 +1004,7 @@
 	public delegate IntPtr WNDPROC(IntPtr hWnd, uint msg, UIntPtr wParam, IntPtr lParam);
 
 	[StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
-	public struct WNDCLASSEX
-	{
+	public struct WNDCLASSEX {
 		public int Size;
 		public WindowClassStyles Styles;
 
@@ -1032,12 +1021,10 @@
 	}
 
 	[StructLayout(LayoutKind.Sequential)]
-	struct POINT
-	{
+	struct POINT {
 		public int X, Y;
 
-		public POINT(int x, int y)
-		{
+		public POINT(int x, int y) {
 			X = x;
 			Y = y;
 		}
@@ -1064,8 +1051,7 @@
 		[DllImport(LibraryName)]
 		public static extern bool SetProcessDPIAware();
 
-		public static IntPtr LoadCursor(IntPtr hInstance, SystemCursor cursor)
-		{
+		public static IntPtr LoadCursor(IntPtr hInstance, SystemCursor cursor) {
 			return LoadCursor(hInstance, new IntPtr((int)cursor));
 		}
 
@@ -1091,10 +1077,8 @@
 		[DllImport("user32.dll", SetLastError = true, EntryPoint = "GetWindowLong")]
 		private static extern uint GetWindowLong32b(IntPtr hWnd, int nIndex);
 
-		public static uint GetWindowLong(IntPtr hWnd, int nIndex)
-		{
-			if (IntPtr.Size == 4)
-			{
+		public static uint GetWindowLong(IntPtr hWnd, int nIndex) {
+			if (IntPtr.Size == 4) {
 				return GetWindowLong32b(hWnd, nIndex);
 			}
 
@@ -1107,10 +1091,8 @@
 		[DllImport("user32.dll", SetLastError = true)]
 		private static extern uint SetWindowLongPtr(IntPtr hWnd, int nIndex, uint value);
 
-		public static uint SetWindowLong(IntPtr hWnd, int nIndex, uint value)
-		{
-			if (IntPtr.Size == 4)
-			{
+		public static uint SetWindowLong(IntPtr hWnd, int nIndex, uint value) {
+			if (IntPtr.Size == 4) {
 				return SetWindowLong32b(hWnd, nIndex, value);
 			}
 

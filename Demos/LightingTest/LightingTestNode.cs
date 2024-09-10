@@ -1,11 +1,4 @@
 ﻿using ArcticFoxEngine.Nodes;
-using ArcticFoxEngine.Nodes.Templates;
-using ArcticFoxEngine.Testing.SceneTest;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ArcticFoxEngine.Demos.LightingTest {
 	public class LightingTestNode : Node {

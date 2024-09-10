@@ -1,13 +1,7 @@
-﻿using ImGuiNET;
-using CoolClassLibrary;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Numerics;
-using ArcticFoxEngine.Nodes;
+﻿using ArcticFoxEngine.Nodes;
 using ArcticFoxEngine.Rendering;
+using CoolClassLibrary;
+using ImGuiNET;
 
 namespace ArcticFoxEngine.Debug {
 	internal class DebugMeshBuffers : DebugWindow {
@@ -22,7 +16,7 @@ namespace ArcticFoxEngine.Debug {
 		internal override void Render() {
 
 
-            GeometryInfo geometry = Rendering.Rendering.rpUnlit.geometryResources;
+			GeometryInfo geometry = Rendering.Rendering.rpUnlit.geometryResources;
 			MeshRenderer delMeshFilter = null;
 
 			ImGui.InputInt("Max Display Entries", ref maxEntries);
@@ -142,7 +136,7 @@ namespace ArcticFoxEngine.Debug {
 
 					col = MathUtil.HsvToRgb(360.0 * hue, 0.8, 0.8);
 					buttonActiveCol = new Vector4(col.R / 255f, col.G / 255f, col.B / 255f, 1f);
-					
+
 				}
 				else {
 					objectName = geometry.indexGap[i].ToString();

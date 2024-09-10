@@ -1,14 +1,8 @@
-﻿using ArcticFoxEngine.Backend;
-using ArcticFoxEngine.Nodes;
+﻿using ArcticFoxEngine.Nodes;
 using CoolClassLibrary;
 using ImGuiNET;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace ArcticFoxEngine.Testing.ChildTest {
+namespace ArcticFoxEngine.Demos.ChildTest {
 	public class CubeWheel : Node {
 
 		float radius;

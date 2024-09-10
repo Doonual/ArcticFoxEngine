@@ -1,10 +1,5 @@
-﻿using CoolClassLibrary;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ArcticFoxEngine.Nodes;
+﻿using ArcticFoxEngine.Nodes;
+using CoolClassLibrary;
 
 namespace ArcticFoxEngine.Debug.Commands {
 	internal class AddObjectCommand : Command {
@@ -17,7 +12,7 @@ namespace ArcticFoxEngine.Debug.Commands {
 		}
 
 		public string[] GetNextArgument(string[] args) {
-			
+
 			if (args.Length == 0) {
 				return new string[] { "$Tname" };
 			}

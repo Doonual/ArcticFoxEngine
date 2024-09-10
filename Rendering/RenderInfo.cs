@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ArcticFoxEngine.Rendering {
+﻿namespace ArcticFoxEngine.Rendering {
 	internal struct RenderInfo {
 
 		public Matrix projectionMatrix; // 64 bytes

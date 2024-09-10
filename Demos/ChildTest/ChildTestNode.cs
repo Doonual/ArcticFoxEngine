@@ -1,16 +1,9 @@
 ﻿using ArcticFoxEngine.Nodes;
-using ArcticFoxEngine.Debug.Commands;
-using ArcticFoxEngine.Testing.SceneTest;
-using CoolClassLibrary;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using ArcticFoxEngine.Demos.SceneTest;
 using ImGuiNET;
-using ArcticFoxEngine.Debug;
 
-namespace ArcticFoxEngine.Testing.ChildTest {
+namespace ArcticFoxEngine.Demos.ChildTest {
+
 	public class ChildTestNode : Node {
 
 
@@ -20,7 +13,7 @@ namespace ArcticFoxEngine.Testing.ChildTest {
 			CreateChild<CameraController>();
 
 			Node platformsNode = CreateChild<BaseNode>("Platforms");
-			
+
 			#region Block tower
 
 			Node blockPlatform = platformsNode.CreateChild<BaseNode>("Block tower platform");

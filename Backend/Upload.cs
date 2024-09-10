@@ -1,17 +1,10 @@
 ﻿using CoolClassLibrary;
 using SharpDX.Direct3D12;
 using SharpDX.DXGI;
-using Resource = SharpDX.Direct3D12.Resource;
-using Swan;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading.Tasks;
 using System.Runtime.InteropServices;
+using Resource = SharpDX.Direct3D12.Resource;
 
-namespace ArcticFoxEngine.Backend {
+namespace ArcticFoxEngine {
 
 
 	internal static class Upload {
@@ -76,13 +69,13 @@ namespace ArcticFoxEngine.Backend {
 		/// <returns>A pointer to the start of the temporary buffer. Use this to fill the temporary buffer with data</returns>
 		internal static IntPtr BeginBufferUpload(long numBytes) {
 			if (uploadResource != null) { Log.Error("Cannot begin buffer upload, upload not ready"); }
-			
+
 			uploadBytes = numBytes;
 			uploadResource = Graphics.device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None, ResourceDescription.Buffer(uploadBytes), ResourceStates.GenericRead);
 			return uploadResource.Map(0);
 
 		}
-		
+
 		/// <summary>
 		/// Copies the data from the temporary buffer into the specified default heap buffer
 		/// </summary>
@@ -130,7 +123,7 @@ namespace ArcticFoxEngine.Backend {
 			commandList.CopyTextureRegion(new TextureCopyLocation(dstTexture, 0), 0, 0, 0, new TextureCopyLocation(uploadResource, 0), null);
 
 			commandList.Close();
-			
+
 
 			uploadCommandQueue.ExecuteCommandList(commandList);
 			fenceValue++;
@@ -172,7 +165,7 @@ namespace ArcticFoxEngine.Backend {
 			}
 
 
-			
+
 			uploadFence.Dispose();
 			fenceValue = 0;
 

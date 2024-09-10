@@ -1,5 +1,4 @@
-﻿using SharpDX.DXGI;
-using SharpDX.Windows;
+﻿using SharpDX.Windows;
 
 namespace ArcticFoxEngine {
 	internal static class Screen {

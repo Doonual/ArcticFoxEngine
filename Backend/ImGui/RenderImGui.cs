@@ -1,21 +1,18 @@
 ﻿#pragma warning disable CS8618
 
-namespace ArcticFoxEngine {
+using ArcticFoxEngine.Debug;
+using ImGuiNET;
+using SharpDX.Direct3D12;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
+using System.Buffers;
+using Image = SixLabors.ImageSharp.Image;
+using ImDrawIdx = System.UInt16;
+
+namespace ArcticFoxEngine.ImGuiIntegration {
 
 
-	using ImGuiNET;
-	using ImDrawIdx = System.UInt16;
-	using System.Collections.Generic;
-	using System;
-	using System.Linq;
-	using SixLabors.ImageSharp;
-	using SixLabors.ImageSharp.PixelFormats;
-	using System.Buffers;
-	using SharpDX.Direct3D12;
-	using ArcticFoxEngine.Backend;
-	using CoolClassLibrary;
-	using ArcticFoxEngine.Debug;
-	using ArcticFoxEngine.Backend.RenderImGui;
+
 
 	unsafe internal static class RenderImGui {
 
@@ -34,12 +31,12 @@ namespace ArcticFoxEngine {
 		static IndexBufferView indexBufferView;
 
 		static ConstBuffer<Matrix> constantBuffer;
-		
 
-		
+
+
 		static readonly Dictionary<IntPtr, (Texture, int)> textureResources = new();
 
-		
+
 
 		private static bool replaceFont = false;
 		private static ushort[]? fontCustomGlyphRange;
@@ -238,7 +235,7 @@ namespace ArcticFoxEngine {
 
 
 
-		
+
 		internal static void Resize(int width, int height) {
 			ImGui.GetIO().DisplaySize = new System.Numerics.Vector2(width, height);
 		}
@@ -254,21 +251,21 @@ namespace ArcticFoxEngine {
 			if (!image.DangerousTryGetSinglePixelMemory(out Memory<Rgba32> memory)) {
 				throw new Exception("Make sure to initialize MemoryAllocator.Default!");
 			}
-			
+
 			Rgba32[] pixelArray = memory.ToArray();
 			byte[] imageData = new byte[pixelArray.Length * 4];
-			for (int i = 0; i < pixelArray.Length; i ++) {
+			for (int i = 0; i < pixelArray.Length; i++) {
 				imageData[i * 4 + 0] = pixelArray[i].R;
 				imageData[i * 4 + 1] = pixelArray[i].G;
 				imageData[i * 4 + 2] = pixelArray[i].B;
 				imageData[i * 4 + 3] = pixelArray[i].A;
 			}
 
-			
+
 			texture.SetData(imageData);
 
 			return RegisterTexture(texture);
-			
+
 		}
 
 		internal static bool RemoveImageTexture(IntPtr handle) {
@@ -284,37 +281,35 @@ namespace ArcticFoxEngine {
 			if (fontCustomGlyphRange == null) {
 				switch (fontLanguage) {
 					case FontGlyphRangeType.English:
-						io.Fonts.AddFontFromFileTTF(fontPathName, fontSize, config, io.Fonts.GetGlyphRangesDefault());
-						break;
+					io.Fonts.AddFontFromFileTTF(fontPathName, fontSize, config, io.Fonts.GetGlyphRangesDefault());
+					break;
 					case FontGlyphRangeType.ChineseSimplifiedCommon:
-						io.Fonts.AddFontFromFileTTF(fontPathName, fontSize, config, io.Fonts.GetGlyphRangesChineseSimplifiedCommon());
-						break;
+					io.Fonts.AddFontFromFileTTF(fontPathName, fontSize, config, io.Fonts.GetGlyphRangesChineseSimplifiedCommon());
+					break;
 					case FontGlyphRangeType.ChineseFull:
-						io.Fonts.AddFontFromFileTTF(fontPathName, fontSize, config, io.Fonts.GetGlyphRangesChineseFull());
-						break;
+					io.Fonts.AddFontFromFileTTF(fontPathName, fontSize, config, io.Fonts.GetGlyphRangesChineseFull());
+					break;
 					case FontGlyphRangeType.Japanese:
-						io.Fonts.AddFontFromFileTTF(fontPathName, fontSize, config, io.Fonts.GetGlyphRangesJapanese());
-						break;
+					io.Fonts.AddFontFromFileTTF(fontPathName, fontSize, config, io.Fonts.GetGlyphRangesJapanese());
+					break;
 					case FontGlyphRangeType.Korean:
-						io.Fonts.AddFontFromFileTTF(fontPathName, fontSize, config, io.Fonts.GetGlyphRangesKorean());
-						break;
+					io.Fonts.AddFontFromFileTTF(fontPathName, fontSize, config, io.Fonts.GetGlyphRangesKorean());
+					break;
 					case FontGlyphRangeType.Thai:
-						io.Fonts.AddFontFromFileTTF(fontPathName, fontSize, config, io.Fonts.GetGlyphRangesThai());
-						break;
+					io.Fonts.AddFontFromFileTTF(fontPathName, fontSize, config, io.Fonts.GetGlyphRangesThai());
+					break;
 					case FontGlyphRangeType.Vietnamese:
-						io.Fonts.AddFontFromFileTTF(fontPathName, fontSize, config, io.Fonts.GetGlyphRangesVietnamese());
-						break;
+					io.Fonts.AddFontFromFileTTF(fontPathName, fontSize, config, io.Fonts.GetGlyphRangesVietnamese());
+					break;
 					case FontGlyphRangeType.Cyrillic:
-						io.Fonts.AddFontFromFileTTF(fontPathName, fontSize, config, io.Fonts.GetGlyphRangesCyrillic());
-						break;
+					io.Fonts.AddFontFromFileTTF(fontPathName, fontSize, config, io.Fonts.GetGlyphRangesCyrillic());
+					break;
 					default:
-						throw new Exception($"Font Glyph Range (${fontLanguage}) is not supported.");
+					throw new Exception($"Font Glyph Range (${fontLanguage}) is not supported.");
 				}
 			}
-			else
-			{
-				fixed (ushort* p = &fontCustomGlyphRange[0])
-				{
+			else {
+				fixed (ushort* p = &fontCustomGlyphRange[0]) {
 					io.Fonts.AddFontFromFileTTF(fontPathName, fontSize, config, new IntPtr(p));
 				}
 			}
@@ -329,7 +324,7 @@ namespace ArcticFoxEngine {
 			io.Fonts.GetTexDataAsRGBA32(out byte* pixels, out var width, out var height);
 
 			byte[] pixelArray = new byte[width * height * 4];
-			for (int i = 0; i < pixelArray.Length; i ++) {
+			for (int i = 0; i < pixelArray.Length; i++) {
 				pixelArray[i] = pixels[i];
 			}
 			Texture fontTex = new Texture(width, height);
@@ -523,7 +518,7 @@ namespace ArcticFoxEngine {
 
 			CreatePipelineState();
 			CreateFontsTexture();
-			
+
 		}
 
 		static void CreatePipelineState() {
@@ -588,7 +583,7 @@ namespace ArcticFoxEngine {
 			};
 			psonDesc.RenderTargetFormats[0] = SharpDX.DXGI.Format.R8G8B8A8_UNorm;
 			pipelineState = Graphics.device.CreateGraphicsPipelineState(psonDesc);
-			
+
 		}
 
 		internal static void Dispose() {

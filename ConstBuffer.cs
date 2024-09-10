@@ -1,8 +1,7 @@
-﻿using CoolClassLibrary;
-using SharpDX;
+﻿using SharpDX;
 using SharpDX.Direct3D12;
 
-namespace ArcticFoxEngine.Backend {
+namespace ArcticFoxEngine {
 
 
 	/// <summary>
@@ -50,7 +49,7 @@ namespace ArcticFoxEngine.Backend {
 
 			int descHeapIncrement = Graphics.device.GetDescriptorHandleIncrementSize(DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView);
 
-			for (int i = 0; i < numElements; i ++) {
+			for (int i = 0; i < numElements; i++) {
 
 				ConstantBufferViewDescription cbvDesc = new ConstantBufferViewDescription() {
 					BufferLocation = constantBuffer.GPUVirtualAddress + stride * i,
@@ -59,7 +58,7 @@ namespace ArcticFoxEngine.Backend {
 				Graphics.device.CreateConstantBufferView(cbvDesc, destDescriptorHeap.CPUDescriptorHandleForHeapStart + (offset + i) * descHeapIncrement);
 
 			}
-			
+
 		}
 
 		/// <summary>
@@ -68,12 +67,10 @@ namespace ArcticFoxEngine.Backend {
 		/// <param name="data">The data to be written to the constant buffer</param>
 		/// <param name="offset">The the position of the 1st element</param>
 		public void Write(T[] data, int offset) {
-
 			// Writes the T[] array to the buffer, ensuring each element starts at a 256 byte aligned location
-			for (int i = 0; i < data.Length; i ++) {
+			for (int i = 0; i < data.Length; i++) {
 				Utilities.Write(constantBufferPointer + (offset + i) * stride, new T[] { data[i] }, 0, 1);
 			}
-			
 		}
 
 

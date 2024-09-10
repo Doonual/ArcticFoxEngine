@@ -1,10 +1,7 @@
-﻿using CoolClassLibrary;
+﻿using SharpDX.DXGI;
 
 
-using SharpDX.DXGI;
-
-
-namespace ArcticFoxEngine.Backend {
+namespace ArcticFoxEngine {
 
 
 	using SharpDX.Direct3D12;
@@ -129,7 +126,7 @@ namespace ArcticFoxEngine.Backend {
 			Dispose();
 		}
 
-		
+
 
 
 	}

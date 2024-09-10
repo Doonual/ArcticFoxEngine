@@ -1,13 +1,10 @@
-﻿using ArcticFoxEngine.Backend;
-using ArcticFoxEngine.Debug;
+﻿using ArcticFoxEngine.Debug;
 using ArcticFoxEngine.Debug.Commands;
 using ArcticFoxEngine.Input;
 using ArcticFoxEngine.Input.Bindings;
-using ArcticFoxEngine;
+using ArcticFoxEngine.Nodes;
 using CoolClassLibrary;
 using SharpDX.Windows;
-using SharpDX.DXGI;
-using ArcticFoxEngine.Rendering;
 
 namespace ArcticFoxEngine {
 	public static class Engine {
@@ -42,7 +39,7 @@ namespace ArcticFoxEngine {
 					FormBorderStyle = FormBorderStyle.None,
 				};
 				form.BackColor = new Color(0, 0, 0);
-				
+
 				form.Width = 1920;
 				form.Height = 1080;
 				form.Location = new Point(0, 0);
@@ -79,9 +76,9 @@ namespace ArcticFoxEngine {
 			toggleDebugButton = new KeyboardButtonInput(KeyboardButtonInput.KeyboardButton.F1);
 
 
-			if (init != null) {	init();	} // Run the main init code
+			if (init != null) { init(); } // Run the main init code
 
-			
+
 			// Main game loop
 			using (loop = new RenderLoop(form)) {
 				while (loop != null && loop.NextFrame()) {
@@ -125,14 +122,14 @@ namespace ArcticFoxEngine {
 					form.Show();
 				}
 			}
-			
+
 			Graphics.Dispose();
 			Rendering.Rendering.Dispose();
 
 			DebugManager.CloseGUI();
 
 		}
-		
+
 		/// <summary>
 		/// Closes ArcticFoxEngine
 		/// </summary>

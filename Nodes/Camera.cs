@@ -1,19 +1,18 @@
-﻿using SharpDX;
-using RectangleF = SharpDX.RectangleF;
+﻿using ArcticFoxEngine.Rendering;
 using ImGuiNET;
-using ArcticFoxEngine.Backend;
+using SharpDX;
+using RectangleF = SharpDX.RectangleF;
 
-namespace ArcticFoxEngine {
+namespace ArcticFoxEngine.Nodes {
 
-	using ArcticFoxEngine.Rendering;
-	using CoolClassLibrary;
+
 
 	public class Camera : Node {
 
 		internal override string description => "Renders the scene from the camera's point of view";
 		internal override string nodeIconPath => ".res/NodeIcons/Camera.png";
 
-		public int renderWidth { 
+		public int renderWidth {
 			get {
 				return Screen.width;
 			}
@@ -64,7 +63,7 @@ namespace ArcticFoxEngine {
 			Orthographic
 		}
 
-		public Camera(){
+		public Camera() {
 			name = "Camera";
 
 			viewportWidth = Screen.width;
@@ -85,10 +84,10 @@ namespace ArcticFoxEngine {
 
 			Matrix cameraTransform = Transform.CalculateFromNode(this).Invert();
 			return cameraTransform * projectionMatrix;
-			
+
 		}
 
-		
+
 
 		public override void Debug() {
 
@@ -117,7 +116,7 @@ namespace ArcticFoxEngine {
 
 		}
 		public override void Render() {
-            Rendering.Rendering.RenderScene(Graphics.renderTargets[Graphics.frameIndex], Graphics.rtvHeap, Graphics.dsvHeap, this);
+			Rendering.Rendering.RenderScene(Graphics.renderTargets[Graphics.frameIndex], Graphics.rtvHeap, Graphics.dsvHeap, this);
 		}
 
 

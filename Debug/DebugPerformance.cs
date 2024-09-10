@@ -1,13 +1,5 @@
-﻿using ImGuiNET;
-using CoolClassLibrary;
-using ArcticFoxEngine.Backend;
-using System.Linq;
-using Newtonsoft.Json.Linq;
-using SharpDX.Direct3D12;
-using ArcticFoxEngine.Rendering;
-using System;
-using static ArcticFoxEngine.Debug.DebugPerformance;
-using System.Xml.Linq;
+﻿using CoolClassLibrary;
+using ImGuiNET;
 
 namespace ArcticFoxEngine.Debug {
 	internal class DebugPerformance : DebugWindow {
@@ -81,7 +73,7 @@ namespace ArcticFoxEngine.Debug {
 				}
 				endMs[endMs.Length - 1] = 0;
 
-				for (int i = 0; i < subMetrics.Count; i ++) {
+				for (int i = 0; i < subMetrics.Count; i++) {
 					subMetrics[i].NewFrame();
 				}
 
@@ -137,7 +129,7 @@ namespace ArcticFoxEngine.Debug {
 				float buttonHeight = ImGui.GetCursorScreenPos().Y;
 				ImGui.ColorButton(name + " metric", (Vector4)col, ImGuiColorEditFlags.NoTooltip, buttonSize);
 
-				
+
 
 				uint filledCol;
 				unsafe {
@@ -146,7 +138,7 @@ namespace ArcticFoxEngine.Debug {
 						filledCol = ImGui.ColorConvertFloat4ToU32(*ImGui.GetStyleColorVec4(ImGuiCol.TableRowBgAlt));
 					}
 				}
-				
+
 				ImGui.GetWindowDrawList().AddRectFilled(new Vector2(topLeft.x + windowPosOffset.x, buttonHeight), new Vector2(topLeft.x + windowPosOffset.x + width, buttonHeight + 19f), filledCol);
 
 
@@ -169,19 +161,19 @@ namespace ArcticFoxEngine.Debug {
 
 					ImGui.SeparatorText(name);
 					ImGui.Text("Total time: " + ms.ToString("F3") + " ms");
-					
+
 					if (parentMetric != null) {
 						float percentage = 100 * ms / (parentMetric.endMs[viewSample] - parentMetric.startMs[viewSample]);
 						ImGui.Text("Percentage: " + (percentage.ToString("F0") + "%%"));
 					}
-					
+
 					ImGui.EndTooltip();
 				}
 
-				for (int i = 0; i < subMetrics.Count; i ++) {
+				for (int i = 0; i < subMetrics.Count; i++) {
 					subMetrics[i].DrawMetric(topLeft - Vector2.down * 19f, width, totalMs, viewSample, !rowChecker);
 				}
-				
+
 				ImGui.PopID();
 
 			}
@@ -190,7 +182,7 @@ namespace ArcticFoxEngine.Debug {
 				float[] startMsSquished = SquishPlot(startMs, numSamples);
 				float[] endMsSquished = SquishPlot(endMs, numSamples);
 
-				for (int i = 0; i < numSamples; i ++) {
+				for (int i = 0; i < numSamples; i++) {
 					float currentX = (float)i / numSamples;
 					currentX *= (maxCoord.x - minCoord.x);
 					currentX += minCoord.x;
@@ -209,20 +201,20 @@ namespace ArcticFoxEngine.Debug {
 
 					ImGui.GetWindowDrawList().AddLine(new Vector2(currentX, startHeight), new Vector2(currentX, endHeight), ImGui.ColorConvertFloat4ToU32((Vector4)col));
 				}
-				
+
 				if (drawRecursive == true) {
 					for (int i = 0; i < subMetrics.Count; i++) {
 						subMetrics[i].DrawMetricHist(numSamples, minCoord, maxCoord, maxMs, drawRecursive);
 					}
 				}
-				
+
 
 
 			}
 			internal void DrawMetricTable(int viewSample) {
 
-				for (int i = 0; i < subMetrics.Count; i ++) {
-					
+				for (int i = 0; i < subMetrics.Count; i++) {
+
 					ImGui.TableNextRow();
 					ImGui.TableNextColumn();
 
@@ -236,7 +228,7 @@ namespace ArcticFoxEngine.Debug {
 					else {
 						ImGui.TreeNodeEx(metric.name, ImGuiTreeNodeFlags.SpanFullWidth | ImGuiTreeNodeFlags.Leaf | ImGuiTreeNodeFlags.Bullet | ImGuiTreeNodeFlags.NoTreePushOnOpen);
 					}
-					
+
 					ImGui.TableNextColumn();
 					ImGui.ColorButton(metric.name + " table col button", (Vector4)metric.col, ImGuiColorEditFlags.None, (Vector2)ImGui.CalcTextSize("Colour") - Vector2.right * ImGui.GetStyle().FramePadding.X * 1f);
 					ImGui.TableNextColumn();
@@ -244,8 +236,8 @@ namespace ArcticFoxEngine.Debug {
 					ImGui.TableNextColumn();
 					ImGui.Text((100 * (metric.endMs[viewSample] - metric.startMs[viewSample]) / (endMs[viewSample] - startMs[viewSample])).ToString("F0") + "%%");
 
-					
-					
+
+
 
 					if (open == true) {
 						metric.DrawMetricTable(viewSample);
@@ -259,7 +251,7 @@ namespace ArcticFoxEngine.Debug {
 
 			internal Metric GetOrCreateChildMetric(string name) {
 
-				for (int i = 0; i < subMetrics.Count; i ++) {
+				for (int i = 0; i < subMetrics.Count; i++) {
 					if (subMetrics[i].name == name) {
 						return subMetrics[i];
 					}
@@ -311,7 +303,7 @@ namespace ArcticFoxEngine.Debug {
 			if (updatePlotActual == false) { return; }
 
 			frameStartTimestamp = timestamp;
-			
+
 
 		}
 		internal void FrameDone(long timestamp, float frameTime) {
@@ -361,12 +353,12 @@ namespace ArcticFoxEngine.Debug {
 		internal override void Render() {
 
 			autoAdjustPlotMaxMs = false;
-			
+
 			#region FPS Table
 
 			ImGuiTableFlags flags = ImGuiTableFlags.Borders;
 			if (ImGui.BeginTable("Performance Table", 3, flags) == true) {
-				
+
 				ImGui.TableSetupColumn("Worst");
 				ImGui.TableSetupColumn("Current");
 				ImGui.TableSetupColumn("Best");
@@ -395,7 +387,7 @@ namespace ArcticFoxEngine.Debug {
 
 			}
 
-			
+
 
 
 			#endregion
@@ -457,11 +449,11 @@ namespace ArcticFoxEngine.Debug {
 			#endregion
 			#region Draw ms lines on plot
 
-			float[] msLines = new float[] {0.1f, 0.25f, 0.5f, 1f, 2f, 4.17f, 8.33f, 16.67f, 33.33f, 50f, 100f, 1000f };
-			for (int i = 0; i < msLines.Length; i ++) {
+			float[] msLines = new float[] { 0.1f, 0.25f, 0.5f, 1f, 2f, 4.17f, 8.33f, 16.67f, 33.33f, 50f, 100f, 1000f };
+			for (int i = 0; i < msLines.Length; i++) {
 
 				float height = MathUtil.Map(msLines[i], 0f, plotMaxMs, histEndScreen.y, histStartScreen.y);
-				
+
 				if (msLines[i] > plotMaxMs) { break; }
 				if (msLines[i] / plotMaxMs < 0.1) { continue; }
 
@@ -469,7 +461,7 @@ namespace ArcticFoxEngine.Debug {
 				string fpsReadout = MathF.Round(1000f / msLines[i]).ToString("F0") + " FPS";
 
 
-				
+
 				Vector2 msTextAlignment = new Vector2(-ImGui.CalcTextSize(msReadout).X, -ImGui.CalcTextSize(msReadout).Y / 2f);
 				Vector2 fpsTextAlignment = new Vector2(0f, -ImGui.CalcTextSize(fpsReadout).Y / 2f);
 
@@ -479,7 +471,7 @@ namespace ArcticFoxEngine.Debug {
 				ImGui.GetWindowDrawList().AddText(new Vector2(histEndScreen.x, height) + msTextAlignment, ImGui.ColorConvertFloat4ToU32(new Vector4(1f, 1f, 1f, msReadoutAlpha)), msReadout);
 				ImGui.GetWindowDrawList().AddText(new Vector2(histStartScreen.x, height) + fpsTextAlignment, ImGui.ColorConvertFloat4ToU32(new Vector4(1f, 1f, 1f, msReadoutAlpha)), fpsReadout);
 
-				
+
 
 			}
 
@@ -492,7 +484,7 @@ namespace ArcticFoxEngine.Debug {
 			ImGui.PushStyleColor(ImGuiCol.FrameBg, new System.Numerics.Vector4(0.2f, 0.2f, 0.2f, 138f / 255f));
 			ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, new Vector2(0f, 0f));
 			ImGui.BeginChildFrame((uint)"metric recursive child".GetHashCode(), new Vector2(-1f, 76f));
-			
+
 
 			Vector2 childStart = ImGui.GetCursorPos();
 			float width = ImGui.GetColumnWidth();
@@ -530,5 +522,5 @@ namespace ArcticFoxEngine.Debug {
 
 	}
 
-	
+
 }

@@ -1,10 +1,9 @@
-﻿using ArcticFoxEngine.Backend.RenderImGui;
-using ArcticFoxEngine.Debug;
+﻿using ArcticFoxEngine.Debug;
+using ArcticFoxEngine.ImGuiIntegration;
 using CoolClassLibrary;
 using ImGuiNET;
-using SixLabors.ImageSharp.PixelFormats;
 
-namespace ArcticFoxEngine {
+namespace ArcticFoxEngine.Nodes {
 	public abstract class Node {
 
 		public static Node rootNode;
@@ -44,7 +43,7 @@ namespace ArcticFoxEngine {
 			if (this.parentNode != null) {
 				parentNode.childNodes.Remove(this);
 			}
-			
+
 			this.parentNode = parentNode;
 			globalEnabled |= enabled;
 
@@ -77,7 +76,7 @@ namespace ArcticFoxEngine {
 			return childNodes[index];
 		}
 		public T GetChild<T>() where T : Node {
-			for (int i = 0; i < childNodes.Count; i ++) {
+			for (int i = 0; i < childNodes.Count; i++) {
 				if (childNodes[i].GetType() == typeof(T)) {
 					return (T)childNodes[i];
 				}
@@ -176,11 +175,11 @@ namespace ArcticFoxEngine {
 			}
 
 		}
-		
+
 		internal void UpdateEvent() {
 			if (enabled == false) { return; }
 
-			for (int i = 0; i < childNodes.Count; i ++) {
+			for (int i = 0; i < childNodes.Count; i++) {
 				childNodes[i].UpdateEvent();
 			}
 
@@ -206,7 +205,7 @@ namespace ArcticFoxEngine {
 			if (callingFromRoot == false && prevCallingFromRoot == true) { inspectorNodeOpen = false; }
 			prevCallingFromRoot = callingFromRoot;
 
-			
+
 			ImGui.PushStyleVar(ImGuiStyleVar.ItemSpacing, new Vector2(0f, -1f));
 
 			ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0.3f, 0.3f, 0.3f, 0.0f));
@@ -236,7 +235,7 @@ namespace ArcticFoxEngine {
 			ImGui.PopStyleVar(2);
 			ImGui.PopStyleColor(3);
 
-			
+
 			if (inspectorNodeOpen == true || true) {
 				ImGui.TreePush("Params and children tree");
 				if (description != "") {
@@ -246,7 +245,7 @@ namespace ArcticFoxEngine {
 				ImGui.PushID(GetHashCode() + " parameters");
 				Debug();
 				ImGui.PopID();
-				
+
 
 				if (callingFromRoot == true) {
 					for (int i = 0; i < childNodes.Count; i++) {
@@ -255,7 +254,7 @@ namespace ArcticFoxEngine {
 						ImGui.PopID();
 					}
 				}
-				
+
 
 				ImGui.TreePop();
 			}
@@ -269,7 +268,7 @@ namespace ArcticFoxEngine {
 		}
 		internal void DisposeEvent() {
 			if (disposed == false) {
-				for (int i = 0; i < childNodes.Count(); i ++) {
+				for (int i = 0; i < childNodes.Count(); i++) {
 					childNodes[i].DisposeEvent();
 				}
 				Disable();
@@ -303,7 +302,7 @@ namespace ArcticFoxEngine {
 			ImGui.PushStyleColor(ImGuiCol.ButtonHovered, new Vector4(0.3f, 0.3f, 0.3f, 0.3f));
 			ImGui.PushStyleColor(ImGuiCol.ButtonActive, new Vector4(0.3f, 0.3f, 0.3f, 0.5f));
 
-			
+
 
 			float cursorPosY = ImGui.GetCursorPosY();
 
@@ -320,7 +319,7 @@ namespace ArcticFoxEngine {
 				ImGui.Bullet();
 			}
 
-			
+
 			ImGui.SetCursorPosY(cursorPosY);
 			Vector2 buttonStartPos = ImGui.GetCursorPos();
 
@@ -334,8 +333,8 @@ namespace ArcticFoxEngine {
 				ImGui.PushStyleColor(ImGuiCol.ButtonActive, new Vector4(66f / 255f, 150f / 255f, 250f / 255, 102f / 255f));
 				ImGui.PushStyleColor(ImGuiCol.ButtonHovered, new Vector4(66f / 255f, 150f / 255f, 250f / 255, 102f / 255f));
 			}
-			
-			
+
+
 			if (ImGui.Button("", new Vector2(-1f, 16f + 6f)) == true) {
 				selectedNode = this;
 			}
@@ -352,14 +351,14 @@ namespace ArcticFoxEngine {
 			// Name button
 			ImGui.SetCursorPosY(cursorPosY);
 			ImGui.PushStyleVar(ImGuiStyleVar.ButtonTextAlign, new Vector2(0f, 0.5f));
-			
+
 			ImGui.Button(name, new Vector2(-1f, 16f + 6f));
 
 			ImGui.PopStyleVar();
 
 
 
-			
+
 
 			ImGui.TableNextColumn();
 
@@ -390,7 +389,7 @@ namespace ArcticFoxEngine {
 				float childLinesStartY = ImGui.GetCursorScreenPos().Y + 21f;
 				float indentSize = ImGui.GetStyle().IndentSpacing;
 
-				for (int i = 0; i < childNodes.Count; i ++) {
+				for (int i = 0; i < childNodes.Count; i++) {
 
 					float childLinesCurrentY = ImGui.GetCursorScreenPos().Y + 11f + 26f;
 					ImGui.GetWindowDrawList().AddLine(new Vector2(childLinesX, childLinesCurrentY), new Vector2(childLinesX + indentSize / 2f, childLinesCurrentY), ImGui.ColorConvertFloat4ToU32(new Vector4(0.5f, 0.5f, 0.5f, 1f)));
@@ -401,7 +400,7 @@ namespace ArcticFoxEngine {
 						selectedNode = childSelectedNode;
 					}
 
-					
+
 				}
 
 				float childLinesEndY = ImGui.GetCursorScreenPos().Y + 11f;

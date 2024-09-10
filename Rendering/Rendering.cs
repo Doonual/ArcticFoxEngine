@@ -1,12 +1,4 @@
-﻿using ArcticFoxEngine.Backend;
-using ArcticFoxEngine.Nodes;
-using ArcticFoxEngine.Debug;
-using ArcticFoxEngine;
-using CoolClassLibrary;
-using SharpDX;
-
-using SharpDX.DXGI;
-using SharpDX.Direct3D12;
+﻿using ArcticFoxEngine.Nodes;
 
 namespace ArcticFoxEngine.Rendering {
 
@@ -21,13 +13,13 @@ namespace ArcticFoxEngine.Rendering {
 		internal static Texture[] textures;
 
 		private static List<RenderPipeline> renderPipelines;
-		public static RenderPipeline rpUnlit { get {return renderPipelines[0];} }
-		public static RenderPipeline rpWireframe { get {return renderPipelines[1];} }
-		public static RenderPipeline rpMandelbrot { get {return renderPipelines[2];} }
+		public static RenderPipeline rpUnlit { get { return renderPipelines[0]; } }
+		public static RenderPipeline rpWireframe { get { return renderPipelines[1]; } }
+		public static RenderPipeline rpMandelbrot { get { return renderPipelines[2]; } }
 
 		internal static void Init() {
 
-			
+
 			renderInfo = new ConstBuffer<RenderInfo>(1);
 
 			textures = new Texture[4];
@@ -38,6 +30,8 @@ namespace ArcticFoxEngine.Rendering {
 
 			renderPipelines = new List<RenderPipeline>();
 			renderPipelines.Add(new UnlitRenderPipeline());
+			renderPipelines.Add(new MandelbrotRenderPipeline());
+
 
 		}
 
@@ -46,7 +40,7 @@ namespace ArcticFoxEngine.Rendering {
 		}
 		public static RenderPipeline GetRenderPipeline(string name) {
 
-			for (int i = 0; i < renderPipelines.Count; i ++) {
+			for (int i = 0; i < renderPipelines.Count; i++) {
 				if (renderPipelines[i].name == name) {
 					return renderPipelines[i];
 				}
@@ -68,7 +62,7 @@ namespace ArcticFoxEngine.Rendering {
 			camera.UpdateCameraInfoBuffer(renderInfo);
 
 			Graphics.cmdAllocator.Reset();
-			for (int i = 0; i < renderPipelines.Count; i ++) {
+			for (int i = 0; i < renderPipelines.Count; i++) {
 
 
 

@@ -1,16 +1,9 @@
-﻿using ArcticFoxEngine.Backend;
-using CoolClassLibrary;
-using ImGuiNET;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using ImGuiNET;
 
 namespace ArcticFoxEngine.Nodes {
 
 	using ArcticFoxEngine.Rendering;
-	
+
 	public class MeshRenderer : Node {
 
 		internal override string description => "Renders the mesh to the scene geometry";
@@ -58,14 +51,14 @@ namespace ArcticFoxEngine.Nodes {
 			if (this.mesh != null && enabled == true) {
 				UnloadMesh();
 			}
-			
+
 			this.mesh = mesh;
 			if (this.mesh != null && enabled == true) {
 				LoadMesh();
 			}
-			
+
 		}
-		
+
 		private void LoadMesh() {
 			if (mesh == null || meshLoaded == true || renderPipeline == null) { return; }
 			bool meshAdded = renderPipeline.geometryResources.AddMesh(this);
@@ -102,7 +95,7 @@ namespace ArcticFoxEngine.Nodes {
 		private int renderPipelineComboSelected = 0;
 		public override void Debug() {
 
-			
+
 
 
 			System.Numerics.Vector3 vec3 = new System.Numerics.Vector3(vertexColSet.x, vertexColSet.y, vertexColSet.z);
@@ -129,10 +122,15 @@ namespace ArcticFoxEngine.Nodes {
 				SetRenderPipeline(renderPipelines[renderPipelineComboSelected]);
 			}
 
-			
+
+			ImGui.Text("Material settings");
+			if (material != null) {
+				material.Debug();
+			}
+
 
 		}
-		
+
 
 	}
 }

@@ -1,9 +1,4 @@
 ﻿using CoolClassLibrary;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ArcticFoxEngine.Debug.Commands {
 	internal class HelpCommand : Command {
@@ -11,7 +6,7 @@ namespace ArcticFoxEngine.Debug.Commands {
 
 		public void Execute(string[] args) {
 			Log.Info("Listing commands...");
-			for (int i = 0; i < CommandController.commands.Count; i ++) {
+			for (int i = 0; i < CommandController.commands.Count; i++) {
 				Log.Raw(CommandController.commands[i].name);
 			}
 		}

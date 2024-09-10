@@ -1,6 +1,4 @@
-﻿using SharpDX;
-
-namespace ArcticFoxEngine {
+﻿namespace ArcticFoxEngine {
 	public struct Vertex {
 		public Vector3 position;
 		public Vector4 color;

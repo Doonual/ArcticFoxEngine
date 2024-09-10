@@ -1,14 +1,7 @@
-﻿using ArcticFoxEngine.Backend;
-using ArcticFoxEngine.Nodes;
-using CoolClassLibrary;
+﻿using ArcticFoxEngine.Nodes;
 using ImGuiNET;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace ArcticFoxEngine.Testing.SceneTest {
+namespace ArcticFoxEngine.Demos.SceneTest {
 	public class CubeSpin : Node {
 
 		List<Node> xSpin;
@@ -19,7 +12,7 @@ namespace ArcticFoxEngine.Testing.SceneTest {
 		float speed;
 		float t;
 		float ringSize = 14f;
-		
+
 
 		public CubeSpin() {
 			name = "Cube Spin";
@@ -42,12 +35,12 @@ namespace ArcticFoxEngine.Testing.SceneTest {
 			for (int i = 0; i < numPerRing; i++) {
 
 				Mesh cubeMesh = Mesh.CreatePrimitive(Mesh.Primitive.Cube);
-				for (int v = 0; v < cubeMesh.vertices.Length; v ++) {
+				for (int v = 0; v < cubeMesh.vertices.Length; v++) {
 					cubeMesh.vertices[v].color = new Vector4(1f, 1f, 1f, 1f);
 					if (v >= 4) {
 						cubeMesh.vertices[v].color = new Vector4(1f, 0f, 0f, 1f);
 					}
-					
+
 				}
 
 				Node xObj = xRing.CreateChild<BaseNode>("X" + (i + 1));
@@ -98,13 +91,13 @@ namespace ArcticFoxEngine.Testing.SceneTest {
 		}
 
 		public override void Update() {
-			
+
 			if (animate == true) {
 				t += speed * (float)Profiler.deltaTime * 0.3f;
 			}
 			t %= 1;
 
-			for (int i = 0; i < xSpin.Count; i ++) {
+			for (int i = 0; i < xSpin.Count; i++) {
 
 				float proportion = (float)i / xSpin.Count;
 				Node obj = xSpin[i];

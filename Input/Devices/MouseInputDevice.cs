@@ -1,11 +1,5 @@
-﻿using CoolClassLibrary;
-using ImGuiNET;
+﻿using ArcticFoxEngine.ImGuiIntegration;
 using SharpDX.DirectInput;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ArcticFoxEngine.Input.Devices {
 	internal static class MouseInputDevice {
@@ -16,7 +10,7 @@ namespace ArcticFoxEngine.Input.Devices {
 
 		internal static void Init() {
 			if (initialised == true) { return; }
-			
+
 			deviceUpdate = new List<Action<MouseUpdate>>();
 
 			InputManager.AddInputDevice(UpdateDevice);
@@ -38,7 +32,7 @@ namespace ArcticFoxEngine.Input.Devices {
 				for (int n = 0; n < deviceUpdate.Count; n++) {
 					deviceUpdate[n](updates[i]);
 				}
-				
+
 			}
 		}
 

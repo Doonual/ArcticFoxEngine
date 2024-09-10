@@ -1,15 +1,10 @@
-﻿using SharpDX;
+﻿using ArcticFoxEngine.Nodes;
+using CoolClassLibrary;
+using SharpDX;
+using SharpDX.Direct3D12;
+
 
 namespace ArcticFoxEngine.Rendering {
-	using ArcticFoxEngine.Backend;
-	using ArcticFoxEngine.Nodes;
-	using ArcticFoxEngine.Debug;
-	using CoolClassLibrary;
-	using SharpDX.Direct3D12;
-	using SixLabors.ImageSharp.PixelFormats;
-	using SixLabors.ImageSharp;
-	using Swan;
-	using System.IO;
 
 	/// <summary>
 	/// Contains and controls all the resources needed for rendering geometry
@@ -25,11 +20,11 @@ namespace ArcticFoxEngine.Rendering {
 
 		internal List<MeshRenderer> meshRenderers;
 		internal List<(int vbStart, int ibStart, int obStart)> meshRendererPositions;
-		
+
 		internal int[] vertexGap;
 		internal Resource vertexBuffer;
 		internal VertexBufferView vertexBufferView;
-		
+
 		internal int[] indexGap;
 		internal Resource indexBuffer;
 		internal IndexBufferView indexBufferView;
@@ -52,14 +47,14 @@ namespace ArcticFoxEngine.Rendering {
 				vertexGap[i] = -1;
 			}
 			indexGap = new int[numIbElements];
-			for (int i = 0; i < numIbElements; i ++) {
+			for (int i = 0; i < numIbElements; i++) {
 				indexGap[i] = -1;
 			}
 			objectGap = new int[numObElements];
 			for (int i = 0; i < numObElements; i++) {
 				objectGap[i] = -1;
 			}
-			
+
 			// Create buffer resources
 			vertexBuffer = Graphics.device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.None, ResourceDescription.Buffer(numVbElements * Utilities.SizeOf<Vertex>()), ResourceStates.GenericRead);
 			vertexBufferView.BufferLocation = vertexBuffer.GPUVirtualAddress;
@@ -112,16 +107,16 @@ namespace ArcticFoxEngine.Rendering {
 			ObjectInfo[] objectInfo = new ObjectInfo[] { meshRenderer.GetObjectInfo() };
 
 			// Mark each gap as being occupied by data
-			for (int i = 0; i < vertices.Length; i ++) {
+			for (int i = 0; i < vertices.Length; i++) {
 				vertexGap[i + vbStartIndex] = 0;
 			}
-			for (int i = 0; i < indices.Length; i ++) {
+			for (int i = 0; i < indices.Length; i++) {
 				indexGap[i + ibStartIndex] = 0;
 			}
-			for (int i = 0; i < objectInfo.Length; i ++) {
+			for (int i = 0; i < objectInfo.Length; i++) {
 				objectGap[i + obStartIndex] = 0;
 			}
-			
+
 
 			#region Upload data to GPU
 
@@ -131,7 +126,7 @@ namespace ArcticFoxEngine.Rendering {
 			}
 
 			IntPtr writePos;
-			
+
 
 			int vertexUploadBufferSize = Utilities.SizeOf<Vertex>() * vertices.Length;
 			writePos = Upload.BeginBufferUpload(vertexUploadBufferSize);
@@ -146,9 +141,9 @@ namespace ArcticFoxEngine.Rendering {
 			#endregion
 
 			return true;
-			
+
 		}
-		
+
 		/// <summary>
 		/// Removes a mesh from GeometryResources
 		/// </summary>
@@ -192,7 +187,7 @@ namespace ArcticFoxEngine.Rendering {
 			// Find the start of the mesh within the buffers
 
 			int meshRendererListIndex = -1;
-			for (int i = 0; i < meshRenderers.Count; i ++) {
+			for (int i = 0; i < meshRenderers.Count; i++) {
 				if (meshRenderers[i] == meshRenderer) {
 					meshRendererListIndex = i;
 					break;
@@ -203,7 +198,7 @@ namespace ArcticFoxEngine.Rendering {
 				return;
 			}
 
-			
+
 
 			int vbStartIndex = meshRendererPositions[meshRendererListIndex].vbStart;
 			int ibStartIndex = meshRendererPositions[meshRendererListIndex].ibStart;
@@ -217,10 +212,10 @@ namespace ArcticFoxEngine.Rendering {
 			meshRendererPositions.RemoveAt(meshRendererListIndex);
 
 			// Mark the data as just removed but still to be propagated
-			for (int i = 0; i < numVerts; i ++) {
+			for (int i = 0; i < numVerts; i++) {
 				vertexGap[i + vbStartIndex] = -2;
 			}
-			for (int i = 0; i < numIndex; i ++) {
+			for (int i = 0; i < numIndex; i++) {
 				indexGap[i + ibStartIndex] = -2;
 			}
 			for (int i = 0; i < numObjs; i++) {
@@ -228,7 +223,7 @@ namespace ArcticFoxEngine.Rendering {
 			}
 
 			// Propagate gaps
-			for (int i = vbStartIndex + numVerts - 1; i >= 0; i --) {
+			for (int i = vbStartIndex + numVerts - 1; i >= 0; i--) {
 				if (vertexGap[i] == 0) { break; }
 				if (i + 1 == vertexGap.Length || vertexGap[i + 1] == -1) {
 					vertexGap[i] = -1;
@@ -261,7 +256,7 @@ namespace ArcticFoxEngine.Rendering {
 			// back to 0. The GPU will just overwrite it when it needs to.
 
 		}
-		
+
 		/// <summary>
 		/// Applies updates to per-vertex data
 		/// Do not use to add verticies or tris!!!
@@ -270,7 +265,7 @@ namespace ArcticFoxEngine.Rendering {
 		public void UpdateMeshData(MeshRenderer meshRenderer) {
 
 			int meshRendererIndex = -1;
-			for (int i = 0; i < meshRenderers.Count; i ++) {
+			for (int i = 0; i < meshRenderers.Count; i++) {
 				if (meshRenderers[i] == meshRenderer) {
 					meshRendererIndex = i;
 					break;
@@ -318,7 +313,7 @@ namespace ArcticFoxEngine.Rendering {
 
 			int maxObjectInfoIndex = -1;
 
-			for (int i = 0; i < meshRenderers.Count; i ++) {
+			for (int i = 0; i < meshRenderers.Count; i++) {
 				if (meshRendererPositions[i].obStart > maxObjectInfoIndex) {
 					maxObjectInfoIndex = meshRendererPositions[i].obStart;
 				}

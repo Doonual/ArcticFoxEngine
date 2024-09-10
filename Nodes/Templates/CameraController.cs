@@ -1,15 +1,8 @@
-﻿using ArcticFoxEngine.Debug;
-using ArcticFoxEngine.Input;
+﻿using ArcticFoxEngine.Input;
 using ArcticFoxEngine.Input.Bindings;
-using CoolClassLibrary;
 using ImGuiNET;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace ArcticFoxEngine.Testing.SceneTest {
+namespace ArcticFoxEngine.Nodes {
 	public class CameraController : Node {
 
 		internal override string nodeIconPath => ".res/NodeIcons/Camera.png";
@@ -48,7 +41,7 @@ namespace ArcticFoxEngine.Testing.SceneTest {
 			rollLeft = new KeyboardButtonInput(KeyboardButtonInput.KeyboardButton.Q);
 			lookVector = new GenericAxis2DInput(new MouseAxisInput(MouseAxisInput.MouseAxis.x), new MouseAxisInput(MouseAxisInput.MouseAxis.y));
 
-			
+
 			lookHold = new MouseButtonInput(MouseButtonInput.MouseButton.Right);
 
 			increaseSpeed = new MouseButtonInput(MouseButtonInput.MouseButton.WheelUp);
@@ -66,7 +59,7 @@ namespace ArcticFoxEngine.Testing.SceneTest {
 
 
 		public override void Update() {
-			
+
 			if (ImGui.GetIO().WantTextInput == true) { return; }
 
 			#region Camera Controls
@@ -110,7 +103,7 @@ namespace ArcticFoxEngine.Testing.SceneTest {
 
 			#endregion
 		}
-		
+
 		public override void Debug() {
 			base.Debug();
 			ImGui.SliderFloat("Speed", ref speed, 0f, 1000f, null, ImGuiSliderFlags.Logarithmic);

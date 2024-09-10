@@ -1,11 +1,5 @@
-﻿using ArcticFoxEngine.Backend;
-using ImGuiNET;
+﻿using ImGuiNET;
 using SharpDX.Direct3D12;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ArcticFoxEngine.Rendering {
 	public class UnlitRenderPipeline : RenderPipeline {
@@ -31,7 +25,7 @@ namespace ArcticFoxEngine.Rendering {
 
 			ShaderBytecode vertexShader = Graphics.CompileShader(".res/Shaders/VertexShader.hlsl", Graphics.ShaderType.Vertex);
 			ShaderBytecode geometryShader = Graphics.CompileShader(".res/Shaders/GeometryShader.hlsl", Graphics.ShaderType.Geometry);
-			ShaderBytecode pixelShader = Graphics.CompileShader(".res/Shaders/PixelShader.hlsl", Graphics.ShaderType.Pixel);
+			ShaderBytecode pixelShader = Graphics.CompileShader(".res/Shaders/Unlit/PixelShader.hlsl", Graphics.ShaderType.Pixel);
 
 			Finalise(vertexShader, pixelShader, geometryShader);
 

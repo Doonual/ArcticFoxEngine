@@ -1,18 +1,23 @@
 #include "Common.hlsl"
-
-
-
 #define PI2 6.28318
+
+cbuffer ViewportInfo : register(b2) {
+	
+	float2 viewCenter;
+	float zoom;
+	
+};
+
+
 
 
 float4 Pixel_Main(Vertex input) : SV_TARGET {
 	
-
-	float2 originalPos = input.uv;
-	originalPos -= float2(0.5 * 1280.0 / 720.0, 0.5);
+	float2 originalPos = input.uv - float2(0.5f, 0.5f);
 	
-	originalPos.x += 0.1;
-	originalPos *= 2.5;
+	originalPos *= zoom;
+	originalPos -= viewCenter;
+	
 	
 	float2 pos = float2(0.0, 0.0);
 	float depth = 0.0;

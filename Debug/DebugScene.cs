@@ -1,6 +1,6 @@
-﻿using ImGuiNET;
-using ArcticFoxEngine;
-using ArcticFoxEngine.Backend;
+﻿using ArcticFoxEngine.ImGuiIntegration;
+using ArcticFoxEngine.Nodes;
+using ImGuiNET;
 using SixLabors.ImageSharp.PixelFormats;
 
 namespace ArcticFoxEngine.Debug {
@@ -55,8 +55,8 @@ namespace ArcticFoxEngine.Debug {
 			else {
 				ImGui.Text("Select a node to insepct it");
 			}
-			
-			
+
+
 
 		}
 	}

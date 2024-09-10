@@ -1,12 +1,6 @@
-﻿using CoolClassLibrary;
-using ImGuiNET;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using ImGuiNET;
 
-namespace ArcticFoxEngine.Backend {
+namespace ArcticFoxEngine {
 	public static class ImGuiExtras {
 
 		static int currentIndex = 0;
@@ -18,7 +12,7 @@ namespace ArcticFoxEngine.Backend {
 			string[] enumNames = Enum.GetNames(enumVar.GetType());
 			string name = Enum.GetName(enumVar);
 
-			for (int i = 0; i < enumNames.Length; i ++) {
+			for (int i = 0; i < enumNames.Length; i++) {
 				if (name == enumNames[i]) {
 					currentIndex = i;
 					break;

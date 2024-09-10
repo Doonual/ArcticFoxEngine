@@ -1,12 +1,5 @@
 ﻿using ArcticFoxEngine.Nodes;
-using ArcticFoxEngine.Testing;
-using ArcticFoxEngine.Testing.SceneTest;
 using CoolClassLibrary;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ArcticFoxEngine.Demos.RenderingStressTest {
 	public class RenderingStressTestNode : Node {
@@ -19,7 +12,7 @@ namespace ArcticFoxEngine.Demos.RenderingStressTest {
 			Log.Info("Testing scene with " + (numObjectPerDim * numObjectPerDim * numObjectPerDim) + " cubes");
 
 			int currentObject = 0;
-			
+
 			CreateChild<CameraController>();
 
 			Node cubeStack = CreateChild<BaseNode>("Cube Stack");
@@ -28,8 +21,8 @@ namespace ArcticFoxEngine.Demos.RenderingStressTest {
 
 			float maxDim = (numObjectPerDim - 1) * 2f + 1f;
 
-			
-			for (int x = 0; x < numObjectPerDim; x ++) {
+
+			for (int x = 0; x < numObjectPerDim; x++) {
 				for (int y = 0; y < numObjectPerDim; y++) {
 					for (int z = 0; z < numObjectPerDim; z++) {
 						Node newObj = cubeStack.CreateChild<BaseNode>("Object #" + currentObject);

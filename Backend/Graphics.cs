@@ -1,14 +1,12 @@
-﻿using SharpDX.DXGI;
-using ArcticFoxEngine.Input;
+﻿using CoolClassLibrary;
+using SharpDX;
+using SharpDX.Direct3D12;
+using SharpDX.DXGI;
+using SharpDX.Windows;
+using Device = SharpDX.Direct3D12.Device;
+using Resource = SharpDX.Direct3D12.Resource;
 
 namespace ArcticFoxEngine {
-	using ArcticFoxEngine.Backend;
-	using ArcticFoxEngine.Debug;
-	using CoolClassLibrary;
-	using SharpDX;
-	using SharpDX.Direct3D12;
-	using SharpDX.Windows;
-	using System.IO;
 
 	public static class Graphics {
 
@@ -40,7 +38,7 @@ namespace ArcticFoxEngine {
 		private static Fence fence;
 		private static int fenceValue;
 
-		private static List<GraphicsCommandList> cmdLists; 
+		private static List<GraphicsCommandList> cmdLists;
 
 		#endregion
 
@@ -85,7 +83,7 @@ namespace ArcticFoxEngine {
 				Log.Raw(e);
 			}
 
-			
+
 
 		}
 
@@ -100,7 +98,7 @@ namespace ArcticFoxEngine {
 			// to record yet. The main loop expects it to be closed, so close it now.
 			cmdAllocator = device.CreateCommandAllocator(CommandListType.Direct);
 			cmdQueue = device.CreateCommandQueue(new CommandQueueDescription(CommandListType.Direct));
-			
+
 
 			// Create synchronisation objects
 			fence = device.CreateFence(0, FenceFlags.None);
@@ -190,7 +188,7 @@ namespace ArcticFoxEngine {
 
 
 		}
-		
+
 		internal enum ShaderType {
 			Vertex,
 			Geometry,
@@ -207,7 +205,7 @@ namespace ArcticFoxEngine {
 			#region Changing root folder of #includes
 
 			string rootPath = "";
-			for (int i = path.Length - 1; i >= 0; i --) {
+			for (int i = path.Length - 1; i >= 0; i--) {
 				if (path[i] == '/') {
 					rootPath = new string(path.Take(i + 1).ToArray());
 					break;
@@ -218,8 +216,8 @@ namespace ArcticFoxEngine {
 			string includeDirective = "#include \"";
 
 			string includeEditedShaderCode = "";
-			for (int i = 0; i < shaderCode.Length; i ++) {
-				
+			for (int i = 0; i < shaderCode.Length; i++) {
+
 
 				if (includeDirective.Length == 0) {
 					includeEditedShaderCode += rootPath;
@@ -301,7 +299,7 @@ namespace ArcticFoxEngine {
 			}
 
 			return null;
-			
+
 
 
 		}
@@ -359,7 +357,7 @@ namespace ArcticFoxEngine {
 			}
 
 		}
-		
+
 		/// <summary>
 		/// Disposes all resources held by Graphics
 		/// </summary>
@@ -371,10 +369,10 @@ namespace ArcticFoxEngine {
 			cmdAllocator.Dispose();
 			cmdQueue.Dispose();
 
-			for (int i = 0; i < cmdLists.Count; i ++) {
+			for (int i = 0; i < cmdLists.Count; i++) {
 				cmdLists[i].Dispose();
 			}
-			
+
 
 		}
 

@@ -5,7 +5,8 @@ struct Vertex {
 	float4 position : SV_Position;
 	float4 color : COLOR;
 	float2 uv : TEXCOORD;
-	float3 normal : NORMAL;
+	float4 normal : NORMAL;
+	float4 tangent : TANGENT;
 	
 };
 

@@ -101,6 +101,7 @@ namespace ArcticFoxEngine.Rendering {
 
 		}
 		public abstract Material GetDefaultMaterial();
+		protected virtual void SetGlobalData() { }
 
 		private void SetupPipeline(ShaderBytecode vertexShader, ShaderBytecode pixelShader, ShaderBytecode? geometryShader, RasterizerStateDescription? rasterState, DepthStencilStateDescription? depthState) {
 
@@ -109,7 +110,8 @@ namespace ArcticFoxEngine.Rendering {
 				new InputElement("SV_Position", 0, Format.R32G32B32_Float, 0, 0),
 				new InputElement("COLOR", 0, Format.R32G32B32A32_Float, 12, 0),
 				new InputElement("TEXCOORD", 0, Format.R32G32_Float, 28, 0),
-				new InputElement("NORMAL", 0, Format.R32G32B32_Float, 36, 0),
+				new InputElement("NORMAL", 0, Format.R32G32B32A32_Float, 36, 0),
+				new InputElement("TANGENT", 0, Format.R32G32B32A32_Float, 52, 0),
 			};
 
 			RasterizerStateDescription actualRasterState;
@@ -293,6 +295,7 @@ namespace ArcticFoxEngine.Rendering {
 			
 			
 			SetDataSlot("Camera info", Rendering.renderInfo, 0);
+			SetGlobalData();
 
 			// Viewport and render target
 			Rendering.cmdList.SetViewport(camera.viewport);

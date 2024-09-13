@@ -118,6 +118,18 @@ namespace ArcticFoxEngine.Nodes {
 			return null;
 
 		}
+		public List<T> SearchNodeTreeAll<T>() where T : Node {
+
+			List<T> foundNodes = new List<T>();
+			if (typeof(T) == GetType()) {
+				foundNodes.Add((T)this);
+			}
+			for (int i = 0; i < childNodes.Count; i++) {
+				foundNodes.AddRange(childNodes[i].SearchNodeTreeAll<T>());
+			}
+			return foundNodes;
+
+		}
 		public Node SearchNodeTree(string name) {
 
 			if (this.name == name) {
@@ -132,7 +144,18 @@ namespace ArcticFoxEngine.Nodes {
 			return null;
 
 		}
+		public List<Node> SearchNodeTreeAll(string name) {
 
+			List<Node> foundNodes = new List<Node>();
+			if (this.name == name) {
+				foundNodes.Add(this);
+			}
+			for (int i = 0; i < childNodes.Count; i++) {
+				foundNodes.AddRange(childNodes[i].SearchNodeTreeAll(name));
+			}
+			return foundNodes;
+
+		}
 
 		// Events
 		public void Disable() {
@@ -237,7 +260,8 @@ namespace ArcticFoxEngine.Nodes {
 
 
 			if (inspectorNodeOpen == true || true) {
-				ImGui.TreePush("Params and children tree");
+				ImGui.NewLine();
+				//ImGui.TreePush("Params and children tree");
 				if (description != "") {
 					ImGui.TextWrapped(description);
 				}
@@ -256,7 +280,7 @@ namespace ArcticFoxEngine.Nodes {
 				}
 
 
-				ImGui.TreePop();
+				//ImGui.TreePop();
 			}
 
 

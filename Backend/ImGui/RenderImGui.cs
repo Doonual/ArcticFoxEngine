@@ -523,8 +523,8 @@ namespace ArcticFoxEngine.ImGuiIntegration {
 
 		static void CreatePipelineState() {
 
-			ShaderBytecode vertexShader = Graphics.CompileShader(".res/Shaders/ImGui_shaders.hlsl", Graphics.ShaderType.Vertex);
-			ShaderBytecode pixelShader = Graphics.CompileShader(".res/Shaders/ImGui_shaders.hlsl", Graphics.ShaderType.Pixel);
+			ShaderBytecode vertexShader = Graphics.CompileShader(".res/Shaders/ImGui/ImGui_shaders.hlsl", Graphics.ShaderType.Vertex);
+			ShaderBytecode pixelShader = Graphics.CompileShader(".res/Shaders/ImGui/ImGui_shaders.hlsl", Graphics.ShaderType.Pixel);
 
 			// Input format
 			InputElement[] inputElementDescs = new InputElement[] {

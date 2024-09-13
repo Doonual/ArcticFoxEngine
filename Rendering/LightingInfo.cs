@@ -3,7 +3,7 @@
 namespace ArcticFoxEngine.Rendering {
 	internal class LightingInfo {
 
-		List<Light> lights;
+		//List<Light> lights;
 
 	}
 }

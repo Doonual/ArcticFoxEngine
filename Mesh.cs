@@ -50,20 +50,20 @@
 					new Vertex() {position=new Vector3(0.5f, -0.5f, -0.5f), color = new Color(1.0f, 1.0f, 1.0f), uv = new Vector2(0f, 0f), normal = new Vector3(0f, -1f, 0f)},
 					new Vertex() {position=new Vector3(0.5f, -0.5f, 0.5f), color = new Color(1.0f, 1.0f, 1.0f), uv = new Vector2(1f, 0f), normal = new Vector3(0f, -1f, 0f)},
 
-					new Vertex() {position=new Vector3(0.5f, 0.5f, 0.5f), color = new Color(1.0f, 1.0f, 1.0f), uv = new Vector2(0f, 1f), normal = new Vector3(0f, 0f, 1f)},
-					new Vertex() {position=new Vector3(-0.5f, 0.5f, 0.5f), color = new Color(1.0f, 1.0f, 1.0f), uv = new Vector2(1f, 1f), normal = new Vector3(0f, 0f, 1f)},
-					new Vertex() {position=new Vector3(0.5f, -0.5f, 0.5f), color = new Color(1.0f, 1.0f, 1.0f), uv = new Vector2(0f, 0f), normal = new Vector3(0f, 0f, 1f)},
-					new Vertex() {position=new Vector3(-0.5f, -0.5f, 0.5f), color = new Color(1.0f, 1.0f, 1.0f), uv = new Vector2(1f, 0f), normal = new Vector3(0f, 0f, 1f)},
+					new Vertex() {position=new Vector3(0.5f, 0.5f, 0.5f), color = new Color(1.0f, 1.0f, 1.0f), uv = new Vector2(0f, 0f), normal = new Vector3(0f, 0f, 1f)},
+					new Vertex() {position=new Vector3(-0.5f, 0.5f, 0.5f), color = new Color(1.0f, 1.0f, 1.0f), uv = new Vector2(1f, 0f), normal = new Vector3(0f, 0f, 1f)},
+					new Vertex() {position=new Vector3(0.5f, -0.5f, 0.5f), color = new Color(1.0f, 1.0f, 1.0f), uv = new Vector2(0f, 1f), normal = new Vector3(0f, 0f, 1f)},
+					new Vertex() {position=new Vector3(-0.5f, -0.5f, 0.5f), color = new Color(1.0f, 1.0f, 1.0f), uv = new Vector2(1f, 1f), normal = new Vector3(0f, 0f, 1f)},
 
-					new Vertex() {position=new Vector3(0.5f, 0.5f, 0.5f), color = new Color(1.0f, 1.0f, 1.0f), uv = new Vector2(0f, 1f), normal = new Vector3(1f, 0f, 0f)},
-					new Vertex() {position=new Vector3(0.5f, -0.5f, 0.5f), color = new Color(1.0f, 1.0f, 1.0f), uv = new Vector2(1f, 1f), normal = new Vector3(1f, 0f, 0f)},
-					new Vertex() {position=new Vector3(0.5f, 0.5f, -0.5f), color = new Color(1.0f, 1.0f, 1.0f), uv = new Vector2(0f, 0f), normal = new Vector3(1f, 0f, 0f)},
-					new Vertex() {position=new Vector3(0.5f, -0.5f, -0.5f), color = new Color(1.0f, 1.0f, 1.0f), uv = new Vector2(1f, 0f), normal = new Vector3(1f, 0f, 0f)},
+					new Vertex() {position=new Vector3(0.5f, 0.5f, 0.5f), color = new Color(1.0f, 1.0f, 1.0f), uv = new Vector2(0f, 0f), normal = new Vector3(1f, 0f, 0f)},
+					new Vertex() {position=new Vector3(0.5f, -0.5f, 0.5f), color = new Color(1.0f, 1.0f, 1.0f), uv = new Vector2(1f, 0f), normal = new Vector3(1f, 0f, 0f)},
+					new Vertex() {position=new Vector3(0.5f, 0.5f, -0.5f), color = new Color(1.0f, 1.0f, 1.0f), uv = new Vector2(0f, 1f), normal = new Vector3(1f, 0f, 0f)},
+					new Vertex() {position=new Vector3(0.5f, -0.5f, -0.5f), color = new Color(1.0f, 1.0f, 1.0f), uv = new Vector2(1f, 1f), normal = new Vector3(1f, 0f, 0f)},
 
-					new Vertex() {position=new Vector3(0.5f, 0.5f, 0.5f), color = new Color(1.0f, 1.0f, 1.0f), uv = new Vector2(0f, 1f), normal = new Vector3(0f, 1f, 0f)},
-					new Vertex() {position=new Vector3(0.5f, 0.5f, -0.5f), color = new Color(1.0f, 1.0f, 1.0f), uv = new Vector2(1f, 1f), normal = new Vector3(0f, 1f, 0f)},
-					new Vertex() {position=new Vector3(-0.5f, 0.5f, 0.5f), color = new Color(1.0f, 1.0f, 1.0f), uv = new Vector2(0f, 0f), normal = new Vector3(0f, 1f, 0f)},
-					new Vertex() {position=new Vector3(-0.5f, 0.5f, -0.5f), color = new Color(1.0f, 1.0f, 1.0f), uv = new Vector2(1f, 0f), normal = new Vector3(0f, 1f, 0f)},
+					new Vertex() {position=new Vector3(0.5f, 0.5f, 0.5f), color = new Color(1.0f, 1.0f, 1.0f), uv = new Vector2(0f, 0f), normal = new Vector3(0f, 1f, 0f)},
+					new Vertex() {position=new Vector3(0.5f, 0.5f, -0.5f), color = new Color(1.0f, 1.0f, 1.0f), uv = new Vector2(1f, 0f), normal = new Vector3(0f, 1f, 0f)},
+					new Vertex() {position=new Vector3(-0.5f, 0.5f, 0.5f), color = new Color(1.0f, 1.0f, 1.0f), uv = new Vector2(0f, 1f), normal = new Vector3(0f, 1f, 0f)},
+					new Vertex() {position=new Vector3(-0.5f, 0.5f, -0.5f), color = new Color(1.0f, 1.0f, 1.0f), uv = new Vector2(1f, 1f), normal = new Vector3(0f, 1f, 0f)},
 
 				};
 				indexData = new int[] {

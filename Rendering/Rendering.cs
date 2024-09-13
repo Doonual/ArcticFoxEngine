@@ -1,7 +1,6 @@
 ﻿using ArcticFoxEngine.Nodes;
 
 namespace ArcticFoxEngine.Rendering {
-
 	using SharpDX.Direct3D12;
 
 	/// <summary>
@@ -45,14 +44,19 @@ namespace ArcticFoxEngine.Rendering {
 
 			renderInfo = new ConstBuffer<RenderInfo>(1);
 
-			textures = new Texture[4];
+			textures = new Texture[7];
 			textures[0] = new Texture(".res/Textures/white_pixel.png");
 			textures[1] = new Texture(".res/Textures/uv_512.png");
 			textures[2] = new Texture(".res/Textures/uv_blender.jpg");
 			textures[3] = new Texture(".res/Textures/tiger.png");
+			textures[4] = new Texture(".res/Textures/TestNormalMap.png");
+			textures[5] = new Texture(".res/Textures/BrickCol.png");
+			textures[6] = new Texture(".res/Textures/BrickNormal.png");
+
 
 			renderPipelines = new List<RenderPipeline>();
 			renderPipelines.Add(new UnlitRenderPipeline());
+			renderPipelines.Add(new LitRenderPipeline());
 			renderPipelines.Add(new MandelbrotRenderPipeline());
 
 			

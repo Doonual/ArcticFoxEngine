@@ -32,6 +32,8 @@ namespace ArcticFoxEngine {
 			this.stride = (Utilities.SizeOf<T>() + 255) & ~255; // CB size is required to be 256-byte aligned
 			size = stride * numElements;
 
+			
+
 			// Allocate memory on the heap for the constant buffer
 			constantBuffer = Graphics.device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None, ResourceDescription.Buffer(size), ResourceStates.GenericRead);
 			constantBufferPointer = constantBuffer.Map(0);

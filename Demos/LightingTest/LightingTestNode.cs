@@ -1,4 +1,5 @@
 ﻿using ArcticFoxEngine.Nodes;
+using ArcticFoxEngine.Rendering;
 
 namespace ArcticFoxEngine.Demos.LightingTest {
 	public class LightingTestNode : Node {
@@ -30,7 +31,14 @@ namespace ArcticFoxEngine.Demos.LightingTest {
 
 			decor = CreateChild<Cube>();
 			decor.transformChild.position = new Vector3(0f, 1.5f, 0f);
-			decor.transformChild.scale = new Vector3(1f, 3f, 5f);
+			decor.transformChild.scale = new Vector3(3f, 3f, 3f);
+
+
+			RenderPipeline litRP = Rendering.Rendering.GetRenderPipeline("Lit");
+			List<MeshRenderer> allMeshRenderers = SearchNodeTreeAll<MeshRenderer>();
+			for (int i = 0; i < allMeshRenderers.Count; i ++) {
+				allMeshRenderers[i].SetRenderPipeline(litRP);
+			}
 
 			Enable();
 

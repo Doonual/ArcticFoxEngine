@@ -11,12 +11,13 @@ namespace ArcticFoxEngine.Rendering {
 
 		public struct ViewportInfo {
 
-			public Vector2 viewCenter;
-			public float zoom;
+			public Vector2 viewCenter = Vector2.zero;
+			public float zoom = 1f;
+			public int numIterations = 100;
+			public bool doublePrecision = false;
 
 			public ViewportInfo() {
-				viewCenter = Vector2.zero;
-				zoom = 1f;
+
 			}
 
 		};
@@ -30,7 +31,7 @@ namespace ArcticFoxEngine.Rendering {
 
 			ShaderBytecode vertexShader = Graphics.CompileShader(".res/Shaders/VertexShader.hlsl", Graphics.ShaderType.Vertex);
 			ShaderBytecode geometryShader = Graphics.CompileShader(".res/Shaders/GeometryShader.hlsl", Graphics.ShaderType.Geometry);
-			ShaderBytecode pixelShader = Graphics.CompileShader(".res/Shaders/MandelbrotPixelShader.hlsl", Graphics.ShaderType.Pixel);
+			ShaderBytecode pixelShader = Graphics.CompileShader(".res/Shaders/Mandelbrot/MandelbrotPixelShader.hlsl", Graphics.ShaderType.Pixel);
 			Finalise(vertexShader, pixelShader, geometryShader);
 
 		}
@@ -64,9 +65,14 @@ namespace ArcticFoxEngine.Rendering {
 		public override void Debug() {
 
 			System.Numerics.Vector2 viewportInfoSys = viewportInfo.viewCenter;
-			ImGui.DragFloat2("View center", ref viewportInfoSys, viewportInfo.zoom * 0.001f);
-			ImGui.DragFloat("Zoom", ref viewportInfo.zoom, 0.001f, 0.00000001f , 3f , null, ImGuiSliderFlags.Logarithmic);
+			ImGui.DragFloat2("View center", ref viewportInfoSys, viewportInfo.zoom * 0.001f, -2f, 2f, null, ImGuiSliderFlags.NoRoundToFormat);
 			viewportInfo.viewCenter = viewportInfoSys;
+
+
+			ImGui.DragFloat("Zoom", ref viewportInfo.zoom, viewportInfo.zoom * 0.001f, 0.00000001f , 3f , null, ImGuiSliderFlags.NoRoundToFormat);
+			ImGui.DragInt("Iterations", ref viewportInfo.numIterations, 0.1f, 1, 10000, null);
+			ImGui.Checkbox("Double precision", ref viewportInfo.doublePrecision);
+
 
 		}
 

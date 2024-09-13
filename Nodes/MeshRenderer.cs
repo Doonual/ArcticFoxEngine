@@ -122,11 +122,13 @@ namespace ArcticFoxEngine.Nodes {
 				SetRenderPipeline(renderPipelines[renderPipelineComboSelected]);
 			}
 
-
-			ImGui.Text("Material settings");
-			if (material != null) {
-				material.Debug();
+			if (ImGui.TreeNode("Material settings") == true) {
+				if (material != null) {
+					material.Debug();
+				}
+				ImGui.TreePop();
 			}
+			
 
 
 		}

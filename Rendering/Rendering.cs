@@ -9,16 +9,39 @@ namespace ArcticFoxEngine.Rendering {
 	/// </summary>
 	public static class Rendering {
 
-		internal static ConstBuffer<RenderInfo> renderInfo;
-		internal static Texture[] textures;
+		internal static GraphicsCommandList cmdList;
+		internal static DescriptorHeap gpuDescriptorHeap;
+		private static int descriptorCopyPos;
+		internal static int descriptorHeapIncrement;
 
 		private static List<RenderPipeline> renderPipelines;
 		public static RenderPipeline rpUnlit { get { return renderPipelines[0]; } }
 		public static RenderPipeline rpWireframe { get { return renderPipelines[1]; } }
 		public static RenderPipeline rpMandelbrot { get { return renderPipelines[2]; } }
 
+		internal static ConstBuffer<RenderInfo> renderInfo;
+		internal static Texture[] textures;
+
+		
+
+		
+
+		
+
 		internal static void Init() {
 
+			DescriptorHeapDescription descHeapDesc = new DescriptorHeapDescription() {
+				DescriptorCount = 100000,
+				Type = DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView,
+				Flags = DescriptorHeapFlags.ShaderVisible,
+			};
+			gpuDescriptorHeap = Graphics.device.CreateDescriptorHeap(descHeapDesc);
+			descriptorCopyPos = 0;
+			descriptorHeapIncrement = Graphics.device.GetDescriptorHandleIncrementSize(DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView);
+
+
+			cmdList = Graphics.CreateGraphicsCommandList();
+			cmdList.Close();
 
 			renderInfo = new ConstBuffer<RenderInfo>(1);
 
@@ -32,6 +55,7 @@ namespace ArcticFoxEngine.Rendering {
 			renderPipelines.Add(new UnlitRenderPipeline());
 			renderPipelines.Add(new MandelbrotRenderPipeline());
 
+			
 
 		}
 
@@ -50,6 +74,15 @@ namespace ArcticFoxEngine.Rendering {
 
 		}
 
+
+		internal static int ReserveDescriptorHeapSpace(int numDescriptors) {
+
+			int spacePos = descriptorCopyPos;
+			descriptorCopyPos += numDescriptors;
+			return spacePos;
+
+		}
+
 		/// <summary>
 		/// Renders a camera's view
 		/// </summary>
@@ -59,9 +92,14 @@ namespace ArcticFoxEngine.Rendering {
 		/// <param name="camera">The camera to render from</param>
 		internal static void RenderScene(Resource renderTarget, DescriptorHeap rtvDescHeap, DescriptorHeap dsvDescHeap, Camera camera) {
 
+			descriptorCopyPos = 0;
+
 			camera.UpdateCameraInfoBuffer(renderInfo);
 
 			Graphics.cmdAllocator.Reset();
+			cmdList.Reset(Graphics.cmdAllocator, null);
+			cmdList.SetDescriptorHeaps(gpuDescriptorHeap);
+
 			for (int i = 0; i < renderPipelines.Count; i++) {
 
 
@@ -78,6 +116,10 @@ namespace ArcticFoxEngine.Rendering {
 
 			}
 
+
+			cmdList.Close();
+			Graphics.SubmitGraphicsCommandList(cmdList);
+
 		}
 
 
@@ -85,6 +127,7 @@ namespace ArcticFoxEngine.Rendering {
 			for (int i = 0; i < renderPipelines.Count; i++) {
 				renderPipelines[i].Dispose();
 			}
+			cmdList.Dispose();
 
 		}
 

@@ -16,13 +16,6 @@ namespace ArcticFoxEngine.Rendering {
 			};
 			CreateTextureSampler(textureSamplerOptions, ShaderVisibility.Pixel);
 
-			BindTexture(Rendering.textures[0], ShaderVisibility.Pixel);
-			BindTexture(Rendering.textures[1], ShaderVisibility.Pixel);
-			BindTexture(Rendering.textures[2], ShaderVisibility.Pixel);
-			BindTexture(Rendering.textures[3], ShaderVisibility.Pixel);
-
-
-
 			ShaderBytecode vertexShader = Graphics.CompileShader(".res/Shaders/VertexShader.hlsl", Graphics.ShaderType.Vertex);
 			ShaderBytecode geometryShader = Graphics.CompileShader(".res/Shaders/GeometryShader.hlsl", Graphics.ShaderType.Geometry);
 			ShaderBytecode pixelShader = Graphics.CompileShader(".res/Shaders/Unlit/PixelShader.hlsl", Graphics.ShaderType.Pixel);

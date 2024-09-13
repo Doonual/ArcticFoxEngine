@@ -401,7 +401,7 @@ namespace ArcticFoxEngine.Debug {
 			ImGui.SameLine();
 			ImGui.Checkbox("Draw histogram colour", ref drawHistogramColour);
 
-			/*
+			
 			ImGui.SliderInt("", ref viewSample, 0, 2000 - 1);
 			ImGui.SameLine();
 			if (ImGui.Button("-") == true) {
@@ -413,7 +413,7 @@ namespace ArcticFoxEngine.Debug {
 			}
 			ImGui.SameLine();
 			ImGui.Text("View sample");
-			*/
+			
 
 			#region Histogram plot
 
@@ -438,8 +438,11 @@ namespace ArcticFoxEngine.Debug {
 
 			metric.DrawMetricHist(numElements, histStartScreen, histEndScreen, plotMaxMs, drawHistogramColour);
 
-			//float xCoord = MathUtil.Lerp((float)viewSample / 2000, histStartScreen.x, histEndScreen.x);
-			//ImGui.GetWindowDrawList().AddLine(new Vector2(xCoord, histStartScreen.y), new Vector2(xCoord, histEndScreen.y), ImGui.ColorConvertFloat4ToU32(new Vector4(1f, 1f, 1f, 1f)));
+			if (viewSample != 1999) {
+				float xCoord = MathUtil.Lerp((float)viewSample / 2000, histStartScreen.x, histEndScreen.x);
+				ImGui.GetWindowDrawList().AddLine(new Vector2(xCoord, histStartScreen.y), new Vector2(xCoord, histEndScreen.y), ImGui.ColorConvertFloat4ToU32(new Vector4(1f, 1f, 1f, 1f)));
+			}
+			
 
 			if (ImGui.GetMousePos().X > histStartScreen.x && ImGui.GetMousePos().X < histEndScreen.x && ImGui.GetMousePos().Y > histStartScreen.y && ImGui.GetMousePos().Y < histEndScreen.y) {
 				plotMaxMs *= MathF.Exp(ImGui.GetIO().MouseWheel * -0.2f);

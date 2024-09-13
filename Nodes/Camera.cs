@@ -103,6 +103,7 @@ namespace ArcticFoxEngine.Nodes {
 				ImGui.SliderFloat("Zoom", ref zoom, 0.5f, 100f, null, ImGuiSliderFlags.Logarithmic);
 			}
 
+
 		}
 
 		internal void UpdateCameraInfoBuffer(ConstBuffer<RenderInfo> renderInfo) {

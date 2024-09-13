@@ -12,6 +12,7 @@ namespace ArcticFoxEngine {
 
 		bool disposed = true;
 
+		internal DescriptorHeap descriptorHeap;
 		private Resource constantBuffer;
 		private IntPtr constantBufferPointer;
 
@@ -33,10 +34,15 @@ namespace ArcticFoxEngine {
 
 			// Allocate memory on the heap for the constant buffer
 			constantBuffer = Graphics.device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None, ResourceDescription.Buffer(size), ResourceStates.GenericRead);
-
-			// Initialise and map the constant buffers. We don't unmap this until the
-			// app closes. Keeping things mapped for the lifetime of the resource is okay
 			constantBufferPointer = constantBuffer.Map(0);
+
+			DescriptorHeapDescription dhd = new DescriptorHeapDescription() {
+				DescriptorCount = numElements,
+				Type = DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView,
+			};
+			descriptorHeap = Graphics.device.CreateDescriptorHeap(dhd);
+			AddToDescriptorHeap(descriptorHeap, 0);
+
 
 		}
 
@@ -81,6 +87,8 @@ namespace ArcticFoxEngine {
 
 			constantBuffer.Unmap(0);
 			constantBuffer.Dispose();
+			descriptorHeap.Dispose();
+
 		}
 		~ConstBuffer() {
 			Dispose();

@@ -12,6 +12,7 @@ namespace ArcticFoxEngine {
 
 		private bool disposed = true;
 
+		internal DescriptorHeap descriptorHeap;
 		Resource texture;
 		int width;
 		int height;
@@ -32,6 +33,14 @@ namespace ArcticFoxEngine {
 			textureDesc.Flags |= allowUnorderedAccess ? ResourceFlags.AllowUnorderedAccess : ResourceFlags.None;
 
 			texture = Graphics.device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.None, textureDesc, ResourceStates.CopyDestination);
+
+
+			DescriptorHeapDescription dhd = new DescriptorHeapDescription() {
+				DescriptorCount = 1,
+				Type = DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView,
+			};
+			descriptorHeap = Graphics.device.CreateDescriptorHeap(dhd);
+			AddToDescriptorHeap(descriptorHeap, 0);
 
 		}
 
@@ -61,6 +70,13 @@ namespace ArcticFoxEngine {
 			}
 			image.Dispose();
 			SetData(imageData);
+
+			DescriptorHeapDescription dhd = new DescriptorHeapDescription() {
+				DescriptorCount = 1,
+				Type = DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView,
+			};
+			descriptorHeap = Graphics.device.CreateDescriptorHeap(dhd);
+			AddToDescriptorHeap(descriptorHeap, 0);
 
 		}
 
@@ -121,6 +137,7 @@ namespace ArcticFoxEngine {
 			if (disposed == true) { return; }
 			disposed = true;
 			texture.Dispose();
+			descriptorHeap.Dispose();
 		}
 		~Texture() {
 			Dispose();

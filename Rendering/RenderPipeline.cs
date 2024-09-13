@@ -2,6 +2,8 @@
 using SharpDX;
 using SharpDX.Direct3D12;
 using SharpDX.DXGI;
+using SixLabors.ImageSharp.Memory;
+using System;
 using Resource = SharpDX.Direct3D12.Resource;
 
 namespace ArcticFoxEngine.Rendering {
@@ -56,46 +58,32 @@ namespace ArcticFoxEngine.Rendering {
 		struct DataSlot {
 			public ShaderVisibility shaderVisibility;
 			public int rootParameterIndex;
+
+			public GpuDescriptorHandle currentDescriptorLocation;
+
 		}
 		struct TextureSlot {
 			public ShaderVisibility shaderVisibility;
 			public int rootParameterIndex;
-		}
 
-
-		struct BufferBinding {
-			public Action<DescriptorHeap> addToDescHeap;
-			public int descStartIndex;
-		}
-		struct TextureBinding {
-			public Action<DescriptorHeap> addToDescHeap;
-			public int descStartIndex;
+			public GpuDescriptorHandle currentDescriptorLocation;
 		}
 
 		bool disposed = true;
 
 		PipelineState pipelineState;
 		RootSignature rootSignature;
-		DescriptorHeap descriptorHeap;
-		GraphicsCommandList cmdList;
 
 		public GeometryInfo geometryResources;
 
 		Dictionary<string, DataSlot> dataSlots;
 		Dictionary<string, TextureSlot> textureSlots;
 
-		Dictionary<int, BufferBinding> boundBuffers;
-
-		int descriptorHeapIncrement;
 
 		List<RootParameter> rootParameters;
 		List<StaticSamplerDescription> samplerDescriptions;
 
-		Dictionary<int, TextureBinding> boundTextures;
-
-
-		int requiredDescriptorHeapSize;
-
+		
 		public RenderPipeline() {
 
 			geometryResources = new GeometryInfo();
@@ -104,20 +92,12 @@ namespace ArcticFoxEngine.Rendering {
 
 			rootParameters = new List<RootParameter>();
 			samplerDescriptions = new List<StaticSamplerDescription>();
-			requiredDescriptorHeapSize = 0;
 
 			dataSlots = new Dictionary<string, DataSlot>();
 			textureSlots = new Dictionary<string, TextureSlot>();
 
-			boundBuffers = new Dictionary<int, BufferBinding>();
-			boundTextures = new Dictionary<int, TextureBinding>();
-
-
 			CreateDataSlot("Camera info", ShaderVisibility.All);
 			CreateDataSlot("Object info", ShaderVisibility.All);
-
-			BindBuffer(Rendering.renderInfo, ShaderVisibility.All);
-			BindBuffer(geometryResources.objectBuffer, ShaderVisibility.All);
 
 		}
 		public abstract Material GetDefaultMaterial();
@@ -258,50 +238,34 @@ namespace ArcticFoxEngine.Rendering {
 
 		}
 
-		public void BindBuffer<T>(ConstBuffer<T> buffer, ShaderVisibility shaderVisibility) where T : struct {
-
-
-			int currentDhPos = requiredDescriptorHeapSize;
-
-			// After we know how big the descriptor heap needs to be, add this to it
-			// Each element in each buffer takes up 1 descriptor slot, starting at the accumulated position from all the other buffers
-			BufferBinding bufferBinding = new BufferBinding();
-			bufferBinding.addToDescHeap = (DescriptorHeap descriptorHeap) => { buffer.AddToDescriptorHeap(descriptorHeap, currentDhPos); };
-			bufferBinding.descStartIndex = requiredDescriptorHeapSize;
-			boundBuffers.Add(buffer.GetHashCode(), bufferBinding);
-
-			requiredDescriptorHeapSize += buffer.numElements;
-
-
-
-		}
-		public void BindTexture(Texture texture, ShaderVisibility shaderVisibility) {
-
-			int currentDhPos = requiredDescriptorHeapSize;
-
-			TextureBinding textureBinding = new TextureBinding();
-			textureBinding.addToDescHeap = (DescriptorHeap descriptorHeap) => { texture.AddToDescriptorHeap(descriptorHeap, currentDhPos); };
-			textureBinding.descStartIndex = requiredDescriptorHeapSize;
-			boundTextures.Add(texture.GetHashCode(), textureBinding);
-			requiredDescriptorHeapSize += 1;
-
-		}
-
 
 		public void SetDataSlot<T>(string name, ConstBuffer<T> buffer, int bufferIndex) where T : struct {
 
-			DataSlot currentDataSlot = dataSlots[name];
-			BufferBinding currentBufferBinding = boundBuffers[buffer.GetHashCode()];
+			// Copy the descriptors
+			int destDescPos = Rendering.ReserveDescriptorHeapSpace(1);
+			CpuDescriptorHandle destDescriptor = Rendering.gpuDescriptorHeap.CPUDescriptorHandleForHeapStart + destDescPos * Rendering.descriptorHeapIncrement;
+			CpuDescriptorHandle srcDescriptor = buffer.descriptorHeap.CPUDescriptorHandleForHeapStart + bufferIndex * Rendering.descriptorHeapIncrement;
+			Graphics.device.CopyDescriptorsSimple(1, destDescriptor, srcDescriptor, DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView);
 
-			cmdList.SetGraphicsRootDescriptorTable(currentDataSlot.rootParameterIndex, descriptorHeap.GPUDescriptorHandleForHeapStart + (currentBufferBinding.descStartIndex + bufferIndex) * descriptorHeapIncrement);
+			// Tell the dataslot where to find the descriptors
+			DataSlot currentDataSlot = dataSlots[name];
+			currentDataSlot.currentDescriptorLocation = Rendering.gpuDescriptorHeap.GPUDescriptorHandleForHeapStart + destDescPos * Rendering.descriptorHeapIncrement;
+			dataSlots[name] = currentDataSlot;
 
 		}
 		public void SetTextureSlot(string name, Texture texture) {
 
-			TextureSlot currentTextureSlot = textureSlots[name];
-			TextureBinding currentTextureBinding = boundTextures[texture.GetHashCode()];
+			// Copy the descriptors
+			int destDescPos = Rendering.ReserveDescriptorHeapSpace(1);
+			CpuDescriptorHandle destDescriptor = Rendering.gpuDescriptorHeap.CPUDescriptorHandleForHeapStart + destDescPos * Rendering.descriptorHeapIncrement;
+			CpuDescriptorHandle srcDescriptor = texture.descriptorHeap.CPUDescriptorHandleForHeapStart;
+			Graphics.device.CopyDescriptorsSimple(1, destDescriptor, srcDescriptor, DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView);
 
-			cmdList.SetGraphicsRootDescriptorTable(currentTextureSlot.rootParameterIndex, descriptorHeap.GPUDescriptorHandleForHeapStart + currentTextureBinding.descStartIndex * descriptorHeapIncrement);
+			// Tell the dataslot where to find the descriptors
+			TextureSlot currentTextureSlot = textureSlots[name];
+			currentTextureSlot.currentDescriptorLocation = Rendering.gpuDescriptorHeap.GPUDescriptorHandleForHeapStart + destDescPos * Rendering.descriptorHeapIncrement;
+			textureSlots[name] = currentTextureSlot;
+
 
 		}
 
@@ -309,39 +273,9 @@ namespace ArcticFoxEngine.Rendering {
 
 		public void Finalise(ShaderBytecode vertexShader, ShaderBytecode pixelShader, ShaderBytecode? geometryShader = null, RasterizerStateDescription? rasterState = null, DepthStencilStateDescription? depthState = null) {
 
-			#region Create root signature
-
+			// Create root signature
 			RootSignatureDescription rootSignatureDesc = new RootSignatureDescription(RootSignatureFlags.AllowInputAssemblerInputLayout, rootParameters.ToArray(), samplerDescriptions.ToArray());
 			rootSignature = Graphics.device.CreateRootSignature(rootSignatureDesc.Serialize());
-
-			#endregion
-			#region Create main combined descriptor heap
-
-			DescriptorHeapDescription mainCombinedDescriptorHeapDesc = new DescriptorHeapDescription() {
-				DescriptorCount = requiredDescriptorHeapSize,
-				Flags = DescriptorHeapFlags.ShaderVisible,
-				Type = DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView,
-			};
-
-			descriptorHeap = Graphics.device.CreateDescriptorHeap(mainCombinedDescriptorHeapDesc);
-			descriptorHeapIncrement = Graphics.device.GetDescriptorHandleIncrementSize(DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView);
-
-
-
-			#endregion
-
-			for (int i = 0; i < boundBuffers.Count; i++) {
-
-				BufferBinding currentBufferBinding = boundBuffers.ElementAt(i).Value;
-				currentBufferBinding.addToDescHeap(descriptorHeap);
-
-			}
-			for (int i = 0; i < boundTextures.Count; i++) {
-
-				TextureBinding currentTextureBinding = boundTextures.ElementAt(i).Value;
-				currentTextureBinding.addToDescHeap(descriptorHeap);
-
-			}
 
 
 			SetupPipeline(vertexShader, pixelShader, geometryShader, rasterState, depthState);
@@ -353,41 +287,37 @@ namespace ArcticFoxEngine.Rendering {
 
 			Profiler.MetricBegin("Render setup");
 
-			if (cmdList == null) {
-				cmdList = Graphics.CreateGraphicsCommandList(pipelineState);
-			}
-			else {
-				cmdList.Reset(Graphics.cmdAllocator, pipelineState);
-			}
-
-			cmdList.SetGraphicsRootSignature(rootSignature);
-			cmdList.SetDescriptorHeaps(1, new DescriptorHeap[] { descriptorHeap });
+			Rendering.cmdList.PipelineState = pipelineState;
+			//Rendering.cmdList.SetDescriptorHeaps(Rendering.gpuDescriptorHeap);
+			Rendering.cmdList.SetGraphicsRootSignature(rootSignature);
+			
+			
 			SetDataSlot("Camera info", Rendering.renderInfo, 0);
 
 			// Viewport and render target
-			cmdList.SetViewport(camera.viewport);
-			cmdList.SetScissorRectangles(camera.scissorRect);
+			Rendering.cmdList.SetViewport(camera.viewport);
+			Rendering.cmdList.SetScissorRectangles(camera.scissorRect);
 			// Indicate that the back buffer will be used as a render target
-			cmdList.ResourceBarrierTransition(renderTarget, ResourceStates.Present, ResourceStates.RenderTarget);
+			Rendering.cmdList.ResourceBarrierTransition(renderTarget, ResourceStates.Present, ResourceStates.RenderTarget);
 
 
 			// Set render target and depth stencil
 			CpuDescriptorHandle rtvHandle = rtvDescHeap.CPUDescriptorHandleForHeapStart;
 			CpuDescriptorHandle dsvHandle = dsvDescHeap.CPUDescriptorHandleForHeapStart;
 			rtvHandle += Graphics.frameIndex * Graphics.rtvHeapIncrement;
-			cmdList.SetRenderTargets(rtvHandle, dsvHandle);
+			Rendering.cmdList.SetRenderTargets(rtvHandle, dsvHandle);
 
 			if (clearBackground == true) {
-				cmdList.ClearRenderTargetView(rtvHandle, new Color4(0f, 0f, 0f, 1f), 0, null);
-				cmdList.ClearDepthStencilView(dsvHandle, ClearFlags.FlagsDepth, 1f, 0);
+				Rendering.cmdList.ClearRenderTargetView(rtvHandle, new Color4(0f, 0f, 0f, 1f), 0, null);
+				Rendering.cmdList.ClearDepthStencilView(dsvHandle, ClearFlags.FlagsDepth, 1f, 0);
 			}
 
 
 
 			// Set geometry
-			cmdList.PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList;
-			cmdList.SetVertexBuffer(0, geometry.vertexBufferView);
-			cmdList.SetIndexBuffer(geometry.indexBufferView);
+			Rendering.cmdList.PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList;
+			Rendering.cmdList.SetVertexBuffer(0, geometry.vertexBufferView);
+			Rendering.cmdList.SetIndexBuffer(geometry.indexBufferView);
 
 
 			// Render each mesh
@@ -402,20 +332,28 @@ namespace ArcticFoxEngine.Rendering {
 				Material renderMaterial = geometry.meshRenderers[i].material;
 				renderMaterial.BindResources(this);
 
-				cmdList.DrawIndexedInstanced(indexCount, 1, ibStart, vbStart, vbStart);
+				// Bind all data slots
+				for (int b = 0; b < dataSlots.Count; b ++) {
+					DataSlot dataSlot = dataSlots.ElementAt(b).Value;
+					Rendering.cmdList.SetGraphicsRootDescriptorTable(dataSlot.rootParameterIndex, dataSlot.currentDescriptorLocation);
+				}
+				
+				// Bind all texture slots
+				for (int b = 0; b < textureSlots.Count; b++) {
+					TextureSlot textureSlot = textureSlots.ElementAt(b).Value;
+					Rendering.cmdList.SetGraphicsRootDescriptorTable(textureSlot.rootParameterIndex, textureSlot.currentDescriptorLocation);
+				}
+
+				Rendering.cmdList.DrawIndexedInstanced(indexCount, 1, ibStart, vbStart, vbStart);
 			}
 
 
 
 			// Indicate that the back buffer will now be used to present
-			cmdList.ResourceBarrierTransition(renderTarget, ResourceStates.RenderTarget, ResourceStates.Present);
+			Rendering.cmdList.ResourceBarrierTransition(renderTarget, ResourceStates.RenderTarget, ResourceStates.Present);
 
 
-			cmdList.Close();
 
-			Profiler.MetricEnd();
-			Profiler.MetricBegin("Render");
-			Graphics.SubmitGraphicsCommandList(cmdList);
 			Profiler.MetricEnd();
 
 
@@ -430,8 +368,6 @@ namespace ArcticFoxEngine.Rendering {
 
 			pipelineState.Dispose();
 			rootSignature.Dispose();
-			descriptorHeap.Dispose();
-			cmdList.Dispose();
 
 			geometryResources.Dispose();
 

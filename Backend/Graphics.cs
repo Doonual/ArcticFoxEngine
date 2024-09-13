@@ -113,7 +113,7 @@ namespace ArcticFoxEngine {
 		}
 		internal static void SubmitGraphicsCommandList(GraphicsCommandList cmdList) {
 			cmdQueue.ExecuteCommandList(cmdList);
-			cmdLists.Add(cmdList);
+			//cmdLists.Add(cmdList);
 		}
 
 		private static void SetupSwapChain(int width, int height, int refreshRate, CommandQueue commandQueue) {

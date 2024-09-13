@@ -86,6 +86,7 @@ namespace ArcticFoxEngine {
 
 					Profiler.FrameBegin();
 
+
 					Profiler.MetricBegin("Input update");
 					InputManager.NextFrame();
 					InputManager.GetInputDeviceUpdates();
@@ -112,7 +113,6 @@ namespace ArcticFoxEngine {
 
 					DebugManager.UpdateImGui();
 					if (exitButton.GetButton() == true) {
-						Graphics.WaitForCmdList();
 						Stop();
 						break;
 					}
@@ -123,6 +123,7 @@ namespace ArcticFoxEngine {
 				}
 			}
 
+			Graphics.WaitForCmdList();
 			Graphics.Dispose();
 			Rendering.Rendering.Dispose();
 

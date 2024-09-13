@@ -26,7 +26,6 @@ namespace ArcticFoxEngine.Rendering {
 			viewportInfoBuffer = new ConstBuffer<ViewportInfo>(1);
 
 			CreateDataSlot("Viewport info", ShaderVisibility.Pixel);
-			BindBuffer(viewportInfoBuffer, ShaderVisibility.Pixel);
 
 
 			ShaderBytecode vertexShader = Graphics.CompileShader(".res/Shaders/VertexShader.hlsl", Graphics.ShaderType.Vertex);
@@ -58,6 +57,7 @@ namespace ArcticFoxEngine.Rendering {
 			mandelbrotRP.viewportInfoBuffer.Write(new MandelbrotRenderPipeline.ViewportInfo[] { viewportInfo }, 0);
 
 			renderPipeline.SetDataSlot("Viewport info", mandelbrotRP.viewportInfoBuffer, 0);
+			
 
 		}
 

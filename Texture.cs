@@ -116,7 +116,7 @@ namespace ArcticFoxEngine {
 		}
 
 
-		private static int ComponentMapping(int src0, int src1, int src2, int src3) {
+		internal static int ComponentMapping(int src0, int src1, int src2, int src3) {
 
 			int componentMappingMask = 0x7;
 			int componentMappingShift = 3;

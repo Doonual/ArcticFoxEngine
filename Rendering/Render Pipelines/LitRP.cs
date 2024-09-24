@@ -9,24 +9,40 @@ namespace ArcticFoxEngine.Rendering {
 		public struct LightingWorld {
 
 			public Vector3 sunDir;
+			public float sunStrength;
 			public float ambientLight;
 
 			public LightingWorld() {
 				sunDir = new Vector3(-0.25f, -0.5f, 0.4f).Normalize();
+				sunStrength = 0.8f;
 				ambientLight = 0.2f;
 			}
 
 		}
+		public struct LightData {
+
+			public Vector4 pos;
+			public Vector3 col;
+			public float strength;
+
+		}
+
 		static ConstBuffer<LightingWorld> lightingInfoBuffer;
+		static StructuredBuffer<LightData> lightBuffer;
 
 		public override string name => "Lit";
 
 		public LitRenderPipeline() {
 
+			lightBuffer = new StructuredBuffer<LightData>(16);
+			lightingInfoBuffer = new ConstBuffer<LightingWorld>(1);
+
 			CreateDataSlot("Lighting world", ShaderVisibility.Pixel);
 			CreateDataSlot("Material info", ShaderVisibility.Pixel);
+			
 			CreateTextureSlot("Main tex", ShaderVisibility.Pixel);
 			CreateTextureSlot("Normal tex", ShaderVisibility.Pixel);
+			CreateBufferSlot("Light info", lightBuffer.numElements, ShaderVisibility.Pixel);
 
 			TextureSamplerOptions textureSamplerOptions = new TextureSamplerOptions() {
 				addressUVW = TextureAddressMode.Wrap,
@@ -34,7 +50,7 @@ namespace ArcticFoxEngine.Rendering {
 			};
 			CreateTextureSampler(textureSamplerOptions, ShaderVisibility.Pixel);
 
-			lightingInfoBuffer = new ConstBuffer<LightingWorld>(1);
+			
 
 			ShaderBytecode vertexShader = Graphics.CompileShader(".res/Shaders/VertexShader.hlsl", Graphics.ShaderType.Vertex);
 			ShaderBytecode geometryShader = Graphics.CompileShader(".res/Shaders/GeometryShader.hlsl", Graphics.ShaderType.Geometry);
@@ -46,9 +62,13 @@ namespace ArcticFoxEngine.Rendering {
 		public static void SetLightingInfo(LightingWorld lightingInfo) {
 			lightingInfoBuffer.Write(new LightingWorld[] { lightingInfo }, 0);
 		}
+		public static void SetLightData(LightData lightData, int bufferPos) {
+			lightBuffer.Write(new LightData[] { lightData }, bufferPos);
+		}
 
 		protected override void SetGlobalData() {
 			SetDataSlot("Lighting world", lightingInfoBuffer, 0);
+			SetBufferSlot("Light info", lightBuffer, 0);
 		}
 
 		public override Material GetDefaultMaterial() {
@@ -110,7 +130,7 @@ namespace ArcticFoxEngine.Rendering {
 			ImGuiExtras.ItemWidthForText(longestString);
 			ImGui.InputInt("Normal Texture ID", ref normalTextureID);
 			ImGuiExtras.ItemWidthForText(longestString);
-			ImGui.SliderFloat("Normal strength", ref materialInfo.normalStrength, 0f, 1f);
+			ImGui.SliderFloat("Normal strength", ref materialInfo.normalStrength, -1f, 1f);
 
 		}
 	}

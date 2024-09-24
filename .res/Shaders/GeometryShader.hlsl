@@ -2,7 +2,7 @@
 
 
 [maxvertexcount(6)]
-void Geometry_Main(triangle Vertex input[3] : SV_Position, inout TriangleStream<Vertex> outputStream) {
+void Geometry_Main(triangle RawVertex input[3] : SV_Position, inout TriangleStream<Vertex> outputStream) {
 	
 
 	float3 tangent;
@@ -26,7 +26,8 @@ void Geometry_Main(triangle Vertex input[3] : SV_Position, inout TriangleStream<
 		outVert.normal = input[i].normal;
 		outVert.tangent = float4(tangent, 0.0);
 		
-		outVert.position = mul(cameraProjectionMatrix, mul(transformMatrix, input[i].position));
+		outVert.world_position = mul(transformMatrix, input[i].position);
+		outVert.position = mul(cameraProjectionMatrix, outVert.world_position);
 		outputStream.Append(outVert);
 		
 		

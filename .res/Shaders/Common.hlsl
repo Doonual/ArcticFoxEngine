@@ -1,4 +1,4 @@
-struct Vertex {
+struct RawVertex {
 	
 	// The SV_Position and COLOR tell the shader that these
 	// are the values to be passed into the rasteriser stage
@@ -6,9 +6,22 @@ struct Vertex {
 	float4 color : COLOR;
 	float2 uv : TEXCOORD;
 	float4 normal : NORMAL;
+	
+};
+
+struct Vertex {
+	
+	float4 position : SV_Position;
+	float4 color : COLOR;
+	
+	float4 world_position : POSITIONT;
+	float2 uv : TEXCOORD;
+	
+	float4 normal : NORMAL;
 	float4 tangent : TANGENT;
 	
 };
+
 
 cbuffer RenderInfo : register(b0) {
 	float4x4 cameraProjectionMatrix;

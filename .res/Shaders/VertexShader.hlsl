@@ -1,9 +1,9 @@
 ﻿#include "Common.hlsl"
 
 
-Vertex Vertex_Main(Vertex vertIn) {
+RawVertex Vertex_Main(RawVertex vertIn) {
 	
-	Vertex vertOut = vertIn;
+	RawVertex vertOut = vertIn;
 	
 	return vertOut;
 	

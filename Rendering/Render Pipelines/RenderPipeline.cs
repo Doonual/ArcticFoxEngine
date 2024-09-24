@@ -1,6 +1,7 @@
 ﻿using ArcticFoxEngine.Nodes;
 using SharpDX;
 using SharpDX.Direct3D12;
+using SharpDX.DirectInput;
 using SharpDX.DXGI;
 using SixLabors.ImageSharp.Memory;
 using System;
@@ -68,6 +69,14 @@ namespace ArcticFoxEngine.Rendering {
 
 			public GpuDescriptorHandle currentDescriptorLocation;
 		}
+		struct BufferSlot {
+
+			public int rootParameterIndex;
+			public int length;
+			public GpuDescriptorHandle currentDescriptorLocation;
+			
+
+		}
 
 		bool disposed = true;
 
@@ -78,7 +87,7 @@ namespace ArcticFoxEngine.Rendering {
 
 		Dictionary<string, DataSlot> dataSlots;
 		Dictionary<string, TextureSlot> textureSlots;
-
+		Dictionary<string, BufferSlot> bufferSlots;
 
 		List<RootParameter> rootParameters;
 		List<StaticSamplerDescription> samplerDescriptions;
@@ -95,6 +104,7 @@ namespace ArcticFoxEngine.Rendering {
 
 			dataSlots = new Dictionary<string, DataSlot>();
 			textureSlots = new Dictionary<string, TextureSlot>();
+			bufferSlots = new Dictionary<string, BufferSlot>();
 
 			CreateDataSlot("Camera info", ShaderVisibility.All);
 			CreateDataSlot("Object info", ShaderVisibility.All);
@@ -111,7 +121,6 @@ namespace ArcticFoxEngine.Rendering {
 				new InputElement("COLOR", 0, Format.R32G32B32A32_Float, 12, 0),
 				new InputElement("TEXCOORD", 0, Format.R32G32_Float, 28, 0),
 				new InputElement("NORMAL", 0, Format.R32G32B32A32_Float, 36, 0),
-				new InputElement("TANGENT", 0, Format.R32G32B32A32_Float, 52, 0),
 			};
 
 			RasterizerStateDescription actualRasterState;
@@ -200,10 +209,36 @@ namespace ArcticFoxEngine.Rendering {
 
 
 		}
+		public void CreateBufferSlot(string name, int size, ShaderVisibility shaderVisibility) {
+
+			int numRootParameters = rootParameters.Count;
+			int numTSlots = textureSlots.Count + bufferSlots.Count;
+
+			BufferSlot newSlot = new BufferSlot() {
+				rootParameterIndex = numRootParameters,
+				length = size,
+			};
+			bufferSlots.Add(name, newSlot);
+
+			int numDescriptors = size;
+			numDescriptors = 1;
+
+			// Create a new Root parameter for the buffer
+			RootParameter newRootParam = new RootParameter(shaderVisibility, new DescriptorRange() {
+				RangeType = DescriptorRangeType.ShaderResourceView,
+				BaseShaderRegister = numTSlots, // What index is this buffer out of all the buffers
+				OffsetInDescriptorsFromTableStart = int.MinValue,
+				DescriptorCount = numDescriptors,
+			});
+			rootParameters.Add(newRootParam);
+
+
+
+		}
 		public void CreateTextureSlot(string name, ShaderVisibility shaderVisibility) {
 
 			int numRootParameters = rootParameters.Count;
-			int numTextureSlots = textureSlots.Count;
+			int numTSlots = textureSlots.Count + bufferSlots.Count;
 
 			TextureSlot textureSlot = new TextureSlot() {
 				shaderVisibility = shaderVisibility,
@@ -213,7 +248,7 @@ namespace ArcticFoxEngine.Rendering {
 
 			RootParameter newRootParam = new RootParameter(shaderVisibility, new DescriptorRange() {
 				RangeType = DescriptorRangeType.ShaderResourceView,
-				BaseShaderRegister = numTextureSlots,
+				BaseShaderRegister = numTSlots,
 				OffsetInDescriptorsFromTableStart = int.MinValue,
 				DescriptorCount = 1,
 			});
@@ -253,6 +288,25 @@ namespace ArcticFoxEngine.Rendering {
 			DataSlot currentDataSlot = dataSlots[name];
 			currentDataSlot.currentDescriptorLocation = Rendering.gpuDescriptorHeap.GPUDescriptorHandleForHeapStart + destDescPos * Rendering.descriptorHeapIncrement;
 			dataSlots[name] = currentDataSlot;
+
+		}
+		public void SetBufferSlot<T>(string name, StructuredBuffer<T> buffer, int srcOffset) where T : struct {
+
+			BufferSlot bufferSlot = bufferSlots[name];
+
+			int numDescriptors = bufferSlot.length;
+			numDescriptors = 1;
+
+			// Copy the descriptors
+			int destDescPos = Rendering.ReserveDescriptorHeapSpace(numDescriptors);
+			CpuDescriptorHandle destDescriptor = Rendering.gpuDescriptorHeap.CPUDescriptorHandleForHeapStart + destDescPos * Rendering.descriptorHeapIncrement;
+			CpuDescriptorHandle srcDescriptor = buffer.descriptorHeap.CPUDescriptorHandleForHeapStart + srcOffset * Rendering.descriptorHeapIncrement;
+			Graphics.device.CopyDescriptorsSimple(numDescriptors, destDescriptor, srcDescriptor, DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView);
+
+
+			// Tell the bufferSlot where to find the descriptors
+			bufferSlot.currentDescriptorLocation = Rendering.gpuDescriptorHeap.GPUDescriptorHandleForHeapStart + destDescPos * Rendering.descriptorHeapIncrement;
+			bufferSlots[name] = bufferSlot;
 
 		}
 		public void SetTextureSlot(string name, Texture texture) {
@@ -345,6 +399,10 @@ namespace ArcticFoxEngine.Rendering {
 				for (int b = 0; b < textureSlots.Count; b++) {
 					TextureSlot textureSlot = textureSlots.ElementAt(b).Value;
 					Rendering.cmdList.SetGraphicsRootDescriptorTable(textureSlot.rootParameterIndex, textureSlot.currentDescriptorLocation);
+				}
+				for (int b = 0; b < bufferSlots.Count; b ++) {
+					BufferSlot bufferSlot = bufferSlots.ElementAt(b).Value;
+					Rendering.cmdList.SetGraphicsRootDescriptorTable(bufferSlot.rootParameterIndex, bufferSlot.currentDescriptorLocation);
 				}
 
 				Rendering.cmdList.DrawIndexedInstanced(indexCount, 1, ibStart, vbStart, vbStart);

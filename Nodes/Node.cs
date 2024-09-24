@@ -7,6 +7,7 @@ namespace ArcticFoxEngine.Nodes {
 	public abstract class Node {
 
 		public static Node rootNode;
+		internal static Node nextParentNode = null;
 
 		private bool disposed = true;
 
@@ -32,6 +33,7 @@ namespace ArcticFoxEngine.Nodes {
 			childNodes = new List<Node>();
 			nodeIconId = NodeIconBank.LoadIcon(nodeIconPath);
 			name = GetType().Name;
+			SetParent(nextParentNode);
 		}
 
 
@@ -56,15 +58,15 @@ namespace ArcticFoxEngine.Nodes {
 
 		public T CreateChild<T>() where T : Node, new() {
 
+			nextParentNode = this;
 			T newChild = new T();
-			newChild.SetParent(this);
 			return newChild;
 
 		}
 		public T CreateChild<T>(string name) where T : Node, new() {
 
+			nextParentNode = this;
 			T newChild = new T();
-			newChild.SetParent(this);
 			newChild.name = name;
 			return newChild;
 
@@ -104,6 +106,14 @@ namespace ArcticFoxEngine.Nodes {
 			return parentNode.GetChild<T>();
 		}
 
+		public Node GetOldestAncestor() {
+
+			if (parentNode == null) {
+				return this;
+			}
+			return parentNode.GetOldestAncestor();
+
+		}
 		public T SearchNodeTree<T>() where T : Node {
 
 			if (typeof(T) == GetType()) {

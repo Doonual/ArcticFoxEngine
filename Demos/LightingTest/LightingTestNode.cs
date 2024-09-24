@@ -34,6 +34,19 @@ namespace ArcticFoxEngine.Demos.LightingTest {
 			decor.transformChild.scale = new Vector3(3f, 3f, 3f);
 
 
+			Node lightNode = CreateChild<BaseNode>("Light Object");
+			Transform lightTransform = lightNode.CreateChild<Transform>();
+			lightTransform.position = new Vector3(-2f, 0.6f, 0f);
+			Light testLight = lightNode.CreateChild<Light>();
+			testLight.strength = 5f;
+
+			lightNode = CreateChild<BaseNode>("Light Object");
+			lightTransform = lightNode.CreateChild<Transform>();
+			lightTransform.position = new Vector3(2f, 0.6f, 0f);
+			testLight = lightNode.CreateChild<Light>();
+			testLight.strength = 5f;
+
+
 			RenderPipeline litRP = Rendering.Rendering.GetRenderPipeline("Lit");
 			List<MeshRenderer> allMeshRenderers = SearchNodeTreeAll<MeshRenderer>();
 			for (int i = 0; i < allMeshRenderers.Count; i ++) {

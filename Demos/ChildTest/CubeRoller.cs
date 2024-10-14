@@ -24,7 +24,7 @@ namespace ArcticFoxEngine.Demos.ChildTest {
 			rotationAngle += rotationSpeed;
 			Vector2 rotationDirection = Vector2.Angle(rotationAngle, rotationMagnitude) * (float)Profiler.deltaTime;
 
-			transform.rotation *= Quaternion.RotationYawPitchRoll(rotationDirection.x, rotationDirection.y, 0f);
+			transform.localRotation *= Quaternion.RotationYawPitchRoll(rotationDirection.x, rotationDirection.y, 0f);
 
 		}
 

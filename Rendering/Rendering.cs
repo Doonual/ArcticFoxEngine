@@ -15,7 +15,7 @@ namespace ArcticFoxEngine.Rendering {
 
 		private static List<RenderPipeline> renderPipelines;
 		public static RenderPipeline rpUnlit { get { return renderPipelines[0]; } }
-		public static RenderPipeline rpWireframe { get { return renderPipelines[1]; } }
+		public static RenderPipeline rpLit { get { return renderPipelines[1]; } }
 		public static RenderPipeline rpMandelbrot { get { return renderPipelines[2]; } }
 
 		internal static ConstBuffer<RenderInfo> renderInfo;

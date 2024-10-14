@@ -8,20 +8,13 @@ namespace ArcticFoxEngine.Nodes {
 	public class LightingSystem : Node {
 
 		internal override string nodeIconPath => ".res/NodeIcons/LightManager.png";
+		internal override string nodeIconPath32 => ".res/NodeIcons/LightManager32.png";
 
 		LitRenderPipeline.LightingWorld lightingWorld;
 		List<Light> lights;
 
-		Transform sunTransform;
-
 		public LightingSystem() {
 			name = "Lighting System";
-
-			Node fakeSun = CreateChild<BaseNode>("Sun");
-			sunTransform = fakeSun.CreateChild<Transform>();
-			MeshRenderer sunRenderer = fakeSun.CreateChild<MeshRenderer>();
-			sunRenderer.SetMesh(Mesh.CreatePrimitive(Mesh.Primitive.Cube));
-
 
 			lightingWorld = new LitRenderPipeline.LightingWorld();
 			lights = new List<Light>();
@@ -51,8 +44,6 @@ namespace ArcticFoxEngine.Nodes {
 
 		public override void Update() {
 
-			sunTransform.position = lightingWorld.sunDir * -50f;
-			sunTransform.scale = new Vector3(10f, 10f, 10f);
 			LitRenderPipeline.SetLightingInfo(lightingWorld);
 
 			for (int i = 0; i < lights.Count(); i++) {

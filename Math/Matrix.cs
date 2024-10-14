@@ -56,6 +56,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 //using global::Mathematics.Interop;
 using SharpDX;
+using Newtonsoft.Json.Linq;
 
 namespace ArcticFoxEngine {
 	/// <summary>
@@ -532,8 +533,28 @@ namespace ArcticFoxEngine {
 		/// <summary>
 		/// Transposes the matrix.
 		/// </summary>
-		public void Transpose() {
-			Transpose(ref this, out this);
+		public Matrix Transpose() {
+			
+			Matrix temp = new Matrix();
+			temp.M11 = M11;
+			temp.M12 = M21;
+			temp.M13 = M31;
+			temp.M14 = M41;
+			temp.M21 = M12;
+			temp.M22 = M22;
+			temp.M23 = M32;
+			temp.M24 = M42;
+			temp.M31 = M13;
+			temp.M32 = M23;
+			temp.M33 = M33;
+			temp.M34 = M43;
+			temp.M41 = M14;
+			temp.M42 = M24;
+			temp.M43 = M34;
+			temp.M44 = M44;
+
+			return temp;
+
 		}
 
 		/// <summary>
@@ -1188,8 +1209,7 @@ namespace ArcticFoxEngine {
 		/// Calculates the transpose of the specified matrix.
 		/// </summary>
 		/// <param name="value">The matrix whose transpose is to be calculated.</param>
-		/// <param name="result">When the method completes, contains the transpose of the specified matrix.</param>
-		public static void Transpose(ref Matrix value, out Matrix result) {
+		public static Matrix Transpose(Matrix value) {
 			Matrix temp = new Matrix();
 			temp.M11 = value.M11;
 			temp.M12 = value.M21;
@@ -1208,7 +1228,7 @@ namespace ArcticFoxEngine {
 			temp.M43 = value.M34;
 			temp.M44 = value.M44;
 
-			result = temp;
+			return temp;
 		}
 
 		/// <summary>
@@ -1235,16 +1255,6 @@ namespace ArcticFoxEngine {
 			result.M44 = value.M44;
 		}
 
-		/// <summary>
-		/// Calculates the transpose of the specified matrix.
-		/// </summary>
-		/// <param name="value">The matrix whose transpose is to be calculated.</param>
-		/// <returns>The transpose of the specified matrix.</returns>
-		public static Matrix Transpose(Matrix value) {
-			Matrix result;
-			Transpose(ref value, out result);
-			return result;
-		}
 
 		/// <summary>
 		/// Calculates the inverse of the specified matrix.
@@ -1514,7 +1524,8 @@ namespace ArcticFoxEngine {
 		public static void LowerTriangularForm(ref Matrix value, out Matrix result) {
 			//Adapted from the row echelon code.
 			Matrix temp = value;
-			Matrix.Transpose(ref temp, out result);
+			result = temp.Transpose();
+
 
 			int lead = 0;
 			int rowcount = 4;
@@ -1556,7 +1567,7 @@ namespace ArcticFoxEngine {
 				lead++;
 			}
 
-			Matrix.Transpose(ref result, out result);
+			result = result.Transpose();
 		}
 
 		/// <summary>
@@ -2808,10 +2819,13 @@ namespace ArcticFoxEngine {
 
 		public static Vector4 operator *(Matrix left, Vector4 right) {
 			Vector4 outVec;
-			outVec.x = left.M11 * right.x + left.M12 * right.y + left.M13 * right.z + left.M14 * right.w;
-			outVec.y = left.M21 * right.x + left.M22 * right.y + left.M23 * right.z + left.M24 * right.w;
-			outVec.z = left.M31 * right.x + left.M32 * right.y + left.M33 * right.z + left.M34 * right.w;
-			outVec.w = left.M41 * right.x + left.M42 * right.y + left.M43 * right.z + left.M44 * right.w;
+
+			Matrix leftT = left.Transpose();
+
+			outVec.x = leftT.M11 * right.x + leftT.M12 * right.y + leftT.M13 * right.z + leftT.M14 * right.w;
+			outVec.y = leftT.M21 * right.x + leftT.M22 * right.y + leftT.M23 * right.z + leftT.M24 * right.w;
+			outVec.z = leftT.M31 * right.x + leftT.M32 * right.y + leftT.M33 * right.z + leftT.M34 * right.w;
+			outVec.w = leftT.M41 * right.x + leftT.M42 * right.y + leftT.M43 * right.z + leftT.M44 * right.w;
 			return outVec;
 		}
 		public static Vector3 operator *(Matrix left, Vector3 right) {

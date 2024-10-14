@@ -32,4 +32,5 @@ cbuffer RenderInfo : register(b0) {
 
 cbuffer ObjectInfo : register(b1) {
 	float4x4 transformMatrix;
+	float4x4 inverseTransformMatrix;
 };

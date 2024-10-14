@@ -16,6 +16,7 @@ void Geometry_Main(triangle RawVertex input[3] : SV_Position, inout TriangleStre
 		tangent = -(t * (input[1].position - input[0].position) + input[0].position - input[2].position);
 	}
 	
+	
 
 	for (int i = 0; i < 3; i++) {
 		
@@ -23,8 +24,10 @@ void Geometry_Main(triangle RawVertex input[3] : SV_Position, inout TriangleStre
 		outVert.color = input[i].color;
 		outVert.position = input[i].position;
 		outVert.uv = input[i].uv;
-		outVert.normal = input[i].normal;
-		outVert.tangent = float4(tangent, 0.0);
+		outVert.normal = float4(normalize(mul(transpose(inverseTransformMatrix), input[i].normal).xyz), 0.0);
+		outVert.tangent = float4(normalize(mul(transpose(inverseTransformMatrix), float4(tangent, 0.0))).xyz, 0.0);
+		
+		
 		
 		outVert.world_position = mul(transformMatrix, input[i].position);
 		outVert.position = mul(cameraProjectionMatrix, outVert.world_position);

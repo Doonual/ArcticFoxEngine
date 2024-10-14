@@ -6,6 +6,7 @@ namespace ArcticFoxEngine.Nodes {
 	public class CameraController : Node {
 
 		internal override string nodeIconPath => ".res/NodeIcons/Camera.png";
+		internal override string nodeIconPath32 => ".res/NodeIcons/Camera32.png";
 
 		#region Input Bindings
 
@@ -25,8 +26,6 @@ namespace ArcticFoxEngine.Nodes {
 
 		#endregion
 		float speed;
-
-		Transform tf;
 
 		public CameraController() {
 			name = "Camera Controller";
@@ -49,10 +48,6 @@ namespace ArcticFoxEngine.Nodes {
 
 			speed = 1f;
 
-
-			tf = CreateChild<Transform>();
-			CreateChild<Camera>();
-
 			Enable();
 		}
 
@@ -65,33 +60,33 @@ namespace ArcticFoxEngine.Nodes {
 			#region Camera Controls
 
 			if (moveForward.GetButton() == true) {
-				tf.position += tf.Forward * 0.02f * speed;
+				transform.localPosition += transform.Forward * 0.02f * speed;
 			}
 			if (moveRight.GetButton() == true) {
-				tf.position += tf.Right * 0.02f * speed;
+				transform.localPosition += transform.Right * 0.02f * speed;
 			}
 			if (moveBack.GetButton() == true) {
-				tf.position += tf.Back * 0.02f * speed;
+				transform.localPosition += transform.Back * 0.02f * speed;
 			}
 			if (moveLeft.GetButton() == true) {
-				tf.position += tf.Left * 0.02f * speed;
+				transform.localPosition += transform.Left * 0.02f * speed;
 			}
 
 			if (moveUp.GetButton() == true) {
-				tf.position += tf.Up * 0.02f * speed;
+				transform.localPosition += transform.Up * 0.02f * speed;
 			}
 			if (moveDown.GetButton() == true) {
-				tf.position += tf.Down * 0.02f * speed;
+				transform.localPosition += transform.Down * 0.02f * speed;
 			}
 
 			if (rollRight.GetButton() == true) {
-				tf.rotation *= Quaternion.RotationYawPitchRoll(0f, 0f, -0.01f);
+				transform.localRotation *= Quaternion.RotationYawPitchRoll(0f, 0f, -0.01f);
 			}
 			if (rollLeft.GetButton() == true) {
-				tf.rotation *= Quaternion.RotationYawPitchRoll(0f, 0f, 0.01f);
+				transform.localRotation *= Quaternion.RotationYawPitchRoll(0f, 0f, 0.01f);
 			}
 			if (lookHold.GetButton() == true) {
-				tf.rotation *= Quaternion.RotationYawPitchRoll(lookVector.GetValue().x * 0.002f, lookVector.GetValue().y * 0.002f, 0f);
+				transform.localRotation *= Quaternion.RotationYawPitchRoll(lookVector.GetValue().x * 0.002f, lookVector.GetValue().y * 0.002f, 0f);
 			}
 
 			if (increaseSpeed.GetButton() == true) {

@@ -77,7 +77,7 @@ namespace ArcticFoxEngine.Rendering {
 
 	}
 
-	internal struct MaterialInfo {
+	public struct MaterialInfo {
 
 		public float normalStrength = 0.5f;
 		public float textureScale = 1f;
@@ -90,15 +90,16 @@ namespace ArcticFoxEngine.Rendering {
 
 	public class LitMaterial : Material {
 
-		MaterialInfo materialInfo;
-		int textureID = 5;
-		int normalTextureID = 6;
+		public MaterialInfo materialInfo;
+		public int textureID = 5;
+		public int normalTextureID = 6;
 		ConstBuffer<MaterialInfo> lightingInfoBuffer;
 
 		public LitMaterial() {
 
 			materialInfo = new MaterialInfo();
 			lightingInfoBuffer = new ConstBuffer<MaterialInfo>(1);
+			
 
 		}
 

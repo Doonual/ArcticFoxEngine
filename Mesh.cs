@@ -7,6 +7,7 @@
 		public enum Primitive {
 			Cube,
 			Quad,
+			Cylinder,
 		}
 
 		/// <summary>
@@ -88,7 +89,6 @@
 				};
 
 				break;
-
 				case Primitive.Quad:
 
 				vertexData = new Vertex[] {
@@ -103,7 +103,113 @@
 				};
 
 				break;
+				case Primitive.Cylinder:
 
+				int segments = 16;
+
+				List<Vertex> bottomStripVerts = new List<Vertex>();
+				List<Vertex> topStripVerts = new List<Vertex>();
+
+				List<Vertex> topCircleVerts = new List<Vertex>();
+				List<Vertex> bottomCircleVerts = new List<Vertex>();
+
+
+				Vertex topCircleCenter = new Vertex();
+				topCircleCenter.position = new Vector3(0f, 0.5f, 0f);
+				topCircleCenter.normal = new Vector3(0f, 1f, 0f);
+				topCircleCenter.color = Color.white;
+				topCircleCenter.uv = Vector2.one / 2f;
+
+				Vertex bottomCircleCenter = new Vertex();
+				bottomCircleCenter.position = new Vector3(0f, -0.5f, 0f);
+				bottomCircleCenter.normal = new Vector3(0f, -1f, 0f);
+				bottomCircleCenter.color = Color.white;
+				bottomCircleCenter.uv = Vector2.one / 2f;
+
+				for (int i = 0; i < segments + 1; i ++) {
+
+					Vector2 circleVec = Vector2.Angle((float)i / segments * MathF.PI * 2f, 0.5f);
+
+					Vertex bottomStripVert = new Vertex();
+					bottomStripVert.position = new Vector3(circleVec.x, -0.5f, circleVec.y);
+					bottomStripVert.normal = new Vector3(circleVec.x, 0f, circleVec.y);
+					bottomStripVert.color = Color.white;
+					bottomStripVert.uv = new Vector2(4f * (float)i / segments, 0f);
+					bottomStripVerts.Add(bottomStripVert);
+
+					Vertex bottomCircleVert = new Vertex();
+					bottomCircleVert.position = new Vector3(circleVec.x, -0.5f, circleVec.y);
+					bottomCircleVert.normal = new Vector3(0f, -1f, 0f);
+					bottomCircleVert.color = Color.white;
+					bottomCircleVert.uv = circleVec + Vector2.one / 2f;
+					bottomCircleVerts.Add(bottomCircleVert);
+
+
+
+					Vertex topStripVert = new Vertex();
+					topStripVert.position = new Vector3(circleVec.x, 0.5f, circleVec.y);
+					topStripVert.normal = new Vector3(circleVec.x, 0f, circleVec.y);
+					topStripVert.color = Color.white;
+					topStripVert.uv = new Vector2(4f * (float)i / segments, 1f);
+					topStripVerts.Add(topStripVert);
+
+					Vertex topCircleVert = new Vertex();
+					topCircleVert.position = new Vector3(circleVec.x, 0.5f, circleVec.y);
+					topCircleVert.normal = new Vector3(0f, 1f, 0f);
+					topCircleVert.color = Color.white;
+					topCircleVert.uv = circleVec + Vector2.one / 2;
+					topCircleVerts.Add(topCircleVert);
+
+				}
+
+				List<int> stripTris = new List<int>();
+				for (int i = 0; i < segments; i ++) {
+
+					stripTris.Add(i);
+					stripTris.Add(i + (segments + 1));
+					stripTris.Add((i + 1) % (segments + 1));
+
+					stripTris.Add((i + 1) % (segments + 1));
+					stripTris.Add(i + (segments + 1));
+					stripTris.Add((i + 1) % (segments + 1) + (segments + 1));
+					
+				}
+
+				List<int> topCircleTris = new List<int>();
+				int circleIndexStart = (segments + 1) * 2 + 1;
+				for (int i = 0; i < segments; i ++) {
+					topCircleTris.Add(i + circleIndexStart);
+					topCircleTris.Add(circleIndexStart - 1);
+					topCircleTris.Add((i + 1) % segments + circleIndexStart);
+				}
+
+				List<int> bottomCircleTris = new List<int>();
+				circleIndexStart = (segments + 1) * 2 + 1 + segments + 2;
+				for (int i = 0; i < segments; i++) {
+					bottomCircleTris.Add(i + circleIndexStart);
+					bottomCircleTris.Add((i + 1) % segments + circleIndexStart);
+					bottomCircleTris.Add(circleIndexStart - 1);
+				}
+
+
+				List<Vertex> totalVerts = new List<Vertex>();
+				totalVerts.AddRange(bottomStripVerts);
+				totalVerts.AddRange(topStripVerts);
+				totalVerts.Add(topCircleCenter);
+				totalVerts.AddRange(topCircleVerts);
+				totalVerts.Add(bottomCircleCenter);
+				totalVerts.AddRange(bottomCircleVerts);
+
+
+				List<int> totalTris = new List<int>();
+				totalTris.AddRange(stripTris);
+				totalTris.AddRange(topCircleTris);
+				totalTris.AddRange(bottomCircleTris);
+
+				vertexData = totalVerts.ToArray();
+				indexData = totalTris.ToArray();
+
+				break;
 
 			}
 

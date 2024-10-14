@@ -2,6 +2,7 @@
 using ArcticFoxEngine.ImGuiIntegration;
 using CoolClassLibrary;
 using ImGuiNET;
+using SixLabors.ImageSharp;
 
 namespace ArcticFoxEngine.Nodes {
 	public abstract class Node {
@@ -14,7 +15,9 @@ namespace ArcticFoxEngine.Nodes {
 		public string name = "";
 		internal virtual string description => "";
 		internal virtual string nodeIconPath => ".res/NodeIcons/EmptyNode.png";
+		internal virtual string nodeIconPath32 => "";
 		internal IntPtr nodeIconId;
+		internal IntPtr nodeIconId32;
 
 
 		protected bool globalEnabled;
@@ -24,16 +27,25 @@ namespace ArcticFoxEngine.Nodes {
 		public Node parentNode { get; private set; } // When null, indicates it is in the scene root
 		private List<Node> childNodes;
 
-		// Shortcuts
-		public Transform transformChild { get { return GetChild<Transform>(); } }
-		public Transform transform { get { return GetSibling<Transform>(); } }
+		public Transform transform;
 
 		protected Node() {
+
 			disposed = false;
+			transform = new Transform(this);
+
 			childNodes = new List<Node>();
-			nodeIconId = NodeIconBank.LoadIcon(nodeIconPath);
-			name = GetType().Name;
 			SetParent(nextParentNode);
+
+			nodeIconId = NodeIconBank.LoadIcon(nodeIconPath);
+			if (nodeIconPath32 == "") {
+				nodeIconId32 = NodeIconBank.LoadIcon(nodeIconPath);
+			}
+			else {
+				nodeIconId32 = NodeIconBank.LoadIcon(nodeIconPath32);
+			}
+			name = GetType().Name;
+
 		}
 
 
@@ -52,6 +64,13 @@ namespace ArcticFoxEngine.Nodes {
 			if (parentNode != null) {
 				parentNode.childNodes.Add(this);
 				globalEnabled &= parentNode.globalEnabled;
+
+				Node currentNode = parentNode;
+				while (currentNode != null) {
+					currentNode.OnTreeChanged();
+					currentNode = currentNode.parentNode;
+				}
+
 			}
 
 		}
@@ -85,7 +104,7 @@ namespace ArcticFoxEngine.Nodes {
 			}
 			return null;
 		}
-
+		
 		public int GetSiblingCount() {
 			if (parentNode == null) { Log.Warn("GetSiblingCount failed, this is the root node"); return 0; }
 			return parentNode.GetChildCount();
@@ -106,21 +125,68 @@ namespace ArcticFoxEngine.Nodes {
 			return parentNode.GetChild<T>();
 		}
 
-		public Node GetOldestAncestor() {
+		/// <summary>
+		/// Searches the Node tree upwards for the 1st instance of this node. Search starts on this node, then to this node's parent, then to this node's grandparent
+		/// </summary>
+		/// <typeparam name="T">The type of node to search for</typeparam>
+		/// <param name="includeSiblings">Whether to include the siblings of each node in the search</param>
+		/// <returns>The first instance of that node. null if it was not found</returns>
+		public T SearchNodeTreeUp<T>(bool includeSiblings) where T : Node {
 
-			if (parentNode == null) {
-				return this;
+			if (GetType() == typeof(T)) { return (T)this; }
+			if (parentNode != null) {
+				if (includeSiblings == true) {
+					for (int i = 0; i < parentNode.childNodes.Count; i ++) {
+						if (parentNode.childNodes[i].GetType() == typeof(T)) {
+							return (T)parentNode.childNodes[i];
+						}
+					}
+				}
+				return parentNode.SearchNodeTreeUp<T>(includeSiblings);
 			}
-			return parentNode.GetOldestAncestor();
+			return null;
 
 		}
-		public T SearchNodeTree<T>() where T : Node {
+
+		/// <summary>
+		/// Searches the Node tree upwards for all the instances of this node. Search starts on this node, then to this node's parent, then to this node's grandparent
+		/// </summary>
+		/// <typeparam name="T">The type of node to search for</typeparam>
+		/// <param name="includeSiblings">Wheather to include the siblings of each node in the search</param>
+		/// <returns>A list with all the instances of that node</returns>
+		public List<T> SearchNodeTreeUpAll<T>(bool includeSiblings) where T : Node {
+
+			List<T> nodeList = new List<T>();
+
+			if (GetType() == typeof(T)) {
+				nodeList.Add((T)this);
+			}
+			if (parentNode != null) {
+				if (includeSiblings == true) {
+					for (int i = 0; i < parentNode.childNodes.Count; i++) {
+						if (parentNode.childNodes[i].GetType() == typeof(T) && parentNode.childNodes[i] != this) {
+							nodeList.Add((T)parentNode.childNodes[i]);
+						}
+					}
+				}
+				nodeList.AddRange(parentNode.SearchNodeTreeUpAll<T>(includeSiblings));
+			}
+			return nodeList;
+
+		}
+
+		/// <summary>
+		/// Searches the Node tree for the 1st instance of this node. Search results will include this node.
+		/// </summary>
+		/// <typeparam name="T">The type of node to search for</typeparam>
+		/// <returns>The first instance of that node. null if the node wasn't found</returns>
+		public T SearchNodeTreeDown<T>() where T : Node {
 
 			if (typeof(T) == GetType()) {
 				return (T)this;
 			}
 			for (int i = 0; i < childNodes.Count; i++) {
-				T childNodeSearch = childNodes[i].SearchNodeTree<T>();
+				T childNodeSearch = childNodes[i].SearchNodeTreeDown<T>();
 				if (childNodeSearch != null) {
 					return childNodeSearch;
 				}
@@ -128,25 +194,79 @@ namespace ArcticFoxEngine.Nodes {
 			return null;
 
 		}
-		public List<T> SearchNodeTreeAll<T>() where T : Node {
+		
+		/// <summary>
+		/// Searches the Node tree for the 1st instance of this node up to the maximum depth. Search results will include this node.
+		/// </summary>
+		/// <typeparam name="T">The type of node to search for</typeparam>
+		/// <param name="maxDepth">The maximum depth to search. 0 - this node only. 1 - this node's children. 2 - this node's grandchildren</param>
+		/// <returns>The first instance of that node. null if the node wasn't found</returns>
+		public T SearchNodeTreeDown<T>(int maxDepth) where T : Node {
+
+			if (typeof(T) == GetType()) {
+				return (T)this;
+			}
+			if (maxDepth <= 0) { return null; }
+			for (int i = 0; i < childNodes.Count; i++) {
+				T childNodeSearch = childNodes[i].SearchNodeTreeDown<T>(maxDepth - 1);
+				if (childNodeSearch != null) {
+					return childNodeSearch;
+				}
+			}
+			return null;
+
+		}
+		
+		/// <summary>
+		/// Searches the Node tree for all the instances of this node. Search results will include this node.
+		/// </summary>
+		/// <typeparam name="T">The type of node to search for</typeparam>
+		/// <returns>A list containing all the found nodes</returns>
+		public List<T> SearchNodeTreeDownAll<T>() where T : Node {
 
 			List<T> foundNodes = new List<T>();
 			if (typeof(T) == GetType()) {
 				foundNodes.Add((T)this);
 			}
 			for (int i = 0; i < childNodes.Count; i++) {
-				foundNodes.AddRange(childNodes[i].SearchNodeTreeAll<T>());
+				foundNodes.AddRange(childNodes[i].SearchNodeTreeDownAll<T>());
 			}
 			return foundNodes;
 
 		}
-		public Node SearchNodeTree(string name) {
+
+		/// <summary>
+		/// Searches the Node tree for all the instances of this node up to the maximum depth. Search results will include this node.
+		/// </summary>
+		/// <typeparam name="T">The type of node to search for</typeparam>
+		/// <param name="maxDepth">The maximum depth to search. 0 - this node only. 1 - this node's children. 2 - this node's grandchildren</param>
+		/// <returns>A list containing all the found nodes</returns>
+		public List<T> SearchNodeTreeDownAll<T>(int maxDepth) where T : Node {
+
+			List<T> foundNodes = new List<T>();
+			if (typeof(T) == GetType()) {
+				foundNodes.Add((T)this);
+			}
+			if (maxDepth <= 0) { return foundNodes; }
+			for (int i = 0; i < childNodes.Count; i++) {
+				foundNodes.AddRange(childNodes[i].SearchNodeTreeDownAll<T>(maxDepth - 1));
+			}
+			return foundNodes;
+
+		}
+
+		/// <summary>
+		/// Searches the Node tree for the 1st instance of this node. Search results will include this node.
+		/// </summary>
+		/// <param name="name">The name of the node to search for</param>
+		/// <returns>The first instance of that node.  null if the node wasn't found</returns>
+		public Node SearchNodeTreeDown(string name) {
 
 			if (this.name == name) {
 				return this;
 			}
 			for (int i = 0; i < childNodes.Count; i++) {
-				Node childNodeSearch = childNodes[i].SearchNodeTree(name);
+				Node childNodeSearch = childNodes[i].SearchNodeTreeDown(name);
 				if (childNodeSearch != null) {
 					return childNodeSearch;
 				}
@@ -154,14 +274,62 @@ namespace ArcticFoxEngine.Nodes {
 			return null;
 
 		}
-		public List<Node> SearchNodeTreeAll(string name) {
+
+		/// <summary>
+		/// Searches the Node tree for the 1st instance of this node up to the maximum depth. Search results will include this node.
+		/// </summary>
+		/// <param name="name">The name of the node to search for</param>
+		/// <param name="maxDepth">The maximum depth to search. 0 - this node only. 1 - this node's children. 2 - this node's grandchildren</param>
+		/// <returns>The first instance of that node. null if the node wasn't found</returns>
+		public Node SearchNodeTreeDown(string name, int maxDepth) {
+
+			if (this.name == name) {
+				return this;
+			}
+			if (maxDepth <= 0) { return null; }
+			for (int i = 0; i < childNodes.Count; i++) {
+				Node childNodeSearch = childNodes[i].SearchNodeTreeDown(name, maxDepth - 1);
+				if (childNodeSearch != null) {
+					return childNodeSearch;
+				}
+			}
+			return null;
+
+		}
+		
+		/// <summary>
+		/// Searches the Node tree for all the instances of this node. Search results will include this node.
+		/// </summary>
+		/// <param name="name">The name of the node to search for</param>
+		/// <returns>A list containing all the found nodes</returns>
+		public List<Node> SearchNodeTreeDownAll(string name) {
 
 			List<Node> foundNodes = new List<Node>();
 			if (this.name == name) {
 				foundNodes.Add(this);
 			}
 			for (int i = 0; i < childNodes.Count; i++) {
-				foundNodes.AddRange(childNodes[i].SearchNodeTreeAll(name));
+				foundNodes.AddRange(childNodes[i].SearchNodeTreeDownAll(name));
+			}
+			return foundNodes;
+
+		}
+		
+		/// <summary>
+		/// Searches the Node tree for all the instances of this node up to the maximum depth. Search results will include this node.
+		/// </summary>
+		/// <param name="name">The name of the node to search for</param>
+		/// <param name="maxDepth">The maximum depth to search. 0 - this node only. 1 - this node's children. 2 - this node's grandchildren</param>
+		/// <returns>A list containing all the found nodes</returns>
+		public List<Node> SearchNodeTreeDownAll(string name, int maxDepth) {
+
+			List<Node> foundNodes = new List<Node>();
+			if (this.name == name) {
+				foundNodes.Add(this);
+			}
+			if (maxDepth <= 0) { return foundNodes; }
+			for (int i = 0; i < childNodes.Count; i++) {
+				foundNodes.AddRange(childNodes[i].SearchNodeTreeDownAll(name, maxDepth - 1));
 			}
 			return foundNodes;
 
@@ -232,71 +400,8 @@ namespace ArcticFoxEngine.Nodes {
 
 		bool inspectorNodeOpen = false;
 		bool prevCallingFromRoot = false;
-		internal void DebugEvent(bool callingFromRoot) {
-
-			if (callingFromRoot == true && prevCallingFromRoot == false) { inspectorNodeOpen = true; }
-			if (callingFromRoot == false && prevCallingFromRoot == true) { inspectorNodeOpen = false; }
-			prevCallingFromRoot = callingFromRoot;
-
-
-			ImGui.PushStyleVar(ImGuiStyleVar.ItemSpacing, new Vector2(0f, -1f));
-
-			ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0.3f, 0.3f, 0.3f, 0.0f));
-			ImGui.PushStyleColor(ImGuiCol.ButtonHovered, new Vector4(0.3f, 0.3f, 0.3f, 0.3f));
-			ImGui.PushStyleColor(ImGuiCol.ButtonActive, new Vector4(0.3f, 0.3f, 0.3f, 0.5f));
-
-
-
-			float cursorPosY = ImGui.GetCursorPosY();
-			ImGui.SetCursorPosY(cursorPosY + 1f);
-			//inspectorNodeOpen ^= ImGui.ArrowButton(name + "drop down", inspectorNodeOpen ? ImGuiDir.Down : ImGuiDir.Right);
-			//ImGui.SameLine();
-
-
-			ImGui.SetCursorPosY(cursorPosY);
-			ImGui.ImageButton(name + "image button", nodeIconId, new Vector2(16f, 16f));
-
-			ImGui.SameLine();
-
-
-			ImGui.SetCursorPosY(cursorPosY);
-			ImGui.PushStyleVar(ImGuiStyleVar.ButtonTextAlign, new Vector2(0f, 0.5f));
-			Node selectedNode = null;
-			if (ImGui.Button(name, new Vector2(-1f, 16f + 6f)) == true) {
-				selectedNode = this;
-			}
-			ImGui.PopStyleVar(2);
-			ImGui.PopStyleColor(3);
-
-
-			if (inspectorNodeOpen == true || true) {
-				ImGui.NewLine();
-				//ImGui.TreePush("Params and children tree");
-				if (description != "") {
-					ImGui.TextWrapped(description);
-				}
-
-				ImGui.PushID(GetHashCode() + " parameters");
-				Debug();
-				ImGui.PopID();
-
-
-				if (callingFromRoot == true) {
-					for (int i = 0; i < childNodes.Count; i++) {
-						ImGui.PushID(childNodes[i].GetHashCode() + " debug event");
-						childNodes[i].DebugEvent(false);
-						ImGui.PopID();
-					}
-				}
-
-
-				//ImGui.TreePop();
-			}
-
-
-
-		}
-
+		
+		
 		~Node() {
 			DisposeEvent();
 		}
@@ -313,12 +418,84 @@ namespace ArcticFoxEngine.Nodes {
 
 		public virtual void OnEnable() { }
 		public virtual void OnDisable() { }
+		public virtual void OnTreeChanged() { }
 		public virtual void Update() { }
 		public virtual void Render() { }
 		public virtual void Debug() { }
+		
+		
 		public virtual void Dispose() { }
 
-		bool nodeOpen = false;
+		internal void DebugEvent(bool callingFromRoot) {
+
+			ImGuiWindowFlags flags = ImGuiWindowFlags.MenuBar;
+			ImGui.BeginChild((uint)(GetHashCode() + " parameters").GetHashCode(), new Vector2(0f, 300f), true, flags);
+
+
+			// Default node open states
+			if (callingFromRoot == true && prevCallingFromRoot == false) { inspectorNodeOpen = true; }
+			if (callingFromRoot == false && prevCallingFromRoot == true) { inspectorNodeOpen = false; }
+			prevCallingFromRoot = callingFromRoot;
+
+
+			ImGui.PushStyleVar(ImGuiStyleVar.ItemSpacing, new Vector2(0f, -1f));
+
+			ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0.3f, 0.3f, 0.3f, 0.0f));
+			ImGui.PushStyleColor(ImGuiCol.ButtonHovered, new Vector4(0.3f, 0.3f, 0.3f, 0.3f));
+			ImGui.PushStyleColor(ImGuiCol.ButtonActive, new Vector4(0.3f, 0.3f, 0.3f, 0.5f));
+			float cursorPosY = ImGui.GetCursorPosY();
+
+			ImGui.BeginMenuBar();
+
+			// Node icon
+			ImGui.ImageButton(name + "image button", nodeIconId, new Vector2(16f, 16f));
+
+			ImGui.SameLine();
+
+			// Name
+			ImGui.PushStyleVar(ImGuiStyleVar.ButtonTextAlign, new Vector2(0f, 0.5f));
+			ImGui.Button(name, new Vector2(-1f, 16f + 6f));
+
+			ImGui.EndMenuBar();
+
+			ImGui.PopStyleVar(1);
+			ImGui.PopStyleVar(1);
+			ImGui.PopStyleColor(3);
+
+			// Description
+			if (description != "") {
+				ImGui.TextWrapped(description);
+			}
+
+
+
+			// Transform and Debug
+			//ImGui.SeparatorText("Transform");
+			if (ImGui.TreeNode("Transform") == true) {
+				transform.Debug();
+				ImGui.TreePop();
+			}
+			ImGui.SeparatorText("Node Options");
+			Debug();
+
+
+			ImGui.EndChild();
+
+			if (callingFromRoot == true) {
+				for (int i = 0; i < childNodes.Count; i++) {
+					ImGui.PushID(childNodes[i].GetHashCode() + " debug event");
+					ImGui.NewLine();
+					childNodes[i].DebugEvent(false);
+					ImGui.PopID();
+				}
+			}
+
+			
+
+			ImGui.NewLine();
+
+
+		}
 		internal Node DebugNodeTree(bool rootNode) {
 
 			nodeOpen |= rootNode;
@@ -386,7 +563,11 @@ namespace ArcticFoxEngine.Nodes {
 			ImGui.SetCursorPosY(cursorPosY);
 			ImGui.PushStyleVar(ImGuiStyleVar.ButtonTextAlign, new Vector2(0f, 0.5f));
 
-			ImGui.Button(name, new Vector2(-1f, 16f + 6f));
+			string actualTypeString = "";
+			if (name != GetType().Name) {
+				actualTypeString = " (" + GetType().Name + ")";
+			}
+			ImGui.Button(name + actualTypeString, new Vector2(-1f, 16f + 6f));
 
 			ImGui.PopStyleVar();
 
@@ -448,5 +629,18 @@ namespace ArcticFoxEngine.Nodes {
 
 		}
 
+
+		// Debug Gizmos
+		public virtual void DebugContextMenu() {
+;
+			if (ImGui.MenuItem("Edit") == true) {
+				DebugNodeGizmos.OpenFloatingNodeEdit(this);
+			}
+			ImGui.MenuItem("Reveal in node tree");
+
+		}
+
+		bool nodeOpen = false;
+		
 	}
 }

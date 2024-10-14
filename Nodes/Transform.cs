@@ -2,113 +2,126 @@
 
 namespace ArcticFoxEngine.Nodes {
 
-	public class Transform : Node {
+	public class Transform {
 
-		internal override string description => "Gives an object a position, rotation and scale.";
-		internal override string nodeIconPath => ".res/NodeIcons/Transform.png";
+		//internal override string description => "Gives an object a position, rotation and scale.";
+		//internal override string nodeIconPath => ".res/NodeIcons/Transform.png";
+		//internal override string nodeIconPath32 => ".res/NodeIcons/Transform32.png";
 
-		public Vector3 position;
-		public Quaternion rotation;
-		public Vector3 scale;
-		public Matrix transformationMatrix {
+		Node containedNode;
+
+		public Vector3 localPosition;
+		public Quaternion localRotation;
+		public Vector3 localScale;
+		public Matrix localMatrix {
 			get {
-				return Matrix.Transformation(position, rotation, scale);
+				return Matrix.Transformation(localPosition, localRotation, localScale);
 			}
 		}
-		public static Matrix CalculateFromNode(Node node) {
 
-			Node searchForNextTf = node;
-			Matrix accumTransform = Matrix.Identity;
-			int numTransformsAccumed = 0;
 
-			while (true) {
-				if (searchForNextTf == null) {
-					break;
-				}
-				Transform transformSib = searchForNextTf.transform;
-				if (transformSib != null) {
-					accumTransform = accumTransform * Matrix.Transformation(transformSib.position, transformSib.rotation, transformSib.scale);
-					numTransformsAccumed += 1;
-				}
-				searchForNextTf = searchForNextTf.parentNode;
+		public Vector3 worldPosition {
+			get {
+				return worldMatrix.Row4;
 			}
+		}
+		public Matrix worldMatrix {
+			get {
 
-			return accumTransform;
+				if (containedNode.parentNode == null) {
+					return localMatrix;
+				}
+				return localMatrix * containedNode.parentNode.transform.worldMatrix;
 
+			}
+		}
+		public Quaternion worldRotation {
+			get {
+
+				if (containedNode.parentNode == null) {
+					return localRotation;
+				}
+				return localRotation * containedNode.parentNode.transform.worldRotation;
+
+			}
 		}
 
 		#region Directions
 
 		public Vector3 Right {
 			get {
-				return Matrix.RotationQuaternion(rotation).Invert() * Vector3.Right;
+				return Matrix.RotationQuaternion(worldRotation) * Vector3.Right;
 			}
 		}
 		public Vector3 Left {
 			get {
-				return Matrix.RotationQuaternion(rotation).Invert() * Vector3.Left;
+				return Matrix.RotationQuaternion(worldRotation) * Vector3.Left;
 			}
 		}
 		public Vector3 Up {
 			get {
-				return Matrix.RotationQuaternion(rotation).Invert() * Vector3.Up;
+				return Matrix.RotationQuaternion(worldRotation) * Vector3.Up;
 			}
 		}
 		public Vector3 Down {
 			get {
-				return Matrix.RotationQuaternion(rotation).Invert() * Vector3.Down;
+				return Matrix.RotationQuaternion(worldRotation) * Vector3.Down;
 			}
 		}
 		public Vector3 Forward {
 			get {
-				return Matrix.RotationQuaternion(rotation).Invert() * Vector3.Forward;
+				return Matrix.RotationQuaternion(worldRotation) * Vector3.Forward;
 			}
 		}
 		public Vector3 Back {
 			get {
-				return Matrix.RotationQuaternion(rotation).Invert() * Vector3.Back;
+				return Matrix.RotationQuaternion(worldRotation) * Vector3.Back;
 			}
 		}
 
 
 		#endregion
 
-		public Transform() {
-			name = "Transform";
 
-			position = Vector3.Zero;
-			rotation = Quaternion.Identity;
-			scale = Vector3.One;
+		public Transform(Node containedNode) {
 
-			Enable();
+			localPosition = Vector3.Zero;
+			localRotation = Quaternion.Identity;
+			localScale = Vector3.One;
+
+			this.containedNode = containedNode;
 
 		}
-		public void ResetTransform() {
-			position = Vector3.Zero;
-			rotation = Quaternion.Identity;
-			scale = Vector3.One;
+		public void Reset() {
+			localPosition = Vector3.Zero;
+			localRotation = Quaternion.Identity;
+			localScale = Vector3.One;
 		}
 
 
+		private bool normaliseRotation = false;
+		public void Debug() {
 
-
-		public override void Debug() {
-
-			System.Numerics.Vector3 systemPos = (System.Numerics.Vector3)position;
-			System.Numerics.Vector4 systemRot = new System.Numerics.Vector4(rotation.x, rotation.y, rotation.z, rotation.w);
-			System.Numerics.Vector3 systemScale = (System.Numerics.Vector3)scale;
+			System.Numerics.Vector3 systemPos = (System.Numerics.Vector3)localPosition;
+			System.Numerics.Vector4 systemRot = new System.Numerics.Vector4(localRotation.x, localRotation.y, localRotation.z, localRotation.w);
+			System.Numerics.Vector3 systemScale = (System.Numerics.Vector3)localScale;
 
 			ImGuiExtras.ItemWidthForText("Rotation"); ImGui.DragFloat3("Position", ref systemPos, 0.01f);
 			ImGuiExtras.ItemWidthForText("Rotation"); ImGui.DragFloat4("Rotation", ref systemRot, 0.01f);
 			ImGuiExtras.ItemWidthForText("Rotation"); ImGui.DragFloat3("Scale", ref systemScale, 0.01f);
 
-			position = new Vector3(systemPos);
-			rotation = new Quaternion(systemRot.X, systemRot.Y, systemRot.Z, systemRot.W);
-			rotation.Normalize();
-			scale = new Vector3(systemScale);
+			localPosition = new Vector3(systemPos);
+			localRotation = new Quaternion(systemRot.X, systemRot.Y, systemRot.Z, systemRot.W);
+
+			ImGui.Checkbox("Normalise rotation", ref normaliseRotation);
+			if (normaliseRotation == true) {
+				localRotation.Normalize();
+			}
+			
+			localScale = new Vector3(systemScale);
 
 			if (ImGui.Button("Reset") == true) {
-				ResetTransform();
+				Reset();
 			}
 
 		}

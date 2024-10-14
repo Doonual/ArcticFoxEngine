@@ -13,6 +13,7 @@ namespace ArcticFoxEngine.Debug {
 
 		private static bool isOpen;
 		private static List<DebugWindow> windows;
+		private static List<DebugOverlay> overlays;
 		private static bool showImGuiDemo;
 
 		private static List<Type> demoNodes;
@@ -31,6 +32,9 @@ namespace ArcticFoxEngine.Debug {
 				new DebugPerformance(),
 				new DebugRender(),
 				new DebugScene(),
+			};
+			overlays = new List<DebugOverlay>() {
+				new DebugNodeGizmos(),
 			};
 			LoadWindowOptions();
 
@@ -89,19 +93,8 @@ namespace ArcticFoxEngine.Debug {
 		internal static void Render() {
 
 			if (ImGui.BeginMainMenuBar() == true) {
-				if (ImGui.BeginMenu("Window") == true) {
 
-					ImGui.Checkbox("Show ImGui Demo", ref showImGuiDemo);
-					ImGui.Separator();
-
-					for (int i = 0; i < windows.Count; i++) {
-						if (ImGui.MenuItem(windows[i].name, null, ref windows[i].open) == true) {
-							SaveWindowOptions();
-						}
-					}
-					ImGui.EndMenu();
-				}
-
+				// Scene menu options
 				if (ImGui.BeginMenu("Scene") == true) {
 					ImGui.PushStyleColor(ImGuiCol.Text, new System.Numerics.Vector4(0.5f, 0.5f, 0.5f, 1.0f));
 					ImGui.Text("Demos");
@@ -119,6 +112,30 @@ namespace ArcticFoxEngine.Debug {
 					ImGui.EndMenu();
 				}
 
+
+				// Window menu options
+				if (ImGui.BeginMenu("Window") == true) {
+
+					ImGui.Checkbox("Show ImGui Demo", ref showImGuiDemo);
+					ImGui.Separator();
+
+					for (int i = 0; i < windows.Count; i++) {
+						if (ImGui.MenuItem(windows[i].name, null, ref windows[i].open) == true) {
+							SaveWindowOptions();
+						}
+					}
+					ImGui.EndMenu();
+				}
+
+				// Overlay menu options
+				if (ImGui.BeginMenu("Overlay") == true) {
+					for (int i = 0; i < overlays.Count; i ++) {
+						ImGui.MenuItem(overlays[i].name, null, ref overlays[i].open);
+					}
+					ImGui.EndMenu();
+				}
+				
+
 			}
 			ImGui.EndMenuBar();
 
@@ -127,11 +144,14 @@ namespace ArcticFoxEngine.Debug {
 			}
 			for (int i = 0; i < windows.Count; i++) {
 				if (windows[i].open == true) {
-					ImGui.Begin(windows[i].name, ref windows[i].open);
-					ImGui.PushID(windows[i].GetHashCode());
+					ImGui.Begin(windows[i].name + "##" + windows[i].GetHashCode(), ref windows[i].open);
 					windows[i].Render();
-					ImGui.PopID();
 					ImGui.End();
+				}
+			}
+			for (int i = 0; i < overlays.Count; i++) {
+				if (overlays[i].open == true) {
+					overlays[i].Render();
 				}
 			}
 
@@ -150,6 +170,9 @@ namespace ArcticFoxEngine.Debug {
 		}
 		private static void LoadWindowOptions() {
 
+			if (File.Exists("debugconfig") == false) {
+				return;
+			}
 			byte saveValue = File.ReadAllBytes("debugconfig")[0];
 			for (int i = windows.Count - 1; i >= 0; i--) {
 				if ((saveValue & 1) == 1) {

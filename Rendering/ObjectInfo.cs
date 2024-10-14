@@ -4,5 +4,6 @@
 
 	internal struct ObjectInfo {
 		public Matrix transformationMatrix; // 64 bytes
+		public Matrix inverseTransformationMatrix;
 	};
 }

@@ -4,18 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ArcticFoxEngine.Nodes {
-	public class Cube : Node {
+namespace ArcticFoxEngine.Nodes.Templates {
+	public class Cube {
 
-		internal override string nodeIconPath => ".res/NodeIcons/BaseNode.png";
 
-		public Cube() {
-			name = "Cube";
+		public static void PopulateNode(Node node) {
 
-			CreateChild<Transform>();
-			CreateChild<MeshRenderer>().SetMesh(Mesh.CreatePrimitive(Mesh.Primitive.Cube));
+			node.CreateChild<MeshRenderer>().SetMesh(Mesh.CreatePrimitive(Mesh.Primitive.Cube));
 
-			Enable();
 		}
 
 	}

@@ -8,6 +8,7 @@ namespace ArcticFoxEngine.Nodes {
 
 		internal override string description => "Renders the mesh to the scene geometry";
 		internal override string nodeIconPath => ".res/NodeIcons/MeshRenderer.png";
+		internal override string nodeIconPath32 => ".res/NodeIcons/MeshRenderer32.png";
 
 		private RenderPipeline renderPipeline;
 		public Material material;
@@ -78,7 +79,13 @@ namespace ArcticFoxEngine.Nodes {
 
 		internal ObjectInfo GetObjectInfo() {
 			ObjectInfo info = new ObjectInfo();
-			info.transformationMatrix = Transform.CalculateFromNode(this); ;
+
+			if (transform == null) {
+				return info;
+			}
+			Matrix transformatrionMatrix = transform.worldMatrix;
+			info.transformationMatrix = transformatrionMatrix;
+			info.inverseTransformationMatrix = transformatrionMatrix.Invert();
 			return info;
 		}
 
@@ -115,6 +122,9 @@ namespace ArcticFoxEngine.Nodes {
 			string[] pipelineNames = new string[renderPipelines.Length];
 			for (int i = 0; i < renderPipelines.Length; i++) {
 				pipelineNames[i] = renderPipelines[i].name;
+				if (renderPipeline == renderPipelines[i]) {
+					renderPipelineComboSelected = i;
+				}
 			}
 
 			ImGuiExtras.ItemWidthForText("Render pipeline");
@@ -122,12 +132,11 @@ namespace ArcticFoxEngine.Nodes {
 				SetRenderPipeline(renderPipelines[renderPipelineComboSelected]);
 			}
 
-			if (ImGui.TreeNode("Material settings") == true) {
-				if (material != null) {
-					material.Debug();
-				}
-				ImGui.TreePop();
+			ImGui.Text("Material Settings");
+			if (material != null) {
+				material.Debug();
 			}
+
 			
 
 

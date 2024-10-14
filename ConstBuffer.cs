@@ -26,6 +26,7 @@ namespace ArcticFoxEngine {
 		/// </summary>
 		/// <param name="numElements">The number of elements of type T the buffer can store</param>
 		public ConstBuffer(int numElements) {
+
 			disposed = false;
 
 			this.numElements = numElements;
@@ -87,7 +88,9 @@ namespace ArcticFoxEngine {
 			if (disposed == true) { return; }
 			disposed = true;
 
-			constantBuffer.Unmap(0);
+			if (constantBuffer.IsDisposed == false) {
+				constantBuffer.Unmap(0);
+			}
 			constantBuffer.Dispose();
 			descriptorHeap.Dispose();
 

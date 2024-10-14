@@ -17,8 +17,6 @@ namespace ArcticFoxEngine.Demos.ChildTest {
 			angle = MathUtil.RandomFloat(0f, MathF.PI * 2);
 			omega = MathUtil.RandomFloat(0.1f, 0.4f);
 
-			CreateChild<Transform>();
-
 			Enable();
 		}
 
@@ -29,7 +27,7 @@ namespace ArcticFoxEngine.Demos.ChildTest {
 
 		public override void Update() {
 
-			transformChild.rotation = Quaternion.RotationYawPitchRoll(0f, 0f, angle);
+			transform.localRotation = Quaternion.RotationYawPitchRoll(0f, 0f, angle);
 
 			angle += omega * Profiler.deltaTime;
 			angle %= MathF.PI * 2f;
@@ -41,16 +39,15 @@ namespace ArcticFoxEngine.Demos.ChildTest {
 
 			radius = radiusUpdate;
 
-			Node cubeChild = CreateChild<BaseNode>("Cube");
-			cubeChild.CreateChild<Transform>();
-			cubeChild.CreateChild<MeshRenderer>().SetMesh(Mesh.CreatePrimitive(Mesh.Primitive.Cube));
-			cubeChild.transformChild.position.y = radiusUpdate / 2f;
-			cubeChild.transformChild.scale = new Vector3(radiusUpdate / 10f, radiusUpdate, radiusUpdate / 10f);
+			MeshRenderer cubeChild = CreateChild<MeshRenderer>("Cube");
+			cubeChild.SetMesh(Mesh.CreatePrimitive(Mesh.Primitive.Cube));
+			cubeChild.transform.localPosition.y = radiusUpdate / 2f;
+			cubeChild.transform.localScale = new Vector3(radiusUpdate / 10f, radiusUpdate, radiusUpdate / 10f);
 
 			if (count <= 0) { return; }
 
 			CubeWheel cw = CreateChild<CubeWheel>();
-			cw.transformChild.position.y = radiusUpdate;
+			cw.transform.localPosition.y = radiusUpdate;
 			cw.Propagate(count - 1, MathUtil.RandomFloat(radius * 0.4f, radius * 0.7f));
 
 		}

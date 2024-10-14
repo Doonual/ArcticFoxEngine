@@ -16,8 +16,7 @@ namespace ArcticFoxEngine.Demos.RenderingStressTest {
 			CreateChild<CameraController>();
 
 			Node cubeStack = CreateChild<BaseNode>("Cube Stack");
-			cubeStack.CreateChild<Transform>();
-			cubeStack.transformChild.position = new Vector3(0f, 0f, 30f);
+			cubeStack.transform.localPosition = new Vector3(0f, 0f, 30f);
 
 			float maxDim = (numObjectPerDim - 1) * 2f + 1f;
 
@@ -26,8 +25,7 @@ namespace ArcticFoxEngine.Demos.RenderingStressTest {
 				for (int y = 0; y < numObjectPerDim; y++) {
 					for (int z = 0; z < numObjectPerDim; z++) {
 						Node newObj = cubeStack.CreateChild<BaseNode>("Object #" + currentObject);
-						newObj.CreateChild<Transform>();
-						newObj.transformChild.position = new Vector3(x * 2f - maxDim / 2f + 0.5f, y * 2f - maxDim / 2f + 0.5f, z * 2f - maxDim / 2f + 0.5f);
+						newObj.transform.localPosition = new Vector3(x * 2f - maxDim / 2f + 0.5f, y * 2f - maxDim / 2f + 0.5f, z * 2f - maxDim / 2f + 0.5f);
 						newObj.CreateChild<MeshRenderer>().SetMesh(Mesh.CreatePrimitive(Mesh.Primitive.Cube));
 						currentObject++;
 					}

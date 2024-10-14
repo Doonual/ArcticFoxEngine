@@ -18,19 +18,16 @@ namespace ArcticFoxEngine.Demos.SceneTest {
 			name = "Cube Spin";
 
 
-			CreateChild<CameraController>();
-
+			CameraController cameraController = CreateChild<CameraController>();
+			cameraController.CreateChild<Camera>();
 
 			xSpin = new List<Node>();
 			ySpin = new List<Node>();
 			zSpin = new List<Node>();
 
 			Node xRing = CreateChild<BaseNode>("X Ring");
-			xRing.CreateChild<Transform>();
 			Node yRing = CreateChild<BaseNode>("Y Ring");
-			yRing.CreateChild<Transform>();
 			Node zRing = CreateChild<BaseNode>("Z Ring");
-			zRing.CreateChild<Transform>();
 
 			for (int i = 0; i < numPerRing; i++) {
 
@@ -43,9 +40,8 @@ namespace ArcticFoxEngine.Demos.SceneTest {
 
 				}
 
-				Node xObj = xRing.CreateChild<BaseNode>("X" + (i + 1));
-				xObj.CreateChild<Transform>();
-				xObj.CreateChild<MeshRenderer>().SetMesh(cubeMesh);
+				MeshRenderer xObj = xRing.CreateChild<MeshRenderer>("X" + (i + 1));
+				xObj.SetMesh(cubeMesh);
 				xSpin.Add(xObj);
 
 			}
@@ -59,9 +55,8 @@ namespace ArcticFoxEngine.Demos.SceneTest {
 					}
 				}
 
-				Node yObj = yRing.CreateChild<BaseNode>("Y" + (i + 1));
-				yObj.CreateChild<Transform>();
-				yObj.CreateChild<MeshRenderer>().SetMesh(cubeMesh);
+				MeshRenderer yObj = yRing.CreateChild<MeshRenderer>("Y" + (i + 1));
+				yObj.SetMesh(cubeMesh);
 				ySpin.Add(yObj);
 
 			}
@@ -75,9 +70,8 @@ namespace ArcticFoxEngine.Demos.SceneTest {
 					}
 				}
 
-				Node zObj = zRing.CreateChild<BaseNode>("Z" + (i + 1));
-				zObj.CreateChild<Transform>();
-				zObj.CreateChild<MeshRenderer>().SetMesh(cubeMesh);
+				MeshRenderer zObj = zRing.CreateChild<MeshRenderer>("Z" + (i + 1));
+				zObj.SetMesh(cubeMesh);
 				zSpin.Add(zObj);
 
 			}
@@ -101,8 +95,8 @@ namespace ArcticFoxEngine.Demos.SceneTest {
 
 				float proportion = (float)i / xSpin.Count;
 				Node obj = xSpin[i];
-				obj.GetChild<Transform>().rotation = Quaternion.RotationYawPitchRoll(0f, ((proportion + t) % 1) * MathF.PI * 2f, 0f);
-				obj.GetChild<Transform>().position = obj.GetChild<Transform>().Back * ringSize;
+				obj.transform.localRotation = Quaternion.RotationYawPitchRoll(0f, ((proportion + t) % 1) * MathF.PI * 2f, 0f);
+				obj.transform.localPosition = obj.transform.Back * ringSize;
 
 			}
 
@@ -110,8 +104,8 @@ namespace ArcticFoxEngine.Demos.SceneTest {
 
 				float proportion = (float)i / ySpin.Count;
 				Node obj = ySpin[i];
-				obj.GetChild<Transform>().rotation = Quaternion.RotationYawPitchRoll(((proportion + t + (1f / 24f)) % 1) * MathF.PI * 2f, 0f, 0f);
-				obj.GetChild<Transform>().position = obj.GetChild<Transform>().Back * ringSize;
+				obj.transform.localRotation = Quaternion.RotationYawPitchRoll(((proportion + t + (1f / 24f)) % 1) * MathF.PI * 2f, 0f, 0f);
+				obj.transform.localPosition = obj.transform.Back * ringSize;
 
 			}
 
@@ -119,8 +113,8 @@ namespace ArcticFoxEngine.Demos.SceneTest {
 
 				float proportion = (float)i / zSpin.Count;
 				Node obj = zSpin[i];
-				obj.GetChild<Transform>().rotation = Quaternion.RotationYawPitchRoll(0f, 0f, ((proportion + t + (2f / 24f)) % 1) * MathF.PI * 2f);
-				obj.GetChild<Transform>().position = obj.GetChild<Transform>().Up * ringSize;
+				obj.transform.localRotation = Quaternion.RotationYawPitchRoll(0f, 0f, ((proportion + t + (2f / 24f)) % 1) * MathF.PI * 2f);
+				obj.transform.localPosition = obj.transform.Up * ringSize;
 
 			}
 

@@ -1,4 +1,5 @@
 ﻿using ArcticFoxEngine.Rendering;
+using CoolClassLibrary;
 using ImGuiNET;
 using SharpDX;
 using RectangleF = SharpDX.RectangleF;
@@ -11,6 +12,7 @@ namespace ArcticFoxEngine.Nodes {
 
 		internal override string description => "Renders the scene from the camera's point of view";
 		internal override string nodeIconPath => ".res/NodeIcons/Camera.png";
+		internal override string nodeIconPath32 => ".res/NodeIcons/Camera32.png";
 
 		public int renderWidth {
 			get {
@@ -72,7 +74,7 @@ namespace ArcticFoxEngine.Nodes {
 			Enable();
 		}
 
-		private Matrix CalculateProjectionMatrix() {
+		internal Matrix CalculateProjectionMatrix() {
 
 			Matrix projectionMatrix = new Matrix();
 			if (projectionType == ProjectionType.Perspective) {
@@ -82,12 +84,34 @@ namespace ArcticFoxEngine.Nodes {
 				projectionMatrix = Matrix.OrthoLH(zoom * Screen.aspectRatio, zoom, nearPlane, farPlane);
 			}
 
-			Matrix cameraTransform = Transform.CalculateFromNode(this).Invert();
+			Matrix cameraTransform = transform.worldMatrix.Invert();
 			return cameraTransform * projectionMatrix;
 
 		}
 
+		public Vector3 WorldToCamera(Vector3 worldSpacePos) {
 
+			Matrix projectionResult = Matrix.Translation(worldSpacePos) * CalculateProjectionMatrix();
+			Vector3 cameraSpacePos = new Vector3(projectionResult.M41, projectionResult.M42, projectionResult.M43) / projectionResult.M44;
+			return cameraSpacePos;
+
+		}
+		public Vector2 CameraToScreen(Vector3 cameraSpacePos) {
+
+			Vector2 screenSpacePos = new Vector2(cameraSpacePos.x, cameraSpacePos.y);
+			screenSpacePos *= new Vector2(0.9f, -0.5f);
+			screenSpacePos *= new Vector2(Screen.height, Screen.height);
+			screenSpacePos += new Vector2(Screen.width / 2f, Screen.height / 2f);
+			return screenSpacePos;
+
+		}
+		public Vector2 WorldToScreen(Vector3 worldSpacePos) {
+
+			Vector3 cameraSpacePos = WorldToCamera(worldSpacePos);
+			Vector2 screenSpacePos = CameraToScreen(cameraSpacePos);
+			return screenSpacePos;
+
+		}
 
 		public override void Debug() {
 

@@ -1,14 +1,17 @@
 ﻿using ArcticFoxEngine.ImGuiIntegration;
 using ArcticFoxEngine.Nodes;
+using CoolClassLibrary;
 using ImGuiNET;
 using SixLabors.ImageSharp.PixelFormats;
+using System.Windows.Forms;
 
 namespace ArcticFoxEngine.Debug {
 	internal class DebugScene : DebugWindow {
 
 		internal static Node selectedNode = null;
+		internal IntPtr testTexId;
 
-		internal static IntPtr testTexId;
+		Camera sceneCam = null;
 
 		public DebugScene() {
 
@@ -19,15 +22,19 @@ namespace ArcticFoxEngine.Debug {
 		internal override string name => "Scene";
 		internal override void Render() {
 
+			RenderNodeTree();
+			
+		}
+
+		private void RenderNodeTree() {
+
 			ImGui.SeparatorText("Node tree");
 			ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, new Vector2(0f, 0f));
 			ImGui.BeginChild("Node tree view child", new Vector2(-1f, 400f), true);
 			ImGuiTableFlags tableFlags = ImGuiTableFlags.RowBg | ImGuiTableFlags.NoBordersInBody;
 			if (ImGui.BeginTable("Node tree view table", 2, tableFlags) == true) {
-
 				ImGui.TableSetupColumn("Node", ImGuiTableColumnFlags.None, 16f);
 				ImGui.TableSetupColumn("Enabled");
-
 				if (Node.rootNode != null) {
 					ImGui.PushID(Node.rootNode.GetHashCode() + "debug node tree");
 					Node childSelected = Node.rootNode.DebugNodeTree(true);
@@ -36,10 +43,7 @@ namespace ArcticFoxEngine.Debug {
 					}
 					ImGui.PopID();
 				}
-
 				ImGui.EndTable();
-
-
 			}
 
 			ImGui.EndChild();
@@ -56,8 +60,8 @@ namespace ArcticFoxEngine.Debug {
 				ImGui.Text("Select a node to insepct it");
 			}
 
-
-
 		}
+
+		
 	}
 }

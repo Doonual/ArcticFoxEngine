@@ -14,8 +14,6 @@ namespace ArcticFoxEngine.Demos.LightingTest {
 
 			CameraController cameraTransform = CreateChild<CameraController>();
 			cameraTransform.transform.localPosition = new Vector3(0f, 5f, -10f);
-
-			CameraController cameraController = cameraTransform.CreateChild<CameraController>();
 			cameraTransform.CreateChild<Camera>();
 
 

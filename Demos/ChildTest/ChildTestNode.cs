@@ -63,6 +63,11 @@ namespace ArcticFoxEngine.Demos.ChildTest {
 			}
 
 			#endregion
+
+			TreeTester tester = CreateChild<TreeTester>();
+			tester.transform.localPosition = new Vector3(8f / 2f + 3.5f, -0.5f, (8f / 2f) - 2.5f);
+			tester.GenerateTree(8);
+			
 			/*
 			#region Cube Wheel
 

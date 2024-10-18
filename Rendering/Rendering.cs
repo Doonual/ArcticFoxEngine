@@ -57,7 +57,7 @@ namespace ArcticFoxEngine.Rendering {
 			renderPipelines = new List<RenderPipeline>();
 			renderPipelines.Add(new UnlitRenderPipeline());
 			renderPipelines.Add(new LitRenderPipeline());
-			renderPipelines.Add(new MandelbrotRenderPipeline());
+			//renderPipelines.Add(new MandelbrotRenderPipeline());
 
 			
 

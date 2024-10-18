@@ -19,6 +19,7 @@ namespace ArcticFoxEngine.Debug {
 
 		}
 
+
 		internal override string name => "Scene";
 		internal override void Render() {
 

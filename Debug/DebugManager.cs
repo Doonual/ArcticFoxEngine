@@ -36,6 +36,7 @@ namespace ArcticFoxEngine.Debug {
 			overlays = new List<DebugOverlay>() {
 				new DebugNodeGizmos(),
 			};
+			overlays[0].open = true;
 			LoadWindowOptions();
 
 			demoNodes = new List<Type>() {

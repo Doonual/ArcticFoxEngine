@@ -16,6 +16,12 @@ namespace ArcticFoxEngine.Debug {
 		static Camera gizmoCamera = null;
 		static List<(Node, bool)> floatingEditWindows;
 
+		static float circleRadius = 18f;
+		static float fanRadiusStep = 52f;
+
+		static float nodeLinkThickness = 4f;
+		static uint nodeLinkCol = ImGui.ColorConvertFloat4ToU32(new Vector4(0.3f, 0.3f, 0.3f, 0.5f));
+
 		
 
 		internal override void Render() {
@@ -28,7 +34,11 @@ namespace ArcticFoxEngine.Debug {
 			if (gizmoCamera == null) {
 				gizmoCamera = Node.rootNode.SearchNodeTreeDown<Camera>();
 			}
-			DebugGizmosLayout(Node.rootNode, new Vector2(-40f, -40f), 0f, new Vector2(-40f, -40f));
+
+			// Start debug Gizmos layout tree
+			DebugGizmosLayout(Node.rootNode, Vector2.zero, Vector2.zero, 0f, 0, MathF.PI * 2f);
+
+			// Render floating windows
 			for (int i = floatingEditWindows.Count - 1; i >= 0; i --) {
 				if (floatingEditWindows[i].Item2 == true) {
 					floatingEditWindows[i] = (floatingEditWindows[i].Item1, false);
@@ -58,55 +68,45 @@ namespace ArcticFoxEngine.Debug {
 			floatingEditWindows.Add((node, true));
 		}
 
-		internal static void DebugGizmosLayout(Node node, Vector2 drawPos, float drawAngle, Vector2 prevScreenPos) {
+		internal static void DebugGizmosLayout(Node node, Vector2 prevDrawPos, Vector2 fanCentre, float fanAngle, int fanDepth, float fanRange) {
 
+			float fanRadius = fanDepth * fanRadiusStep;
+			Vector2 drawPos = fanCentre + Vector2.Angle(fanAngle, fanRadius);
 
-			bool fullFan = false;
-			if (node.GetType() == typeof(Transform) || true) {
+			if (node.transform.localPosition.SqrLength() > 0.01f) {
 
 				Vector3 cameraSpacePos = gizmoCamera.WorldToCamera(node.transform.worldPosition);
 				if (cameraSpacePos.z < 0.01f || cameraSpacePos.z > 1f) {
 					return;
 				}
 				drawPos = gizmoCamera.CameraToScreen(cameraSpacePos);
-				fullFan = true;
+				fanCentre = drawPos;
+				fanRange = MathF.PI * 2f;
+				fanDepth = 0;
 
 			}
 			else {
-				uint col = ImGui.ColorConvertFloat4ToU32(new Vector4(0.3f, 0.3f, 0.3f, 0.5f));
-				Vector2 perpandicular = prevScreenPos - drawPos;
-				perpandicular = new Vector2(perpandicular.y, -perpandicular.x);
-				perpandicular = perpandicular.SetLength(18f);
-				ImGui.GetBackgroundDrawList().AddLine(drawPos + perpandicular, prevScreenPos + perpandicular, col);
-				ImGui.GetBackgroundDrawList().AddLine(drawPos - perpandicular, prevScreenPos - perpandicular, col);
+
+				// If this node is fanning off it's parent node.
+
+				Vector2 lineDirection = (drawPos - prevDrawPos).SetLength(1f);
+
+				ImGui.GetBackgroundDrawList().AddLine(drawPos - lineDirection * (circleRadius + 5f), prevDrawPos + lineDirection * (circleRadius + 5f), nodeLinkCol, nodeLinkThickness);
+
 			}
 
 			
 
-			float angleStart = drawAngle - MathF.PI / 2f;
-			float angleEnd = drawAngle + MathF.PI / 2f;
-
-			if (fullFan == true) {
-				angleStart = MathF.PI / 2f;
-				angleEnd = -MathF.PI * 3f / 2f;
-			}
+			float angleStart = -fanRange / 2f;
+			float angleEnd = +fanRange / 2f;
 
 			for (int i = 0; i < node.GetChildCount(); i++) {
 
 				
-				float angle = MathUtil.Map(i, 0, node.GetChildCount(), angleStart, angleEnd);
-				Vector2 childOffset = Vector2.Angle(angle, 36f);
-
-				
-				
-				Vector2 childPos = drawPos + childOffset;
-				
-
-				
-
+				float angle = MathUtil.Map(i + 0.5f, 0, node.GetChildCount(), angleStart, angleEnd) + fanAngle;
 
 				ImGui.PushID(node.GetChild(i).GetHashCode() + " gizmo rendering");
-				DebugGizmosLayout(node.GetChild(i), drawPos + childOffset, angle, drawPos);
+				DebugGizmosLayout(node.GetChild(i), drawPos, fanCentre, angle, fanDepth + 1, fanRange / Math.Max(2, node.GetChildCount()));
 				ImGui.PopID();
 
 			}
@@ -152,7 +152,7 @@ namespace ArcticFoxEngine.Debug {
 				ImGui.EndPopup();
 			}
 
-			bgDrawList.AddCircle(screenPos, circleRadius, ImGui.ColorConvertFloat4ToU32(circleCol));
+			bgDrawList.AddCircle(screenPos, circleRadius, ImGui.ColorConvertFloat4ToU32(circleCol), 16, 8f);
 			bgDrawList.AddImage(node.nodeIconId32, screenPos - Vector2.one * 16f, screenPos + Vector2.one * 16f);
 
 			ImGui.End();

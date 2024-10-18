@@ -15,7 +15,7 @@ namespace ArcticFoxEngine.Nodes {
 		public string name = "";
 		internal virtual string description => "";
 		internal virtual string nodeIconPath => ".res/NodeIcons/EmptyNode.png";
-		internal virtual string nodeIconPath32 => "";
+		internal virtual string nodeIconPath32 => ".res/NodeIcons/EmptyNode32.png";
 		internal IntPtr nodeIconId;
 		internal IntPtr nodeIconId32;
 
@@ -50,6 +50,11 @@ namespace ArcticFoxEngine.Nodes {
 
 
 		public static void SetRootNode(Node rootNode) {
+			
+			if (Node.rootNode != null) {
+				Node.rootNode.DisposeEvent();
+			}
+
 			Node.rootNode = rootNode;
 			rootNode.globalEnabled = true;
 		}
@@ -636,11 +641,21 @@ namespace ArcticFoxEngine.Nodes {
 			if (ImGui.MenuItem("Edit") == true) {
 				DebugNodeGizmos.OpenFloatingNodeEdit(this);
 			}
-			ImGui.MenuItem("Reveal in node tree");
+			if (ImGui.MenuItem("Reveal in node tree") == true) {
+				DebugScene.selectedNode = this;
+				nodeOpen = true;
+
+				Node parentChain = parentNode;
+				while (parentChain != null) {
+					parentChain.nodeOpen = true;
+					parentChain = parentChain.parentNode;
+				}
+
+			}
 
 		}
 
-		bool nodeOpen = false;
+		internal bool nodeOpen = false;
 		
 	}
 }

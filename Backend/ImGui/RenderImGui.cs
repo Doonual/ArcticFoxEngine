@@ -74,7 +74,7 @@ namespace ArcticFoxEngine.ImGuiIntegration {
 		private static ImDrawDataPtr? UpdateImGuiDrawList() {
 
 			ImGuiInput.Update();
-			Update(Profiler.deltaTime, DebugManager.Render);
+			Update(Profiler.deltaTime, GuiManager.Render);
 
 			ImDrawDataPtr data = ImGui.GetDrawData();
 			// Avoid rendering when minimized
@@ -246,7 +246,7 @@ namespace ArcticFoxEngine.ImGuiIntegration {
 		internal static IntPtr CreateImageTexture(Image<Rgba32> image, SharpDX.DXGI.Format format) {
 
 			Texture texture = new Texture(image.Width, image.Height);
-			texture.AddToDescriptorHeap(descriptorHeap, descriptorHeapIndex);
+			
 
 			if (!image.DangerousTryGetSinglePixelMemory(out Memory<Rgba32> memory)) {
 				throw new Exception("Make sure to initialize MemoryAllocator.Default!");
@@ -337,14 +337,15 @@ namespace ArcticFoxEngine.ImGuiIntegration {
 
 		}
 
-		static IntPtr RegisterTexture(Texture texture) {
+		public static IntPtr RegisterTexture(Texture texture) {
 			IntPtr imguiID = texture.GetNativePointer();
+			texture.AddToDescriptorHeap(descriptorHeap, descriptorHeapIndex);
 			textureResources.TryAdd(imguiID, (texture, descriptorHeapIndex));
 			descriptorHeapIndex++;
 			return imguiID;
 		}
 
-		static Texture? DeRegisterTexture(IntPtr texturePtr) {
+		public static Texture? DeRegisterTexture(IntPtr texturePtr) {
 			if (textureResources.Remove(texturePtr, out var texture)) {
 				return texture.Item1;
 			}

@@ -14,8 +14,8 @@ namespace ArcticFoxEngine {
 
 		internal DescriptorHeap descriptorHeap;
 		Resource texture;
-		int width;
-		int height;
+		public int width;
+		public int height;
 
 
 		/// <summary>
@@ -23,12 +23,12 @@ namespace ArcticFoxEngine {
 		/// </summary>
 		/// <param name="width">Width of the texture</param>
 		/// <param name="height">Height of the texture</param>
-		public Texture(int width, int height, bool allowUnorderedAccess = false) {
+		public Texture(int width, int height, bool allowUnorderedAccess = false, Format format = Format.R8G8B8A8_UNorm) {
 			disposed = false;
 
 			this.width = width;
 			this.height = height;
-			ResourceDescription textureDesc = ResourceDescription.Texture2D(Format.R8G8B8A8_UNorm, width, height);
+			ResourceDescription textureDesc = ResourceDescription.Texture2D(format, width, height);
 
 			textureDesc.Flags |= allowUnorderedAccess ? ResourceFlags.AllowUnorderedAccess : ResourceFlags.None;
 

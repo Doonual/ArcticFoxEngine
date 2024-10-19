@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 
 namespace ArcticFoxEngine.Debug {
-	internal class DebugNodeGizmos : DebugOverlay {
+	internal class NodeGizmosOverlay : GuiOverlay {
 
 		internal override string name => "Gizmos";
 
@@ -21,8 +21,11 @@ namespace ArcticFoxEngine.Debug {
 
 		static float nodeLinkThickness = 4f;
 		static uint nodeLinkCol = ImGui.ColorConvertFloat4ToU32(new Vector4(0.3f, 0.3f, 0.3f, 0.5f));
-
 		
+		static uint circleNormalCol = ImGui.ColorConvertFloat4ToU32(new Vector4(0.3f, 0.3f, 0.3f, 0.5f));
+		static uint circleHoverCol = ImGui.ColorConvertFloat4ToU32(new Vector4(0.3f, 0.3f, 0.3f, 0.7f));
+		static uint circlePressedCol = ImGui.ColorConvertFloat4ToU32(new Vector4(0.3f, 0.3f, 0.3f, 0.9f));
+
 
 		internal override void Render() {
 
@@ -36,7 +39,7 @@ namespace ArcticFoxEngine.Debug {
 			}
 
 			// Start debug Gizmos layout tree
-			DebugGizmosLayout(Node.rootNode, Vector2.zero, Vector2.zero, 0f, 0, MathF.PI * 2f);
+			DebugGizmosLayout(Node.rootNode, Vector2.zero, Vector2.zero, 0f, 0, MathF.PI * 2f, true);
 
 			// Render floating windows
 			for (int i = floatingEditWindows.Count - 1; i >= 0; i --) {
@@ -68,16 +71,21 @@ namespace ArcticFoxEngine.Debug {
 			floatingEditWindows.Add((node, true));
 		}
 
-		internal static void DebugGizmosLayout(Node node, Vector2 prevDrawPos, Vector2 fanCentre, float fanAngle, int fanDepth, float fanRange) {
+		internal static void DebugGizmosLayout(Node node, Vector2 prevDrawPos, Vector2 fanCentre, float fanAngle, int fanDepth, float fanRange, bool gizmoInView) {
 
 			float fanRadius = fanDepth * fanRadiusStep;
 			Vector2 drawPos = fanCentre + Vector2.Angle(fanAngle, fanRadius);
 
-			if (node.transform.localPosition.SqrLength() > 0.01f) {
+			// If the node has a position, use its position for drawing the gizmo.
+			// Unless it's parent is the root node, use the origin for drawing the gizmo
+			if (node.transform.localPosition.SqrLength() > 0.01f || (node.parentNode != null && node.parentNode == Node.rootNode)) {
 
 				Vector3 cameraSpacePos = gizmoCamera.WorldToCamera(node.transform.worldPosition);
 				if (cameraSpacePos.z < 0.01f || cameraSpacePos.z > 1f) {
-					return;
+					gizmoInView = false;
+				}
+				else {
+					gizmoInView = true;
 				}
 				drawPos = gizmoCamera.CameraToScreen(cameraSpacePos);
 				fanCentre = drawPos;
@@ -89,9 +97,11 @@ namespace ArcticFoxEngine.Debug {
 
 				// If this node is fanning off it's parent node.
 
-				Vector2 lineDirection = (drawPos - prevDrawPos).SetLength(1f);
-
-				ImGui.GetBackgroundDrawList().AddLine(drawPos - lineDirection * (circleRadius + 5f), prevDrawPos + lineDirection * (circleRadius + 5f), nodeLinkCol, nodeLinkThickness);
+				if (gizmoInView == true) {
+					Vector2 lineDirection = (drawPos - prevDrawPos).SetLength(1f);
+					ImGui.GetBackgroundDrawList().AddLine(drawPos - lineDirection * (circleRadius), prevDrawPos + lineDirection * (circleRadius), nodeLinkCol, nodeLinkThickness);
+				}
+				
 
 			}
 
@@ -106,12 +116,15 @@ namespace ArcticFoxEngine.Debug {
 				float angle = MathUtil.Map(i + 0.5f, 0, node.GetChildCount(), angleStart, angleEnd) + fanAngle;
 
 				ImGui.PushID(node.GetChild(i).GetHashCode() + " gizmo rendering");
-				DebugGizmosLayout(node.GetChild(i), drawPos, fanCentre, angle, fanDepth + 1, fanRange / Math.Max(2, node.GetChildCount()));
+				DebugGizmosLayout(node.GetChild(i), drawPos, fanCentre, angle, fanDepth + 1, fanRange / Math.Max(2, node.GetChildCount()), gizmoInView);
 				ImGui.PopID();
 
 			}
 
-			DrawGizmoIcon(node, drawPos);
+			if (node != Node.rootNode && gizmoInView == true) {
+				DrawGizmoIcon(node, drawPos);
+			}
+			
 
 		}
 
@@ -129,11 +142,12 @@ namespace ArcticFoxEngine.Debug {
 
 
 			ImDrawListPtr bgDrawList = ImGui.GetBackgroundDrawList();
-			Vector4 circleCol = new Vector4(0.3f, 0.3f, 0.3f, 0.5f);
+			uint circleCol = circleNormalCol;
+
 			if (((Vector2)ImGui.GetMousePos() - screenPos).GetLength() <= circleRadius) {
-				circleCol = new Vector4(0.3f, 0.3f, 0.3f, 0.7f);
+				circleCol = circleHoverCol;
 				if (ImGui.IsMouseDown(ImGuiMouseButton.Left) == true || ImGui.IsMouseDown(ImGuiMouseButton.Left) == true) {
-					circleCol = new Vector4(0.3f, 0.3f, 0.3f, 0.9f);
+					circleCol = circlePressedCol;
 				}
 				if (ImGui.IsMouseReleased(ImGuiMouseButton.Left) == true) {
 					OpenFloatingNodeEdit(node);
@@ -152,7 +166,7 @@ namespace ArcticFoxEngine.Debug {
 				ImGui.EndPopup();
 			}
 
-			bgDrawList.AddCircle(screenPos, circleRadius, ImGui.ColorConvertFloat4ToU32(circleCol), 16, 8f);
+			bgDrawList.AddCircleFilled(screenPos, circleRadius, circleCol);
 			bgDrawList.AddImage(node.nodeIconId32, screenPos - Vector2.one * 16f, screenPos + Vector2.one * 16f);
 
 			ImGui.End();

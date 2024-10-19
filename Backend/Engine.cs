@@ -65,7 +65,7 @@ namespace ArcticFoxEngine {
 			Screen.InitScreen(form);
 			InputManager.InitInput();
 
-			DebugManager.Init(form);
+			GuiManager.Init(form);
 			Log.Success("Engine initialisation complete");
 
 			Log.Raw("");
@@ -107,11 +107,11 @@ namespace ArcticFoxEngine {
 					Profiler.MetricEnd();
 
 
-					if (toggleDebugButton.GetButtonDown() == true) { DebugManager.ToggleGUI(); }
+					if (toggleDebugButton.GetButtonDown() == true) { GuiManager.ToggleGUI(); }
 
 					Profiler.FrameEnd();
 
-					DebugManager.UpdateImGui();
+					GuiManager.UpdateImGui();
 					if (exitButton.GetButton() == true) {
 						Stop();
 						break;
@@ -127,7 +127,7 @@ namespace ArcticFoxEngine {
 			Graphics.Dispose();
 			Rendering.Rendering.Dispose();
 
-			DebugManager.CloseGUI();
+			GuiManager.CloseGUI();
 
 		}
 
@@ -141,7 +141,7 @@ namespace ArcticFoxEngine {
 			loop.Dispose();
 			loop = null;
 			CommandController.Stop();
-			DebugManager.Dispose();
+			GuiManager.Dispose();
 		}
 
 	}

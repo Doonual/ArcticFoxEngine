@@ -4,7 +4,7 @@ using CoolClassLibrary;
 using ImGuiNET;
 
 namespace ArcticFoxEngine.Debug {
-	internal class DebugMeshBuffers : DebugWindow {
+	internal class DebugMeshBuffers : GuiWindow {
 
 		int maxEntries = 64;
 		int cubeCount = 0;
@@ -12,8 +12,8 @@ namespace ArcticFoxEngine.Debug {
 
 		float colorStride = 0.781f;
 
-		internal override string name => "Mesh Buffer Viewer";
-		internal override void Render() {
+		public override string name => "Mesh Buffer Viewer";
+		public override void Render() {
 
 
 			GeometryInfo geometry = Rendering.Rendering.rpUnlit.geometryResources;

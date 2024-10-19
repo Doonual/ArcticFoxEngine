@@ -2,16 +2,16 @@
 using ImGuiNET;
 
 namespace ArcticFoxEngine.Debug {
-	internal class DebugLog : DebugWindow {
+	internal class LogWindow : GuiWindow {
 
 		private List<string> messages;
 		private string cmdInput;
 		private bool scrollToBottom;
 		private bool pauseOutput;
 
-		internal override string name => "Log";
+		public override string name => "Log";
 
-		internal DebugLog() {
+		internal LogWindow() {
 			messages = new List<string>();
 			messages.Add("");
 			cmdInput = "";
@@ -110,7 +110,7 @@ namespace ArcticFoxEngine.Debug {
 
 		}
 
-		internal override void Render() {
+		public override void Render() {
 
 			if (ImGui.Button("Clear") == true) {
 				messages.Clear();

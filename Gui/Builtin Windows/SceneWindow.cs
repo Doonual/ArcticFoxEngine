@@ -6,22 +6,19 @@ using SixLabors.ImageSharp.PixelFormats;
 using System.Windows.Forms;
 
 namespace ArcticFoxEngine.Debug {
-	internal class DebugScene : DebugWindow {
+	internal class SceneWindow : GuiWindow {
 
 		internal static Node selectedNode = null;
 		internal IntPtr testTexId;
 
-		Camera sceneCam = null;
-
-		public DebugScene() {
+		public SceneWindow() {
 
 			testTexId = RenderImGui.CreateImageTexture(SixLabors.ImageSharp.Image.Load<Rgba32>(".res/Textures/tiger.png"), SharpDX.DXGI.Format.R8G8B8A8_UNorm);
 
 		}
 
-
-		internal override string name => "Scene";
-		internal override void Render() {
+		public override string name => "Scene";
+		public override void Render() {
 
 			RenderNodeTree();
 			

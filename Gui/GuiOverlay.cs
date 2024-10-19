@@ -1,7 +1,5 @@
-﻿
-namespace ArcticFoxEngine.Debug {
-
-	internal abstract class DebugWindow {
+﻿namespace ArcticFoxEngine.Debug {
+	internal abstract class GuiOverlay {
 
 		internal abstract string name { get; }
 		internal bool open = false;

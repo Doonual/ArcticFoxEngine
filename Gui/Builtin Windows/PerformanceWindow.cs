@@ -2,7 +2,7 @@
 using ImGuiNET;
 
 namespace ArcticFoxEngine.Debug {
-	internal class DebugPerformance : DebugWindow {
+	internal class PerformanceWindow : GuiWindow {
 
 		internal class Metric {
 
@@ -284,9 +284,9 @@ namespace ArcticFoxEngine.Debug {
 
 		int viewSample = 1999;
 
-		internal override string name => "Performance";
+		public override string name => "Performance";
 
-		internal DebugPerformance() {
+		internal PerformanceWindow() {
 
 			numElements = 2000;
 			metric = new Metric("Frame time");
@@ -350,7 +350,7 @@ namespace ArcticFoxEngine.Debug {
 			currentMetric = currentMetric.parentMetric;
 		}
 
-		internal override void Render() {
+		public override void Render() {
 
 			autoAdjustPlotMaxMs = false;
 

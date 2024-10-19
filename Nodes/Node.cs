@@ -403,7 +403,6 @@ namespace ArcticFoxEngine.Nodes {
 
 		}
 
-		bool inspectorNodeOpen = false;
 		bool prevCallingFromRoot = false;
 		
 		
@@ -438,8 +437,6 @@ namespace ArcticFoxEngine.Nodes {
 
 
 			// Default node open states
-			if (callingFromRoot == true && prevCallingFromRoot == false) { inspectorNodeOpen = true; }
-			if (callingFromRoot == false && prevCallingFromRoot == true) { inspectorNodeOpen = false; }
 			prevCallingFromRoot = callingFromRoot;
 
 
@@ -543,7 +540,7 @@ namespace ArcticFoxEngine.Nodes {
 
 			// Cover button
 			bool nodeSelectedColourChange = false;
-			if (DebugScene.selectedNode == this) {
+			if (SceneWindow.selectedNode == this) {
 				nodeSelectedColourChange = true;
 				ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(66f / 255f, 150f / 255f, 250f / 255, 102f / 255f));
 				ImGui.PushStyleColor(ImGuiCol.ButtonActive, new Vector4(66f / 255f, 150f / 255f, 250f / 255, 102f / 255f));
@@ -639,11 +636,12 @@ namespace ArcticFoxEngine.Nodes {
 		public virtual void DebugContextMenu() {
 ;
 			if (ImGui.MenuItem("Edit") == true) {
-				DebugNodeGizmos.OpenFloatingNodeEdit(this);
+				NodeGizmosOverlay.OpenFloatingNodeEdit(this);
 			}
 			if (ImGui.MenuItem("Reveal in node tree") == true) {
-				DebugScene.selectedNode = this;
+				SceneWindow.selectedNode = this;
 				nodeOpen = true;
+
 
 				Node parentChain = parentNode;
 				while (parentChain != null) {

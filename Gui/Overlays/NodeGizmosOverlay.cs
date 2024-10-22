@@ -51,6 +51,11 @@ namespace ArcticFoxEngine.Debug {
 
 				bool windowOpen = true;
 				ImGui.Begin(floatingEditWindows[i].Item1.name + " edit ##" + floatingEditWindows[i].Item1.GetHashCode(), ref windowOpen, ImGuiWindowFlags.None);
+				if (ImGui.TreeNode("Transform") == true) {
+					floatingEditWindows[i].Item1.transform.Debug();
+					ImGui.TreePop();
+				}
+				
 				floatingEditWindows[i].Item1.Debug();
 				ImGui.End();
 

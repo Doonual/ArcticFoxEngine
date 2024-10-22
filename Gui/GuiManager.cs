@@ -55,8 +55,6 @@ namespace ArcticFoxEngine.Debug {
 			overlays = new List<GuiOverlay>() {
 				new NodeGizmosOverlay(),
 			};
-			overlays[0].open = true;
-			LoadWindowOptions();
 
 			demoNodes = new List<Type>() {
 				typeof(CubeSpin),
@@ -68,7 +66,6 @@ namespace ArcticFoxEngine.Debug {
 
 			Log.ListenToLog(GetDebugWindow<LogWindow>().LogEvent);
 			Log.ListenToLogColor(GetDebugWindow<LogWindow>().LogColorEvent);
-			LoadWindowOptions();
 
 		}
 
@@ -112,7 +109,13 @@ namespace ArcticFoxEngine.Debug {
 
 		}
 
+		private static bool firstOpen = true;
 		internal static void Render() {
+
+			if (firstOpen == true) {
+				LoadWindowOptions();
+				firstOpen = false;
+			}
 
 			if (ImGui.BeginMainMenuBar() == true) {
 
@@ -231,31 +234,66 @@ namespace ArcticFoxEngine.Debug {
 
 		private static void SaveWindowOptions() {
 
-			byte saveValue = 0;
-			for (int i = 0; i < builtinWindows.Count; i++) {
-				saveValue <<= 1;
-				saveValue += (byte)(builtinWindows[i].open == true ? 1 : 0);
-			}
+			JObject windowJson = new JObject();
+			JArray windowOptions = new JArray();
 
-			File.WriteAllBytes("debugconfig", new byte[] { saveValue });
+			for (int i = 0; i < imguiWindows.Count; i ++) {
+				JObject currentWindowOption = new JObject();
+				currentWindowOption.Put("array", 0);
+				currentWindowOption.Put("index", i);
+				currentWindowOption.Put("open", imguiWindows[i].open);
+				windowOptions.Add(currentWindowOption);
+			}
+			for (int i = 0; i < builtinWindows.Count; i++) {
+				JObject currentWindowOption = new JObject();
+				currentWindowOption.Put("array", 1);
+				currentWindowOption.Put("index", i);
+				currentWindowOption.Put("open", builtinWindows[i].open);
+				windowOptions.Add(currentWindowOption);
+			}
+			for (int i = 0; i < userWindows.Count; i++) {
+				JObject currentWindowOption = new JObject();
+				currentWindowOption.Put("array", 2);
+				currentWindowOption.Put("index", i);
+				currentWindowOption.Put("open", userWindows[i].open);
+				windowOptions.Add(currentWindowOption);
+			}
+			windowJson.Put("windows", windowOptions);
+
+			File.WriteAllText("windowconfig.json", windowJson.ToString());
 			ImGui.SaveIniSettingsToDisk("imgui.ini");
 
 		}
 		private static void LoadWindowOptions() {
 
-			if (File.Exists("debugconfig") == false) {
+			if (File.Exists("windowconfig.json") == false) {
 				return;
 			}
-			byte saveValue = File.ReadAllBytes("debugconfig")[0];
-			for (int i = builtinWindows.Count - 1; i >= 0; i--) {
-				if ((saveValue & 1) == 1) {
-					builtinWindows[i].open = true;
+			JObject windowJson = new JObject(File.ReadAllText("windowconfig.json"));
+			JArray windowOptions = windowJson.GrabArray("windows");
+
+			for (int i = 0; i < windowOptions.Count; i ++) {
+
+				JObject currentWindowOption = windowOptions[i];
+				int array = int.Parse(currentWindowOption.Grab("array"));
+				int index = int.Parse(currentWindowOption.Grab("index"));
+				bool open = currentWindowOption.Grab("open") == "True";
+
+				if (array == 0) {
+					imguiWindows[index].open = open;
 				}
-				else {
-					builtinWindows[i].open = false;
+				if (array == 1) {
+					builtinWindows[index].open = open;
 				}
-				saveValue >>= 1;
+				if (array == 2) {
+					userWindows[index].open = open;
+				}
+
 			}
+
+			
+
+
 			ImGui.LoadIniSettingsFromDisk("imgui.ini");
 
 		}

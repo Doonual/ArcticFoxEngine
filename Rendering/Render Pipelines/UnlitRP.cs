@@ -31,17 +31,28 @@ namespace ArcticFoxEngine.Rendering {
 
 	public class UnlitMaterial : Material {
 
-		int textureId = 1;
+		public Texture mainTex;
+		
 
 		public override void BindResources(RenderPipeline renderPipeline) {
 
-			renderPipeline.SetTextureSlot("Main tex", Rendering.textures[textureId]);
+			if (mainTex == null) {
+				renderPipeline.SetTextureSlot("Main tex", Rendering.textures[0]);
+			}
+			else {
+				renderPipeline.SetTextureSlot("Main tex", mainTex);
+			}
+			
 
 		}
 
+		int setTextureId = 0;
 		public override void Debug() {
 
-			ImGui.InputInt("Texture ID", ref textureId);
+
+			if (ImGui.InputInt("Texture ID", ref setTextureId) == true) {
+				mainTex = Rendering.textures[setTextureId];
+			}
 
 		}
 

@@ -16,10 +16,6 @@ namespace ArcticFoxEngine {
 
 		static long uploadBytes;
 
-		static int texUploadWidth;
-		static int texUploadHeight;
-		static Format texUploadFormat;
-
 		static CommandQueue uploadCommandQueue;
 		static CommandAllocator commandAllocator;
 		static GraphicsCommandList commandList;
@@ -97,22 +93,22 @@ namespace ArcticFoxEngine {
 		}
 
 		/// <summary>
-		/// Prepares the temporary texture for uploading
+		/// Uploads data to a Texture2D resource
 		/// </summary>
-		/// <param name="numBytes">The number of bytes to be uploaded</param>
-		/// <returns>A pointer to the start of the temporary texture. Use this to fill the temporary texture with data</returns>
+		/// <param name="dstTexture">The Texture2D resource to upload to</param>
+		/// <param name="width">The width of the destination texture</param>
+		/// <param name="height">The height of the destination texture</param>
+		/// <param name="format">The pixel format of the destination texture</param>
+		/// <param name="textureData">The data to upload to the texture</param>
 		internal static void Texture2DUpload(Resource dstTexture, int width, int height, Format format, byte[] textureData) {
 			if (uploadResource != null) { Log.Error("Cannot begin upload, upload not ready"); }
 
 			commandAllocator.Reset();
 			commandList.Reset(commandAllocator, null);
 
+			// Create a temporary Texture2D resource to fill with data, and then copy in to the dstTexture
 			uploadResource = Graphics.device.CreateCommittedResource(new HeapProperties(CpuPageProperty.WriteBack, MemoryPool.L0), HeapFlags.None, ResourceDescription.Texture2D(format, width, height), ResourceStates.GenericRead);
 			int texturePixelSize = format.SizeOfInBytes();
-
-			texUploadWidth = width;
-			texUploadHeight = height;
-			texUploadFormat = format;
 
 
 			GCHandle handle = GCHandle.Alloc(textureData, GCHandleType.Pinned);
@@ -121,6 +117,43 @@ namespace ArcticFoxEngine {
 			handle.Free();
 
 			commandList.CopyTextureRegion(new TextureCopyLocation(dstTexture, 0), 0, 0, 0, new TextureCopyLocation(uploadResource, 0), null);
+
+			commandList.Close();
+
+
+			uploadCommandQueue.ExecuteCommandList(commandList);
+			fenceValue++;
+			uploadCommandQueue.Signal(uploadFence, fenceValue);
+
+			WaitForCmdList();
+
+		}
+
+		/// <summary>
+		/// Uploads single pixel data to a Texture2D resource
+		/// </summary>
+		/// <param name="dstTexture">The Texture2D resource to upload to</param>
+		/// <param name="x">The X-coordinate to upload the pixel data into</param>
+		/// <param name="y">The Y-coordinate to upload the pixel data into</param>
+		/// <param name="format">The pixel format of the destination texture</param>
+		/// <param name="textureData">The data to upload the texture</param>
+		internal static void Texture2DPixelUpload(Resource dstTexture, int x, int y, Format format, byte[] textureData) {
+			if (uploadResource != null) { Log.Error("Cannot begin upload, upload not ready"); }
+
+			commandAllocator.Reset();
+			commandList.Reset(commandAllocator, null);
+
+			// Create a temporary Texture2D resource to fill with data, and then copy in to the dstTexture
+			uploadResource = Graphics.device.CreateCommittedResource(new HeapProperties(CpuPageProperty.WriteBack, MemoryPool.L0), HeapFlags.None, ResourceDescription.Texture2D(format, 1, 1), ResourceStates.GenericRead);
+			int texturePixelSize = format.SizeOfInBytes();
+
+
+			GCHandle handle = GCHandle.Alloc(textureData, GCHandleType.Pinned);
+			IntPtr ptr = Marshal.UnsafeAddrOfPinnedArrayElement(textureData, 0);
+			uploadResource.WriteToSubresource(0, null, ptr, texturePixelSize * 1, textureData.Length);
+			handle.Free();
+
+			commandList.CopyTextureRegion(new TextureCopyLocation(dstTexture, 0), x, y, 0, new TextureCopyLocation(uploadResource, 0), null);
 
 			commandList.Close();
 

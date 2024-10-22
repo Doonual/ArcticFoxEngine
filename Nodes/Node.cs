@@ -341,10 +341,16 @@ namespace ArcticFoxEngine.Nodes {
 		}
 
 		// Events
+		/// <summary>
+		/// Disables the node
+		/// </summary>
 		public void Disable() {
 			enabled = false;
 			CheckEnableEvents();
 		}
+		/// <summary>
+		/// Enables the node
+		/// </summary>
 		public void Enable() {
 			enabled = true;
 			CheckEnableEvents();

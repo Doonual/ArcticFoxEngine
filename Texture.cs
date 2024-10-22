@@ -2,8 +2,7 @@
 
 
 namespace ArcticFoxEngine {
-
-
+	using CoolClassLibrary;
 	using SharpDX.Direct3D12;
 	using SixLabors.ImageSharp;
 	using SixLabors.ImageSharp.PixelFormats;
@@ -14,6 +13,7 @@ namespace ArcticFoxEngine {
 
 		internal DescriptorHeap descriptorHeap;
 		Resource texture;
+		Format format;
 		public int width;
 		public int height;
 
@@ -28,6 +28,7 @@ namespace ArcticFoxEngine {
 
 			this.width = width;
 			this.height = height;
+			this.format = format;
 			ResourceDescription textureDesc = ResourceDescription.Texture2D(format, width, height);
 
 			textureDesc.Flags |= allowUnorderedAccess ? ResourceFlags.AllowUnorderedAccess : ResourceFlags.None;
@@ -55,6 +56,7 @@ namespace ArcticFoxEngine {
 
 			width = image.Width;
 			height = image.Height;
+			format = Format.R8G8B8A8_UNorm;
 			ResourceDescription textureDesc = ResourceDescription.Texture2D(Format.R8G8B8A8_UNorm, width, height);
 			texture = Graphics.device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.None, textureDesc, ResourceStates.CopyDestination);
 
@@ -104,8 +106,18 @@ namespace ArcticFoxEngine {
 		/// </summary>
 		/// <param name="data">The data to be uploaded</param>
 		public void SetData(byte[] data) {
-			Upload.Texture2DUpload(texture, width, height, Format.R8G8B8A8_UNorm, data);
+			Upload.Texture2DUpload(texture, width, height, format, data);
 		}
+
+		public void SetPixel(byte[] data, int x, int y) {
+			if (x < 0 || y < 0 || x >= width || y >= height) {
+				Log.Warn("Trying to set pixel outside of the texture, ignoring");
+				return;
+			}
+			Upload.Texture2DPixelUpload(texture, x, y, format, data);
+		}
+
+
 
 		/// <summary>
 		/// Gets the native pointer of the texture
@@ -114,7 +126,6 @@ namespace ArcticFoxEngine {
 		internal IntPtr GetNativePointer() {
 			return texture.NativePointer;
 		}
-
 
 		internal static int ComponentMapping(int src0, int src1, int src2, int src3) {
 

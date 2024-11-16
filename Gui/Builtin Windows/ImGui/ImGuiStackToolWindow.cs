@@ -6,6 +6,8 @@ namespace ArcticFoxEngine.Gui.Builtin_Windows {
 
 		public override string name => "Stack Tool";
 
+		public ImGuiStackToolWindow(params string[] menuGroups) : base(menuGroups) { }
+
 		public override void Render() {
 			ImGui.ShowStackToolWindow(ref open);
 		}

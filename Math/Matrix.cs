@@ -54,7 +54,6 @@ using System;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-//using global::Mathematics.Interop;
 using SharpDX;
 using Newtonsoft.Json.Linq;
 
@@ -77,87 +76,87 @@ namespace ArcticFoxEngine {
 		/// <summary>
 		/// The identity <see cref="Matrix"/>.
 		/// </summary>
-		public static readonly Matrix Identity = new Matrix() { M11 = 1.0f, M22 = 1.0f, M33 = 1.0f, M44 = 1.0f };
+		public static readonly Matrix Identity = new Matrix() { M00 = 1.0f, M11 = 1.0f, M22 = 1.0f, M33 = 1.0f };
 
 		/// <summary>
 		/// Value at row 1 column 1 of the matrix.
 		/// </summary>
-		public float M11;
+		public float M00;
 
 		/// <summary>
 		/// Value at row 1 column 2 of the matrix.
 		/// </summary>
-		public float M12;
+		public float M01;
 
 		/// <summary>
 		/// Value at row 1 column 3 of the matrix.
 		/// </summary>
-		public float M13;
+		public float M02;
 
 		/// <summary>
 		/// Value at row 1 column 4 of the matrix.
 		/// </summary>
-		public float M14;
+		public float M03;
 
 		/// <summary>
 		/// Value at row 2 column 1 of the matrix.
 		/// </summary>
-		public float M21;
+		public float M10;
 
 		/// <summary>
 		/// Value at row 2 column 2 of the matrix.
 		/// </summary>
-		public float M22;
+		public float M11;
 
 		/// <summary>
 		/// Value at row 2 column 3 of the matrix.
 		/// </summary>
-		public float M23;
+		public float M12;
 
 		/// <summary>
 		/// Value at row 2 column 4 of the matrix.
 		/// </summary>
-		public float M24;
+		public float M13;
 
 		/// <summary>
 		/// Value at row 3 column 1 of the matrix.
 		/// </summary>
-		public float M31;
+		public float M20;
 
 		/// <summary>
 		/// Value at row 3 column 2 of the matrix.
 		/// </summary>
-		public float M32;
+		public float M21;
 
 		/// <summary>
 		/// Value at row 3 column 3 of the matrix.
 		/// </summary>
-		public float M33;
+		public float M22;
 
 		/// <summary>
 		/// Value at row 3 column 4 of the matrix.
 		/// </summary>
-		public float M34;
+		public float M23;
 
 		/// <summary>
 		/// Value at row 4 column 1 of the matrix.
 		/// </summary>
-		public float M41;
+		public float M30;
 
 		/// <summary>
 		/// Value at row 4 column 2 of the matrix.
 		/// </summary>
-		public float M42;
+		public float M31;
 
 		/// <summary>
 		/// Value at row 4 column 3 of the matrix.
 		/// </summary>
-		public float M43;
+		public float M32;
 
 		/// <summary>
 		/// Value at row 4 column 4 of the matrix.
 		/// </summary>
-		public float M44;
+		public float M33;
 
 		/// <summary>
 		/// Gets or sets the up <see cref="Vector3"/> of the matrix; that is M21, M22, and M23.
@@ -165,15 +164,15 @@ namespace ArcticFoxEngine {
 		public Vector3 Up {
 			get {
 				Vector3 vector3;
-				vector3.x = this.M21;
-				vector3.y = this.M22;
-				vector3.z = this.M23;
+				vector3.x = this.M10;
+				vector3.y = this.M11;
+				vector3.z = this.M12;
 				return vector3;
 			}
 			set {
-				this.M21 = value.x;
-				this.M22 = value.y;
-				this.M23 = value.z;
+				this.M10 = value.x;
+				this.M11 = value.y;
+				this.M12 = value.z;
 			}
 		}
 
@@ -183,15 +182,15 @@ namespace ArcticFoxEngine {
 		public Vector3 Down {
 			get {
 				Vector3 vector3;
-				vector3.x = -this.M21;
-				vector3.y = -this.M22;
-				vector3.z = -this.M23;
+				vector3.x = -this.M10;
+				vector3.y = -this.M11;
+				vector3.z = -this.M12;
 				return vector3;
 			}
 			set {
-				this.M21 = -value.x;
-				this.M22 = -value.y;
-				this.M23 = -value.z;
+				this.M10 = -value.x;
+				this.M11 = -value.y;
+				this.M12 = -value.z;
 			}
 		}
 
@@ -201,15 +200,15 @@ namespace ArcticFoxEngine {
 		public Vector3 Right {
 			get {
 				Vector3 vector3;
-				vector3.x = this.M11;
-				vector3.y = this.M12;
-				vector3.z = this.M13;
+				vector3.x = this.M00;
+				vector3.y = this.M01;
+				vector3.z = this.M02;
 				return vector3;
 			}
 			set {
-				this.M11 = value.x;
-				this.M12 = value.y;
-				this.M13 = value.z;
+				this.M00 = value.x;
+				this.M01 = value.y;
+				this.M02 = value.z;
 			}
 		}
 
@@ -219,15 +218,15 @@ namespace ArcticFoxEngine {
 		public Vector3 Left {
 			get {
 				Vector3 vector3;
-				vector3.x = -this.M11;
-				vector3.y = -this.M12;
-				vector3.z = -this.M13;
+				vector3.x = -this.M00;
+				vector3.y = -this.M01;
+				vector3.z = -this.M02;
 				return vector3;
 			}
 			set {
-				this.M11 = -value.x;
-				this.M12 = -value.y;
-				this.M13 = -value.z;
+				this.M00 = -value.x;
+				this.M01 = -value.y;
+				this.M02 = -value.z;
 			}
 		}
 
@@ -237,15 +236,15 @@ namespace ArcticFoxEngine {
 		public Vector3 Forward {
 			get {
 				Vector3 vector3;
-				vector3.x = -this.M31;
-				vector3.y = -this.M32;
-				vector3.z = -this.M33;
+				vector3.x = -this.M20;
+				vector3.y = -this.M21;
+				vector3.z = -this.M22;
 				return vector3;
 			}
 			set {
-				this.M31 = -value.x;
-				this.M32 = -value.y;
-				this.M33 = -value.z;
+				this.M20 = -value.x;
+				this.M21 = -value.y;
+				this.M22 = -value.z;
 			}
 		}
 
@@ -255,15 +254,15 @@ namespace ArcticFoxEngine {
 		public Vector3 Backward {
 			get {
 				Vector3 vector3;
-				vector3.x = this.M31;
-				vector3.y = this.M32;
-				vector3.z = this.M33;
+				vector3.x = this.M20;
+				vector3.y = this.M21;
+				vector3.z = this.M22;
 				return vector3;
 			}
 			set {
-				this.M31 = value.x;
-				this.M32 = value.y;
-				this.M33 = value.z;
+				this.M20 = value.x;
+				this.M21 = value.y;
+				this.M22 = value.z;
 			}
 		}
 
@@ -272,39 +271,39 @@ namespace ArcticFoxEngine {
 		/// </summary>
 		/// <param name="value">The value that will be assigned to all components.</param>
 		public Matrix(float value) {
-			M11 = M12 = M13 = M14 =
-			M21 = M22 = M23 = M24 =
-			M31 = M32 = M33 = M34 =
-			M41 = M42 = M43 = M44 = value;
+			M00 = M01 = M02 = M03 =
+			M10 = M11 = M12 = M13 =
+			M20 = M21 = M22 = M23 =
+			M30 = M31 = M32 = M33 = value;
 		}
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="Matrix"/> struct.
 		/// </summary>
-		/// <param name="M11">The value to assign at row 1 column 1 of the matrix.</param>
-		/// <param name="M12">The value to assign at row 1 column 2 of the matrix.</param>
-		/// <param name="M13">The value to assign at row 1 column 3 of the matrix.</param>
-		/// <param name="M14">The value to assign at row 1 column 4 of the matrix.</param>
-		/// <param name="M21">The value to assign at row 2 column 1 of the matrix.</param>
-		/// <param name="M22">The value to assign at row 2 column 2 of the matrix.</param>
-		/// <param name="M23">The value to assign at row 2 column 3 of the matrix.</param>
-		/// <param name="M24">The value to assign at row 2 column 4 of the matrix.</param>
-		/// <param name="M31">The value to assign at row 3 column 1 of the matrix.</param>
-		/// <param name="M32">The value to assign at row 3 column 2 of the matrix.</param>
-		/// <param name="M33">The value to assign at row 3 column 3 of the matrix.</param>
-		/// <param name="M34">The value to assign at row 3 column 4 of the matrix.</param>
-		/// <param name="M41">The value to assign at row 4 column 1 of the matrix.</param>
-		/// <param name="M42">The value to assign at row 4 column 2 of the matrix.</param>
-		/// <param name="M43">The value to assign at row 4 column 3 of the matrix.</param>
-		/// <param name="M44">The value to assign at row 4 column 4 of the matrix.</param>
-		public Matrix(float M11, float M12, float M13, float M14,
-			float M21, float M22, float M23, float M24,
-			float M31, float M32, float M33, float M34,
-			float M41, float M42, float M43, float M44) {
-			this.M11 = M11; this.M12 = M12; this.M13 = M13; this.M14 = M14;
-			this.M21 = M21; this.M22 = M22; this.M23 = M23; this.M24 = M24;
-			this.M31 = M31; this.M32 = M32; this.M33 = M33; this.M34 = M34;
-			this.M41 = M41; this.M42 = M42; this.M43 = M43; this.M44 = M44;
+		/// <param name="M00">The value to assign at row 1 column 1 of the matrix.</param>
+		/// <param name="M01">The value to assign at row 1 column 2 of the matrix.</param>
+		/// <param name="M02">The value to assign at row 1 column 3 of the matrix.</param>
+		/// <param name="M03">The value to assign at row 1 column 4 of the matrix.</param>
+		/// <param name="M10">The value to assign at row 2 column 1 of the matrix.</param>
+		/// <param name="M11">The value to assign at row 2 column 2 of the matrix.</param>
+		/// <param name="M12">The value to assign at row 2 column 3 of the matrix.</param>
+		/// <param name="M13">The value to assign at row 2 column 4 of the matrix.</param>
+		/// <param name="M20">The value to assign at row 3 column 1 of the matrix.</param>
+		/// <param name="M21">The value to assign at row 3 column 2 of the matrix.</param>
+		/// <param name="M22">The value to assign at row 3 column 3 of the matrix.</param>
+		/// <param name="M23">The value to assign at row 3 column 4 of the matrix.</param>
+		/// <param name="M30">The value to assign at row 4 column 1 of the matrix.</param>
+		/// <param name="M31">The value to assign at row 4 column 2 of the matrix.</param>
+		/// <param name="M32">The value to assign at row 4 column 3 of the matrix.</param>
+		/// <param name="M33">The value to assign at row 4 column 4 of the matrix.</param>
+		public Matrix(float M00, float M01, float M02, float M03,
+			float M10, float M11, float M12, float M13,
+			float M20, float M21, float M22, float M23,
+			float M30, float M31, float M32, float M33) {
+			this.M00 = M00; this.M01 = M01; this.M02 = M02; this.M03 = M03;
+			this.M10 = M10; this.M11 = M11; this.M12 = M12; this.M13 = M13;
+			this.M20 = M20; this.M21 = M21; this.M22 = M22; this.M23 = M23;
+			this.M30 = M30; this.M31 = M31; this.M32 = M32; this.M33 = M33;
 		}
 
 		/// <summary>
@@ -319,105 +318,105 @@ namespace ArcticFoxEngine {
 			if (values.Length != 16)
 				throw new ArgumentOutOfRangeException("values", "There must be sixteen and only sixteen input values for Matrix.");
 
-			M11 = values[0];
-			M12 = values[1];
-			M13 = values[2];
-			M14 = values[3];
+			M00 = values[0];
+			M01 = values[1];
+			M02 = values[2];
+			M03 = values[3];
 
-			M21 = values[4];
-			M22 = values[5];
-			M23 = values[6];
-			M24 = values[7];
+			M10 = values[4];
+			M11 = values[5];
+			M12 = values[6];
+			M13 = values[7];
 
-			M31 = values[8];
-			M32 = values[9];
-			M33 = values[10];
-			M34 = values[11];
+			M20 = values[8];
+			M21 = values[9];
+			M22 = values[10];
+			M23 = values[11];
 
-			M41 = values[12];
-			M42 = values[13];
-			M43 = values[14];
-			M44 = values[15];
+			M30 = values[12];
+			M31 = values[13];
+			M32 = values[14];
+			M33 = values[15];
 		}
 
 		/// <summary>
 		/// Gets or sets the first row in the matrix; that is M11, M12, M13, and M14.
 		/// </summary>
-		public Vector4 Row1 {
-			get { return new Vector4(M11, M12, M13, M14); }
-			set { M11 = value.x; M12 = value.y; M13 = value.z; M14 = value.w; }
+		public Vector4 Row0 {
+			get { return new Vector4(M00, M01, M02, M03); }
+			set { M00 = value.x; M01 = value.y; M02 = value.z; M03 = value.w; }
 		}
 
 		/// <summary>
 		/// Gets or sets the second row in the matrix; that is M21, M22, M23, and M24.
 		/// </summary>
-		public Vector4 Row2 {
-			get { return new Vector4(M21, M22, M23, M24); }
-			set { M21 = value.x; M22 = value.y; M23 = value.z; M24 = value.w; }
+		public Vector4 Row1 {
+			get { return new Vector4(M10, M11, M12, M13); }
+			set { M10 = value.x; M11 = value.y; M12 = value.z; M13 = value.w; }
 		}
 
 		/// <summary>
 		/// Gets or sets the third row in the matrix; that is M31, M32, M33, and M34.
 		/// </summary>
-		public Vector4 Row3 {
-			get { return new Vector4(M31, M32, M33, M34); }
-			set { M31 = value.x; M32 = value.y; M33 = value.z; M34 = value.w; }
+		public Vector4 Row2 {
+			get { return new Vector4(M20, M21, M22, M23); }
+			set { M20 = value.x; M21 = value.y; M22 = value.z; M23 = value.w; }
 		}
 
 		/// <summary>
 		/// Gets or sets the fourth row in the matrix; that is M41, M42, M43, and M44.
 		/// </summary>
-		public Vector4 Row4 {
-			get { return new Vector4(M41, M42, M43, M44); }
-			set { M41 = value.x; M42 = value.y; M43 = value.z; M44 = value.w; }
+		public Vector4 Row3 {
+			get { return new Vector4(M30, M31, M32, M33); }
+			set { M30 = value.x; M31 = value.y; M32 = value.z; M33 = value.w; }
 		}
 
 		/// <summary>
 		/// Gets or sets the first column in the matrix; that is M11, M21, M31, and M41.
 		/// </summary>
-		public Vector4 Column1 {
-			get { return new Vector4(M11, M21, M31, M41); }
-			set { M11 = value.x; M21 = value.y; M31 = value.z; M41 = value.w; }
+		public Vector4 Column0 {
+			get { return new Vector4(M00, M10, M20, M30); }
+			set { M00 = value.x; M10 = value.y; M20 = value.z; M30 = value.w; }
 		}
 
 		/// <summary>
 		/// Gets or sets the second column in the matrix; that is M12, M22, M32, and M42.
 		/// </summary>
-		public Vector4 Column2 {
-			get { return new Vector4(M12, M22, M32, M42); }
-			set { M12 = value.x; M22 = value.y; M32 = value.z; M42 = value.w; }
+		public Vector4 Column1 {
+			get { return new Vector4(M01, M11, M21, M31); }
+			set { M01 = value.x; M11 = value.y; M21 = value.z; M31 = value.w; }
 		}
 
 		/// <summary>
 		/// Gets or sets the third column in the matrix; that is M13, M23, M33, and M43.
 		/// </summary>
-		public Vector4 Column3 {
-			get { return new Vector4(M13, M23, M33, M43); }
-			set { M13 = value.x; M23 = value.y; M33 = value.z; M43 = value.w; }
+		public Vector4 Column2 {
+			get { return new Vector4(M02, M12, M22, M32); }
+			set { M02 = value.x; M12 = value.y; M22 = value.z; M32 = value.w; }
 		}
 
 		/// <summary>
 		/// Gets or sets the fourth column in the matrix; that is M14, M24, M34, and M44.
 		/// </summary>
-		public Vector4 Column4 {
-			get { return new Vector4(M14, M24, M34, M44); }
-			set { M14 = value.x; M24 = value.y; M34 = value.z; M44 = value.w; }
+		public Vector4 Column3 {
+			get { return new Vector4(M03, M13, M23, M33); }
+			set { M03 = value.x; M13 = value.y; M23 = value.z; M33 = value.w; }
 		}
 
 		/// <summary>
 		/// Gets or sets the translation of the matrix; that is M41, M42, and M43.
 		/// </summary>
 		public Vector3 TranslationVector {
-			get { return new Vector3(M41, M42, M43); }
-			set { M41 = value.x; M42 = value.y; M43 = value.z; }
+			get { return new Vector3(M30, M31, M32); }
+			set { M30 = value.x; M31 = value.y; M32 = value.z; }
 		}
 
 		/// <summary>
 		/// Gets or sets the scale of the matrix; that is M11, M22, and M33.
 		/// </summary>
 		public Vector3 ScaleVector {
-			get { return new Vector3(M11, M22, M33); }
-			set { M11 = value.x; M22 = value.y; M33 = value.z; }
+			get { return new Vector3(M00, M11, M22); }
+			set { M00 = value.x; M11 = value.y; M22 = value.z; }
 		}
 
 		/// <summary>
@@ -440,22 +439,22 @@ namespace ArcticFoxEngine {
 		public float this[int index] {
 			get {
 				switch (index) {
-					case 0: return M11;
-					case 1: return M12;
-					case 2: return M13;
-					case 3: return M14;
-					case 4: return M21;
-					case 5: return M22;
-					case 6: return M23;
-					case 7: return M24;
-					case 8: return M31;
-					case 9: return M32;
-					case 10: return M33;
-					case 11: return M34;
-					case 12: return M41;
-					case 13: return M42;
-					case 14: return M43;
-					case 15: return M44;
+					case 0: return M00;
+					case 1: return M01;
+					case 2: return M02;
+					case 3: return M03;
+					case 4: return M10;
+					case 5: return M11;
+					case 6: return M12;
+					case 7: return M13;
+					case 8: return M20;
+					case 9: return M21;
+					case 10: return M22;
+					case 11: return M23;
+					case 12: return M30;
+					case 13: return M31;
+					case 14: return M32;
+					case 15: return M33;
 				}
 
 				throw new ArgumentOutOfRangeException("index", "Indices for Matrix run from 0 to 15, inclusive.");
@@ -463,22 +462,22 @@ namespace ArcticFoxEngine {
 
 			set {
 				switch (index) {
-					case 0: M11 = value; break;
-					case 1: M12 = value; break;
-					case 2: M13 = value; break;
-					case 3: M14 = value; break;
-					case 4: M21 = value; break;
-					case 5: M22 = value; break;
-					case 6: M23 = value; break;
-					case 7: M24 = value; break;
-					case 8: M31 = value; break;
-					case 9: M32 = value; break;
-					case 10: M33 = value; break;
-					case 11: M34 = value; break;
-					case 12: M41 = value; break;
-					case 13: M42 = value; break;
-					case 14: M43 = value; break;
-					case 15: M44 = value; break;
+					case 0: M00 = value; break;
+					case 1: M01 = value; break;
+					case 2: M02 = value; break;
+					case 3: M03 = value; break;
+					case 4: M10 = value; break;
+					case 5: M11 = value; break;
+					case 6: M12 = value; break;
+					case 7: M13 = value; break;
+					case 8: M20 = value; break;
+					case 9: M21 = value; break;
+					case 10: M22 = value; break;
+					case 11: M23 = value; break;
+					case 12: M30 = value; break;
+					case 13: M31 = value; break;
+					case 14: M32 = value; break;
+					case 15: M33 = value; break;
 					default: throw new ArgumentOutOfRangeException("index", "Indices for Matrix run from 0 to 15, inclusive.");
 				}
 			}
@@ -517,16 +516,16 @@ namespace ArcticFoxEngine {
 		/// </summary>
 		/// <returns>The determinant of the matrix.</returns>
 		public float Determinant() {
-			float temp1 = (M33 * M44) - (M34 * M43);
-			float temp2 = (M32 * M44) - (M34 * M42);
-			float temp3 = (M32 * M43) - (M33 * M42);
-			float temp4 = (M31 * M44) - (M34 * M41);
-			float temp5 = (M31 * M43) - (M33 * M41);
-			float temp6 = (M31 * M42) - (M32 * M41);
+			float temp1 = (M22 * M33) - (M23 * M32);
+			float temp2 = (M21 * M33) - (M23 * M31);
+			float temp3 = (M21 * M32) - (M22 * M31);
+			float temp4 = (M20 * M33) - (M23 * M30);
+			float temp5 = (M20 * M32) - (M22 * M30);
+			float temp6 = (M20 * M31) - (M21 * M30);
 
-			return ((((M11 * (((M22 * temp1) - (M23 * temp2)) + (M24 * temp3))) - (M12 * (((M21 * temp1) -
-				(M23 * temp4)) + (M24 * temp5)))) + (M13 * (((M21 * temp2) - (M22 * temp4)) + (M24 * temp6)))) -
-				(M14 * (((M21 * temp3) - (M22 * temp5)) + (M23 * temp6))));
+			return ((((M00 * (((M11 * temp1) - (M12 * temp2)) + (M13 * temp3))) - (M01 * (((M10 * temp1) -
+				(M12 * temp4)) + (M13 * temp5)))) + (M02 * (((M10 * temp2) - (M11 * temp4)) + (M13 * temp6)))) -
+				(M03 * (((M10 * temp3) - (M11 * temp5)) + (M12 * temp6))));
 		}
 
 
@@ -536,22 +535,22 @@ namespace ArcticFoxEngine {
 		public Matrix Transpose() {
 			
 			Matrix temp = new Matrix();
+			temp.M00 = M00;
+			temp.M01 = M10;
+			temp.M02 = M20;
+			temp.M03 = M30;
+			temp.M10 = M01;
 			temp.M11 = M11;
 			temp.M12 = M21;
 			temp.M13 = M31;
-			temp.M14 = M41;
+			temp.M20 = M02;
 			temp.M21 = M12;
 			temp.M22 = M22;
 			temp.M23 = M32;
-			temp.M24 = M42;
+			temp.M30 = M03;
 			temp.M31 = M13;
 			temp.M32 = M23;
 			temp.M33 = M33;
-			temp.M34 = M43;
-			temp.M41 = M14;
-			temp.M42 = M24;
-			temp.M43 = M34;
-			temp.M44 = M44;
 
 			return temp;
 
@@ -607,19 +606,19 @@ namespace ArcticFoxEngine {
 			Q.Transpose();
 
 			R = new Matrix();
+			R.M00 = Vector4.Dot(Q.Column0, Column0);
+			R.M01 = Vector4.Dot(Q.Column0, Column1);
+			R.M02 = Vector4.Dot(Q.Column0, Column2);
+			R.M03 = Vector4.Dot(Q.Column0, Column3);
+
 			R.M11 = Vector4.Dot(Q.Column1, Column1);
 			R.M12 = Vector4.Dot(Q.Column1, Column2);
 			R.M13 = Vector4.Dot(Q.Column1, Column3);
-			R.M14 = Vector4.Dot(Q.Column1, Column4);
 
 			R.M22 = Vector4.Dot(Q.Column2, Column2);
 			R.M23 = Vector4.Dot(Q.Column2, Column3);
-			R.M24 = Vector4.Dot(Q.Column2, Column4);
 
 			R.M33 = Vector4.Dot(Q.Column3, Column3);
-			R.M34 = Vector4.Dot(Q.Column3, Column4);
-
-			R.M44 = Vector4.Dot(Q.Column4, Column4);
 		}
 
 		/// <summary>
@@ -631,19 +630,19 @@ namespace ArcticFoxEngine {
 			Orthonormalize(ref this, out Q);
 
 			L = new Matrix();
+			L.M00 = Vector4.Dot(Q.Row0, Row0);
+
+			L.M10 = Vector4.Dot(Q.Row0, Row1);
 			L.M11 = Vector4.Dot(Q.Row1, Row1);
 
+			L.M20 = Vector4.Dot(Q.Row0, Row2);
 			L.M21 = Vector4.Dot(Q.Row1, Row2);
 			L.M22 = Vector4.Dot(Q.Row2, Row2);
 
+			L.M30 = Vector4.Dot(Q.Row0, Row3);
 			L.M31 = Vector4.Dot(Q.Row1, Row3);
 			L.M32 = Vector4.Dot(Q.Row2, Row3);
 			L.M33 = Vector4.Dot(Q.Row3, Row3);
-
-			L.M41 = Vector4.Dot(Q.Row1, Row4);
-			L.M42 = Vector4.Dot(Q.Row2, Row4);
-			L.M43 = Vector4.Dot(Q.Row3, Row4);
-			L.M44 = Vector4.Dot(Q.Row4, Row4);
 		}
 
 		/// <summary>
@@ -660,14 +659,14 @@ namespace ArcticFoxEngine {
 			//References: http://www.gamedev.net/community/forums/topic.asp?topic_id=441695
 
 			//Get the translation.
-			translation.x = this.M41;
-			translation.y = this.M42;
-			translation.z = this.M43;
+			translation.x = this.M30;
+			translation.y = this.M31;
+			translation.z = this.M32;
 
 			//Scaling is the length of the rows.
-			scale.x = (float)Math.Sqrt((M11 * M11) + (M12 * M12) + (M13 * M13));
-			scale.y = (float)Math.Sqrt((M21 * M21) + (M22 * M22) + (M23 * M23));
-			scale.z = (float)Math.Sqrt((M31 * M31) + (M32 * M32) + (M33 * M33));
+			scale.x = (float)Math.Sqrt((M00 * M00) + (M01 * M01) + (M02 * M02));
+			scale.y = (float)Math.Sqrt((M10 * M10) + (M11 * M11) + (M12 * M12));
+			scale.z = (float)Math.Sqrt((M20 * M20) + (M21 * M21) + (M22 * M22));
 
 			//If any of the scaling factors are zero, than the rotation matrix can not exist.
 			if (MathUtil.IsZero(scale.x) ||
@@ -679,19 +678,19 @@ namespace ArcticFoxEngine {
 
 			//The rotation is the left over matrix after dividing out the scaling.
 			Matrix rotationmatrix = new Matrix();
-			rotationmatrix.M11 = M11 / scale.x;
-			rotationmatrix.M12 = M12 / scale.x;
-			rotationmatrix.M13 = M13 / scale.x;
+			rotationmatrix.M00 = M00 / scale.x;
+			rotationmatrix.M01 = M01 / scale.x;
+			rotationmatrix.M02 = M02 / scale.x;
 
-			rotationmatrix.M21 = M21 / scale.y;
-			rotationmatrix.M22 = M22 / scale.y;
-			rotationmatrix.M23 = M23 / scale.y;
+			rotationmatrix.M10 = M10 / scale.y;
+			rotationmatrix.M11 = M11 / scale.y;
+			rotationmatrix.M12 = M12 / scale.y;
 
-			rotationmatrix.M31 = M31 / scale.z;
-			rotationmatrix.M32 = M32 / scale.z;
-			rotationmatrix.M33 = M33 / scale.z;
+			rotationmatrix.M20 = M20 / scale.z;
+			rotationmatrix.M21 = M21 / scale.z;
+			rotationmatrix.M22 = M22 / scale.z;
 
-			rotationmatrix.M44 = 1f;
+			rotationmatrix.M33 = 1f;
 
 			Quaternion.RotationMatrix(ref rotationmatrix, out rotation);
 			return true;
@@ -709,12 +708,12 @@ namespace ArcticFoxEngine {
 		/// </remarks>
 		public bool DecomposeUniformScale(out float scale, out Quaternion rotation, out Vector3 translation) {
 			//Get the translation.
-			translation.x = this.M41;
-			translation.y = this.M42;
-			translation.z = this.M43;
+			translation.x = this.M30;
+			translation.y = this.M31;
+			translation.z = this.M32;
 
 			//Scaling is the length of the rows. ( just take one row since this is a uniform matrix)
-			scale = (float)Math.Sqrt((M11 * M11) + (M12 * M12) + (M13 * M13));
+			scale = (float)Math.Sqrt((M00 * M00) + (M01 * M01) + (M02 * M02));
 			var inv_scale = 1f / scale;
 
 			//If any of the scaling factors are zero, then the rotation matrix can not exist.
@@ -725,19 +724,19 @@ namespace ArcticFoxEngine {
 
 			//The rotation is the left over matrix after dividing out the scaling.
 			Matrix rotationmatrix = new Matrix();
+			rotationmatrix.M00 = M00 * inv_scale;
+			rotationmatrix.M01 = M01 * inv_scale;
+			rotationmatrix.M02 = M02 * inv_scale;
+
+			rotationmatrix.M10 = M10 * inv_scale;
 			rotationmatrix.M11 = M11 * inv_scale;
 			rotationmatrix.M12 = M12 * inv_scale;
-			rotationmatrix.M13 = M13 * inv_scale;
 
+			rotationmatrix.M20 = M20 * inv_scale;
 			rotationmatrix.M21 = M21 * inv_scale;
 			rotationmatrix.M22 = M22 * inv_scale;
-			rotationmatrix.M23 = M23 * inv_scale;
 
-			rotationmatrix.M31 = M31 * inv_scale;
-			rotationmatrix.M32 = M32 * inv_scale;
-			rotationmatrix.M33 = M33 * inv_scale;
-
-			rotationmatrix.M44 = 1f;
+			rotationmatrix.M33 = 1f;
 
 			Quaternion.RotationMatrix(ref rotationmatrix, out rotation);
 			return true;
@@ -816,7 +815,7 @@ namespace ArcticFoxEngine {
 		/// </summary>
 		/// <returns>A sixteen-element array containing the components of the matrix.</returns>
 		public float[] ToArray() {
-			return new[] { M11, M12, M13, M14, M21, M22, M23, M24, M31, M32, M33, M34, M41, M42, M43, M44 };
+			return new[] { M00, M01, M02, M03, M10, M11, M12, M13, M20, M21, M22, M23, M30, M31, M32, M33 };
 		}
 
 		/// <summary>
@@ -826,22 +825,22 @@ namespace ArcticFoxEngine {
 		/// <param name="right">The second matrix to add.</param>
 		/// <param name="result">When the method completes, contains the sum of the two matrices.</param>
 		public static void Add(ref Matrix left, ref Matrix right, out Matrix result) {
+			result.M00 = left.M00 + right.M00;
+			result.M01 = left.M01 + right.M01;
+			result.M02 = left.M02 + right.M02;
+			result.M03 = left.M03 + right.M03;
+			result.M10 = left.M10 + right.M10;
 			result.M11 = left.M11 + right.M11;
 			result.M12 = left.M12 + right.M12;
 			result.M13 = left.M13 + right.M13;
-			result.M14 = left.M14 + right.M14;
+			result.M20 = left.M20 + right.M20;
 			result.M21 = left.M21 + right.M21;
 			result.M22 = left.M22 + right.M22;
 			result.M23 = left.M23 + right.M23;
-			result.M24 = left.M24 + right.M24;
+			result.M30 = left.M30 + right.M30;
 			result.M31 = left.M31 + right.M31;
 			result.M32 = left.M32 + right.M32;
 			result.M33 = left.M33 + right.M33;
-			result.M34 = left.M34 + right.M34;
-			result.M41 = left.M41 + right.M41;
-			result.M42 = left.M42 + right.M42;
-			result.M43 = left.M43 + right.M43;
-			result.M44 = left.M44 + right.M44;
 		}
 
 		/// <summary>
@@ -863,22 +862,22 @@ namespace ArcticFoxEngine {
 		/// <param name="right">The second matrix to subtract.</param>
 		/// <param name="result">When the method completes, contains the difference between the two matrices.</param>
 		public static void Subtract(ref Matrix left, ref Matrix right, out Matrix result) {
+			result.M00 = left.M00 - right.M00;
+			result.M01 = left.M01 - right.M01;
+			result.M02 = left.M02 - right.M02;
+			result.M03 = left.M03 - right.M03;
+			result.M10 = left.M10 - right.M10;
 			result.M11 = left.M11 - right.M11;
 			result.M12 = left.M12 - right.M12;
 			result.M13 = left.M13 - right.M13;
-			result.M14 = left.M14 - right.M14;
+			result.M20 = left.M20 - right.M20;
 			result.M21 = left.M21 - right.M21;
 			result.M22 = left.M22 - right.M22;
 			result.M23 = left.M23 - right.M23;
-			result.M24 = left.M24 - right.M24;
+			result.M30 = left.M30 - right.M30;
 			result.M31 = left.M31 - right.M31;
 			result.M32 = left.M32 - right.M32;
 			result.M33 = left.M33 - right.M33;
-			result.M34 = left.M34 - right.M34;
-			result.M41 = left.M41 - right.M41;
-			result.M42 = left.M42 - right.M42;
-			result.M43 = left.M43 - right.M43;
-			result.M44 = left.M44 - right.M44;
 		}
 
 		/// <summary>
@@ -900,22 +899,22 @@ namespace ArcticFoxEngine {
 		/// <param name="right">The amount by which to scale.</param>
 		/// <param name="result">When the method completes, contains the scaled matrix.</param>
 		public static void Multiply(ref Matrix left, float right, out Matrix result) {
+			result.M00 = left.M00 * right;
+			result.M01 = left.M01 * right;
+			result.M02 = left.M02 * right;
+			result.M03 = left.M03 * right;
+			result.M10 = left.M10 * right;
 			result.M11 = left.M11 * right;
 			result.M12 = left.M12 * right;
 			result.M13 = left.M13 * right;
-			result.M14 = left.M14 * right;
+			result.M20 = left.M20 * right;
 			result.M21 = left.M21 * right;
 			result.M22 = left.M22 * right;
 			result.M23 = left.M23 * right;
-			result.M24 = left.M24 * right;
+			result.M30 = left.M30 * right;
 			result.M31 = left.M31 * right;
 			result.M32 = left.M32 * right;
 			result.M33 = left.M33 * right;
-			result.M34 = left.M34 * right;
-			result.M41 = left.M41 * right;
-			result.M42 = left.M42 * right;
-			result.M43 = left.M43 * right;
-			result.M44 = left.M44 * right;
 		}
 
 		/// <summary>
@@ -938,22 +937,22 @@ namespace ArcticFoxEngine {
 		/// <param name="result">The product of the two matrices.</param>
 		public static void Multiply(ref Matrix left, ref Matrix right, out Matrix result) {
 			Matrix temp = new Matrix();
-			temp.M11 = (left.M11 * right.M11) + (left.M12 * right.M21) + (left.M13 * right.M31) + (left.M14 * right.M41);
-			temp.M12 = (left.M11 * right.M12) + (left.M12 * right.M22) + (left.M13 * right.M32) + (left.M14 * right.M42);
-			temp.M13 = (left.M11 * right.M13) + (left.M12 * right.M23) + (left.M13 * right.M33) + (left.M14 * right.M43);
-			temp.M14 = (left.M11 * right.M14) + (left.M12 * right.M24) + (left.M13 * right.M34) + (left.M14 * right.M44);
-			temp.M21 = (left.M21 * right.M11) + (left.M22 * right.M21) + (left.M23 * right.M31) + (left.M24 * right.M41);
-			temp.M22 = (left.M21 * right.M12) + (left.M22 * right.M22) + (left.M23 * right.M32) + (left.M24 * right.M42);
-			temp.M23 = (left.M21 * right.M13) + (left.M22 * right.M23) + (left.M23 * right.M33) + (left.M24 * right.M43);
-			temp.M24 = (left.M21 * right.M14) + (left.M22 * right.M24) + (left.M23 * right.M34) + (left.M24 * right.M44);
-			temp.M31 = (left.M31 * right.M11) + (left.M32 * right.M21) + (left.M33 * right.M31) + (left.M34 * right.M41);
-			temp.M32 = (left.M31 * right.M12) + (left.M32 * right.M22) + (left.M33 * right.M32) + (left.M34 * right.M42);
-			temp.M33 = (left.M31 * right.M13) + (left.M32 * right.M23) + (left.M33 * right.M33) + (left.M34 * right.M43);
-			temp.M34 = (left.M31 * right.M14) + (left.M32 * right.M24) + (left.M33 * right.M34) + (left.M34 * right.M44);
-			temp.M41 = (left.M41 * right.M11) + (left.M42 * right.M21) + (left.M43 * right.M31) + (left.M44 * right.M41);
-			temp.M42 = (left.M41 * right.M12) + (left.M42 * right.M22) + (left.M43 * right.M32) + (left.M44 * right.M42);
-			temp.M43 = (left.M41 * right.M13) + (left.M42 * right.M23) + (left.M43 * right.M33) + (left.M44 * right.M43);
-			temp.M44 = (left.M41 * right.M14) + (left.M42 * right.M24) + (left.M43 * right.M34) + (left.M44 * right.M44);
+			temp.M00 = (left.M00 * right.M00) + (left.M01 * right.M10) + (left.M02 * right.M20) + (left.M03 * right.M30);
+			temp.M01 = (left.M00 * right.M01) + (left.M01 * right.M11) + (left.M02 * right.M21) + (left.M03 * right.M31);
+			temp.M02 = (left.M00 * right.M02) + (left.M01 * right.M12) + (left.M02 * right.M22) + (left.M03 * right.M32);
+			temp.M03 = (left.M00 * right.M03) + (left.M01 * right.M13) + (left.M02 * right.M23) + (left.M03 * right.M33);
+			temp.M10 = (left.M10 * right.M00) + (left.M11 * right.M10) + (left.M12 * right.M20) + (left.M13 * right.M30);
+			temp.M11 = (left.M10 * right.M01) + (left.M11 * right.M11) + (left.M12 * right.M21) + (left.M13 * right.M31);
+			temp.M12 = (left.M10 * right.M02) + (left.M11 * right.M12) + (left.M12 * right.M22) + (left.M13 * right.M32);
+			temp.M13 = (left.M10 * right.M03) + (left.M11 * right.M13) + (left.M12 * right.M23) + (left.M13 * right.M33);
+			temp.M20 = (left.M20 * right.M00) + (left.M21 * right.M10) + (left.M22 * right.M20) + (left.M23 * right.M30);
+			temp.M21 = (left.M20 * right.M01) + (left.M21 * right.M11) + (left.M22 * right.M21) + (left.M23 * right.M31);
+			temp.M22 = (left.M20 * right.M02) + (left.M21 * right.M12) + (left.M22 * right.M22) + (left.M23 * right.M32);
+			temp.M23 = (left.M20 * right.M03) + (left.M21 * right.M13) + (left.M22 * right.M23) + (left.M23 * right.M33);
+			temp.M30 = (left.M30 * right.M00) + (left.M31 * right.M10) + (left.M32 * right.M20) + (left.M33 * right.M30);
+			temp.M31 = (left.M30 * right.M01) + (left.M31 * right.M11) + (left.M32 * right.M21) + (left.M33 * right.M31);
+			temp.M32 = (left.M30 * right.M02) + (left.M31 * right.M12) + (left.M32 * right.M22) + (left.M33 * right.M32);
+			temp.M33 = (left.M30 * right.M03) + (left.M31 * right.M13) + (left.M32 * right.M23) + (left.M33 * right.M33);
 			result = temp;
 		}
 
@@ -978,22 +977,22 @@ namespace ArcticFoxEngine {
 		public static void Divide(ref Matrix left, float right, out Matrix result) {
 			float inv = 1.0f / right;
 
+			result.M00 = left.M00 * inv;
+			result.M01 = left.M01 * inv;
+			result.M02 = left.M02 * inv;
+			result.M03 = left.M03 * inv;
+			result.M10 = left.M10 * inv;
 			result.M11 = left.M11 * inv;
 			result.M12 = left.M12 * inv;
 			result.M13 = left.M13 * inv;
-			result.M14 = left.M14 * inv;
+			result.M20 = left.M20 * inv;
 			result.M21 = left.M21 * inv;
 			result.M22 = left.M22 * inv;
 			result.M23 = left.M23 * inv;
-			result.M24 = left.M24 * inv;
+			result.M30 = left.M30 * inv;
 			result.M31 = left.M31 * inv;
 			result.M32 = left.M32 * inv;
 			result.M33 = left.M33 * inv;
-			result.M34 = left.M34 * inv;
-			result.M41 = left.M41 * inv;
-			result.M42 = left.M42 * inv;
-			result.M43 = left.M43 * inv;
-			result.M44 = left.M44 * inv;
 		}
 
 		/// <summary>
@@ -1015,22 +1014,22 @@ namespace ArcticFoxEngine {
 		/// <param name="right">The second matrix to divide.</param>
 		/// <param name="result">When the method completes, contains the quotient of the two matrices.</param>
 		public static void Divide(ref Matrix left, ref Matrix right, out Matrix result) {
+			result.M00 = left.M00 / right.M00;
+			result.M01 = left.M01 / right.M01;
+			result.M02 = left.M02 / right.M02;
+			result.M03 = left.M03 / right.M03;
+			result.M10 = left.M10 / right.M10;
 			result.M11 = left.M11 / right.M11;
 			result.M12 = left.M12 / right.M12;
 			result.M13 = left.M13 / right.M13;
-			result.M14 = left.M14 / right.M14;
+			result.M20 = left.M20 / right.M20;
 			result.M21 = left.M21 / right.M21;
 			result.M22 = left.M22 / right.M22;
 			result.M23 = left.M23 / right.M23;
-			result.M24 = left.M24 / right.M24;
+			result.M30 = left.M30 / right.M30;
 			result.M31 = left.M31 / right.M31;
 			result.M32 = left.M32 / right.M32;
 			result.M33 = left.M33 / right.M33;
-			result.M34 = left.M34 / right.M34;
-			result.M41 = left.M41 / right.M41;
-			result.M42 = left.M42 / right.M42;
-			result.M43 = left.M43 / right.M43;
-			result.M44 = left.M44 / right.M44;
 		}
 
 		/// <summary>
@@ -1106,22 +1105,22 @@ namespace ArcticFoxEngine {
 		/// <param name="value">The matrix to be negated.</param>
 		/// <param name="result">When the method completes, contains the negated matrix.</param>
 		public static void Negate(ref Matrix value, out Matrix result) {
+			result.M00 = -value.M00;
+			result.M01 = -value.M01;
+			result.M02 = -value.M02;
+			result.M03 = -value.M03;
+			result.M10 = -value.M10;
 			result.M11 = -value.M11;
 			result.M12 = -value.M12;
 			result.M13 = -value.M13;
-			result.M14 = -value.M14;
+			result.M20 = -value.M20;
 			result.M21 = -value.M21;
 			result.M22 = -value.M22;
 			result.M23 = -value.M23;
-			result.M24 = -value.M24;
+			result.M30 = -value.M30;
 			result.M31 = -value.M31;
 			result.M32 = -value.M32;
 			result.M33 = -value.M33;
-			result.M34 = -value.M34;
-			result.M41 = -value.M41;
-			result.M42 = -value.M42;
-			result.M43 = -value.M43;
-			result.M44 = -value.M44;
 		}
 
 		/// <summary>
@@ -1146,22 +1145,22 @@ namespace ArcticFoxEngine {
 		/// Passing <paramref name="amount"/> a value of 0 will cause <paramref name="start"/> to be returned; a value of 1 will cause <paramref name="end"/> to be returned. 
 		/// </remarks>
 		public static void Lerp(ref Matrix start, ref Matrix end, float amount, out Matrix result) {
+			result.M00 = MathUtil.Lerp(start.M00, end.M00, amount);
+			result.M01 = MathUtil.Lerp(start.M01, end.M01, amount);
+			result.M02 = MathUtil.Lerp(start.M02, end.M02, amount);
+			result.M03 = MathUtil.Lerp(start.M03, end.M03, amount);
+			result.M10 = MathUtil.Lerp(start.M10, end.M10, amount);
 			result.M11 = MathUtil.Lerp(start.M11, end.M11, amount);
 			result.M12 = MathUtil.Lerp(start.M12, end.M12, amount);
 			result.M13 = MathUtil.Lerp(start.M13, end.M13, amount);
-			result.M14 = MathUtil.Lerp(start.M14, end.M14, amount);
+			result.M20 = MathUtil.Lerp(start.M20, end.M20, amount);
 			result.M21 = MathUtil.Lerp(start.M21, end.M21, amount);
 			result.M22 = MathUtil.Lerp(start.M22, end.M22, amount);
 			result.M23 = MathUtil.Lerp(start.M23, end.M23, amount);
-			result.M24 = MathUtil.Lerp(start.M24, end.M24, amount);
+			result.M30 = MathUtil.Lerp(start.M30, end.M30, amount);
 			result.M31 = MathUtil.Lerp(start.M31, end.M31, amount);
 			result.M32 = MathUtil.Lerp(start.M32, end.M32, amount);
 			result.M33 = MathUtil.Lerp(start.M33, end.M33, amount);
-			result.M34 = MathUtil.Lerp(start.M34, end.M34, amount);
-			result.M41 = MathUtil.Lerp(start.M41, end.M41, amount);
-			result.M42 = MathUtil.Lerp(start.M42, end.M42, amount);
-			result.M43 = MathUtil.Lerp(start.M43, end.M43, amount);
-			result.M44 = MathUtil.Lerp(start.M44, end.M44, amount);
 		}
 
 		/// <summary>
@@ -1211,22 +1210,22 @@ namespace ArcticFoxEngine {
 		/// <param name="value">The matrix whose transpose is to be calculated.</param>
 		public static Matrix Transpose(Matrix value) {
 			Matrix temp = new Matrix();
+			temp.M00 = value.M00;
+			temp.M01 = value.M10;
+			temp.M02 = value.M20;
+			temp.M03 = value.M30;
+			temp.M10 = value.M01;
 			temp.M11 = value.M11;
 			temp.M12 = value.M21;
 			temp.M13 = value.M31;
-			temp.M14 = value.M41;
+			temp.M20 = value.M02;
 			temp.M21 = value.M12;
 			temp.M22 = value.M22;
 			temp.M23 = value.M32;
-			temp.M24 = value.M42;
+			temp.M30 = value.M03;
 			temp.M31 = value.M13;
 			temp.M32 = value.M23;
 			temp.M33 = value.M33;
-			temp.M34 = value.M43;
-			temp.M41 = value.M14;
-			temp.M42 = value.M24;
-			temp.M43 = value.M34;
-			temp.M44 = value.M44;
 
 			return temp;
 		}
@@ -1237,22 +1236,22 @@ namespace ArcticFoxEngine {
 		/// <param name="value">The matrix whose transpose is to be calculated.</param>
 		/// <param name="result">When the method completes, contains the transpose of the specified matrix.</param>
 		public static void TransposeByRef(ref Matrix value, ref Matrix result) {
+			result.M00 = value.M00;
+			result.M01 = value.M10;
+			result.M02 = value.M20;
+			result.M03 = value.M30;
+			result.M10 = value.M01;
 			result.M11 = value.M11;
 			result.M12 = value.M21;
 			result.M13 = value.M31;
-			result.M14 = value.M41;
+			result.M20 = value.M02;
 			result.M21 = value.M12;
 			result.M22 = value.M22;
 			result.M23 = value.M32;
-			result.M24 = value.M42;
+			result.M30 = value.M03;
 			result.M31 = value.M13;
 			result.M32 = value.M23;
 			result.M33 = value.M33;
-			result.M34 = value.M43;
-			result.M41 = value.M14;
-			result.M42 = value.M24;
-			result.M43 = value.M34;
-			result.M44 = value.M44;
 		}
 
 
@@ -1260,53 +1259,53 @@ namespace ArcticFoxEngine {
 		/// Calculates the inverse of the specified matrix.
 		/// </summary>
 		public Matrix Invert() {
-			float b0 = (M31 * M42) - (M32 * M41);
-			float b1 = (M31 * M43) - (M33 * M41);
-			float b2 = (M34 * M41) - (M31 * M44);
-			float b3 = (M32 * M43) - (M33 * M42);
-			float b4 = (M34 * M42) - (M32 * M44);
-			float b5 = (M33 * M44) - (M34 * M43);
+			float b0 = (M20 * M31) - (M21 * M30);
+			float b1 = (M20 * M32) - (M22 * M30);
+			float b2 = (M23 * M30) - (M20 * M33);
+			float b3 = (M21 * M32) - (M22 * M31);
+			float b4 = (M23 * M31) - (M21 * M33);
+			float b5 = (M22 * M33) - (M23 * M32);
 
-			float d11 = M22 * b5 + M23 * b4 + M24 * b3;
-			float d12 = M21 * b5 + M23 * b2 + M24 * b1;
-			float d13 = M21 * -b4 + M22 * b2 + M24 * b0;
-			float d14 = M21 * b3 + M22 * -b1 + M23 * b0;
+			float d11 = M11 * b5 + M12 * b4 + M13 * b3;
+			float d12 = M10 * b5 + M12 * b2 + M13 * b1;
+			float d13 = M10 * -b4 + M11 * b2 + M13 * b0;
+			float d14 = M10 * b3 + M11 * -b1 + M12 * b0;
 
-			float det = M11 * d11 - M12 * d12 + M13 * d13 - M14 * d14;
+			float det = M00 * d11 - M01 * d12 + M02 * d13 - M03 * d14;
 			if (Math.Abs(det) == 0.0f) {
 				return Matrix.Zero;
 			}
 
 			det = 1f / det;
 
-			float a0 = (M11 * M22) - (M12 * M21);
-			float a1 = (M11 * M23) - (M13 * M21);
-			float a2 = (M14 * M21) - (M11 * M24);
-			float a3 = (M12 * M23) - (M13 * M22);
-			float a4 = (M14 * M22) - (M12 * M24);
-			float a5 = (M13 * M24) - (M14 * M23);
+			float a0 = (M00 * M11) - (M01 * M10);
+			float a1 = (M00 * M12) - (M02 * M10);
+			float a2 = (M03 * M10) - (M00 * M13);
+			float a3 = (M01 * M12) - (M02 * M11);
+			float a4 = (M03 * M11) - (M01 * M13);
+			float a5 = (M02 * M13) - (M03 * M12);
 
-			float d21 = M12 * b5 + M13 * b4 + M14 * b3;
-			float d22 = M11 * b5 + M13 * b2 + M14 * b1;
-			float d23 = M11 * -b4 + M12 * b2 + M14 * b0;
-			float d24 = M11 * b3 + M12 * -b1 + M13 * b0;
+			float d21 = M01 * b5 + M02 * b4 + M03 * b3;
+			float d22 = M00 * b5 + M02 * b2 + M03 * b1;
+			float d23 = M00 * -b4 + M01 * b2 + M03 * b0;
+			float d24 = M00 * b3 + M01 * -b1 + M02 * b0;
 
-			float d31 = M42 * a5 + M43 * a4 + M44 * a3;
-			float d32 = M41 * a5 + M43 * a2 + M44 * a1;
-			float d33 = M41 * -a4 + M42 * a2 + M44 * a0;
-			float d34 = M41 * a3 + M42 * -a1 + M43 * a0;
+			float d31 = M31 * a5 + M32 * a4 + M33 * a3;
+			float d32 = M30 * a5 + M32 * a2 + M33 * a1;
+			float d33 = M30 * -a4 + M31 * a2 + M33 * a0;
+			float d34 = M30 * a3 + M31 * -a1 + M32 * a0;
 
-			float d41 = M32 * a5 + M33 * a4 + M34 * a3;
-			float d42 = M31 * a5 + M33 * a2 + M34 * a1;
-			float d43 = M31 * -a4 + M32 * a2 + M34 * a0;
-			float d44 = M31 * a3 + M32 * -a1 + M33 * a0;
+			float d41 = M21 * a5 + M22 * a4 + M23 * a3;
+			float d42 = M20 * a5 + M22 * a2 + M23 * a1;
+			float d43 = M20 * -a4 + M21 * a2 + M23 * a0;
+			float d44 = M20 * a3 + M21 * -a1 + M22 * a0;
 
 			Matrix result = new Matrix();
 
-			result.M11 = +d11 * det; result.M12 = -d21 * det; result.M13 = +d31 * det; result.M14 = -d41 * det;
-			result.M21 = -d12 * det; result.M22 = +d22 * det; result.M23 = -d32 * det; result.M24 = +d42 * det;
-			result.M31 = +d13 * det; result.M32 = -d23 * det; result.M33 = +d33 * det; result.M34 = -d43 * det;
-			result.M41 = -d14 * det; result.M42 = +d24 * det; result.M43 = -d34 * det; result.M44 = +d44 * det;
+			result.M00 = +d11 * det; result.M01 = -d21 * det; result.M02 = +d31 * det; result.M03 = -d41 * det;
+			result.M10 = -d12 * det; result.M11 = +d22 * det; result.M12 = -d32 * det; result.M13 = +d42 * det;
+			result.M20 = +d13 * det; result.M21 = -d23 * det; result.M22 = +d33 * det; result.M23 = -d43 * det;
+			result.M30 = -d14 * det; result.M31 = +d24 * det; result.M32 = -d34 * det; result.M33 = +d44 * det;
 
 			return result;
 		}
@@ -1337,14 +1336,14 @@ namespace ArcticFoxEngine {
 			//By separating the above algorithm into multiple lines, we actually increase accuracy.
 			result = value;
 
+			result.Row1 = result.Row1 - (Vector4.Dot(result.Row0, result.Row1) / Vector4.Dot(result.Row0, result.Row0)) * result.Row0;
+
+			result.Row2 = result.Row2 - (Vector4.Dot(result.Row0, result.Row2) / Vector4.Dot(result.Row0, result.Row0)) * result.Row0;
 			result.Row2 = result.Row2 - (Vector4.Dot(result.Row1, result.Row2) / Vector4.Dot(result.Row1, result.Row1)) * result.Row1;
 
+			result.Row3 = result.Row3 - (Vector4.Dot(result.Row0, result.Row3) / Vector4.Dot(result.Row0, result.Row0)) * result.Row0;
 			result.Row3 = result.Row3 - (Vector4.Dot(result.Row1, result.Row3) / Vector4.Dot(result.Row1, result.Row1)) * result.Row1;
 			result.Row3 = result.Row3 - (Vector4.Dot(result.Row2, result.Row3) / Vector4.Dot(result.Row2, result.Row2)) * result.Row2;
-
-			result.Row4 = result.Row4 - (Vector4.Dot(result.Row1, result.Row4) / Vector4.Dot(result.Row1, result.Row1)) * result.Row1;
-			result.Row4 = result.Row4 - (Vector4.Dot(result.Row2, result.Row4) / Vector4.Dot(result.Row2, result.Row2)) * result.Row2;
-			result.Row4 = result.Row4 - (Vector4.Dot(result.Row3, result.Row4) / Vector4.Dot(result.Row3, result.Row3)) * result.Row3;
 		}
 
 		/// <summary>
@@ -1399,19 +1398,19 @@ namespace ArcticFoxEngine {
 			//By separating the above algorithm into multiple lines, we actually increase accuracy.
 			result = value;
 
+			result.Row0 = result.Row0.Normalize();
+
+			result.Row1 = result.Row1 - Vector4.Dot(result.Row0, result.Row1) * result.Row0;
 			result.Row1 = result.Row1.Normalize();
 
+			result.Row2 = result.Row2 - Vector4.Dot(result.Row0, result.Row2) * result.Row0;
 			result.Row2 = result.Row2 - Vector4.Dot(result.Row1, result.Row2) * result.Row1;
 			result.Row2 = result.Row2.Normalize();
 
+			result.Row3 = result.Row3 - Vector4.Dot(result.Row0, result.Row3) * result.Row0;
 			result.Row3 = result.Row3 - Vector4.Dot(result.Row1, result.Row3) * result.Row1;
 			result.Row3 = result.Row3 - Vector4.Dot(result.Row2, result.Row3) * result.Row2;
 			result.Row3 = result.Row3.Normalize();
-
-			result.Row4 = result.Row4 - Vector4.Dot(result.Row1, result.Row4) * result.Row1;
-			result.Row4 = result.Row4 - Vector4.Dot(result.Row2, result.Row4) * result.Row2;
-			result.Row4 = result.Row4 - Vector4.Dot(result.Row3, result.Row4) * result.Row3;
-			result.Row4 = result.Row4.Normalize();
 		}
 
 		/// <summary>
@@ -1744,25 +1743,25 @@ namespace ArcticFoxEngine {
 				lead++;
 			}
 
-			result.M11 = matrix[0, 0];
-			result.M12 = matrix[0, 1];
-			result.M13 = matrix[0, 2];
-			result.M14 = matrix[0, 3];
+			result.M00 = matrix[0, 0];
+			result.M01 = matrix[0, 1];
+			result.M02 = matrix[0, 2];
+			result.M03 = matrix[0, 3];
 
-			result.M21 = matrix[1, 0];
-			result.M22 = matrix[1, 1];
-			result.M23 = matrix[1, 2];
-			result.M24 = matrix[1, 3];
+			result.M10 = matrix[1, 0];
+			result.M11 = matrix[1, 1];
+			result.M12 = matrix[1, 2];
+			result.M13 = matrix[1, 3];
 
-			result.M31 = matrix[2, 0];
-			result.M32 = matrix[2, 1];
-			result.M33 = matrix[2, 2];
-			result.M34 = matrix[2, 3];
+			result.M20 = matrix[2, 0];
+			result.M21 = matrix[2, 1];
+			result.M22 = matrix[2, 2];
+			result.M23 = matrix[2, 3];
 
-			result.M41 = matrix[3, 0];
-			result.M42 = matrix[3, 1];
-			result.M43 = matrix[3, 2];
-			result.M44 = matrix[3, 3];
+			result.M30 = matrix[3, 0];
+			result.M31 = matrix[3, 1];
+			result.M32 = matrix[3, 2];
+			result.M33 = matrix[3, 3];
 
 			augmentResult.x = matrix[0, 4];
 			augmentResult.y = matrix[1, 4];
@@ -1793,22 +1792,22 @@ namespace ArcticFoxEngine {
 			crossed.Normalize();
 			final = Vector3.Cross(difference, crossed);
 
-			result.M11 = crossed.x;
-			result.M12 = crossed.y;
-			result.M13 = crossed.z;
-			result.M14 = 0.0f;
-			result.M21 = final.x;
-			result.M22 = final.y;
-			result.M23 = final.z;
-			result.M24 = 0.0f;
-			result.M31 = difference.x;
-			result.M32 = difference.y;
-			result.M33 = difference.z;
-			result.M34 = 0.0f;
-			result.M41 = objectPosition.x;
-			result.M42 = objectPosition.y;
-			result.M43 = objectPosition.z;
-			result.M44 = 1.0f;
+			result.M00 = crossed.x;
+			result.M01 = crossed.y;
+			result.M02 = crossed.z;
+			result.M03 = 0.0f;
+			result.M10 = final.x;
+			result.M11 = final.y;
+			result.M12 = final.z;
+			result.M13 = 0.0f;
+			result.M20 = difference.x;
+			result.M21 = difference.y;
+			result.M22 = difference.z;
+			result.M23 = 0.0f;
+			result.M30 = objectPosition.x;
+			result.M31 = objectPosition.y;
+			result.M32 = objectPosition.z;
+			result.M33 = 1.0f;
 		}
 
 		/// <summary>
@@ -1848,22 +1847,22 @@ namespace ArcticFoxEngine {
 			crossed.Normalize();
 			final = Vector3.Cross(difference, crossed);
 
-			result.M11 = crossed.x;
-			result.M12 = crossed.y;
-			result.M13 = crossed.z;
-			result.M14 = 0.0f;
-			result.M21 = final.x;
-			result.M22 = final.y;
-			result.M23 = final.z;
-			result.M24 = 0.0f;
-			result.M31 = difference.x;
-			result.M32 = difference.y;
-			result.M33 = difference.z;
-			result.M34 = 0.0f;
-			result.M41 = objectPosition.x;
-			result.M42 = objectPosition.y;
-			result.M43 = objectPosition.z;
-			result.M44 = 1.0f;
+			result.M00 = crossed.x;
+			result.M01 = crossed.y;
+			result.M02 = crossed.z;
+			result.M03 = 0.0f;
+			result.M10 = final.x;
+			result.M11 = final.y;
+			result.M12 = final.z;
+			result.M13 = 0.0f;
+			result.M20 = difference.x;
+			result.M21 = difference.y;
+			result.M22 = difference.z;
+			result.M23 = 0.0f;
+			result.M30 = objectPosition.x;
+			result.M31 = objectPosition.y;
+			result.M32 = objectPosition.z;
+			result.M33 = 1.0f;
 		}
 
 		/// <summary>
@@ -1894,17 +1893,17 @@ namespace ArcticFoxEngine {
 			yaxis = Vector3.Cross(zaxis, xaxis);
 
 			result = Matrix.Identity;
-			result.M11 = xaxis.x; result.M21 = xaxis.y; result.M31 = xaxis.z;
-			result.M12 = yaxis.x; result.M22 = yaxis.y; result.M32 = yaxis.z;
-			result.M13 = zaxis.x; result.M23 = zaxis.y; result.M33 = zaxis.z;
+			result.M00 = xaxis.x; result.M10 = xaxis.y; result.M20 = xaxis.z;
+			result.M01 = yaxis.x; result.M11 = yaxis.y; result.M21 = yaxis.z;
+			result.M02 = zaxis.x; result.M12 = zaxis.y; result.M22 = zaxis.z;
 
-			result.M41 = Vector3.Dot(xaxis, eye);
-			result.M42 = Vector3.Dot(yaxis, eye);
-			result.M43 = Vector3.Dot(zaxis, eye);
+			result.M30 = Vector3.Dot(xaxis, eye);
+			result.M31 = Vector3.Dot(yaxis, eye);
+			result.M32 = Vector3.Dot(zaxis, eye);
 
-			result.M41 = -result.M41;
-			result.M42 = -result.M42;
-			result.M43 = -result.M43;
+			result.M30 = -result.M30;
+			result.M31 = -result.M31;
+			result.M32 = -result.M32;
 		}
 
 		/// <summary>
@@ -1934,17 +1933,17 @@ namespace ArcticFoxEngine {
 			yaxis = Vector3.Cross(zaxis, xaxis);
 
 			result = Matrix.Identity;
-			result.M11 = xaxis.x; result.M21 = xaxis.y; result.M31 = xaxis.z;
-			result.M12 = yaxis.x; result.M22 = yaxis.y; result.M32 = yaxis.z;
-			result.M13 = zaxis.x; result.M23 = zaxis.y; result.M33 = zaxis.z;
+			result.M00 = xaxis.x; result.M10 = xaxis.y; result.M20 = xaxis.z;
+			result.M01 = yaxis.x; result.M11 = yaxis.y; result.M21 = yaxis.z;
+			result.M02 = zaxis.x; result.M12 = zaxis.y; result.M22 = zaxis.z;
 
-			result.M41 = Vector3.Dot(xaxis, eye);
-			result.M42 = Vector3.Dot(yaxis, eye);
-			result.M43 = Vector3.Dot(zaxis, eye);
+			result.M30 = Vector3.Dot(xaxis, eye);
+			result.M31 = Vector3.Dot(yaxis, eye);
+			result.M32 = Vector3.Dot(zaxis, eye);
 
-			result.M41 = -result.M41;
-			result.M42 = -result.M42;
-			result.M43 = -result.M43;
+			result.M30 = -result.M30;
+			result.M31 = -result.M31;
+			result.M32 = -result.M32;
 		}
 
 		/// <summary>
@@ -2032,12 +2031,12 @@ namespace ArcticFoxEngine {
 			float zRange = 1.0f / (zfar - znear);
 
 			result = Matrix.Identity;
-			result.M11 = 2.0f / (right - left);
-			result.M22 = 2.0f / (top - bottom);
-			result.M33 = zRange;
-			result.M41 = (left + right) / (left - right);
-			result.M42 = (top + bottom) / (bottom - top);
-			result.M43 = -znear * zRange;
+			result.M00 = 2.0f / (right - left);
+			result.M11 = 2.0f / (top - bottom);
+			result.M22 = zRange;
+			result.M30 = (left + right) / (left - right);
+			result.M31 = (top + bottom) / (bottom - top);
+			result.M32 = -znear * zRange;
 		}
 
 		/// <summary>
@@ -2068,7 +2067,7 @@ namespace ArcticFoxEngine {
 		/// <param name="result">When the method completes, contains the created projection matrix.</param>
 		public static void OrthoOffCenterRH(float left, float right, float bottom, float top, float znear, float zfar, out Matrix result) {
 			OrthoOffCenterLH(left, right, bottom, top, znear, zfar, out result);
-			result.M33 *= -1.0f;
+			result.M22 *= -1.0f;
 		}
 
 		/// <summary>
@@ -2158,11 +2157,11 @@ namespace ArcticFoxEngine {
 			float q = zfar / (zfar - znear);
 
 			result = new Matrix();
-			result.M11 = yScale / aspect;
-			result.M22 = yScale;
-			result.M33 = q;
-			result.M34 = 1.0f;
-			result.M43 = -q * znear;
+			result.M00 = yScale / aspect;
+			result.M11 = yScale;
+			result.M22 = q;
+			result.M23 = 1.0f;
+			result.M32 = -q * znear;
 		}
 
 		/// <summary>
@@ -2192,11 +2191,11 @@ namespace ArcticFoxEngine {
 			float q = zfar / (znear - zfar);
 
 			result = new Matrix();
-			result.M11 = yScale / aspect;
-			result.M22 = yScale;
-			result.M33 = q;
-			result.M34 = -1.0f;
-			result.M43 = q * znear;
+			result.M00 = yScale / aspect;
+			result.M11 = yScale;
+			result.M22 = q;
+			result.M23 = -1.0f;
+			result.M32 = q * znear;
 		}
 
 		/// <summary>
@@ -2227,13 +2226,13 @@ namespace ArcticFoxEngine {
 			float zRange = zfar / (zfar - znear);
 
 			result = new Matrix();
-			result.M11 = 2.0f * znear / (right - left);
-			result.M22 = 2.0f * znear / (top - bottom);
-			result.M31 = (left + right) / (left - right);
-			result.M32 = (top + bottom) / (bottom - top);
-			result.M33 = zRange;
-			result.M34 = 1.0f;
-			result.M43 = -znear * zRange;
+			result.M00 = 2.0f * znear / (right - left);
+			result.M11 = 2.0f * znear / (top - bottom);
+			result.M20 = (left + right) / (left - right);
+			result.M21 = (top + bottom) / (bottom - top);
+			result.M22 = zRange;
+			result.M23 = 1.0f;
+			result.M32 = -znear * zRange;
 		}
 
 		/// <summary>
@@ -2264,10 +2263,10 @@ namespace ArcticFoxEngine {
 		/// <param name="result">When the method completes, contains the created projection matrix.</param>
 		public static void PerspectiveOffCenterRH(float left, float right, float bottom, float top, float znear, float zfar, out Matrix result) {
 			PerspectiveOffCenterLH(left, right, bottom, top, znear, zfar, out result);
-			result.M31 *= -1.0f;
-			result.M32 *= -1.0f;
-			result.M33 *= -1.0f;
-			result.M34 *= -1.0f;
+			result.M20 *= -1.0f;
+			result.M21 *= -1.0f;
+			result.M22 *= -1.0f;
+			result.M23 *= -1.0f;
 		}
 
 		/// <summary>
@@ -2316,9 +2315,9 @@ namespace ArcticFoxEngine {
 		/// <param name="result">When the method completes, contains the created scaling matrix.</param>
 		public static void Scaling(float x, float y, float z, out Matrix result) {
 			result = Matrix.Identity;
-			result.M11 = x;
-			result.M22 = y;
-			result.M33 = z;
+			result.M00 = x;
+			result.M11 = y;
+			result.M22 = z;
 		}
 
 		/// <summary>
@@ -2341,7 +2340,7 @@ namespace ArcticFoxEngine {
 		/// <param name="result">When the method completes, contains the created scaling matrix.</param>
 		public static void Scaling(float scale, out Matrix result) {
 			result = Matrix.Identity;
-			result.M11 = result.M22 = result.M33 = scale;
+			result.M00 = result.M11 = result.M22 = scale;
 		}
 
 		/// <summary>
@@ -2365,10 +2364,10 @@ namespace ArcticFoxEngine {
 			float sin = (float)Math.Sin(angle);
 
 			result = Matrix.Identity;
+			result.M11 = cos;
+			result.M12 = sin;
+			result.M21 = -sin;
 			result.M22 = cos;
-			result.M23 = sin;
-			result.M32 = -sin;
-			result.M33 = cos;
 		}
 
 		/// <summary>
@@ -2392,10 +2391,10 @@ namespace ArcticFoxEngine {
 			float sin = (float)Math.Sin(angle);
 
 			result = Matrix.Identity;
-			result.M11 = cos;
-			result.M13 = -sin;
-			result.M31 = sin;
-			result.M33 = cos;
+			result.M00 = cos;
+			result.M02 = -sin;
+			result.M20 = sin;
+			result.M22 = cos;
 		}
 
 		/// <summary>
@@ -2419,10 +2418,10 @@ namespace ArcticFoxEngine {
 			float sin = (float)Math.Sin(angle);
 
 			result = Matrix.Identity;
+			result.M00 = cos;
+			result.M01 = sin;
+			result.M10 = -sin;
 			result.M11 = cos;
-			result.M12 = sin;
-			result.M21 = -sin;
-			result.M22 = cos;
 		}
 
 		/// <summary>
@@ -2456,15 +2455,15 @@ namespace ArcticFoxEngine {
 			float yz = y * z;
 
 			result = Matrix.Identity;
-			result.M11 = xx + (cos * (1.0f - xx));
-			result.M12 = (xy - (cos * xy)) + (sin * z);
-			result.M13 = (xz - (cos * xz)) - (sin * y);
-			result.M21 = (xy - (cos * xy)) - (sin * z);
-			result.M22 = yy + (cos * (1.0f - yy));
-			result.M23 = (yz - (cos * yz)) + (sin * x);
-			result.M31 = (xz - (cos * xz)) + (sin * y);
-			result.M32 = (yz - (cos * yz)) - (sin * x);
-			result.M33 = zz + (cos * (1.0f - zz));
+			result.M00 = xx + (cos * (1.0f - xx));
+			result.M01 = (xy - (cos * xy)) + (sin * z);
+			result.M02 = (xz - (cos * xz)) - (sin * y);
+			result.M10 = (xy - (cos * xy)) - (sin * z);
+			result.M11 = yy + (cos * (1.0f - yy));
+			result.M12 = (yz - (cos * yz)) + (sin * x);
+			result.M20 = (xz - (cos * xz)) + (sin * y);
+			result.M21 = (yz - (cos * yz)) - (sin * x);
+			result.M22 = zz + (cos * (1.0f - zz));
 		}
 
 		/// <summary>
@@ -2497,15 +2496,15 @@ namespace ArcticFoxEngine {
 			float xw = rotation.x * rotation.w;
 
 			Matrix result = Matrix.Identity;
-			result.M11 = 1.0f - (2.0f * (yy + zz));
-			result.M12 = 2.0f * (xy + zw);
-			result.M13 = 2.0f * (zx - yw);
-			result.M21 = 2.0f * (xy - zw);
-			result.M22 = 1.0f - (2.0f * (zz + xx));
-			result.M23 = 2.0f * (yz + xw);
-			result.M31 = 2.0f * (zx + yw);
-			result.M32 = 2.0f * (yz - xw);
-			result.M33 = 1.0f - (2.0f * (yy + xx));
+			result.M00 = 1.0f - (2.0f * (yy + zz));
+			result.M01 = 2.0f * (xy + zw);
+			result.M02 = 2.0f * (zx - yw);
+			result.M10 = 2.0f * (xy - zw);
+			result.M11 = 1.0f - (2.0f * (zz + xx));
+			result.M12 = 2.0f * (yz + xw);
+			result.M20 = 2.0f * (zx + yw);
+			result.M21 = 2.0f * (yz - xw);
+			result.M22 = 1.0f - (2.0f * (yy + xx));
 			return result;
 
 		}
@@ -2531,9 +2530,9 @@ namespace ArcticFoxEngine {
 		/// <param name="z">Z-coordinate offset.</param>
 		public static Matrix Translation(float x, float y, float z) {
 			Matrix result = Matrix.Identity;
-			result.M41 = x;
-			result.M42 = y;
-			result.M43 = z;
+			result.M30 = x;
+			result.M31 = y;
+			result.M32 = z;
 			return result;
 		}
 
@@ -2577,15 +2576,15 @@ namespace ArcticFoxEngine {
 			float d = (rr1 / rr0) - (rv1 / rv0);
 
 			matrix = Matrix.Identity;
-			matrix.M11 = d * e1[0] * e0[0] + 1.0f;
-			matrix.M12 = d * e1[0] * e0[1];
-			matrix.M13 = d * e1[0] * e0[2];
-			matrix.M21 = d * e1[1] * e0[0];
-			matrix.M22 = d * e1[1] * e0[1] + 1.0f;
-			matrix.M23 = d * e1[1] * e0[2];
-			matrix.M31 = d * e1[2] * e0[0];
-			matrix.M32 = d * e1[2] * e0[1];
-			matrix.M33 = d * e1[2] * e0[2] + 1.0f;
+			matrix.M00 = d * e1[0] * e0[0] + 1.0f;
+			matrix.M01 = d * e1[0] * e0[1];
+			matrix.M02 = d * e1[0] * e0[2];
+			matrix.M10 = d * e1[1] * e0[0];
+			matrix.M11 = d * e1[1] * e0[1] + 1.0f;
+			matrix.M12 = d * e1[1] * e0[2];
+			matrix.M20 = d * e1[2] * e0[0];
+			matrix.M21 = d * e1[2] * e0[1];
+			matrix.M22 = d * e1[2] * e0[2] + 1.0f;
 		}
 
 		/// <summary>
@@ -2741,8 +2740,8 @@ namespace ArcticFoxEngine {
 			result = Translation((Vector3)(-scalingCenter)) * RotationZ(-scalingRotation) * Scaling((Vector3)scaling) * RotationZ(scalingRotation) * Translation((Vector3)scalingCenter) *
 				Translation((Vector3)(-rotationCenter)) * RotationZ(rotation) * Translation((Vector3)rotationCenter) * Translation((Vector3)translation);
 
+			result.M22 = 1f;
 			result.M33 = 1f;
-			result.M44 = 1f;
 		}
 
 		/// <summary>
@@ -2822,10 +2821,10 @@ namespace ArcticFoxEngine {
 
 			Matrix leftT = left.Transpose();
 
-			outVec.x = leftT.M11 * right.x + leftT.M12 * right.y + leftT.M13 * right.z + leftT.M14 * right.w;
-			outVec.y = leftT.M21 * right.x + leftT.M22 * right.y + leftT.M23 * right.z + leftT.M24 * right.w;
-			outVec.z = leftT.M31 * right.x + leftT.M32 * right.y + leftT.M33 * right.z + leftT.M34 * right.w;
-			outVec.w = leftT.M41 * right.x + leftT.M42 * right.y + leftT.M43 * right.z + leftT.M44 * right.w;
+			outVec.x = leftT.M00 * right.x + leftT.M01 * right.y + leftT.M02 * right.z + leftT.M03 * right.w;
+			outVec.y = leftT.M10 * right.x + leftT.M11 * right.y + leftT.M12 * right.z + leftT.M13 * right.w;
+			outVec.z = leftT.M20 * right.x + leftT.M21 * right.y + leftT.M22 * right.z + leftT.M23 * right.w;
+			outVec.w = leftT.M30 * right.x + leftT.M31 * right.y + leftT.M32 * right.z + leftT.M33 * right.w;
 			return outVec;
 		}
 		public static Vector3 operator *(Matrix left, Vector3 right) {
@@ -2910,7 +2909,7 @@ namespace ArcticFoxEngine {
 		/// </returns>
 		public override string ToString() {
 			return string.Format(CultureInfo.CurrentCulture, "[M11:{0} M12:{1} M13:{2} M14:{3}] [M21:{4} M22:{5} M23:{6} M24:{7}] [M31:{8} M32:{9} M33:{10} M34:{11}] [M41:{12} M42:{13} M43:{14} M44:{15}]",
-				M11, M12, M13, M14, M21, M22, M23, M24, M31, M32, M33, M34, M41, M42, M43, M44);
+				M00, M01, M02, M03, M10, M11, M12, M13, M20, M21, M22, M23, M30, M31, M32, M33);
 		}
 
 		/// <summary>
@@ -2925,10 +2924,10 @@ namespace ArcticFoxEngine {
 				return ToString();
 
 			return string.Format(format, CultureInfo.CurrentCulture, "[M11:{0} M12:{1} M13:{2} M14:{3}] [M21:{4} M22:{5} M23:{6} M24:{7}] [M31:{8} M32:{9} M33:{10} M34:{11}] [M41:{12} M42:{13} M43:{14} M44:{15}]",
-				M11.ToString(format, CultureInfo.CurrentCulture), M12.ToString(format, CultureInfo.CurrentCulture), M13.ToString(format, CultureInfo.CurrentCulture), M14.ToString(format, CultureInfo.CurrentCulture),
-				M21.ToString(format, CultureInfo.CurrentCulture), M22.ToString(format, CultureInfo.CurrentCulture), M23.ToString(format, CultureInfo.CurrentCulture), M24.ToString(format, CultureInfo.CurrentCulture),
-				M31.ToString(format, CultureInfo.CurrentCulture), M32.ToString(format, CultureInfo.CurrentCulture), M33.ToString(format, CultureInfo.CurrentCulture), M34.ToString(format, CultureInfo.CurrentCulture),
-				M41.ToString(format, CultureInfo.CurrentCulture), M42.ToString(format, CultureInfo.CurrentCulture), M43.ToString(format, CultureInfo.CurrentCulture), M44.ToString(format, CultureInfo.CurrentCulture));
+				M00.ToString(format, CultureInfo.CurrentCulture), M01.ToString(format, CultureInfo.CurrentCulture), M02.ToString(format, CultureInfo.CurrentCulture), M03.ToString(format, CultureInfo.CurrentCulture),
+				M10.ToString(format, CultureInfo.CurrentCulture), M11.ToString(format, CultureInfo.CurrentCulture), M12.ToString(format, CultureInfo.CurrentCulture), M13.ToString(format, CultureInfo.CurrentCulture),
+				M20.ToString(format, CultureInfo.CurrentCulture), M21.ToString(format, CultureInfo.CurrentCulture), M22.ToString(format, CultureInfo.CurrentCulture), M23.ToString(format, CultureInfo.CurrentCulture),
+				M30.ToString(format, CultureInfo.CurrentCulture), M31.ToString(format, CultureInfo.CurrentCulture), M32.ToString(format, CultureInfo.CurrentCulture), M33.ToString(format, CultureInfo.CurrentCulture));
 		}
 
 		/// <summary>
@@ -2940,10 +2939,10 @@ namespace ArcticFoxEngine {
 		/// </returns>
 		public string ToString(IFormatProvider formatProvider) {
 			return string.Format(formatProvider, "[M11:{0} M12:{1} M13:{2} M14:{3}] [M21:{4} M22:{5} M23:{6} M24:{7}] [M31:{8} M32:{9} M33:{10} M34:{11}] [M41:{12} M42:{13} M43:{14} M44:{15}]",
-				M11.ToString(formatProvider), M12.ToString(formatProvider), M13.ToString(formatProvider), M14.ToString(formatProvider),
-				M21.ToString(formatProvider), M22.ToString(formatProvider), M23.ToString(formatProvider), M24.ToString(formatProvider),
-				M31.ToString(formatProvider), M32.ToString(formatProvider), M33.ToString(formatProvider), M34.ToString(formatProvider),
-				M41.ToString(formatProvider), M42.ToString(formatProvider), M43.ToString(formatProvider), M44.ToString(formatProvider));
+				M00.ToString(formatProvider), M01.ToString(formatProvider), M02.ToString(formatProvider), M03.ToString(formatProvider),
+				M10.ToString(formatProvider), M11.ToString(formatProvider), M12.ToString(formatProvider), M13.ToString(formatProvider),
+				M20.ToString(formatProvider), M21.ToString(formatProvider), M22.ToString(formatProvider), M23.ToString(formatProvider),
+				M30.ToString(formatProvider), M31.ToString(formatProvider), M32.ToString(formatProvider), M33.ToString(formatProvider));
 		}
 
 		/// <summary>
@@ -2959,10 +2958,10 @@ namespace ArcticFoxEngine {
 				return ToString(formatProvider);
 
 			return string.Format(formatProvider, "[M11:{0} M12:{1} M13:{2} M14:{3}] [M21:{4} M22:{5} M23:{6} M24:{7}] [M31:{8} M32:{9} M33:{10} M34:{11}] [M41:{12} M42:{13} M43:{14} M44:{15}]",
-				M11.ToString(format, formatProvider), M12.ToString(format, formatProvider), M13.ToString(format, formatProvider), M14.ToString(format, formatProvider),
-				M21.ToString(format, formatProvider), M22.ToString(format, formatProvider), M23.ToString(format, formatProvider), M24.ToString(format, formatProvider),
-				M31.ToString(format, formatProvider), M32.ToString(format, formatProvider), M33.ToString(format, formatProvider), M34.ToString(format, formatProvider),
-				M41.ToString(format, formatProvider), M42.ToString(format, formatProvider), M43.ToString(format, formatProvider), M44.ToString(format, formatProvider));
+				M00.ToString(format, formatProvider), M01.ToString(format, formatProvider), M02.ToString(format, formatProvider), M03.ToString(format, formatProvider),
+				M10.ToString(format, formatProvider), M11.ToString(format, formatProvider), M12.ToString(format, formatProvider), M13.ToString(format, formatProvider),
+				M20.ToString(format, formatProvider), M21.ToString(format, formatProvider), M22.ToString(format, formatProvider), M23.ToString(format, formatProvider),
+				M30.ToString(format, formatProvider), M31.ToString(format, formatProvider), M32.ToString(format, formatProvider), M33.ToString(format, formatProvider));
 		}
 
 		/// <summary>
@@ -2973,22 +2972,22 @@ namespace ArcticFoxEngine {
 		/// </returns>
 		public override int GetHashCode() {
 			unchecked {
-				var hashCode = M11.GetHashCode();
+				var hashCode = M00.GetHashCode();
+				hashCode = (hashCode * 397) ^ M01.GetHashCode();
+				hashCode = (hashCode * 397) ^ M02.GetHashCode();
+				hashCode = (hashCode * 397) ^ M03.GetHashCode();
+				hashCode = (hashCode * 397) ^ M10.GetHashCode();
+				hashCode = (hashCode * 397) ^ M11.GetHashCode();
 				hashCode = (hashCode * 397) ^ M12.GetHashCode();
 				hashCode = (hashCode * 397) ^ M13.GetHashCode();
-				hashCode = (hashCode * 397) ^ M14.GetHashCode();
+				hashCode = (hashCode * 397) ^ M20.GetHashCode();
 				hashCode = (hashCode * 397) ^ M21.GetHashCode();
 				hashCode = (hashCode * 397) ^ M22.GetHashCode();
 				hashCode = (hashCode * 397) ^ M23.GetHashCode();
-				hashCode = (hashCode * 397) ^ M24.GetHashCode();
+				hashCode = (hashCode * 397) ^ M30.GetHashCode();
 				hashCode = (hashCode * 397) ^ M31.GetHashCode();
 				hashCode = (hashCode * 397) ^ M32.GetHashCode();
 				hashCode = (hashCode * 397) ^ M33.GetHashCode();
-				hashCode = (hashCode * 397) ^ M34.GetHashCode();
-				hashCode = (hashCode * 397) ^ M41.GetHashCode();
-				hashCode = (hashCode * 397) ^ M42.GetHashCode();
-				hashCode = (hashCode * 397) ^ M43.GetHashCode();
-				hashCode = (hashCode * 397) ^ M44.GetHashCode();
 				return hashCode;
 			}
 		}
@@ -3001,22 +3000,22 @@ namespace ArcticFoxEngine {
 		/// <c>true</c> if the specified <see cref="Matrix"/> is equal to this instance; otherwise, <c>false</c>.
 		/// </returns>
 		public bool Equals(ref Matrix other) {
-			return (MathUtil.NearEqual(other.M11, M11) &&
+			return (MathUtil.NearEqual(other.M00, M00) &&
+				MathUtil.NearEqual(other.M01, M01) &&
+				MathUtil.NearEqual(other.M02, M02) &&
+				MathUtil.NearEqual(other.M03, M03) &&
+				MathUtil.NearEqual(other.M10, M10) &&
+				MathUtil.NearEqual(other.M11, M11) &&
 				MathUtil.NearEqual(other.M12, M12) &&
 				MathUtil.NearEqual(other.M13, M13) &&
-				MathUtil.NearEqual(other.M14, M14) &&
+				MathUtil.NearEqual(other.M20, M20) &&
 				MathUtil.NearEqual(other.M21, M21) &&
 				MathUtil.NearEqual(other.M22, M22) &&
 				MathUtil.NearEqual(other.M23, M23) &&
-				MathUtil.NearEqual(other.M24, M24) &&
+				MathUtil.NearEqual(other.M30, M30) &&
 				MathUtil.NearEqual(other.M31, M31) &&
 				MathUtil.NearEqual(other.M32, M32) &&
-				MathUtil.NearEqual(other.M33, M33) &&
-				MathUtil.NearEqual(other.M34, M34) &&
-				MathUtil.NearEqual(other.M41, M41) &&
-				MathUtil.NearEqual(other.M42, M42) &&
-				MathUtil.NearEqual(other.M43, M43) &&
-				MathUtil.NearEqual(other.M44, M44));
+				MathUtil.NearEqual(other.M33, M33));
 		}
 
 		/// <summary>

@@ -5,7 +5,7 @@ namespace ArcticFoxEngine {
 
 		private static RenderForm window;
 
-		internal static void InitScreen(RenderForm window) {
+		internal static void Init(RenderForm window) {
 			Screen.window = window;
 		}
 

@@ -217,5 +217,11 @@
 
 		}
 
+		public void SetColor(Color color) {
+			for (int i = 0; i < vertices.Length; i ++) {
+				vertices[i].color = color;
+			}
+		}
+
 	}
 }

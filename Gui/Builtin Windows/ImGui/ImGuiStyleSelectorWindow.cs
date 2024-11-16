@@ -6,6 +6,8 @@ namespace ArcticFoxEngine.Gui.Builtin_Windows {
 
 		public override string name => "Style Selector";
 
+		public ImGuiStyleSelectorWindow(params string[] menuGroups) : base(menuGroups) { }
+
 		public override void Render() {
 			ImGui.Begin("Style Selector", ref open);
 			ImGui.ShowStyleSelector("Style selector");

@@ -13,10 +13,11 @@ namespace ArcticFoxEngine {
 
 		internal DescriptorHeap descriptorHeap;
 		Resource texture;
-		Format format;
+		public Format format { get; private set; }
 		public int width;
 		public int height;
 
+		byte[] textureDataClone;
 
 		/// <summary>
 		/// Creates an empty texture
@@ -34,7 +35,7 @@ namespace ArcticFoxEngine {
 			textureDesc.Flags |= allowUnorderedAccess ? ResourceFlags.AllowUnorderedAccess : ResourceFlags.None;
 
 			texture = Graphics.device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.None, textureDesc, ResourceStates.CopyDestination);
-
+			textureDataClone = new byte[width * height * format.SizeOfInBytes()];
 
 			DescriptorHeapDescription dhd = new DescriptorHeapDescription() {
 				DescriptorCount = 1,
@@ -59,7 +60,7 @@ namespace ArcticFoxEngine {
 			format = Format.R8G8B8A8_UNorm;
 			ResourceDescription textureDesc = ResourceDescription.Texture2D(Format.R8G8B8A8_UNorm, width, height);
 			texture = Graphics.device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.None, textureDesc, ResourceStates.CopyDestination);
-
+			textureDataClone = new byte[width * height * format.SizeOfInBytes()];
 
 			byte[] imageData = new byte[image.Width * image.Height * 4];
 			for (int i = 0; i < image.Width; i++) {
@@ -107,16 +108,58 @@ namespace ArcticFoxEngine {
 		/// <param name="data">The data to be uploaded</param>
 		public void SetData(byte[] data) {
 			Upload.Texture2DUpload(texture, width, height, format, data);
+			textureDataClone = data;
 		}
 
 		public void SetPixel(byte[] data, int x, int y) {
 			if (x < 0 || y < 0 || x >= width || y >= height) {
-				Log.Warn("Trying to set pixel outside of the texture, ignoring");
+				//Log.Warn("Trying to set pixel outside of the texture, ignoring");
 				return;
 			}
 			Upload.Texture2DPixelUpload(texture, x, y, format, data);
 		}
+		public void SetAllPixels(byte[] data) {
+			byte[] allData = new byte[format.SizeOfInBytes() * width * height];
+			for (int i = 0; i < width * height; i ++) {
 
+				for (int f = 0; f < format.SizeOfInBytes(); f ++) {
+					allData[i * format.SizeOfInBytes() + f] = data[f];
+				}
+
+			}
+			SetData(allData);
+		}
+
+		public byte[] GetPixel(int x, int y) {
+
+			byte[] pixelData = new byte[format.SizeOfInBytes()];
+
+			if (x < 0 || y < 0 || x >= width || y >= height) {
+				//Log.Warn("Trying to get pixel outside of the texture, returning 0s");
+				for (int i = 0; i < pixelData.Length; i ++) {
+					pixelData[i] = 0x00;
+				}
+				return pixelData;
+			}
+			for (int i = 0; i < pixelData.Length; i++) {
+				pixelData[i] = textureDataClone[x * format.SizeOfInBytes() + y * width * format.SizeOfInBytes() + i];
+			}
+			return pixelData;
+		}
+
+		public void SetPixelBatch(byte[] data, int x, int y) {
+			if (x < 0 || y < 0 || x >= width || y >= height) {
+				//Log.Warn("Trying to set pixel outside of the texture, ignoring");
+				return;
+			}
+			for (int i = 0; i < data.Length; i ++) {
+				textureDataClone[x * format.SizeOfInBytes() + y * width * format.SizeOfInBytes() + i] = data[i];
+			}
+			
+		}
+		public void BatchSync() {
+			Upload.Texture2DUpload(texture, width, height, format, textureDataClone);
+		}
 
 
 		/// <summary>

@@ -1,11 +1,4 @@
-﻿using CoolClassLibrary;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ArcticFoxEngine.Input {
+﻿namespace ArcticFoxEngine.Input {
 	public abstract class ButtonBinding : InputBinding {
 
 		internal bool buttonDownCurrent;
@@ -13,16 +6,6 @@ namespace ArcticFoxEngine.Input {
 
 		protected bool inputButton;
 
-		internal override void BufferValues() {
-
-			buttonDownPrev = buttonDownCurrent;
-			buttonDownCurrent = inputButton;
-
-		}
-
-		internal override void NextFrame_() {
-			NextFrame();
-		}
 
 		public bool GetButtonDown() {
 			return buttonDownCurrent && !buttonDownPrev;
@@ -34,7 +17,23 @@ namespace ArcticFoxEngine.Input {
 			return buttonDownCurrent;
 		}
 
+		internal override void BufferValues() {
+
+			if (Engine.form.Focused == false) {
+				inputButton = false;
+			}
+
+			buttonDownPrev = buttonDownCurrent;
+			buttonDownCurrent = inputButton;
+
+		}
+		internal override void NextFrame_() {
+			NextFrame();
+		}
 		protected abstract void NextFrame();
+
+
+		
 
 
 	}

@@ -39,8 +39,7 @@ namespace ArcticFoxEngine.Rendering {
 			descriptorHeapIncrement = Graphics.device.GetDescriptorHandleIncrementSize(DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView);
 
 
-			cmdList = Graphics.CreateGraphicsCommandList();
-			cmdList.Close();
+			cmdList = Graphics.CreateDirectCommandList();
 
 			renderInfo = new ConstBuffer<RenderInfo>(1);
 
@@ -100,8 +99,10 @@ namespace ArcticFoxEngine.Rendering {
 
 			camera.UpdateCameraInfoBuffer(renderInfo);
 
-			Graphics.cmdAllocator.Reset();
-			cmdList.Reset(Graphics.cmdAllocator, null);
+			Graphics.WaitForCopyCommandQueue();
+			Graphics.WaitForDirectCommandQueue();
+
+			Graphics.ResetDirectCommandList(cmdList);
 			cmdList.SetDescriptorHeaps(gpuDescriptorHeap);
 
 			for (int i = 0; i < renderPipelines.Count; i++) {
@@ -122,7 +123,7 @@ namespace ArcticFoxEngine.Rendering {
 
 
 			cmdList.Close();
-			Graphics.SubmitGraphicsCommandList(cmdList);
+			Graphics.ExecuteDirectCommandList(cmdList);
 
 		}
 

@@ -1,0 +1,10 @@
+{
+	"nodes":[
+		{"id":"ba3099758cc39e5a","type":"text","text":"They could encompass the shader bytecode as well as binding data to the shaders","x":-80,"y":-120,"width":461,"height":78},
+		{"id":"6353fe7c035a20c3","type":"text","text":"Abstract away shaders to their own class","x":-99,"y":-340,"width":250,"height":60},
+		{"id":"335be513f4dd31c1","type":"text","text":"Get rid of render pipelines","x":-460,"y":-340,"width":250,"height":60}
+	],
+	"edges":[
+		{"id":"7fa38f93d88c69de","fromNode":"6353fe7c035a20c3","fromSide":"bottom","toNode":"ba3099758cc39e5a","toSide":"top"}
+	]
+}

@@ -32,13 +32,17 @@ namespace ArcticFoxEngine {
 
 		#region Command queue objects
 
-		internal static CommandAllocator cmdAllocator;
-		internal static CommandQueue cmdQueue;
-		private static AutoResetEvent fenceEvent;
-		private static Fence fence;
-		private static int fenceValue;
+		internal static CommandAllocator cmdAllocatorDirect;
+		internal static CommandQueue cmdQueueDirect;
+		private static Fence fenceDirect;
+		private static long fenceValueDirect;
 
-		private static List<GraphicsCommandList> cmdLists;
+		internal static CommandAllocator cmdAllocatorCopy;
+		internal static CommandQueue cmdQueueCopy;
+		private static Fence fenceCopy;
+		private static long fenceValueCopy;
+
+		private static AutoResetEvent fenceEvent;
 
 		#endregion
 
@@ -67,14 +71,16 @@ namespace ArcticFoxEngine {
 			int height = form.ClientSize.Height;
 			int refreshRate = 240;
 
-			cmdLists = new List<GraphicsCommandList>();
-
 			try {
 
 				SetupDevice();
 
-				SetupCommand();
-				SetupSwapChain(width, height, refreshRate, cmdQueue);
+				// Create an event handle to use for frame synchronisation
+				fenceEvent = new AutoResetEvent(false);
+				SetupDirectCommandAllocator();
+				SetupCopyCommandAllocator();
+
+				SetupSwapChain(width, height, refreshRate, cmdQueueDirect);
 
 				Log.Success("Initialised renderer");
 			}
@@ -87,34 +93,108 @@ namespace ArcticFoxEngine {
 
 		}
 
+
 		private static void SetupDevice() {
 			// Create the graphics device
 			device = new Device(null, SharpDX.Direct3D.FeatureLevel.Level_11_0);
 		}
-		private static void SetupCommand() {
+		
+		
+		// Command Queues
+		
+		private static void SetupDirectCommandAllocator() {
 
 			// Create the command list
 			// Command lists are created in the recording state, but there is nothing
 			// to record yet. The main loop expects it to be closed, so close it now.
-			cmdAllocator = device.CreateCommandAllocator(CommandListType.Direct);
-			cmdQueue = device.CreateCommandQueue(new CommandQueueDescription(CommandListType.Direct));
-
+			cmdAllocatorDirect = device.CreateCommandAllocator(CommandListType.Direct);
+			cmdQueueDirect = device.CreateCommandQueue(new CommandQueueDescription(CommandListType.Direct));
+			
 
 			// Create synchronisation objects
-			fence = device.CreateFence(0, FenceFlags.None);
-			fenceValue = 1;
-			// Create an event handle to use for frame synchronisation
-			fenceEvent = new AutoResetEvent(false);
+			fenceDirect = device.CreateFence(0, FenceFlags.None);
+			fenceValueDirect = 1;
+
+			// Give the fenceDirect a default completed value
+			cmdQueueDirect.Signal(fenceDirect, fenceValueDirect);
+
+
 
 		}
-		internal static GraphicsCommandList CreateGraphicsCommandList(PipelineState pipelineState = null) {
-			GraphicsCommandList cmdList = device.CreateCommandList(CommandListType.Direct, cmdAllocator, pipelineState);
+		internal static GraphicsCommandList CreateDirectCommandList() {
+			GraphicsCommandList cmdList = device.CreateCommandList(CommandListType.Direct, cmdAllocatorDirect, null);
+			cmdList.Close();
 			return cmdList;
 		}
-		internal static void SubmitGraphicsCommandList(GraphicsCommandList cmdList) {
-			cmdQueue.ExecuteCommandList(cmdList);
-			//cmdLists.Add(cmdList);
+		internal static void ResetDirectCommandList(GraphicsCommandList cmdList) {
+			cmdList.Reset(cmdAllocatorDirect, null);
 		}
+		internal static void ExecuteDirectCommandList(GraphicsCommandList cmdList) {
+			cmdQueueDirect.ExecuteCommandList(cmdList);
+
+			fenceValueDirect++;
+			cmdQueueDirect.Signal(fenceDirect, fenceValueDirect);
+
+		}
+		internal static void WaitForDirectCommandQueue() {
+			WaitForFenceValue(fenceValueDirect, fenceDirect);
+		}
+
+
+		private static void SetupCopyCommandAllocator() {
+
+			CommandQueueDescription desc = new CommandQueueDescription() {
+				Flags = CommandQueueFlags.None,
+				NodeMask = 0,
+				Priority = ((int)CommandQueuePriority.Normal),
+				Type = CommandListType.Copy,
+			};
+			cmdQueueCopy = device.CreateCommandQueue(desc);
+			cmdQueueCopy.Name = "Copy Command Queue";
+
+			cmdAllocatorCopy = device.CreateCommandAllocator(CommandListType.Copy);
+			cmdAllocatorCopy.Name = "Copy Command Allocator";
+
+			fenceCopy = device.CreateFence(0, FenceFlags.None);
+			fenceCopy.Name = "Upload Fence";
+			fenceValueDirect = 1;
+
+			// Give the fenceDirect a default completed value
+			cmdQueueCopy.Signal(fenceCopy, fenceValueDirect);
+
+		}
+		internal static GraphicsCommandList CreateCopyCommandList() {
+
+			GraphicsCommandList cmdList = device.CreateCommandList(CommandListType.Copy, cmdAllocatorCopy, null);
+			cmdList.Close();
+			return cmdList;
+
+		}
+		internal static void ResetCopyCommandList(GraphicsCommandList cmdList) {
+			cmdList.Reset(cmdAllocatorCopy, null);
+		}
+		internal static void ExecuteCopyCommandList(GraphicsCommandList cmdList) {
+			cmdQueueCopy.ExecuteCommandList(cmdList);
+
+			fenceValueCopy++;
+			cmdQueueCopy.Signal(fenceCopy, fenceValueCopy);
+
+		}
+		internal static void WaitForCopyCommandQueue() {
+			WaitForFenceValue(fenceValueCopy, fenceCopy);
+		}
+
+		internal static void WaitForFenceValue(long value, Fence fence) {
+			
+			if (fence.CompletedValue < value) {
+				fence.SetEventOnCompletion(value, fenceEvent.SafeWaitHandle.DangerousGetHandle());
+				fenceEvent.WaitOne();
+			}
+
+		}
+
+
+
 
 		private static void SetupSwapChain(int width, int height, int refreshRate, CommandQueue commandQueue) {
 
@@ -303,26 +383,8 @@ namespace ArcticFoxEngine {
 
 
 		}
-
-		/// <summary>
-		/// Blocks execution until the command list is free
-		/// </summary>
-		internal static void WaitForCmdList() {
-			// WAITING FOR THE FRAME TO COMPLETE BEFORE CONTINUING IS NOT BEST PRACTICE. 
-			// This is code implemented as such for simplicity. 
-
-			int localFence = fenceValue;
-			cmdQueue.Signal(fence, localFence);
-			fenceValue++;
-
-			// Wait until the previous frame is finished.
-			if (fence.CompletedValue < localFence) {
-				fence.SetEventOnCompletion(localFence, fenceEvent.SafeWaitHandle.DangerousGetHandle());
-				fenceEvent.WaitOne();
-			}
-
-
-		}
+		
+		
 		/// <summary>
 		/// Shows the render target to the screen and swaps which resource is the render target
 		/// </summary>
@@ -331,6 +393,10 @@ namespace ArcticFoxEngine {
 			try {
 				CheckHRESULT(swapChain.Present(1, 0));
 				frameIndex = swapChain.CurrentBackBufferIndex;
+
+				cmdAllocatorCopy.Reset();
+				cmdAllocatorDirect.Reset();
+
 			}
 			catch (Exception e) {
 				CheckHRESULT(device.DeviceRemovedReason);
@@ -365,14 +431,14 @@ namespace ArcticFoxEngine {
 
 			swapChain.Dispose();
 			device.Dispose();
-			fence.Dispose();
-			cmdAllocator.Dispose();
-			cmdQueue.Dispose();
 
-			for (int i = 0; i < cmdLists.Count; i++) {
-				cmdLists[i].Dispose();
-			}
+			fenceDirect.Dispose();
+			cmdAllocatorDirect.Dispose();
+			cmdQueueDirect.Dispose();
 
+			fenceCopy.Dispose();
+			cmdAllocatorCopy.Dispose();
+			cmdQueueCopy.Dispose();
 
 		}
 

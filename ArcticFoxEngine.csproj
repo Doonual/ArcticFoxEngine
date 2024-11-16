@@ -47,13 +47,6 @@
 	
 	
 	<ItemGroup>
-	  <Content Include=".documentation\Graphics.txt" />
-	  <Content Include=".Documentation\Input.txt" />
-	</ItemGroup>
-	
-	
-	<ItemGroup>
-	  <None Include=".Documentation\Engine.txt" />
 	  <None Include=".Documentation\Terms.txt" />
 	  <None Include=".res\icon.ico" />
 	  <None Include=".res\Shaders\Mandelbrot\MandelbrotPixelShader.hlsl" />

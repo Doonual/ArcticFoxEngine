@@ -6,6 +6,8 @@ namespace ArcticFoxEngine.Gui.Builtin_Windows {
 
 		public override string name => "About";
 
+		public ImGuiAboutWindow(params string[] menuGroups) : base(menuGroups) { }
+
 		public override void Render() {
 			ImGui.ShowAboutWindow(ref open);
 		}

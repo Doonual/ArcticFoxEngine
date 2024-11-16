@@ -1,4 +1,5 @@
 ﻿using ArcticFoxEngine.Debug;
+using ArcticFoxEngine.Gui.Components;
 using ArcticFoxEngine.ImGuiIntegration;
 using CoolClassLibrary;
 using ImGuiNET;
@@ -7,7 +8,7 @@ using SixLabors.ImageSharp;
 namespace ArcticFoxEngine.Nodes {
 	public abstract class Node {
 
-		public static Node rootNode;
+		public static Node rootNode { get; private set; }
 		internal static Node nextParentNode = null;
 
 		private bool disposed = true;
@@ -18,7 +19,7 @@ namespace ArcticFoxEngine.Nodes {
 		internal virtual string nodeIconPath32 => ".res/NodeIcons/EmptyNode32.png";
 		internal IntPtr nodeIconId;
 		internal IntPtr nodeIconId32;
-
+		internal IntPtr transformIconId;
 
 		protected bool globalEnabled;
 		public bool enabled { get; private set; }
@@ -38,6 +39,7 @@ namespace ArcticFoxEngine.Nodes {
 			SetParent(nextParentNode);
 
 			nodeIconId = NodeIconBank.LoadIcon(nodeIconPath);
+			transformIconId = NodeIconBank.LoadIcon(".res/NodeIcons/Transform.png");
 			if (nodeIconPath32 == "") {
 				nodeIconId32 = NodeIconBank.LoadIcon(nodeIconPath);
 			}
@@ -57,10 +59,18 @@ namespace ArcticFoxEngine.Nodes {
 
 			Node.rootNode = rootNode;
 			rootNode.globalEnabled = true;
+
+			Node.rootNode.LinkNodesEvent();
+
 		}
+
+		/// <summary>
+		/// Moves the node from being a child of one parent to another. If parentNode is null, the node is destroyed.
+		/// </summary>
+		/// <param name="parentNode">The node to make this nodes parent</param>
 		public void SetParent(Node parentNode) {
 			if (this.parentNode != null) {
-				parentNode.childNodes.Remove(this);
+				this.parentNode.childNodes.Remove(this);
 			}
 
 			this.parentNode = parentNode;
@@ -76,6 +86,9 @@ namespace ArcticFoxEngine.Nodes {
 					currentNode = currentNode.parentNode;
 				}
 
+			}
+			else {
+				DisposeEvent();
 			}
 
 		}
@@ -388,6 +401,14 @@ namespace ArcticFoxEngine.Nodes {
 
 		}
 
+		internal void LinkNodesEvent() {
+
+			LinkNodes();
+			for (int i = 0; i < childNodes.Count; i++) {
+				childNodes[i].LinkNodesEvent();
+			}
+
+		}
 		internal void UpdateEvent() {
 			if (enabled == false) { return; }
 
@@ -429,8 +450,21 @@ namespace ArcticFoxEngine.Nodes {
 		public virtual void OnEnable() { }
 		public virtual void OnDisable() { }
 		public virtual void OnTreeChanged() { }
+		/// <summary>
+		/// Run when the root node is changed. This indicates all the nodes of the scene has finished initial loading and nodes can be linked
+		/// </summary>
+		public virtual void LinkNodes() { }
+		/// <summary>
+		/// Run once every frame
+		/// </summary>
 		public virtual void Update() { }
+		/// <summary>
+		/// Run once every frame during rendering
+		/// </summary>
 		public virtual void Render() { }
+		/// <summary>
+		/// Run to render the node gui
+		/// </summary>
 		public virtual void Debug() { }
 		
 		
@@ -455,14 +489,10 @@ namespace ArcticFoxEngine.Nodes {
 
 			ImGui.BeginMenuBar();
 
-			// Node icon
-			ImGui.ImageButton(name + "image button", nodeIconId, new Vector2(16f, 16f));
-
-			ImGui.SameLine();
-
-			// Name
-			ImGui.PushStyleVar(ImGuiStyleVar.ButtonTextAlign, new Vector2(0f, 0.5f));
-			ImGui.Button(name, new Vector2(-1f, 16f + 6f));
+			ImGui.SetCursorPosY(ImGui.GetCursorPosY() + 2f);
+			if (NodeGuiComponents.ImageButtonTextButton(nodeIconId, name, GetHashCode() + "debug menu bar", 16f) == true) {
+				GuiManager.OpenWindow(name, Debug);
+			}
 
 			ImGui.EndMenuBar();
 
@@ -478,12 +508,21 @@ namespace ArcticFoxEngine.Nodes {
 
 
 			// Transform and Debug
-			//ImGui.SeparatorText("Transform");
-			if (ImGui.TreeNode("Transform") == true) {
-				transform.Debug();
-				ImGui.TreePop();
+			if (NodeGuiComponents.ImageButtonTextButton(transformIconId, "Transform", "Transform button", 16f) == true) {
+				ImGui.OpenPopup(GetHashCode() + " transform popup");
 			}
-			ImGui.SeparatorText("Node Options");
+
+			if (ImGui.IsPopupOpen(GetHashCode() + " transform popup") == true) {
+				ImGui.SetNextWindowSize(new Vector2(300f, 150f));
+				ImGui.BeginPopup(GetHashCode() + " transform popup");
+
+				ImGui.Text(name + " transform");
+				transform.Debug();
+
+				ImGui.EndPopup();
+			}
+			
+
 			Debug();
 
 

@@ -48,17 +48,17 @@ namespace ArcticFoxEngine.Nodes {
 		public void SetMesh(Mesh mesh) {
 
 			// If the object has a mesh already loaded, delete it
-			bool prevEnabled = enabled;
-			if (this.mesh != null && enabled == true) {
+			if (this.mesh != null && globalEnabled == true) {
 				UnloadMesh();
 			}
 
 			this.mesh = mesh;
-			if (this.mesh != null && enabled == true) {
+			if (this.mesh != null && globalEnabled == true) {
 				LoadMesh();
 			}
 
 		}
+
 
 		private void LoadMesh() {
 			if (mesh == null || meshLoaded == true || renderPipeline == null) { return; }

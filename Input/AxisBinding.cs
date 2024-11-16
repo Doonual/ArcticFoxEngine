@@ -1,11 +1,4 @@
-﻿using CoolClassLibrary;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ArcticFoxEngine.Input {
+﻿namespace ArcticFoxEngine.Input {
 	public abstract class AxisBinding : InputBinding {
 
 		internal float axisCurrent;
@@ -25,15 +18,6 @@ namespace ArcticFoxEngine.Input {
 		}
 		private float axisActive_;
 
-		internal override void BufferValues() {
-
-			axisPrev = axisCurrent;
-			axisCurrent = axisActive;
-		}
-
-		internal override void NextFrame_() {
-			NextFrame();
-		}
 
 		public float GetValue() {
 			return axisPrev;
@@ -42,6 +26,18 @@ namespace ArcticFoxEngine.Input {
 			return axisCurrent - axisPrev;
 		}
 
+		internal override void BufferValues() {
+
+			if (Engine.form.Focused == false) {
+				axisActive = 0f;
+			}
+
+			axisPrev = axisCurrent;
+			axisCurrent = axisActive;
+		}
+		internal override void NextFrame_() {
+			NextFrame();
+		}
 		protected abstract void NextFrame();
 
 	}

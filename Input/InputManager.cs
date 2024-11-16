@@ -1,4 +1,5 @@
-﻿using SharpDX.DirectInput;
+﻿using ArcticFoxEngine.Input.Devices;
+using SharpDX.DirectInput;
 
 namespace ArcticFoxEngine.Input {
 	public static class InputManager {
@@ -7,10 +8,13 @@ namespace ArcticFoxEngine.Input {
 		static List<Action> inputDeviceUpdateActions;
 		internal static DirectInput directInput;
 
-		internal static void InitInput() {
+		internal static void Init() {
 			inputs = new List<InputBinding>();
 			inputDeviceUpdateActions = new List<Action>();
 			directInput = new DirectInput();
+
+			MouseInputDevice.Init();
+
 		}
 
 		internal static void AddBinding(InputBinding binding) {

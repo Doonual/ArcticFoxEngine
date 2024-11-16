@@ -19,14 +19,14 @@ namespace ArcticFoxEngine {
 		/// </summary>
 		internal static void FrameBegin() {
 
-			GuiManager.GetDebugWindow<PerformanceWindow>().ProcessMetrics();
-			Graphics.cmdQueue.GetClockCalibration(out long gpuTimestamp, out _);
+			PerformanceWindow.mainWindow.ProcessMetrics();
+			Graphics.cmdQueueDirect.GetClockCalibration(out long gpuTimestamp, out _);
 
 			frameBegin = gpuTimestamp;
-			deltaTime = (gpuTimestamp - prevGpuTimestamp) / (float)Graphics.cmdQueue.TimestampFrequency;
+			deltaTime = (gpuTimestamp - prevGpuTimestamp) / (float)Graphics.cmdQueueDirect.TimestampFrequency;
 			prevGpuTimestamp = gpuTimestamp;
 
-			GuiManager.GetDebugWindow<PerformanceWindow>().FrameStart(gpuTimestamp);
+			PerformanceWindow.mainWindow.FrameStart(gpuTimestamp);
 
 		}
 
@@ -36,11 +36,11 @@ namespace ArcticFoxEngine {
 		internal static void FrameEnd() {
 
 			long gpuTimestamp;
-			Graphics.cmdQueue.GetClockCalibration(out gpuTimestamp, out _);
+			Graphics.cmdQueueDirect.GetClockCalibration(out gpuTimestamp, out _);
 
-			frameTime = (gpuTimestamp - frameBegin) / (float)Graphics.cmdQueue.TimestampFrequency;
+			frameTime = (gpuTimestamp - frameBegin) / (float)Graphics.cmdQueueDirect.TimestampFrequency;
 
-			GuiManager.GetDebugWindow<PerformanceWindow>().FrameDone(gpuTimestamp, frameTime);
+			PerformanceWindow.mainWindow.FrameDone(gpuTimestamp, frameTime);
 
 		}
 
@@ -49,19 +49,19 @@ namespace ArcticFoxEngine {
 		/// Starts timing a new metric
 		/// </summary>
 		/// <param name="name">The name of the metric to be profiled</param>
-		internal static void MetricBegin(string name) {
+		public static void MetricBegin(string name) {
 
-			Graphics.cmdQueue.GetClockCalibration(out long timestamp, out _);
-			GuiManager.GetDebugWindow<PerformanceWindow>().MetricBegin(timestamp, name);
+			Graphics.cmdQueueDirect.GetClockCalibration(out long timestamp, out _);
+			PerformanceWindow.mainWindow.MetricBegin(timestamp, name);
 
 		}
 
 		/// <summary>
 		/// Stops timing the current metric
 		/// </summary>
-		internal static void MetricEnd() {
+		public static void MetricEnd() {
 
-			Graphics.cmdQueue.GetClockCalibration(out long timestamp, out _);
+			Graphics.cmdQueueDirect.GetClockCalibration(out long timestamp, out _);
 			GuiManager.GetDebugWindow<PerformanceWindow>().MetricEnd(timestamp);
 
 		}

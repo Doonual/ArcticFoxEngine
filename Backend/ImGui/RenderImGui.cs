@@ -31,7 +31,7 @@ namespace ArcticFoxEngine.ImGuiIntegration {
 		static IndexBufferView indexBufferView;
 
 		static ConstBuffer<Matrix> constantBuffer;
-
+		static GraphicsCommandList cmdList;
 
 
 		static readonly Dictionary<IntPtr, (Texture, int)> textureResources = new();
@@ -60,6 +60,8 @@ namespace ArcticFoxEngine.ImGuiIntegration {
 			ImGui.StyleColorsDark();
 			Resize(width, height);
 			CreateDeviceObjects();
+
+			cmdList = Graphics.CreateDirectCommandList();
 		}
 
 		internal static void Update(float deltaTime, Action DoRender) {
@@ -73,12 +75,16 @@ namespace ArcticFoxEngine.ImGuiIntegration {
 
 		private static ImDrawDataPtr? UpdateImGuiDrawList() {
 
+			
 			ImGuiInput.Update();
 			Update(Profiler.deltaTime, GuiManager.Render);
+
+			
 
 			ImDrawDataPtr data = ImGui.GetDrawData();
 			// Avoid rendering when minimized
 			if (data.DisplaySize.X <= 0.0f || data.DisplaySize.Y <= 0.0f) { return null; }
+			
 
 			#region Vertex buffer creation
 
@@ -108,6 +114,8 @@ namespace ArcticFoxEngine.ImGuiIntegration {
 			}
 
 			#endregion
+
+			
 			#region Uploading to vertex buffer and index buffer
 
 			// Upload vertex/index data into a single contiguous GPU buffer
@@ -133,6 +141,7 @@ namespace ArcticFoxEngine.ImGuiIntegration {
 			#endregion
 			#region Viewport matrix
 
+			
 			// Setup orthographic projection matrix into our constant buffer
 			// Our visible imgui space lies from draw_data.DisplayPos (top left) to draw_data.DisplayPos+data_data.DisplaySize (bottom right). DisplayPos is (0,0) for single viewport apps.
 			float L = data.DisplayPos.X;
@@ -155,12 +164,18 @@ namespace ArcticFoxEngine.ImGuiIntegration {
 
 		internal static void Render(Resource renderTarget, DescriptorHeap rtvDescHeap, DescriptorHeap dsvDescHeap) {
 
-			Graphics.WaitForCmdList();
-			GraphicsCommandList cmdList = Graphics.CreateGraphicsCommandList(pipelineState);
+			
 
 			ImDrawDataPtr? dataNull = UpdateImGuiDrawList();
 			if (dataNull == null) { return; }
+
+			Graphics.WaitForDirectCommandQueue();
+			Graphics.ResetDirectCommandList(cmdList);
+			cmdList.PipelineState = pipelineState;
+
+			
 			ImDrawDataPtr data = (ImDrawDataPtr)dataNull;
+
 
 			// Indicate that the back buffer will be used as a render target
 			cmdList.ResourceBarrierTransition(renderTarget, ResourceStates.Present, ResourceStates.RenderTarget);
@@ -171,8 +186,6 @@ namespace ArcticFoxEngine.ImGuiIntegration {
 			rtvHandle += Graphics.frameIndex * Graphics.rtvHeapIncrement;
 			cmdList.SetRenderTargets(rtvHandle, dsvHandle);
 			cmdList.ClearDepthStencilView(dsvHandle, ClearFlags.FlagsDepth, 1f, 0);
-
-
 
 			#region Rendering
 
@@ -204,6 +217,7 @@ namespace ArcticFoxEngine.ImGuiIntegration {
 					}
 					else {
 
+
 						cmdList.SetScissorRectangles(new SharpDX.Mathematics.Interop.RawRectangle((int)cmd.ClipRect.X, (int)cmd.ClipRect.Y, (int)cmd.ClipRect.Z, (int)cmd.ClipRect.W));
 
 						if (textureResources.TryGetValue(cmd.GetTexID(), out var texture)) {
@@ -218,8 +232,6 @@ namespace ArcticFoxEngine.ImGuiIntegration {
 			}
 
 			#endregion
-
-
 			ReplaceFontIfRequired();
 
 			cmdList.ResourceBarrierTransition(renderTarget, ResourceStates.RenderTarget, ResourceStates.Present);
@@ -227,7 +239,7 @@ namespace ArcticFoxEngine.ImGuiIntegration {
 
 			cmdList.Close();
 
-			Graphics.SubmitGraphicsCommandList(cmdList);
+			Graphics.ExecuteDirectCommandList(cmdList);
 
 			ImGuiInput.ReSetLastCursor();
 

@@ -92,7 +92,7 @@ namespace ArcticFoxEngine.Nodes {
 		public Vector3 WorldToCamera(Vector3 worldSpacePos) {
 
 			Matrix projectionResult = Matrix.Translation(worldSpacePos) * CalculateProjectionMatrix();
-			Vector3 cameraSpacePos = new Vector3(projectionResult.M41, projectionResult.M42, projectionResult.M43) / projectionResult.M44;
+			Vector3 cameraSpacePos = new Vector3(projectionResult.M30, projectionResult.M31, projectionResult.M32) / projectionResult.M33;
 			return cameraSpacePos;
 
 		}

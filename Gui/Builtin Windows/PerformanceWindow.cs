@@ -4,6 +4,8 @@ using ImGuiNET;
 namespace ArcticFoxEngine.Debug {
 	internal class PerformanceWindow : GuiWindow {
 
+		internal static PerformanceWindow mainWindow;
+
 		internal class Metric {
 
 			internal Metric parentMetric;
@@ -286,8 +288,9 @@ namespace ArcticFoxEngine.Debug {
 
 		public override string name => "Performance";
 
-		internal PerformanceWindow() {
+		internal PerformanceWindow(params string[] menuGroups) : base(menuGroups) {
 
+			mainWindow = this;
 			numElements = 2000;
 			metric = new Metric("Frame time");
 
@@ -330,7 +333,7 @@ namespace ArcticFoxEngine.Debug {
 			msMin = (msMin - ms) * 0.994f + ms;
 
 
-			metric.endMs[metric.endMs.Length - 1] = 1000f * (float)(timestamp - frameStartTimestamp) / Graphics.cmdQueue.TimestampFrequency;
+			metric.endMs[metric.endMs.Length - 1] = 1000f * (float)(timestamp - frameStartTimestamp) / Graphics.cmdQueueDirect.TimestampFrequency;
 
 			if (autoAdjustPlotMaxMs == true) {
 				plotMaxMs = msMin * 6f;
@@ -342,15 +345,17 @@ namespace ArcticFoxEngine.Debug {
 		internal void MetricBegin(long timestamp, string name) {
 			if (updatePlotActual == false) { return; }
 			currentMetric = currentMetric.GetOrCreateChildMetric(name);
-			currentMetric.startMs[metric.startMs.Length - 1] = 1000f * (float)(timestamp - frameStartTimestamp) / Graphics.cmdQueue.TimestampFrequency;
+			currentMetric.startMs[metric.startMs.Length - 1] = 1000f * (float)(timestamp - frameStartTimestamp) / Graphics.cmdQueueDirect.TimestampFrequency;
 		}
 		internal void MetricEnd(long timestamp) {
 			if (updatePlotActual == false) { return; }
-			currentMetric.endMs[metric.endMs.Length - 1] = 1000f * (float)(timestamp - frameStartTimestamp) / Graphics.cmdQueue.TimestampFrequency;
+			currentMetric.endMs[metric.endMs.Length - 1] = 1000f * (float)(timestamp - frameStartTimestamp) / Graphics.cmdQueueDirect.TimestampFrequency;
 			currentMetric = currentMetric.parentMetric;
 		}
 
 		public override void Render() {
+
+			ImGui.Begin("Performance");
 
 			autoAdjustPlotMaxMs = false;
 
@@ -519,7 +524,7 @@ namespace ArcticFoxEngine.Debug {
 
 			#endregion
 
-
+			ImGui.End();
 
 		}
 

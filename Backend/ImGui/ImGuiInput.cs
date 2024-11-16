@@ -269,7 +269,7 @@ namespace ArcticFoxEngine.ImGuiIntegration {
 				case Key.N: return capital ? 'N' : 'n';
 				case Key.M: return capital ? 'M' : 'm';
 				case Key.Comma: return capital ? ';' : ':';
-				case Key.Period: return capital ? ';' : ':';
+				case Key.Period: return capital ? ';' : '.';
 				case Key.Slash: return capital ? '?' : '/';
 				case Key.Multiply: return capital ? '*' : '*';
 

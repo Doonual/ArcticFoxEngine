@@ -16,9 +16,7 @@ namespace ArcticFoxEngine {
 
 		static long uploadBytes;
 
-		static CommandQueue uploadCommandQueue;
-		static CommandAllocator commandAllocator;
-		static GraphicsCommandList commandList;
+		static GraphicsCommandList cmdList;
 
 		static AutoResetEvent fenceEvent;
 		static Fence uploadFence;
@@ -33,25 +31,8 @@ namespace ArcticFoxEngine {
 
 			// Initialise command queues and synchronisation
 
-			CommandQueueDescription desc = new CommandQueueDescription() {
-				Flags = CommandQueueFlags.None,
-				NodeMask = 0,
-				Priority = ((int)CommandQueuePriority.Normal),
-				Type = CommandListType.Copy,
-			};
-			uploadCommandQueue = Graphics.device.CreateCommandQueue(desc);
-			uploadCommandQueue.Name = "Upload Copy Queue";
-
-			commandAllocator = Graphics.device.CreateCommandAllocator(CommandListType.Copy);
-			commandAllocator.Name = "Upload Command Allocator";
-
-			commandList = Graphics.device.CreateCommandList(CommandListType.Copy, commandAllocator, null);
-			commandList.Close();
-			commandList.Name = "Upload Command List";
-
-			uploadFence = Graphics.device.CreateFence(0, FenceFlags.None);
-			uploadFence.Name = "Upload Fence";
-			fenceEvent = new AutoResetEvent(false);
+			cmdList = Graphics.CreateCopyCommandList();
+			cmdList.Name = "Upload Command List";
 
 			uploadResource = null;
 
@@ -80,15 +61,15 @@ namespace ArcticFoxEngine {
 		/// <param name="srcOffsetBytes">Location of the start of the data in the source buffer</param>
 		internal static void EndBufferUpload(Resource dstBuffer, long dstOffsetBytes = 0, long srcOffsetBytes = 0) {
 
-			commandAllocator.Reset();
-			commandList.Reset(commandAllocator, null);
-			commandList.CopyBufferRegion(dstBuffer, dstOffsetBytes, uploadResource, srcOffsetBytes, uploadBytes);
-			commandList.Close();
+			Graphics.ResetCopyCommandList(cmdList);
+			cmdList.CopyBufferRegion(dstBuffer, dstOffsetBytes, uploadResource, srcOffsetBytes, uploadBytes);
+			cmdList.Close();
 
-			uploadCommandQueue.ExecuteCommandList(commandList);
-			fenceValue++;
-			uploadCommandQueue.Signal(uploadFence, fenceValue);
-			WaitForCmdList();
+			Graphics.ExecuteCopyCommandList(cmdList);
+
+			Graphics.WaitForCopyCommandQueue();
+			uploadResource.Dispose();
+			uploadResource = null;
 
 		}
 
@@ -103,8 +84,7 @@ namespace ArcticFoxEngine {
 		internal static void Texture2DUpload(Resource dstTexture, int width, int height, Format format, byte[] textureData) {
 			if (uploadResource != null) { Log.Error("Cannot begin upload, upload not ready"); }
 
-			commandAllocator.Reset();
-			commandList.Reset(commandAllocator, null);
+			Graphics.ResetCopyCommandList(cmdList);
 
 			// Create a temporary Texture2D resource to fill with data, and then copy in to the dstTexture
 			uploadResource = Graphics.device.CreateCommittedResource(new HeapProperties(CpuPageProperty.WriteBack, MemoryPool.L0), HeapFlags.None, ResourceDescription.Texture2D(format, width, height), ResourceStates.GenericRead);
@@ -116,16 +96,14 @@ namespace ArcticFoxEngine {
 			uploadResource.WriteToSubresource(0, null, ptr, texturePixelSize * width, textureData.Length);
 			handle.Free();
 
-			commandList.CopyTextureRegion(new TextureCopyLocation(dstTexture, 0), 0, 0, 0, new TextureCopyLocation(uploadResource, 0), null);
+			cmdList.CopyTextureRegion(new TextureCopyLocation(dstTexture, 0), 0, 0, 0, new TextureCopyLocation(uploadResource, 0), null);
+			cmdList.Close();
 
-			commandList.Close();
+			Graphics.ExecuteCopyCommandList(cmdList);
 
-
-			uploadCommandQueue.ExecuteCommandList(commandList);
-			fenceValue++;
-			uploadCommandQueue.Signal(uploadFence, fenceValue);
-
-			WaitForCmdList();
+			Graphics.WaitForCopyCommandQueue();
+			uploadResource.Dispose();
+			uploadResource = null;
 
 		}
 
@@ -140,8 +118,7 @@ namespace ArcticFoxEngine {
 		internal static void Texture2DPixelUpload(Resource dstTexture, int x, int y, Format format, byte[] textureData) {
 			if (uploadResource != null) { Log.Error("Cannot begin upload, upload not ready"); }
 
-			commandAllocator.Reset();
-			commandList.Reset(commandAllocator, null);
+			Graphics.ResetCopyCommandList(cmdList);
 
 			// Create a temporary Texture2D resource to fill with data, and then copy in to the dstTexture
 			uploadResource = Graphics.device.CreateCommittedResource(new HeapProperties(CpuPageProperty.WriteBack, MemoryPool.L0), HeapFlags.None, ResourceDescription.Texture2D(format, 1, 1), ResourceStates.GenericRead);
@@ -153,31 +130,19 @@ namespace ArcticFoxEngine {
 			uploadResource.WriteToSubresource(0, null, ptr, texturePixelSize * 1, textureData.Length);
 			handle.Free();
 
-			commandList.CopyTextureRegion(new TextureCopyLocation(dstTexture, 0), x, y, 0, new TextureCopyLocation(uploadResource, 0), null);
+			cmdList.CopyTextureRegion(new TextureCopyLocation(dstTexture, 0), x, y, 0, new TextureCopyLocation(uploadResource, 0), null);
 
-			commandList.Close();
-
-
-			uploadCommandQueue.ExecuteCommandList(commandList);
-			fenceValue++;
-			uploadCommandQueue.Signal(uploadFence, fenceValue);
-
-			WaitForCmdList();
-
-		}
+			cmdList.Close();
 
 
-		private static void WaitForCmdList() {
+			Graphics.ExecuteCopyCommandList(cmdList);
 
-			if (uploadFence.CompletedValue < fenceValue) {
-				uploadFence.SetEventOnCompletion(fenceValue, fenceEvent.SafeWaitHandle.DangerousGetHandle());
-				fenceEvent.WaitOne();
-			}
-
+			Graphics.WaitForCopyCommandQueue();
 			uploadResource.Dispose();
 			uploadResource = null;
 
 		}
+
 
 
 		/// <summary>
@@ -188,9 +153,7 @@ namespace ArcticFoxEngine {
 			disposed = true;
 
 			if (uploadResource != null) { uploadResource.Dispose(); }
-			uploadCommandQueue.Dispose();
-			commandAllocator.Dispose();
-			commandList.Dispose();
+			cmdList.Dispose();
 
 			if (fenceEvent != null) {
 				fenceEvent.Close();

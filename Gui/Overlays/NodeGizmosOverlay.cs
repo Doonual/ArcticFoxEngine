@@ -15,6 +15,7 @@ namespace ArcticFoxEngine.Debug {
 
 		static Camera gizmoCamera = null;
 		static List<(Node, bool)> floatingEditWindows;
+		static List<Node> openNodes; // List of nodes that have their children exposed
 
 		static float circleRadius = 18f;
 		static float fanRadiusStep = 52f;
@@ -32,6 +33,9 @@ namespace ArcticFoxEngine.Debug {
 			if (floatingEditWindows == null) {
 				floatingEditWindows = new List<(Node, bool)>();
 			}
+			if (openNodes == null) {
+				openNodes = new List<Node>();
+			}
 
 			if (Node.rootNode == null) { return; }
 			if (gizmoCamera == null) {
@@ -39,7 +43,7 @@ namespace ArcticFoxEngine.Debug {
 			}
 
 			// Start debug Gizmos layout tree
-			DebugGizmosLayout(Node.rootNode, Vector2.zero, Vector2.zero, 0f, 0, MathF.PI * 2f, true);
+			DebugGizmosLayout(Node.rootNode, Vector2.zero, Vector2.zero, 0f, 0, MathF.PI * 2f, true, true);
 
 			// Render floating windows
 			for (int i = floatingEditWindows.Count - 1; i >= 0; i --) {
@@ -76,15 +80,19 @@ namespace ArcticFoxEngine.Debug {
 			floatingEditWindows.Add((node, true));
 		}
 
-		internal static void DebugGizmosLayout(Node node, Vector2 prevDrawPos, Vector2 fanCentre, float fanAngle, int fanDepth, float fanRange, bool gizmoInView) {
+		// This has a lot of parameters :(
+		// Fix this later
+		internal static void DebugGizmosLayout(Node node, Vector2 prevDrawPos, Vector2 fanCentre, float fanAngle, int fanDepth, float fanRange, bool gizmoInView, bool skipDrawing) {
+
 
 			float fanRadius = fanDepth * fanRadiusStep;
 			Vector2 drawPos = fanCentre + Vector2.Angle(fanAngle, fanRadius);
 
 			// If the node has a position, use its position for drawing the gizmo.
 			// Unless it's parent is the root node, use the origin for drawing the gizmo
-			if (node.transform.localPosition.SqrLength() > 0.01f || (node.parentNode != null && node.parentNode == Node.rootNode)) {
-
+			if (node.transform.localPosition.SqrLength() > 0.01f) {
+				// This node has its own position, render it using that position
+				skipDrawing = false;
 				Vector3 cameraSpacePos = gizmoCamera.WorldToCamera(node.transform.worldPosition);
 				if (cameraSpacePos.z < 0.01f || cameraSpacePos.z > 1f) {
 					gizmoInView = false;
@@ -100,13 +108,11 @@ namespace ArcticFoxEngine.Debug {
 			}
 			else {
 
-				// If this node is fanning off it's parent node.
-
+				// This node does not have a position. Fan it off it's parent
 				if (gizmoInView == true) {
 					Vector2 lineDirection = (drawPos - prevDrawPos).SetLength(1f);
 					ImGui.GetBackgroundDrawList().AddLine(drawPos - lineDirection * (circleRadius), prevDrawPos + lineDirection * (circleRadius), nodeLinkCol, nodeLinkThickness);
 				}
-				
 
 			}
 
@@ -121,12 +127,12 @@ namespace ArcticFoxEngine.Debug {
 				float angle = MathUtil.Map(i + 0.5f, 0, node.GetChildCount(), angleStart, angleEnd) + fanAngle;
 
 				ImGui.PushID(node.GetChild(i).GetHashCode() + " gizmo rendering");
-				DebugGizmosLayout(node.GetChild(i), drawPos, fanCentre, angle, fanDepth + 1, fanRange / Math.Max(2, node.GetChildCount()), gizmoInView);
+				DebugGizmosLayout(node.GetChild(i), drawPos, fanCentre, angle, fanDepth + 1, fanRange / Math.Max(2, node.GetChildCount()), gizmoInView, skipDrawing);
 				ImGui.PopID();
 
 			}
 
-			if (node != Node.rootNode && gizmoInView == true) {
+			if (node != Node.rootNode && gizmoInView == true && skipDrawing == false) {
 				DrawGizmoIcon(node, drawPos);
 			}
 			
@@ -155,7 +161,14 @@ namespace ArcticFoxEngine.Debug {
 					circleCol = circlePressedCol;
 				}
 				if (ImGui.IsMouseReleased(ImGuiMouseButton.Left) == true) {
-					OpenFloatingNodeEdit(node);
+
+					if (openNodes.Contains(node) == true) {
+						openNodes.Remove(node);
+					}
+					else {
+						openNodes.Add(node);
+					}
+
 				}
 				if (ImGui.IsMouseReleased(ImGuiMouseButton.Right) == true) {
 					ImGui.OpenPopup(node.GetHashCode() + " gizmo context");

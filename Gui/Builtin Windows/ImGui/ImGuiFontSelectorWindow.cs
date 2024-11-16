@@ -6,6 +6,8 @@ namespace ArcticFoxEngine.Gui.Builtin_Windows {
 
 		public override string name => "Font Selector";
 
+		public ImGuiFontSelectorWindow(params string[] menuGroups) : base(menuGroups) { }
+
 		public override void Render() {
 			ImGui.Begin("Font Selector", ref open);
 			ImGui.ShowFontSelector("Font Selector");

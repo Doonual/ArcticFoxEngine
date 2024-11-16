@@ -12,11 +12,17 @@ namespace ArcticFoxEngine {
 		private static bool disposed = true;
 
 		internal static RenderForm form;
-		public static Action init;
 		private static RenderLoop loop;
 
-		static ButtonBinding exitButton;
-		static ButtonBinding toggleDebugButton;
+		// Setup function. Run before any of the loop.
+		public static Action init;
+
+		// Debug and exit buttons
+		private static ButtonBinding exitButton;
+		private static ButtonBinding toggleDebugButton;
+
+		internal static bool deubgRunMainLoop = true;
+		internal static bool debugRunMainLoopOnce = false;
 
 		/// <summary>
 		/// Runs ArcticFoxEngine
@@ -62,8 +68,8 @@ namespace ArcticFoxEngine {
 			Graphics.Init(form);
 			Upload.Init();
 			Rendering.Rendering.Init();
-			Screen.InitScreen(form);
-			InputManager.InitInput();
+			Screen.Init(form);
+			InputManager.Init();
 
 			GuiManager.Init(form);
 			Log.Success("Engine initialisation complete");
@@ -83,51 +89,57 @@ namespace ArcticFoxEngine {
 			using (loop = new RenderLoop(form)) {
 				while (loop != null && loop.NextFrame()) {
 
-
 					Profiler.FrameBegin();
 
-
+					// Input update
 					Profiler.MetricBegin("Input update");
 					InputManager.NextFrame();
 					InputManager.GetInputDeviceUpdates();
 					Profiler.MetricEnd();
 
-					Profiler.MetricBegin("Scene update");
-					if (Node.rootNode != null) {
+					if (deubgRunMainLoop == true || debugRunMainLoopOnce == true) {
 
-						Profiler.MetricBegin("Node update");
-						Node.rootNode.UpdateEvent();
-						Profiler.MetricEnd();
+						// Scene update
+						Profiler.MetricBegin("Scene update");
+						if (Node.rootNode != null) {
 
-						Profiler.MetricBegin("Render");
-						Node.rootNode.RenderEvent();
-						Profiler.MetricEnd();
+							Profiler.MetricBegin("Node update");
+							Node.rootNode.UpdateEvent();
+							Profiler.MetricEnd();
 
+							Profiler.MetricBegin("Render");
+							Node.rootNode.RenderEvent();
+							Profiler.MetricEnd();
+
+						}
+
+						debugRunMainLoopOnce = false;
 					}
+
 					Profiler.MetricEnd();
-
-
-					if (toggleDebugButton.GetButtonDown() == true) { GuiManager.ToggleGUI(); }
-
 					Profiler.FrameEnd();
 
-					GuiManager.UpdateImGui();
-					if (exitButton.GetButton() == true) {
-						Stop();
-						break;
-					}
 
-					Graphics.WaitForCmdList();
+					// Check for debug button
+					if (toggleDebugButton.GetButtonDown() == true) { GuiManager.ToggleGUI(); }
+
+					// Check for exit button
+					if (exitButton.GetButton() == true) { Stop(); }
+
+
+
+					GuiManager.UpdateImGui();
+
+					Graphics.WaitForDirectCommandQueue();
 					Graphics.Buffer();
+
+
 					form.Show();
 				}
 			}
 
-			Graphics.WaitForCmdList();
-			Graphics.Dispose();
-			Rendering.Rendering.Dispose();
 
-			GuiManager.CloseGUI();
+			Stop();
 
 		}
 
@@ -142,6 +154,12 @@ namespace ArcticFoxEngine {
 			loop = null;
 			CommandController.Stop();
 			GuiManager.Dispose();
+			Graphics.Dispose();
+			Rendering.Rendering.Dispose();
+			GuiManager.CloseGUI();
+
+			Environment.Exit(0);
+
 		}
 
 	}

@@ -11,7 +11,7 @@ namespace ArcticFoxEngine.Debug {
 
 		public override string name => "Log";
 
-		internal LogWindow() {
+		internal LogWindow(params string[] menuGroups) : base(menuGroups) {
 			messages = new List<string>();
 			messages.Add("");
 			cmdInput = "";
@@ -112,6 +112,9 @@ namespace ArcticFoxEngine.Debug {
 
 		public override void Render() {
 
+
+			ImGui.Begin("Log");
+
 			if (ImGui.Button("Clear") == true) {
 				messages.Clear();
 				messages.Add("");
@@ -184,6 +187,8 @@ namespace ArcticFoxEngine.Debug {
 				CommandController.ExecuteCommand(cmdInput);
 				cmdInput = "";
 			}
+
+			ImGui.End();
 
 
 		}

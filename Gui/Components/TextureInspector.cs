@@ -12,9 +12,17 @@ namespace ArcticFoxEngine.Debug.GUI_Components {
 		float textureSize = 1f;
 		float zoom = 1f;
 		float scrollVelocity = 0f;
-		bool addExtraPadding;
+		public bool addExtraPadding;
 
 		Vector2 prevMousePos;
+
+		public bool showViewOptions = true;
+		public bool allowPan = true;
+
+		Vector2 topLeftScreenPos = Vector2.zero;
+		Vector2 bottomRightScreenPos = Vector2.zero;
+
+		public Action<Vector2, Vector2> additionalDraws;
 
 		public TextureInspector() {
 			texture = null;
@@ -61,7 +69,7 @@ namespace ArcticFoxEngine.Debug.GUI_Components {
 			ImGui.SetNextWindowScroll(scrollPos);
 
 			// Mouse controls
-			if (ImGui.GetIO().WantCaptureMouse == true && ImGui.IsMouseHoveringRect(textureRectTL, textureRectBR) == true) {
+			if (ImGui.GetIO().WantCaptureMouse == true && ImGui.IsMouseHoveringRect(textureRectTL, textureRectBR) == true && allowPan == true) {
 
 				scrollVelocity += ImGui.GetIO().MouseWheel * 0.02f;
 				scrollVelocity *= 0.9f;
@@ -73,32 +81,29 @@ namespace ArcticFoxEngine.Debug.GUI_Components {
 					viewCentre.x -= (currentMousePos.x - prevMousePos.x) * pixelScale;
 					viewCentre.y -= (currentMousePos.y - prevMousePos.y) * pixelScale;
 
-					viewCentre.x = MathF.Min(MathF.Max(0f, viewCentre.x), texture.width);
-					viewCentre.y = MathF.Min(MathF.Max(0f, viewCentre.y), texture.width);
+					//viewCentre.x = MathF.Min(MathF.Max(0f, viewCentre.x), texture.width);
+					//viewCentre.y = MathF.Min(MathF.Max(0f, viewCentre.y), texture.width);
 				}
 				prevMousePos = currentMousePos;
 
 			}
 
+			if (showViewOptions == true) {
 
-			System.Numerics.Vector2 systemVec = viewCentre;
-			ImGuiWindowFlags flags = ImGuiWindowFlags.AlwaysHorizontalScrollbar | ImGuiWindowFlags.AlwaysVerticalScrollbar;
-			if (ImGui.DragFloat("Zoom", ref zoom, 1f, 1f, texture.width / 4, null, ImGuiSliderFlags.Logarithmic) == true) {
-				scrollVelocity = 0f;
+				System.Numerics.Vector2 systemVec = viewCentre;
+				
+				if (ImGui.DragFloat("Zoom", ref zoom, 1f, 1f, texture.width / 4, null, ImGuiSliderFlags.Logarithmic) == true) {
+					scrollVelocity = 0f;
+				}
+				ImGui.DragFloat2("View Centre", ref systemVec, 1, 0, texture.width - 1);
+				ImGui.Checkbox("Allow pan outside texture", ref addExtraPadding);
+				viewCentre = systemVec;
+
 			}
-			ImGui.DragFloat2("View Centre", ref systemVec, 1, 0, texture.width - 1);
-			ImGui.Checkbox("Allow pan outside texture", ref addExtraPadding);
-			viewCentre = systemVec;
 
 
 
-
-
-
-
-
-
-
+			ImGuiWindowFlags flags = ImGuiWindowFlags.AlwaysHorizontalScrollbar | ImGuiWindowFlags.AlwaysVerticalScrollbar;
 			// Start the child window
 			textureRectTL = ImGui.GetCursorScreenPos();
 			textureRectBR = textureRectTL + new Vector2(columnWidth + scrollbarWidth + 2, columnWidth + scrollbarWidth + 2);
@@ -111,18 +116,27 @@ namespace ArcticFoxEngine.Debug.GUI_Components {
 			if (addExtraPadding == true) {
 				ImGui.InvisibleButton("texture pad invis button", new Vector2(textureSize + columnWidth, textureSize + columnWidth));
 				ImGui.SetCursorPos(new Vector2(columnWidth / 2f, columnWidth / 2f));
+				//topLeftScreenPos += new Vector2(columnWidth / 2f, columnWidth / 2f);
+				//bottomRightScreenPos += new Vector2(columnWidth / 2f, columnWidth / 2f);
 			}
+
+			topLeftScreenPos = (Vector2)ImGui.GetCursorScreenPos() - Vector2.one;
+			bottomRightScreenPos = topLeftScreenPos + Vector2.one * (textureSize + 1);
 			ImGui.Image(texturePtr, new Vector2(textureSize, textureSize));
 
 
 			
 			Vector2 newScrollPos = new Vector2(ImGui.GetScrollX(), ImGui.GetScrollY());
 			
-			if ((scrollPos - newScrollPos).GetLength() > 1.2f) {
+			if ((scrollPos - newScrollPos).GetLength() > 1.2f && false) {
 				viewCentre = newScrollPos - Vector2.one * columnWidth / 2;
 				viewCentre *= pixelScale;
 				viewCentre += new Vector2(texture.width / 2 / zoom, texture.height / 2 / zoom);
 
+			}
+
+			if (additionalDraws != null) {
+				additionalDraws(topLeftScreenPos, bottomRightScreenPos);
 			}
 
 			ImGui.EndChild();

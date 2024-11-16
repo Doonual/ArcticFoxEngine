@@ -6,6 +6,8 @@ namespace ArcticFoxEngine.Gui.Builtin_Windows {
 
 		public override string name => "Debug Log";
 
+		public ImGuiDebugLogWindow(params string[] menuGroups) : base(menuGroups) { }
+
 		public override void Render() {
 			ImGui.ShowDebugLogWindow(ref open);
 		}

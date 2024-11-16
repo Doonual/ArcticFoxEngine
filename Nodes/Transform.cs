@@ -22,7 +22,7 @@ namespace ArcticFoxEngine.Nodes {
 
 		public Vector3 worldPosition {
 			get {
-				return worldMatrix.Row4;
+				return worldMatrix.Row3;
 			}
 		}
 		public Matrix worldMatrix {

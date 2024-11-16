@@ -15,6 +15,7 @@ namespace ArcticFoxEngine.Debug {
 		public override string name => "Mesh Buffer Viewer";
 		public override void Render() {
 
+			ImGui.Begin("Mesh Buffer Viewer");
 
 			GeometryInfo geometry = Rendering.Rendering.rpUnlit.geometryResources;
 			MeshRenderer delMeshFilter = null;
@@ -259,6 +260,9 @@ namespace ArcticFoxEngine.Debug {
 				quadCount++;
 
 			}
+
+			ImGui.End();
+
 		}
 
 

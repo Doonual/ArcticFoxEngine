@@ -1,0 +1,183 @@
+{
+  "nodes": [
+    {
+      "id": "389bedeca2a1547a",
+      "type": "group",
+      "styleAttributes": {},
+      "x": -2360,
+      "y": 540,
+      "width": 1100,
+      "height": 520,
+      "label": "Shader"
+    },
+    {
+      "id": "69e571c66d48098a",
+      "type": "group",
+      "styleAttributes": {},
+      "x": -3460,
+      "y": 340,
+      "width": 800,
+      "height": 640,
+      "label": "Texture"
+    },
+    {
+      "id": "febfc7c9ca04a560",
+      "type": "group",
+      "styleAttributes": {},
+      "x": -1780,
+      "y": 1360,
+      "width": 720,
+      "height": 680,
+      "label": "Rendering"
+    },
+    {
+      "id": "396698eccbd767e0",
+      "type": "group",
+      "styleAttributes": {},
+      "x": -2300,
+      "y": 620,
+      "width": 300,
+      "height": 300,
+      "label": "Texture Slot"
+    },
+    {
+      "id": "5848c097861b82b6",
+      "type": "text",
+      "text": "Objects",
+      "styleAttributes": {},
+      "x": -2220,
+      "y": -760,
+      "width": 260,
+      "height": 60
+    },
+    {
+      "id": "11aafe61437711b9",
+      "type": "text",
+      "text": "Methods",
+      "styleAttributes": {},
+      "x": -2220,
+      "y": -660,
+      "width": 260,
+      "height": 60,
+      "color": "1"
+    },
+    {
+      "id": "ac6c34175f42a3fa",
+      "type": "text",
+      "text": "CMD List",
+      "styleAttributes": {},
+      "x": -1420,
+      "y": 1570,
+      "width": 260,
+      "height": 60
+    },
+    {
+      "id": "f2476148bc544382",
+      "type": "text",
+      "text": "Texture2D",
+      "styleAttributes": {},
+      "x": -3420,
+      "y": 370,
+      "width": 260,
+      "height": 60
+    },
+    {
+      "id": "ab3d4b08d3ed049e",
+      "type": "text",
+      "text": "1 Element Descriptor Heap",
+      "styleAttributes": {},
+      "x": -3420,
+      "y": 590,
+      "width": 260,
+      "height": 60
+    },
+    {
+      "id": "b5ad2dccd154a194",
+      "type": "text",
+      "text": "Root Parameter Index",
+      "styleAttributes": {},
+      "x": -2280,
+      "y": 680,
+      "width": 260,
+      "height": 60
+    },
+    {
+      "id": "f15f6c2ac900be99",
+      "type": "text",
+      "text": "GPU Descriptor Handle",
+      "styleAttributes": {},
+      "x": -2280,
+      "y": 810,
+      "width": 260,
+      "height": 60
+    },
+    {
+      "id": "fd51b31f3b860638",
+      "type": "text",
+      "text": "Root Signature",
+      "styleAttributes": {},
+      "x": -1720,
+      "y": 680,
+      "width": 260,
+      "height": 60
+    },
+    {
+      "id": "e7f58d7d9f22f51b",
+      "type": "text",
+      "text": "Main Descriptor Heap",
+      "styleAttributes": {},
+      "x": -1740,
+      "y": 1410,
+      "width": 260,
+      "height": 60
+    }
+  ],
+  "edges": [
+    {
+      "id": "609d0a9318b562d7",
+      "styleAttributes": {},
+      "fromNode": "f2476148bc544382",
+      "fromSide": "bottom",
+      "toNode": "ab3d4b08d3ed049e",
+      "toSide": "top",
+      "label": "Create SRV Descriptor"
+    },
+    {
+      "id": "5689ca5bf601ce7e",
+      "styleAttributes": {},
+      "fromNode": "e7f58d7d9f22f51b",
+      "fromSide": "bottom",
+      "toNode": "ac6c34175f42a3fa",
+      "toSide": "top",
+      "label": "Bind"
+    },
+    {
+      "id": "de11ecdcf6bbc10f",
+      "styleAttributes": {},
+      "fromNode": "b5ad2dccd154a194",
+      "fromSide": "right",
+      "toNode": "fd51b31f3b860638",
+      "toSide": "left",
+      "label": "Assigned index"
+    },
+    {
+      "id": "43745c2128bc0a92",
+      "styleAttributes": {},
+      "fromNode": "fd51b31f3b860638",
+      "fromSide": "bottom",
+      "toNode": "e7f58d7d9f22f51b",
+      "toSide": "top",
+      "label": "Associate each entry with a descriptor in the main descriptor heap"
+    },
+    {
+      "id": "3b2888af1ac179a4",
+      "styleAttributes": {},
+      "fromNode": "69e571c66d48098a",
+      "fromSide": "right",
+      "toNode": "396698eccbd767e0",
+      "toSide": "left",
+      "label": "Bind"
+    }
+  ],
+  "metadata": {}
+}

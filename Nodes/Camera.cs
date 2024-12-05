@@ -130,14 +130,14 @@ namespace ArcticFoxEngine.Nodes {
 
 		}
 
-		internal void UpdateCameraInfoBuffer(ConstBuffer<RenderInfo> renderInfo) {
+		internal void UpdateCameraInfoBuffer(ConstBuffer<ProjectionInfo> projectionInfo) {
 
-			RenderInfo info = new RenderInfo();
+			ProjectionInfo info = new ProjectionInfo();
 			info.projectionMatrix = projectionMatrix;
 			info.screenWidth = renderWidth;
 			info.screenHeight = renderHeight;
 			info.aspectRatio = (float)renderWidth / renderHeight;
-			renderInfo.Write(new RenderInfo[] { info }, 0);
+			projectionInfo.Write(new ProjectionInfo[] { info }, 0);
 
 		}
 		public override void Render() {

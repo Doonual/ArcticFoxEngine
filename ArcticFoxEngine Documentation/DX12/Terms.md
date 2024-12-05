@@ -1,4 +1,4 @@
-﻿A Guide to Direct3D12 terms
+A Guide to Direct3D12 terms
 DirectX is hard...
 
 Descriptor - https://learn.microsoft.com/en-us/windows/win32/direct3d12/descriptors-overview

@@ -5,6 +5,7 @@ ArcticFoxEngine is made up of many subsystems.
 - [[Input]]
 - [[Graphics]]
 - [[GUI]]
+- [[Rendering]]
 
 ## Examples
 Here are some examples on how to use ArcticFoxEngine

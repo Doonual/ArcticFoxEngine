@@ -25,10 +25,10 @@ namespace ArcticFoxEngine.Nodes {
 			Enable();
 		}
 
-		internal LitRenderPipeline.LightData GetLightData() {
+		internal LitShader.LightData GetLightData() {
 
 
-			LitRenderPipeline.LightData lightData = new LitRenderPipeline.LightData();
+			LitShader.LightData lightData = new LitShader.LightData();
 			
 			lightData.pos = (Vector4)transform.worldPosition;
 			lightData.col = new Vector3(colour.r / 255f, colour.g / 255f, colour.b / 255f);

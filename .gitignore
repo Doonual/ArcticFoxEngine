@@ -401,3 +401,7 @@ FodyWeavers.xsd
 bin/
 obj/
 .vs/
+
+# Others' themes and plugins
+ArcticFoxEngine Documentation/.obsidian/plugins
+ArcticFoxEngine Documentation/.obsidian/themes

@@ -5,13 +5,14 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace ArcticFoxEngine.Rendering.Render_Pipelines {
-	internal class SkyboxRP : RenderPipeline {
+	internal class SkyboxRP : Shader {
 
 		public SkyboxRP() {
 
 
 
-			//Finalise();
+
+			
 		}
 
 		public override string name => "Skybox";
@@ -24,7 +25,7 @@ namespace ArcticFoxEngine.Rendering.Render_Pipelines {
 
 	public class SkyboxMaterial : Material {
 
-		public override void BindResources(RenderPipeline renderPipeline) {
+		public override void BindResources(Shader renderPipeline) {
 			
 		}
 

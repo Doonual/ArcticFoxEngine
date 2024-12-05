@@ -10,13 +10,13 @@ namespace ArcticFoxEngine.Nodes {
 		internal override string nodeIconPath => ".res/NodeIcons/LightManager.png";
 		internal override string nodeIconPath32 => ".res/NodeIcons/LightManager32.png";
 
-		LitRenderPipeline.LightingWorld lightingWorld;
+		LitShader.LightingWorld lightingWorld;
 		List<Light> lights;
 
 		public LightingSystem() {
 			name = "Lighting System";
 
-			lightingWorld = new LitRenderPipeline.LightingWorld();
+			lightingWorld = new LitShader.LightingWorld();
 			lights = new List<Light>();
 
 			Enable();
@@ -44,10 +44,10 @@ namespace ArcticFoxEngine.Nodes {
 
 		public override void Update() {
 
-			LitRenderPipeline.SetLightingInfo(lightingWorld);
+			LitShader.SetLightingInfo(lightingWorld);
 
 			for (int i = 0; i < lights.Count(); i++) {
-				LitRenderPipeline.SetLightData(lights[i].GetLightData(), i);
+				LitShader.SetLightData(lights[i].GetLightData(), i);
 			}
 
 		}

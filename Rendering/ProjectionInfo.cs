@@ -1,5 +1,5 @@
 ﻿namespace ArcticFoxEngine.Rendering {
-	internal struct RenderInfo {
+	internal struct ProjectionInfo {
 
 		public Matrix projectionMatrix; // 64 bytes
 

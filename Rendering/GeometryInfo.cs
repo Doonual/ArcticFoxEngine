@@ -8,18 +8,18 @@ namespace ArcticFoxEngine.Rendering {
 
 	/// <summary>
 	/// Contains and controls all the resources needed for rendering geometry
-	/// This is the vertex buffer, index buffers and the object buffers
+	/// This is the vertex buffer, index buffers and the transform buffers
 	/// </summary>
 	public class GeometryInfo {
 
 		internal static int kbPerBuffer = 2048;
 
-		internal static int numVbElements = kbPerBuffer * 1024 / Utilities.SizeOf<Vertex>();
-		internal static int numIbElements = kbPerBuffer * 1024 / sizeof(int);
-		internal static int numObElements = 128 * 1024 / Utilities.SizeOf<ObjectInfo>();
+		internal static int numVertexBufferElements = kbPerBuffer * 1024 / Utilities.SizeOf<Vertex>();
+		internal static int numIndexBufferElements = kbPerBuffer * 1024 / sizeof(int);
+		internal static int numTransformBufferElements = 128 * 1024 / Utilities.SizeOf<TransformInfo>();
 
 		internal List<MeshRenderer> meshRenderers;
-		internal List<(int vbStart, int ibStart, int obStart)> meshRendererPositions;
+		internal List<(int vertexBufferStart, int indexBufferStart, int transformBufferStart)> meshRendererPositions;
 
 		internal int[] vertexGap;
 		internal Resource vertexBuffer;
@@ -29,8 +29,8 @@ namespace ArcticFoxEngine.Rendering {
 		internal Resource indexBuffer;
 		internal IndexBufferView indexBufferView;
 
-		internal int[] objectGap;
-		internal ConstBuffer<ObjectInfo> objectBuffer;
+		internal int[] transformGap;
+		internal ConstBuffer<TransformInfo> transformBuffer;
 
 
 		/// <summary>
@@ -39,34 +39,34 @@ namespace ArcticFoxEngine.Rendering {
 		public GeometryInfo() {
 
 			meshRenderers = new List<MeshRenderer>();
-			meshRendererPositions = new List<(int vbStart, int ibStart, int obStart)>();
+			meshRendererPositions = new List<(int vertexBufferStart, int indexBufferStart, int transformBufferStart)>();
 
 			// Create gap arrays
-			vertexGap = new int[numVbElements];
-			for (int i = 0; i < numVbElements; i++) {
+			vertexGap = new int[numVertexBufferElements];
+			for (int i = 0; i < numVertexBufferElements; i++) {
 				vertexGap[i] = -1;
 			}
-			indexGap = new int[numIbElements];
-			for (int i = 0; i < numIbElements; i++) {
+			indexGap = new int[numIndexBufferElements];
+			for (int i = 0; i < numIndexBufferElements; i++) {
 				indexGap[i] = -1;
 			}
-			objectGap = new int[numObElements];
-			for (int i = 0; i < numObElements; i++) {
-				objectGap[i] = -1;
+			transformGap = new int[numTransformBufferElements];
+			for (int i = 0; i < numTransformBufferElements; i++) {
+				transformGap[i] = -1;
 			}
 
 			// Create buffer resources
-			vertexBuffer = Graphics.device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.None, ResourceDescription.Buffer(numVbElements * Utilities.SizeOf<Vertex>()), ResourceStates.GenericRead);
+			vertexBuffer = Graphics.device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.None, ResourceDescription.Buffer(numVertexBufferElements * Utilities.SizeOf<Vertex>()), ResourceStates.GenericRead);
 			vertexBufferView.BufferLocation = vertexBuffer.GPUVirtualAddress;
 			vertexBufferView.StrideInBytes = Utilities.SizeOf<Vertex>();
-			vertexBufferView.SizeInBytes = numVbElements * Utilities.SizeOf<Vertex>();
+			vertexBufferView.SizeInBytes = numVertexBufferElements * Utilities.SizeOf<Vertex>();
 
-			indexBuffer = Graphics.device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.None, ResourceDescription.Buffer(numIbElements * sizeof(int)), ResourceStates.IndexBuffer);
+			indexBuffer = Graphics.device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.None, ResourceDescription.Buffer(numIndexBufferElements * sizeof(int)), ResourceStates.IndexBuffer);
 			indexBufferView.BufferLocation = indexBuffer.GPUVirtualAddress;
-			indexBufferView.SizeInBytes = numIbElements * sizeof(int);
+			indexBufferView.SizeInBytes = numIndexBufferElements * sizeof(int);
 			indexBufferView.Format = SharpDX.DXGI.Format.R32_UInt;
 
-			objectBuffer = new ConstBuffer<ObjectInfo>(numObElements);
+			transformBuffer = new ConstBuffer<TransformInfo>(numTransformBufferElements);
 
 		}
 
@@ -79,42 +79,42 @@ namespace ArcticFoxEngine.Rendering {
 			if (meshRenderer.mesh == null) { Log.Error("Failed to add mesh renderer, no mesh"); return false; }
 
 			// Find suitable space for mesh data insertion
-			int vbStartIndex = FindGap(vertexGap, meshRenderer.mesh.vertices.Length);
-			int ibStartIndex = FindGap(indexGap, meshRenderer.mesh.indices.Length);
-			int obStartIndex = FindGap(objectGap, 1);
+			int vertexBufferStartIndex = FindGap(vertexGap, meshRenderer.mesh.vertices.Length);
+			int indexBufferStartIndex = FindGap(indexGap, meshRenderer.mesh.indices.Length);
+			int transformBufferStartIndex = FindGap(transformGap, 1);
 
 			// If there is no suitable space for mesh data
-			if (vbStartIndex == -1 || ibStartIndex == -1 || obStartIndex == -1) {
-				if (vbStartIndex == -1) {
+			if (vertexBufferStartIndex == -1 || indexBufferStartIndex == -1 || transformBufferStartIndex == -1) {
+				if (vertexBufferStartIndex == -1) {
 					Log.Warn("Failed to add mesh vertex data to vertex buffer, not enough room");
 				}
-				if (ibStartIndex == -1) {
+				if (indexBufferStartIndex == -1) {
 					Log.Warn("Failed to add mesh index data to index buffer, not enough room");
 				}
-				if (obStartIndex == -1) {
-					Log.Warn("Failed to add mesh object data to index object, not enough room");
+				if (transformBufferStartIndex == -1) {
+					Log.Warn("Failed to add mesh transform data to transform buffer, not enough room");
 				}
 				return false;
 
 			}
 
 			meshRenderers.Add(meshRenderer);
-			meshRendererPositions.Add((vbStartIndex, ibStartIndex, obStartIndex));
+			meshRendererPositions.Add((vertexBufferStartIndex, indexBufferStartIndex, transformBufferStartIndex));
 
 			// Shortcuts to the mesh data
 			Vertex[] vertices = meshRenderer.mesh.vertices;
 			int[] indices = meshRenderer.mesh.indices;
-			ObjectInfo[] objectInfo = new ObjectInfo[] { meshRenderer.GetObjectInfo() };
+			TransformInfo[] transformInfo = new TransformInfo[] { meshRenderer.GetObjectInfo() };
 
 			// Mark each gap as being occupied by data
 			for (int i = 0; i < vertices.Length; i++) {
-				vertexGap[i + vbStartIndex] = 0;
+				vertexGap[i + vertexBufferStartIndex] = 0;
 			}
 			for (int i = 0; i < indices.Length; i++) {
-				indexGap[i + ibStartIndex] = 0;
+				indexGap[i + indexBufferStartIndex] = 0;
 			}
-			for (int i = 0; i < objectInfo.Length; i++) {
-				objectGap[i + obStartIndex] = 0;
+			for (int i = 0; i < transformInfo.Length; i++) {
+				transformGap[i + transformBufferStartIndex] = 0;
 			}
 
 
@@ -131,12 +131,12 @@ namespace ArcticFoxEngine.Rendering {
 			int vertexUploadBufferSize = Utilities.SizeOf<Vertex>() * vertices.Length;
 			writePos = Upload.BeginBufferUpload(vertexUploadBufferSize);
 			Utilities.Write(writePos, vertices, 0, vertices.Length);
-			Upload.EndBufferUpload(vertexBuffer, dstOffsetBytes: vbStartIndex * Utilities.SizeOf<Vertex>(), srcOffsetBytes: 0);
+			Upload.EndBufferUpload(vertexBuffer, dstOffsetBytes: vertexBufferStartIndex * Utilities.SizeOf<Vertex>(), srcOffsetBytes: 0);
 
 			int indexUploadBufferSize = Utilities.SizeOf<int>() * indicesOffset.Length;
 			writePos = Upload.BeginBufferUpload(indexUploadBufferSize);
 			Utilities.Write(writePos, indicesOffset, 0, indicesOffset.Length);
-			Upload.EndBufferUpload(indexBuffer, dstOffsetBytes: ibStartIndex * Utilities.SizeOf<int>(), srcOffsetBytes: 0);
+			Upload.EndBufferUpload(indexBuffer, dstOffsetBytes: indexBufferStartIndex * Utilities.SizeOf<int>(), srcOffsetBytes: 0);
 
 			#endregion
 
@@ -200,9 +200,9 @@ namespace ArcticFoxEngine.Rendering {
 
 
 
-			int vbStartIndex = meshRendererPositions[meshRendererListIndex].vbStart;
-			int ibStartIndex = meshRendererPositions[meshRendererListIndex].ibStart;
-			int obStartIndex = meshRendererPositions[meshRendererListIndex].obStart;
+			int vertexBufferStartIndex = meshRendererPositions[meshRendererListIndex].vertexBufferStart;
+			int indexBufferStartIndex = meshRendererPositions[meshRendererListIndex].indexBufferStart;
+			int transformBufferStartIndex = meshRendererPositions[meshRendererListIndex].transformBufferStart;
 
 			int numVerts = meshRenderer.mesh.vertices.Length;
 			int numIndex = meshRenderer.mesh.indices.Length;
@@ -213,17 +213,17 @@ namespace ArcticFoxEngine.Rendering {
 
 			// Mark the data as just removed but still to be propagated
 			for (int i = 0; i < numVerts; i++) {
-				vertexGap[i + vbStartIndex] = -2;
+				vertexGap[i + vertexBufferStartIndex] = -2;
 			}
 			for (int i = 0; i < numIndex; i++) {
-				indexGap[i + ibStartIndex] = -2;
+				indexGap[i + indexBufferStartIndex] = -2;
 			}
 			for (int i = 0; i < numObjs; i++) {
-				objectGap[i + obStartIndex] = -2;
+				transformGap[i + transformBufferStartIndex] = -2;
 			}
 
 			// Propagate gaps
-			for (int i = vbStartIndex + numVerts - 1; i >= 0; i--) {
+			for (int i = vertexBufferStartIndex + numVerts - 1; i >= 0; i--) {
 				if (vertexGap[i] == 0) { break; }
 				if (i + 1 == vertexGap.Length || vertexGap[i + 1] == -1) {
 					vertexGap[i] = -1;
@@ -232,7 +232,7 @@ namespace ArcticFoxEngine.Rendering {
 					vertexGap[i] = vertexGap[i + 1] + 1;
 				}
 			}
-			for (int i = ibStartIndex + numIndex - 1; i >= 0; i--) {
+			for (int i = indexBufferStartIndex + numIndex - 1; i >= 0; i--) {
 				if (indexGap[i] == 0) { break; }
 				if (i + 1 == indexGap.Length || indexGap[i + 1] == -1) {
 					indexGap[i] = -1;
@@ -241,13 +241,13 @@ namespace ArcticFoxEngine.Rendering {
 					indexGap[i] = indexGap[i + 1] + 1;
 				}
 			}
-			for (int i = obStartIndex + numObjs - 1; i >= 0; i--) {
-				if (objectGap[i] == 0) { break; }
-				if (i + 1 == objectGap.Length || objectGap[i + 1] == -1) {
-					objectGap[i] = -1;
+			for (int i = transformBufferStartIndex + numObjs - 1; i >= 0; i--) {
+				if (transformGap[i] == 0) { break; }
+				if (i + 1 == transformGap.Length || transformGap[i + 1] == -1) {
+					transformGap[i] = -1;
 				}
 				else {
-					objectGap[i] = objectGap[i + 1] + 1;
+					transformGap[i] = transformGap[i + 1] + 1;
 				}
 			}
 
@@ -276,7 +276,7 @@ namespace ArcticFoxEngine.Rendering {
 				return;
 			}
 
-			long vertexBufferStartPos = meshRendererPositions[meshRendererIndex].vbStart;
+			long vertexBufferStartPos = meshRendererPositions[meshRendererIndex].vertexBufferStart;
 
 			long numBytes = meshRenderer.mesh.vertices.Length * Utilities.SizeOf<Vertex>();
 			IntPtr writePos = Upload.BeginBufferUpload(numBytes);
@@ -284,6 +284,18 @@ namespace ArcticFoxEngine.Rendering {
 			Upload.EndBufferUpload(vertexBuffer, dstOffsetBytes: vertexBufferStartPos * Utilities.SizeOf<Vertex>());
 
 		}
+
+		public int GetMeshPosInVertexBuffer(int index) {
+			return meshRendererPositions[index].vertexBufferStart;
+		}
+		public int GetMeshPosInIndexBuffer(int index) {
+			return meshRendererPositions[index].indexBufferStart;
+		}
+		public int GetMeshPosInObjectBuffer(int index) {
+			return meshRendererPositions[index].transformBufferStart;
+		}
+		
+
 
 		private int FindGap(int[] gapArray, int width) {
 
@@ -307,28 +319,28 @@ namespace ArcticFoxEngine.Rendering {
 		}
 
 		/// <summary>
-		/// Updates the object data buffer for all mesh renderers added to this GeometryResources
+		/// Updates the transform data buffer for all mesh renderers added to this GeometryResources
 		/// </summary>
 		internal void UpdateObjectInfoBuffer() {
 
 			int maxObjectInfoIndex = -1;
 
 			for (int i = 0; i < meshRenderers.Count; i++) {
-				if (meshRendererPositions[i].obStart > maxObjectInfoIndex) {
-					maxObjectInfoIndex = meshRendererPositions[i].obStart;
+				if (meshRendererPositions[i].transformBufferStart > maxObjectInfoIndex) {
+					maxObjectInfoIndex = meshRendererPositions[i].transformBufferStart;
 				}
 			}
 			if (maxObjectInfoIndex == -1) {
 				return;
 			}
 
-			ObjectInfo[] gpuSendInfo = new ObjectInfo[maxObjectInfoIndex + 1];
+			TransformInfo[] gpuSendInfo = new TransformInfo[maxObjectInfoIndex + 1];
 			for (int i = 0; i < meshRenderers.Count; i++) {
 				MeshRenderer currentMesh = meshRenderers[i];
-				gpuSendInfo[meshRendererPositions[i].obStart] = currentMesh.GetObjectInfo();
+				gpuSendInfo[meshRendererPositions[i].transformBufferStart] = currentMesh.GetObjectInfo();
 			}
 
-			objectBuffer.Write(gpuSendInfo, 0);
+			transformBuffer.Write(gpuSendInfo, 0);
 
 		}
 
@@ -338,7 +350,7 @@ namespace ArcticFoxEngine.Rendering {
 			disposed = true;
 			vertexBuffer.Dispose();
 			indexBuffer.Dispose();
-			objectBuffer.Dispose();
+			transformBuffer.Dispose();
 		}
 		~GeometryInfo() {
 			Dispose();

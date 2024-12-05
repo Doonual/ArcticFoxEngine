@@ -10,7 +10,7 @@ namespace ArcticFoxEngine.Nodes {
 		internal override string nodeIconPath => ".res/NodeIcons/MeshRenderer.png";
 		internal override string nodeIconPath32 => ".res/NodeIcons/MeshRenderer32.png";
 
-		private RenderPipeline renderPipeline;
+		private Shader renderPipeline;
 		public Material material;
 
 		public Mesh mesh { get; private set; }
@@ -30,7 +30,7 @@ namespace ArcticFoxEngine.Nodes {
 			Enable();
 		}
 
-		public void SetRenderPipeline(RenderPipeline renderPipeline) {
+		public void SetRenderPipeline(Shader renderPipeline) {
 
 
 			if (mesh != null && enabled == true) {
@@ -77,8 +77,8 @@ namespace ArcticFoxEngine.Nodes {
 			renderPipeline.geometryResources.UpdateMeshData(this);
 		}
 
-		internal ObjectInfo GetObjectInfo() {
-			ObjectInfo info = new ObjectInfo();
+		internal TransformInfo GetObjectInfo() {
+			TransformInfo info = new TransformInfo();
 
 			if (transform == null) {
 				return info;
@@ -118,7 +118,7 @@ namespace ArcticFoxEngine.Nodes {
 
 
 			// Render Pipeline combo
-			RenderPipeline[] renderPipelines = Rendering.GetAllRenderPipelines();
+			Shader[] renderPipelines = Rendering.GetAllRenderPipelines();
 			string[] pipelineNames = new string[renderPipelines.Length];
 			for (int i = 0; i < renderPipelines.Length; i++) {
 				pipelineNames[i] = renderPipelines[i].name;

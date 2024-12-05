@@ -1,6 +1,7 @@
 ﻿#pragma warning disable CS8618
 
 using ArcticFoxEngine.Debug;
+using ArcticFoxEngine.Rendering;
 using ImGuiNET;
 using SharpDX.Direct3D12;
 using SixLabors.ImageSharp;
@@ -535,9 +536,9 @@ namespace ArcticFoxEngine.ImGuiIntegration {
 		}
 
 		static void CreatePipelineState() {
-
-			ShaderBytecode vertexShader = Graphics.CompileShader(".res/Shaders/ImGui/ImGui_shaders.hlsl", Graphics.ShaderType.Vertex);
-			ShaderBytecode pixelShader = Graphics.CompileShader(".res/Shaders/ImGui/ImGui_shaders.hlsl", Graphics.ShaderType.Pixel);
+			
+			ShaderBytecode vertexShader = Shader.CompileShader(".res/Shaders/ImGui/ImGui_shaders.hlsl", Shader.ShaderType.Vertex);
+			ShaderBytecode pixelShader = Shader.CompileShader(".res/Shaders/ImGui/ImGui_shaders.hlsl", Shader.ShaderType.Pixel);
 
 			// Input format
 			InputElement[] inputElementDescs = new InputElement[] {

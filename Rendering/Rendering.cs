@@ -1,6 +1,7 @@
 ﻿using ArcticFoxEngine.Nodes;
 
 namespace ArcticFoxEngine.Rendering {
+	using SharpDX;
 	using SharpDX.Direct3D12;
 
 	/// <summary>
@@ -13,12 +14,9 @@ namespace ArcticFoxEngine.Rendering {
 		private static int descriptorCopyPos;
 		internal static int descriptorHeapIncrement;
 
-		private static List<RenderPipeline> renderPipelines;
-		public static RenderPipeline rpUnlit { get { return renderPipelines[0]; } }
-		public static RenderPipeline rpLit { get { return renderPipelines[1]; } }
-		public static RenderPipeline rpMandelbrot { get { return renderPipelines[2]; } }
+		internal static ConstBuffer<ProjectionInfo> projectionInfo;
 
-		internal static ConstBuffer<RenderInfo> renderInfo;
+		private static List<Shader> renderPipelines;
 		internal static Texture[] textures;
 
 		
@@ -41,31 +39,33 @@ namespace ArcticFoxEngine.Rendering {
 
 			cmdList = Graphics.CreateDirectCommandList();
 
-			renderInfo = new ConstBuffer<RenderInfo>(1);
+			projectionInfo = new ConstBuffer<ProjectionInfo>(1);
+
 
 			textures = new Texture[7];
-			textures[0] = new Texture(".res/Textures/white_pixel.png");
-			textures[1] = new Texture(".res/Textures/uv_512.png");
-			textures[2] = new Texture(".res/Textures/uv_blender.jpg");
-			textures[3] = new Texture(".res/Textures/tiger.png");
-			textures[4] = new Texture(".res/Textures/TestNormalMap.png");
-			textures[5] = new Texture(".res/Textures/BrickCol.png");
-			textures[6] = new Texture(".res/Textures/BrickNormal.png");
+			textures[0] = Texture.Cache.FindOrLoad(".res/Textures/white_pixel.png");
+			textures[1] = Texture.Cache.FindOrLoad(".res/Textures/uv_512.png");
+			textures[2] = Texture.Cache.FindOrLoad(".res/Textures/uv_blender.jpg");
+			textures[3] = Texture.Cache.FindOrLoad(".res/Textures/tiger.png");
+			textures[4] = Texture.Cache.FindOrLoad(".res/Textures/TestNormalMap.png");
+			textures[5] = Texture.Cache.FindOrLoad(".res/Textures/BrickCol.png");
+			textures[6] = Texture.Cache.FindOrLoad(".res/Textures/BrickNormal.png");
 
 
-			renderPipelines = new List<RenderPipeline>();
+
+			renderPipelines = new List<Shader>();
 			renderPipelines.Add(new UnlitRenderPipeline());
-			renderPipelines.Add(new LitRenderPipeline());
-			//renderPipelines.Add(new MandelbrotRenderPipeline());
+			renderPipelines.Add(new LitShader());
+			renderPipelines.Add(new MandelbrotRenderPipeline());
 
 			
 
 		}
 
-		public static RenderPipeline[] GetAllRenderPipelines() {
+		public static Shader[] GetAllRenderPipelines() {
 			return renderPipelines.ToArray();
 		}
-		public static RenderPipeline GetRenderPipeline(string name) {
+		public static Shader GetRenderPipeline(string name) {
 
 			for (int i = 0; i < renderPipelines.Count; i++) {
 				if (renderPipelines[i].name == name) {
@@ -97,29 +97,49 @@ namespace ArcticFoxEngine.Rendering {
 
 			descriptorCopyPos = 0;
 
-			camera.UpdateCameraInfoBuffer(renderInfo);
+			camera.UpdateCameraInfoBuffer(projectionInfo);
 
 			Graphics.WaitForCopyCommandQueue();
 			Graphics.WaitForDirectCommandQueue();
 
 			Graphics.ResetDirectCommandList(cmdList);
+
 			cmdList.SetDescriptorHeaps(gpuDescriptorHeap);
+
+			// Indicate that the back buffer will be used as a render target
+			cmdList.ResourceBarrierTransition(renderTarget, ResourceStates.Present, ResourceStates.RenderTarget);
+
+			// Set viewport and scissor rectancles
+			cmdList.SetViewport(camera.viewport);
+			cmdList.SetScissorRectangles(camera.scissorRect);
+
+			// Set render target and depth stencil
+			CpuDescriptorHandle rtvHandle = rtvDescHeap.CPUDescriptorHandleForHeapStart;
+			CpuDescriptorHandle dsvHandle = dsvDescHeap.CPUDescriptorHandleForHeapStart;
+			rtvHandle += Graphics.frameIndex * Graphics.rtvHeapIncrement;
+			cmdList.SetRenderTargets(rtvHandle, dsvHandle);
+
+
+			// Clear the render target and depth stencil
+			cmdList.ClearRenderTargetView(rtvHandle, new Color4(0f, 0f, 0f, 1f), 0, null);
+			cmdList.ClearDepthStencilView(dsvHandle, ClearFlags.FlagsDepth, 1f, 0);
+
 
 			for (int i = 0; i < renderPipelines.Count; i++) {
 
 
 
-				RenderPipeline currentRenderPipeline = renderPipelines[i];
-				GeometryInfo currentGeometryResources = currentRenderPipeline.geometryResources;
+				Shader currentShader = renderPipelines[i];
+				GeometryInfo currentGeometryResources = currentShader.geometryResources;
 
-				Profiler.MetricBegin("Render Pipeline " + i);
+				
 
-				currentGeometryResources.UpdateObjectInfoBuffer();
-				currentRenderPipeline.Render(currentGeometryResources, camera, renderTarget, rtvDescHeap, dsvDescHeap, i == 0);
-
-				Profiler.MetricEnd();
+				currentShader.Render(camera, renderTarget, rtvDescHeap, dsvDescHeap);
 
 			}
+
+			// Indicate that the back buffer will now be used to present
+			Rendering.cmdList.ResourceBarrierTransition(renderTarget, ResourceStates.RenderTarget, ResourceStates.Present);
 
 
 			cmdList.Close();
@@ -133,6 +153,10 @@ namespace ArcticFoxEngine.Rendering {
 				renderPipelines[i].Dispose();
 			}
 			cmdList.Dispose();
+
+			for (int i = 0; i < textures.Length; i ++) {
+				Texture.Cache.Release(textures[i]);
+			}
 
 		}
 

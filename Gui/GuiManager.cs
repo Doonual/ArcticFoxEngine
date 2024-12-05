@@ -42,7 +42,6 @@ namespace ArcticFoxEngine.Debug {
 				new ImGuiUserGuideWindow("ImGui"),
 
 				new LogWindow(),
-				new DebugMeshBuffers(),
 				new PerformanceWindow(),
 				new SceneWindow(),
 

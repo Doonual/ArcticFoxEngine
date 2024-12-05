@@ -4,25 +4,84 @@
     "type": "split",
     "children": [
       {
-        "id": "6a7b641ec259d653",
+        "id": "339cccbf7a1f421f",
         "type": "tabs",
         "children": [
           {
-            "id": "f569f7dc72b057d1",
+            "id": "3dd3dd891b3f87ff",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Input/Input.md",
+                "file": "Rendering/Rendering.md",
+                "mode": "source",
+                "source": true
+              },
+              "icon": "lucide-file",
+              "title": "Rendering"
+            }
+          },
+          {
+            "id": "b81927af5aeda956",
+            "type": "leaf",
+            "state": {
+              "type": "canvas",
+              "state": {
+                "file": "Rendering/Resource Binding Overview.canvas",
+                "viewState": {
+                  "x": -1893.0650623225208,
+                  "y": 963.0956944219374,
+                  "zoom": -0.333333333333333
+                }
+              },
+              "icon": "lucide-layout-dashboard",
+              "title": "Resource Binding Overview"
+            }
+          },
+          {
+            "id": "fa3438e5d7ae015a",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "DX12/Terms.md",
+                "mode": "source",
+                "source": true
+              },
+              "icon": "lucide-file",
+              "title": "Terms"
+            }
+          },
+          {
+            "id": "2a2517ecc5206ae6",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "DX12/Graphics Pipeline State.md",
                 "mode": "preview",
                 "source": true
               },
               "icon": "lucide-file",
-              "title": "Input"
+              "title": "Graphics Pipeline State"
             }
           },
           {
-            "id": "47d57ac5b1413455",
+            "id": "fa75f424f0f1051b",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "DX12/Descriptor Heap.md",
+                "mode": "source",
+                "source": true
+              },
+              "icon": "lucide-file",
+              "title": "Descriptor Heap"
+            }
+          },
+          {
+            "id": "1bc243d0334cfdf6",
             "type": "leaf",
             "state": {
               "type": "graph",
@@ -31,7 +90,8 @@
               "title": "Graph view"
             }
           }
-        ]
+        ],
+        "currentTab": 2
       }
     ],
     "direction": "vertical"
@@ -173,25 +233,35 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "f569f7dc72b057d1",
+  "active": "862c7ddf9d632dee",
   "lastOpenFiles": [
-    "Todo.canvas",
-    "Input/Input.md",
-    "Command Queue.md",
-    "Engine.md",
-    "Input/Axis2DBinding.md",
-    "Input/AxisBinding.md",
-    "Input/ButtonBinding.md",
-    "Input^50f140.md",
+    "Rendering/Resource Binding Overview.canvas",
+    "DX12/Terms.md",
+    "Rendering/Rendering.md",
+    "DX12/Graphics Pipeline State.md",
+    "Rendering/How it should work.canvas",
+    "DX12/Descriptor Heap.md",
+    "Rendering/Shaders.md",
+    "DX12/Root Signature.md",
+    "Rendering/Shader Resource binding.md",
     "Graphics.md",
-    "Untitled",
+    "Engine.md",
+    "DX12",
+    "DX12/Command Queue.md",
+    "Input/ButtonBinding.md",
+    "Todo.canvas",
+    "GUI.md",
+    "Rendering",
+    "Input/AxisBinding.md",
+    "Input/Axis2DBinding.md",
+    "Input/Input.md",
+    "Input^50f140.md",
     "Input",
     "Untitled Diagram 1.svg",
     "Untitled Diagram.svg",
     "Untitled 3.md",
     "Untitled 1.md",
     "Untitled 2.md",
-    "GUI.md",
     "Todo.md"
   ]
 }

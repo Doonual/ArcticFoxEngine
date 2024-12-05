@@ -53,7 +53,7 @@ namespace ArcticFoxEngine.Demos.LightingTest {
 			lightNode.strength = 5f;
 
 
-			RenderPipeline litRP = Rendering.Rendering.GetRenderPipeline("Lit");
+			Shader litRP = Rendering.Rendering.GetRenderPipeline("Lit");
 			List<MeshRenderer> allMeshRenderers = SearchNodeTreeDownAll<MeshRenderer>();
 			for (int i = 0; i < allMeshRenderers.Count; i ++) {
 				allMeshRenderers[i].SetRenderPipeline(litRP);

@@ -7,16 +7,85 @@ namespace ArcticFoxEngine {
 	using SixLabors.ImageSharp;
 	using SixLabors.ImageSharp.PixelFormats;
 
-	public class Texture {
+	public class Texture : IDisposable {
+
+		public static class Cache {
+
+			// The key is the path of the image file
+			// The value is a Texture / int pair, where the Texture is the cached texture
+			// and the int is the number of refrences to the texture that exists
+			private static Dictionary<string, (Texture, int)> textureCache;
+
+			static Cache() {
+				textureCache = new Dictionary<string, (Texture, int)>();
+			}
+
+
+			public static Texture FindOrLoad(string path) {
+
+				if (textureCache.ContainsKey(path) == true) {
+
+					// Retrieve the cached texture
+					(Texture cachedTexture, int numRefs) = textureCache[path];
+					textureCache[path] = (cachedTexture, numRefs + 1); // update the number of refrences to this texture
+
+					return cachedTexture;
+				}
+
+				Texture loadedTexture = new Texture(path);
+				textureCache.Add(path, (loadedTexture, 1));
+				return loadedTexture;
+
+			}
+
+			public static void Release(string path) {
+
+				if (textureCache.ContainsKey(path) == true) {
+
+					// Retrieve the cached texture
+					(Texture cachedTexture, int numRefs) = textureCache[path];
+
+					// update the number of refrences to this texture
+					textureCache[path] = (cachedTexture, numRefs - 1); 
+
+					// If there are no more refrences to this texture, dispose it and remove the dictionary entry
+					if (numRefs == 0) {
+						cachedTexture.Dispose();
+						textureCache.Remove(path);
+					}
+
+					return;
+
+				}
+
+				Log.Warn("Cannot release texture from cache, not added to cache");
+
+			}
+
+			public static void Release(Texture texture) {
+
+				for (int i = 0; i < textureCache.Count; i ++) {
+					if (textureCache.ElementAt(i).Value.Item1 == texture) {
+						Release(textureCache.ElementAt(i).Key);
+						return;
+					}
+				}
+
+				Log.Warn("Cannot release texture from cache, not added to cache");
+
+			}
+
+
+		}
 
 		private bool disposed = true;
 
 		internal DescriptorHeap descriptorHeap;
 		Resource texture;
+
 		public Format format { get; private set; }
 		public int width;
 		public int height;
-
 		byte[] textureDataClone;
 
 		/// <summary>

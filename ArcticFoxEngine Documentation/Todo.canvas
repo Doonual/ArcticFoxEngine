@@ -1,10 +1,12 @@
 {
 	"nodes":[
-		{"id":"ba3099758cc39e5a","type":"text","text":"They could encompass the shader bytecode as well as binding data to the shaders","x":-80,"y":-120,"width":461,"height":78},
-		{"id":"6353fe7c035a20c3","type":"text","text":"Abstract away shaders to their own class","x":-99,"y":-340,"width":250,"height":60},
-		{"id":"335be513f4dd31c1","type":"text","text":"Get rid of render pipelines","x":-460,"y":-340,"width":250,"height":60}
+		{"id":"335be513f4dd31c1","type":"text","text":"Get rid of render pipelines","x":-460,"y":-340,"width":250,"height":60},
+		{"id":"3f25981070308394","type":"text","text":"Combine RenderPipeline and material","x":-210,"y":-500,"width":250,"height":60},
+		{"id":"30b22ea20d6286c6","type":"text","text":"Abstract away shaders to their own class","x":300,"y":-370,"width":250,"height":60},
+		{"id":"ac4ef8573d6bb764","type":"text","text":"They could encompass the shader bytecode as well as binding data to the shaders","x":680,"y":-150,"width":461,"height":78},
+		{"id":"3ffbc23fcdb62b66","type":"text","text":"Should we combine the geometry and pixel shaders?","x":691,"y":-366,"width":440,"height":52}
 	],
 	"edges":[
-		{"id":"7fa38f93d88c69de","fromNode":"6353fe7c035a20c3","fromSide":"bottom","toNode":"ba3099758cc39e5a","toSide":"top"}
+		{"id":"02faab823242bbcd","fromNode":"30b22ea20d6286c6","fromSide":"bottom","toNode":"ac4ef8573d6bb764","toSide":"top"}
 	]
 }

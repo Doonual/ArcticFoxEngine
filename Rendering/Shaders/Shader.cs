@@ -86,97 +86,8 @@ namespace ArcticFoxEngine.Rendering {
 
 		}
 
-		public class DataSlot {
-
-			public ShaderVisibility shaderVisibility;
-			public int rootParameterIndex;
-
-			public GpuDescriptorHandle currentDescriptorLocation;
-
-			public DataSlot(ShaderVisibility visibility) {
-				shaderVisibility = visibility;
-				rootParameterIndex = -1;
-				currentDescriptorLocation = new GpuDescriptorHandle();
-			}
-
-			public void SetData<T>(ConstBuffer<T> dataSource, int sourceIndex) where T : struct {
-
-				// Copy the descriptors
-				int destDescPos = Rendering.ReserveDescriptorHeapSpace(1);
-				CpuDescriptorHandle destDescriptor = Rendering.gpuDescriptorHeap.CPUDescriptorHandleForHeapStart + destDescPos * Rendering.descriptorHeapIncrement;
-				CpuDescriptorHandle srcDescriptor = dataSource.descriptorHeap.CPUDescriptorHandleForHeapStart + sourceIndex * Rendering.descriptorHeapIncrement;
-				Graphics.device.CopyDescriptorsSimple(1, destDescriptor, srcDescriptor, DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView);
-
-				// Tell the dataslot where to find the descriptors
-				currentDescriptorLocation = Rendering.gpuDescriptorHeap.GPUDescriptorHandleForHeapStart + destDescPos * Rendering.descriptorHeapIncrement;
-
-				Rendering.cmdList.SetGraphicsRootDescriptorTable(rootParameterIndex, currentDescriptorLocation);
-
-			}
-
-		}
-		public class BufferSlot {
-
-			public ShaderVisibility shaderVisibility;
-			public int length;
-			public int rootParameterIndex;
-			public GpuDescriptorHandle currentDescriptorLocation;
-
-			public BufferSlot(int length, ShaderVisibility visibility) {
-				shaderVisibility = visibility;
-				this.length = length;
-				rootParameterIndex = -1;
-				currentDescriptorLocation = new GpuDescriptorHandle();
-			}
-
-			public void SetBuffer<T>(StructuredBuffer<T> buffer, int srcOffset) where T : struct {
-
-				// Copy the descriptors
-				int destDescPos = Rendering.ReserveDescriptorHeapSpace(1);
-				CpuDescriptorHandle destDescriptor = Rendering.gpuDescriptorHeap.CPUDescriptorHandleForHeapStart + destDescPos * Rendering.descriptorHeapIncrement;
-				CpuDescriptorHandle srcDescriptor = buffer.descriptorHeap.CPUDescriptorHandleForHeapStart + srcOffset * Rendering.descriptorHeapIncrement;
-				Graphics.device.CopyDescriptorsSimple(1, destDescriptor, srcDescriptor, DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView);
-
-
-				// Tell the bufferSlot where to find the descriptors
-				currentDescriptorLocation = Rendering.gpuDescriptorHeap.GPUDescriptorHandleForHeapStart + destDescPos * Rendering.descriptorHeapIncrement;
-
-				Rendering.cmdList.SetGraphicsRootDescriptorTable(rootParameterIndex, currentDescriptorLocation);
-
-			}
-
-
-		}
-		public class TextureSlot {
-			public ShaderVisibility shaderVisibility;
-			public int rootParameterIndex;
-
-			public GpuDescriptorHandle currentDescriptorLocation;
-
-			public TextureSlot(ShaderVisibility shaderVisibility) {
-
-				this.shaderVisibility = shaderVisibility;
-				rootParameterIndex = -1;
-				currentDescriptorLocation = new GpuDescriptorHandle();
-
-			}
-
-			public void SetTexture(Texture texture) {
-
-				// Copy the descriptors
-				int destDescPos = Rendering.ReserveDescriptorHeapSpace(1);
-				CpuDescriptorHandle destDescriptor = Rendering.gpuDescriptorHeap.CPUDescriptorHandleForHeapStart + destDescPos * Rendering.descriptorHeapIncrement;
-				CpuDescriptorHandle srcDescriptor = texture.descriptorHeap.CPUDescriptorHandleForHeapStart;
-				Graphics.device.CopyDescriptorsSimple(1, destDescriptor, srcDescriptor, DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView);
-
-				// Tell the dataslot where to find the descriptors
-				currentDescriptorLocation = Rendering.gpuDescriptorHeap.GPUDescriptorHandleForHeapStart + destDescPos * Rendering.descriptorHeapIncrement;
-
-				Rendering.cmdList.SetGraphicsRootDescriptorTable(rootParameterIndex, currentDescriptorLocation);
-
-			}
-
-		}
+		
+		
 		public class TextureSampler {
 
 			public TextureSampler(ShaderVisibility shaderVisibility) {
@@ -226,15 +137,10 @@ namespace ArcticFoxEngine.Rendering {
 
 		public abstract string name { get; }
 
-		protected PipelineState pipelineState;
-		protected RootSignature rootSignature;
+		public PipelineState pipelineState;
+		public RootSignature rootSignature;
 
 		public GeometryInfo geometryResources;
-
-
-		public DataSlot projectionInfoSlot = new DataSlot(ShaderVisibility.All);
-		public DataSlot transformInfoSlot = new DataSlot(ShaderVisibility.All);
-
 
 		public Shader() {
 
@@ -242,7 +148,6 @@ namespace ArcticFoxEngine.Rendering {
 
 		}
 		public abstract Material GetDefaultMaterial();
-		protected virtual void BindGlobalResources() { }
 
 
 		public enum ShaderType {
@@ -324,19 +229,6 @@ namespace ArcticFoxEngine.Rendering {
 			ShaderBytecode compiledShader = null;
 			try {
 				compiledShader = new ShaderBytecode(SharpDX.D3DCompiler.ShaderBytecode.Compile(includeEditedShaderCode, entrypoint, profile, flags, SharpDX.D3DCompiler.EffectFlags.None, new SharpDX.Direct3D.ShaderMacro[0], include));
-				switch (type) {
-					case ShaderType.Vertex:
-					Log.Success("Compiled vertex shader");
-					break;
-
-					case ShaderType.Geometry:
-					Log.Success("Compiled geometry shader");
-					break;
-
-					case ShaderType.Pixel:
-					Log.Success("Compiled pixel shader");
-					break;
-				}
 				return compiledShader;
 			}
 			catch (Exception e) {
@@ -449,20 +341,19 @@ namespace ArcticFoxEngine.Rendering {
 
 		}
 
-		public virtual void Render(Camera camera, Resource renderTarget, DescriptorHeap rtvDescHeap, DescriptorHeap dsvDescHeap) {
+		public abstract void Render(Camera camera, Resource renderTarget, DescriptorHeap rtvDescHeap, DescriptorHeap dsvDescHeap);
+
+		public void DefaultRender(Camera camera, Resource renderTarget, DescriptorHeap rtvDescHeap, DescriptorHeap dsvDescHeap, DataSlot projectionInfoDataSlot, DataSlot transformInfoDataSlot) {
 
 			geometryResources.UpdateObjectInfoBuffer();
 
-			// Update the pipeline state and set this shaders root signature
-			Rendering.cmdList.PipelineState = pipelineState;
-			Rendering.cmdList.SetGraphicsRootSignature(rootSignature);
+			
 
 
 			// Bind the projection data
-			projectionInfoSlot.SetData(Rendering.projectionInfo, 0);
+			projectionInfoDataSlot.SetData(Rendering.projectionInfo, 0);
 
 			// Bind the shader global data
-			BindGlobalResources();
 
 
 			// Set geometry
@@ -480,7 +371,7 @@ namespace ArcticFoxEngine.Rendering {
 				int objectBufferStartIndex = geometryResources.GetMeshPosInObjectBuffer(i);
 
 				// Bind the transform data
-				transformInfoSlot.SetData(geometryResources.transformBuffer, objectBufferStartIndex);
+				transformInfoDataSlot.SetData(geometryResources.transformBuffer, objectBufferStartIndex);
 
 				// Bind the data from the material
 				geometryResources.meshRenderers[i].material.BindResources(this);

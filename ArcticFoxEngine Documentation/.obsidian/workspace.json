@@ -14,7 +14,7 @@
               "type": "markdown",
               "state": {
                 "file": "Rendering/Rendering.md",
-                "mode": "source",
+                "mode": "preview",
                 "source": true
               },
               "icon": "lucide-file",
@@ -36,6 +36,20 @@
               },
               "icon": "lucide-layout-dashboard",
               "title": "Resource Binding Overview"
+            }
+          },
+          {
+            "id": "d78574cb16c2c62c",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Rendering/Shaders.md",
+                "mode": "preview",
+                "source": true
+              },
+              "icon": "lucide-file",
+              "title": "Shaders"
             }
           },
           {
@@ -67,6 +81,23 @@
             }
           },
           {
+            "id": "3e8dcf1173ee600f",
+            "type": "leaf",
+            "state": {
+              "type": "canvas",
+              "state": {
+                "file": "Todo.canvas",
+                "viewState": {
+                  "x": 1067.959454314721,
+                  "y": -940.8252538071065,
+                  "zoom": -0.16020929680981563
+                }
+              },
+              "icon": "lucide-layout-dashboard",
+              "title": "Todo"
+            }
+          },
+          {
             "id": "fa75f424f0f1051b",
             "type": "leaf",
             "state": {
@@ -91,7 +122,7 @@
             }
           }
         ],
-        "currentTab": 2
+        "currentTab": 5
       }
     ],
     "direction": "vertical"
@@ -233,15 +264,16 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "862c7ddf9d632dee",
+  "active": "3e8dcf1173ee600f",
   "lastOpenFiles": [
-    "Rendering/Resource Binding Overview.canvas",
-    "DX12/Terms.md",
-    "Rendering/Rendering.md",
+    "Rendering/Shaders.md",
+    "Todo.canvas",
     "DX12/Graphics Pipeline State.md",
+    "Rendering/Resource Binding Overview.canvas",
+    "Rendering/Rendering.md",
+    "DX12/Terms.md",
     "Rendering/How it should work.canvas",
     "DX12/Descriptor Heap.md",
-    "Rendering/Shaders.md",
     "DX12/Root Signature.md",
     "Rendering/Shader Resource binding.md",
     "Graphics.md",
@@ -249,7 +281,6 @@
     "DX12",
     "DX12/Command Queue.md",
     "Input/ButtonBinding.md",
-    "Todo.canvas",
     "GUI.md",
     "Rendering",
     "Input/AxisBinding.md",

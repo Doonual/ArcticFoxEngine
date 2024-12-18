@@ -1,43 +1,31 @@
-﻿using ImGuiNET;
+﻿using ArcticFoxEngine.Nodes;
+using ImGuiNET;
 using SharpDX.Direct3D12;
 using SharpDX.DXGI;
 
 namespace ArcticFoxEngine.Rendering {
+	public class UnlitShader : Shader {
 
-	public class MandelbrotRenderPipeline : Shader {
+		public override string name => "Unlit";
 
-		public override string name => "Mandelbrot";
-
-		public ConstBuffer<ViewportInfo> viewportInfoBuffer;
-
-		public struct ViewportInfo {
-
-			public Vector2 viewCenter = Vector2.zero;
-			public float zoom = 1f;
-			public int numIterations = 100;
-			public bool doublePrecision = false;
-
-			public ViewportInfo() {
-
-			}
-
+		public DataSlot projectionInfoDataSlot = new DataSlot(ShaderVisibility.All);
+		public DataSlot transformInfoDataSlot = new DataSlot(ShaderVisibility.All);
+		public TextureSlot mainTexSlot = new TextureSlot(ShaderVisibility.Pixel);
+		public TextureSampler sampler = new TextureSampler(ShaderVisibility.Pixel) {
+			addressUVW = TextureAddressMode.Wrap,
+			filter = Filter.MinimumMinMagMipPoint,
 		};
 
-		public DataSlot viewportInfoSlot = new DataSlot(ShaderVisibility.Pixel);
+		public UnlitShader() {
 
-		public MandelbrotRenderPipeline() {
-
-			viewportInfoBuffer = new ConstBuffer<ViewportInfo>(1);
 
 			rootSignature = CreateRootSignature(
-				new DataSlot[] {projectionInfoSlot, transformInfoSlot, viewportInfoSlot},
+				new DataSlot[] { projectionInfoDataSlot, transformInfoDataSlot },
 				new BufferSlot[] { },
-				new TextureSlot[] { },
-				new TextureSampler[] { }
+				new TextureSlot[] { mainTexSlot },
+				new TextureSampler[] { sampler }
 			);
 			pipelineState = CreatePipelineObject();
-			
-			
 
 		}
 
@@ -71,7 +59,7 @@ namespace ArcticFoxEngine.Rendering {
 
 			ShaderBytecode vertexShader = CompileShader(".res/Shaders/VertexShader.hlsl", ShaderType.Vertex);
 			ShaderBytecode geometryShader = CompileShader(".res/Shaders/GeometryShader.hlsl", ShaderType.Geometry);
-			ShaderBytecode pixelShader = CompileShader(".res/Shaders/Mandelbrot/MandelbrotPixelShader.hlsl", ShaderType.Pixel);
+			ShaderBytecode pixelShader = CompileShader(".res/Shaders/Unlit/PixelShader.hlsl", ShaderType.Pixel);
 
 			GraphicsPipelineStateDescription pipelineStateDescription = new GraphicsPipelineStateDescription() {
 				InputLayout = inputLayout,
@@ -96,43 +84,45 @@ namespace ArcticFoxEngine.Rendering {
 
 		}
 
+		public override void Render(Camera camera, SharpDX.Direct3D12.Resource renderTarget, DescriptorHeap rtvDescHeap, DescriptorHeap dsvDescHeap) {
+
+			DefaultRender(camera, renderTarget, rtvDescHeap, dsvDescHeap, projectionInfoDataSlot, transformInfoDataSlot);
+		}
 
 		public override Material GetDefaultMaterial() {
-
-			return new MandelbrotMaterial();
-
+			return new UnlitMaterial();
 		}
+
+
+
 	}
 
-	public class MandelbrotMaterial : Material {
+	public class UnlitMaterial : Material {
 
-		MandelbrotRenderPipeline.ViewportInfo viewportInfo;
-
-		public MandelbrotMaterial() {
-			viewportInfo = new MandelbrotRenderPipeline.ViewportInfo();
-		}
+		public Texture mainTex;
+		
 
 		public override void BindResources(Shader shader) {
-			MandelbrotRenderPipeline mandelbrotShader = (MandelbrotRenderPipeline)shader;
+			UnlitShader unlitShader = (UnlitShader)shader;
 
-			mandelbrotShader.viewportInfoBuffer.Write(new MandelbrotRenderPipeline.ViewportInfo[] { viewportInfo }, 0);
 
-			mandelbrotShader.viewportInfoSlot.SetData(mandelbrotShader.viewportInfoBuffer, 0);
+			if (mainTex == null) {
+				unlitShader.mainTexSlot.SetTexture(Rendering.textures[0]);
+			}
+			else {
+				unlitShader.mainTexSlot.SetTexture(mainTex);
+			}
 			
 
 		}
 
+		int setTextureId = 0;
 		public override void Debug() {
 
-			System.Numerics.Vector2 viewportInfoSys = viewportInfo.viewCenter;
-			ImGui.DragFloat2("View center", ref viewportInfoSys, viewportInfo.zoom * 0.001f, -2f, 2f, null, ImGuiSliderFlags.NoRoundToFormat);
-			viewportInfo.viewCenter = viewportInfoSys;
 
-
-			ImGui.DragFloat("Zoom", ref viewportInfo.zoom, viewportInfo.zoom * 0.001f, 0.00000001f , 3f , null, ImGuiSliderFlags.NoRoundToFormat);
-			ImGui.DragInt("Iterations", ref viewportInfo.numIterations, 0.1f, 1, 10000, null);
-			ImGui.Checkbox("Double precision", ref viewportInfo.doublePrecision);
-
+			if (ImGui.InputInt("Texture ID", ref setTextureId) == true) {
+				mainTex = Rendering.textures[setTextureId];
+			}
 
 		}
 

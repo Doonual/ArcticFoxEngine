@@ -230,7 +230,7 @@ namespace ArcticFoxEngine.ImGuiIntegration {
 				case Key.D9: return capital ? '(' : '9';
 				case Key.D0: return capital ? ')' : '0';
 
-				case Key.Minus: return capital ? '-' : '_';
+				case Key.Minus: return capital ? '_' : '-';
 				case Key.Equals: return capital ? '=' : '+';
 				case Key.Back: return 8;
 				case Key.Tab: return 9;

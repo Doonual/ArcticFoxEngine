@@ -165,6 +165,7 @@ namespace ArcticFoxEngine.Debug {
 
 					
 					if (ImGui.MenuItem("Close all windows") == true) {
+						SaveWindowOptions();
 						for (int i = 0; i < windows.Count; i ++) {
 							windows[i].open = false;
 						}
@@ -183,6 +184,7 @@ namespace ArcticFoxEngine.Debug {
 					ImGui.PopStyleColor();
 
 					if (ImGui.MenuItem("Close all overlays") == true) {
+						SaveWindowOptions();
 						for (int i = 0; i < overlays.Count; i++) {
 							overlays[i].open = false;
 						}
@@ -190,7 +192,9 @@ namespace ArcticFoxEngine.Debug {
 
 
 					for (int i = 0; i < overlays.Count; i++) {
-						ImGui.MenuItem(overlays[i].name, null, ref overlays[i].open);
+						if (ImGui.MenuItem(overlays[i].name, null, ref overlays[i].open) == true) {
+							SaveWindowOptions();
+						}
 					}
 
 					ImGui.EndMenu();
@@ -276,7 +280,9 @@ namespace ArcticFoxEngine.Debug {
 			
 			// Render the window option without groups
 			for (int i = 0; i < noGroupWindows.Count; i ++) {
-				ImGui.MenuItem(noGroupWindows[i].name, null, ref noGroupWindows[i].open);
+				if (ImGui.MenuItem(noGroupWindows[i].name, null, ref noGroupWindows[i].open) == true) {
+					SaveWindowOptions();
+				}
 			}
 
 		}

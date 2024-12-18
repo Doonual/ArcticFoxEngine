@@ -47,14 +47,16 @@
 	
 	
 	<ItemGroup>
+	  <Compile Remove=".Documentation\**" />
 	  <Compile Remove="ArcticFoxEngine Documentation\**" />
+	  <EmbeddedResource Remove=".Documentation\**" />
 	  <EmbeddedResource Remove="ArcticFoxEngine Documentation\**" />
+	  <None Remove=".Documentation\**" />
 	  <None Remove="ArcticFoxEngine Documentation\**" />
 	</ItemGroup>
 	
 	
 	<ItemGroup>
-	  <None Include=".Documentation\Terms.txt" />
 	  <None Include=".res\icon.ico" />
 	  <None Include=".res\Shaders\Mandelbrot\MandelbrotPixelShader.hlsl" />
 	  <None Include=".res\Shaders\Unlit\PixelShader.hlsl" />

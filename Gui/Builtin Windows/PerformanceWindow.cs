@@ -355,7 +355,7 @@ namespace ArcticFoxEngine.Debug {
 
 		public override void Render() {
 
-			ImGui.Begin("Performance");
+			ImGui.Begin("Performance", ref open);
 
 			autoAdjustPlotMaxMs = false;
 

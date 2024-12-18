@@ -20,7 +20,7 @@ namespace ArcticFoxEngine.Debug {
 		public override string name => "Scene";
 		public override void Render() {
 
-			ImGui.Begin("Scene");
+			ImGui.Begin("Scene", ref open);
 			RenderNodeTree();
 			ImGui.End();
 			

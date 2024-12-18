@@ -10,7 +10,7 @@ namespace ArcticFoxEngine.Nodes {
 		internal override string nodeIconPath => ".res/NodeIcons/MeshRenderer.png";
 		internal override string nodeIconPath32 => ".res/NodeIcons/MeshRenderer32.png";
 
-		private Shader renderPipeline;
+		private Shader shader;
 		public Material material;
 
 		public Mesh mesh { get; private set; }
@@ -24,21 +24,21 @@ namespace ArcticFoxEngine.Nodes {
 			name = "Mesh Renderer";
 
 			mesh = null;
-			SetRenderPipeline(Rendering.GetRenderPipeline("Unlit"));
+			SetShader(Rendering.GetShader("Unlit"));
 			material = new UnlitMaterial();
 
 			Enable();
 		}
 
-		public void SetRenderPipeline(Shader renderPipeline) {
+		public void SetShader(Shader shader) {
 
 
 			if (mesh != null && enabled == true) {
 				UnloadMesh();
 			}
 
-			this.renderPipeline = renderPipeline;
-			material = renderPipeline.GetDefaultMaterial();
+			this.shader = shader;
+			material = shader.GetDefaultMaterial();
 
 			if (mesh != null && enabled == true) {
 				LoadMesh();
@@ -61,20 +61,20 @@ namespace ArcticFoxEngine.Nodes {
 
 
 		private void LoadMesh() {
-			if (mesh == null || meshLoaded == true || renderPipeline == null) { return; }
-			bool meshAdded = renderPipeline.geometryResources.AddMesh(this);
+			if (mesh == null || meshLoaded == true || shader == null) { return; }
+			bool meshAdded = shader.geometryResources.AddMesh(this);
 			if (meshAdded == true) {
 				meshLoaded = true;
 			}
 		}
 		private void UnloadMesh() {
-			if (meshLoaded == false || renderPipeline == null) { return; }
-			renderPipeline.geometryResources.RemoveMesh(this);
+			if (meshLoaded == false || shader == null) { return; }
+			shader.geometryResources.RemoveMesh(this);
 			meshLoaded = false;
 		}
 		public void UpdateMeshData() {
 			if (mesh == null || meshLoaded == false) { return; }
-			renderPipeline.geometryResources.UpdateMeshData(this);
+			shader.geometryResources.UpdateMeshData(this);
 		}
 
 		internal TransformInfo GetObjectInfo() {
@@ -99,7 +99,7 @@ namespace ArcticFoxEngine.Nodes {
 
 		Vector4 vertexColSet;
 
-		private int renderPipelineComboSelected = 0;
+		private int shaderComboSelected = 0;
 		public override void Debug() {
 
 
@@ -117,19 +117,19 @@ namespace ArcticFoxEngine.Nodes {
 			}
 
 
-			// Render Pipeline combo
-			Shader[] renderPipelines = Rendering.GetAllRenderPipelines();
-			string[] pipelineNames = new string[renderPipelines.Length];
-			for (int i = 0; i < renderPipelines.Length; i++) {
-				pipelineNames[i] = renderPipelines[i].name;
-				if (renderPipeline == renderPipelines[i]) {
-					renderPipelineComboSelected = i;
+			// Shader combo
+			Shader[] shaders = Rendering.GetAllShaders();
+			string[] shaderNames = new string[shaders.Length];
+			for (int i = 0; i < shaders.Length; i++) {
+				shaderNames[i] = shaders[i].name;
+				if (shader == shaders[i]) {
+					shaderComboSelected = i;
 				}
 			}
 
-			ImGuiExtras.ItemWidthForText("Render pipeline");
-			if (ImGui.Combo("Render pipeline", ref renderPipelineComboSelected, pipelineNames, renderPipelines.Length) == true) {
-				SetRenderPipeline(renderPipelines[renderPipelineComboSelected]);
+			ImGuiExtras.ItemWidthForText("Shader");
+			if (ImGui.Combo("Shader", ref shaderComboSelected, shaderNames, shaders.Length) == true) {
+				SetShader(shaders[shaderComboSelected]);
 			}
 
 			ImGui.Text("Material Settings");

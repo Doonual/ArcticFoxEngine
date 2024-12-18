@@ -1,4 +1,5 @@
-﻿using CoolClassLibrary;
+﻿using ArcticFoxEngine.Nodes;
+using CoolClassLibrary;
 using ImGuiNET;
 using SharpDX.Direct3D12;
 using SharpDX.DXGI;
@@ -39,11 +40,13 @@ namespace ArcticFoxEngine.Rendering {
 
 		}
 
-		static ConstBuffer<LightingWorld> lightingInfoBuffer;
-		static StructuredBuffer<LightData> lightBuffer;
+		public static ConstBuffer<LightingWorld> lightingInfoBuffer;
+		public static StructuredBuffer<LightData> lightBuffer;
 
 		public override string name => "Lit";
 
+		public DataSlot projectionInfoDataSlot = new DataSlot(ShaderVisibility.All);
+		public DataSlot transformInfoDataSlot = new DataSlot(ShaderVisibility.All);
 
 		public DataSlot lightingWorldSlot = new DataSlot(ShaderVisibility.Pixel);
 		public DataSlot materialInfoSlot = new DataSlot(ShaderVisibility.Pixel);
@@ -65,7 +68,7 @@ namespace ArcticFoxEngine.Rendering {
 
 
 			rootSignature = CreateRootSignature(
-				new DataSlot[] { projectionInfoSlot, transformInfoSlot, lightingWorldSlot, materialInfoSlot },
+				new DataSlot[] { projectionInfoDataSlot, transformInfoDataSlot, lightingWorldSlot, materialInfoSlot },
 				new BufferSlot[] { lightInfoSlot },
 				new TextureSlot[] { mainTexSlot, normalTexSlot },
 				new TextureSampler[] { textureSampler }
@@ -138,9 +141,13 @@ namespace ArcticFoxEngine.Rendering {
 			lightBuffer.Write(new LightData[] { lightData }, bufferPos);
 		}
 
-		protected override void BindGlobalResources() {
+		public override void Render(Camera camera, SharpDX.Direct3D12.Resource renderTarget, DescriptorHeap rtvDescHeap, DescriptorHeap dsvDescHeap) {
+
 			lightingWorldSlot.SetData(lightingInfoBuffer, 0);
 			lightInfoSlot.SetBuffer(lightBuffer, 0);
+
+			DefaultRender(camera, renderTarget, rtvDescHeap, dsvDescHeap, projectionInfoDataSlot, transformInfoDataSlot);
+
 		}
 
 		public override Material GetDefaultMaterial() {

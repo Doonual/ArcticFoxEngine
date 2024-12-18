@@ -1,5 +1,6 @@
 ﻿using ArcticFoxEngine.Input;
 using ArcticFoxEngine.Input.Bindings;
+using CoolClassLibrary;
 using ImGuiNET;
 
 namespace ArcticFoxEngine.Nodes {
@@ -26,6 +27,7 @@ namespace ArcticFoxEngine.Nodes {
 
 		#endregion
 		float speed;
+		bool lockRoll;
 
 		public CameraController() {
 			name = "Camera Controller";
@@ -57,7 +59,7 @@ namespace ArcticFoxEngine.Nodes {
 
 			if (ImGui.GetIO().WantTextInput == true) { return; }
 
-			#region Camera Controls
+			#region Translation
 
 			if (moveForward.GetButton() == true) {
 				transform.localPosition += transform.Forward * 0.02f * speed;
@@ -79,16 +81,6 @@ namespace ArcticFoxEngine.Nodes {
 				transform.localPosition += transform.Down * 0.02f * speed;
 			}
 
-			if (rollRight.GetButton() == true) {
-				transform.localRotation *= Quaternion.RotationYawPitchRoll(0f, 0f, -0.01f);
-			}
-			if (rollLeft.GetButton() == true) {
-				transform.localRotation *= Quaternion.RotationYawPitchRoll(0f, 0f, 0.01f);
-			}
-			if (lookHold.GetButton() == true) {
-				transform.localRotation *= Quaternion.RotationYawPitchRoll(lookVector.GetValue().x * 0.002f, lookVector.GetValue().y * 0.002f, 0f);
-			}
-
 			if (increaseSpeed.GetButton() == true) {
 				speed *= 1.2f;
 			}
@@ -97,11 +89,53 @@ namespace ArcticFoxEngine.Nodes {
 			}
 
 			#endregion
+
+			#region Rotation
+
+			if (lockRoll == false) {
+
+				if (rollRight.GetButton() == true) {
+					transform.localRotation *= Quaternion.RotationYawPitchRoll(0f, 0f, -0.01f);
+				}
+				if (rollLeft.GetButton() == true) {
+					transform.localRotation *= Quaternion.RotationYawPitchRoll(0f, 0f, 0.01f);
+				}
+
+				if (lookHold.GetButton() == true) {
+					transform.localRotation *= Quaternion.RotationYawPitchRoll(lookVector.GetValue().x * 0.002f, lookVector.GetValue().y * 0.002f, 0f);
+				}
+
+			}
+
+			if (lockRoll == true) {
+
+				if (lookHold.GetButton() == true) {
+					transform.localRotation = Quaternion.RotationAxis(Vector3.Up, lookVector.GetValue().x * 0.002f) * transform.localRotation;
+					transform.localRotation = Quaternion.RotationAxis(transform.Right, lookVector.GetValue().y * 0.002f) * transform.localRotation;
+				}
+
+				Vector3 flatRightVector = transform.Right;
+				flatRightVector.y = 0f;
+				flatRightVector = flatRightVector.Normalize();
+
+				Vector3 rotationAxis = Vector3.Cross(flatRightVector, transform.Right);
+				transform.localRotation = Quaternion.RotationAxis(rotationAxis, -MathF.Asin(rotationAxis.Length())) * transform.localRotation;
+
+			}
+
+			#endregion
+
+			
 		}
 
+		Vector3 rotationAxis = Vector3.Zero;
 		public override void Debug() {
 			base.Debug();
-			ImGui.SliderFloat("Speed", ref speed, 0f, 1000f, null, ImGuiSliderFlags.Logarithmic);
+			ImGui.SliderFloat("Speed", ref speed, 0f, 1000f, "%.6f", ImGuiSliderFlags.Logarithmic);
+			ImGui.Checkbox("Lock roll", ref lockRoll);
+				
+
+
 		}
 
 	}

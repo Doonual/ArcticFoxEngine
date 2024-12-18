@@ -1,0 +1,67 @@
+﻿using ImGuiNET;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace ArcticFoxEngine.Rendering {
+
+	public class SkyboxMaterial : Material {
+
+		SkyboxShader.SkyboxInfo skyboxInfo;
+		private ConstBuffer<SkyboxShader.SkyboxInfo> skyboxInfoBuffer;
+
+
+		public SkyboxMaterial() {
+
+			skyboxInfo = new SkyboxShader.SkyboxInfo() {
+				skyTopCol = new Vector3(111f / 255f, 180f / 255f, 235f / 255f),
+				skyBottomCol = new Vector3(246f / 255f, 236f / 255f, 194f / 255f),
+				groundTopCol = new Vector3(145 / 255f, 102f / 255f, 53f / 255f),
+				groundBottomCol = new Vector3(55f / 255f, 22f / 255f, 5f / 255f),
+				sunStrength = -0.00002f,
+				horizonSharpness = -0.0034f,
+			};
+			skyboxInfoBuffer = new ConstBuffer<SkyboxShader.SkyboxInfo>(1);
+			skyboxInfoBuffer.Write(skyboxInfo, 0);
+
+		}
+
+		public override void BindResources(Shader shader) {
+			SkyboxShader skyShader = (SkyboxShader)shader;
+			skyShader.skyBoxInfo.SetData(skyboxInfoBuffer, 0);
+		}
+
+		public override void Debug() {
+
+			bool changed = false;
+
+			System.Numerics.Vector3 systemSkyTopCol = skyboxInfo.skyTopCol;
+			System.Numerics.Vector3 systemSkyBottomCol = skyboxInfo.skyBottomCol;
+			System.Numerics.Vector3 systemGroundTopCol = skyboxInfo.groundTopCol;
+			System.Numerics.Vector3 systemGroundBottomCol = skyboxInfo.groundBottomCol;
+
+			changed |= ImGui.ColorEdit3("Sky top col", ref systemSkyTopCol);
+			changed |= ImGui.ColorEdit3("Sky bottom col", ref systemSkyBottomCol);
+
+			changed |= ImGui.ColorEdit3("Ground top col", ref systemGroundTopCol);
+			changed |= ImGui.ColorEdit3("Ground bottom col", ref systemGroundBottomCol);
+
+			changed |= ImGui.SliderFloat("Sun strength", ref skyboxInfo.sunStrength, -0.001f, 0f, "%.6f");
+			changed |= ImGui.SliderFloat("Horizon sharpness", ref skyboxInfo.horizonSharpness, -0.1f, 0f, "%.4f");
+
+			
+			skyboxInfo.skyTopCol = systemSkyTopCol;
+			skyboxInfo.skyBottomCol = systemSkyBottomCol;
+			skyboxInfo.groundTopCol = systemGroundTopCol;
+			skyboxInfo.groundBottomCol = systemGroundBottomCol;
+
+			if (changed == true) {
+				skyboxInfoBuffer.Write(skyboxInfo, 0);
+			}
+
+		}
+	}
+
+}

@@ -36,6 +36,11 @@ namespace ArcticFoxEngine.Nodes {
 
 		public ProjectionType projectionType = ProjectionType.Perspective;
 
+		internal Matrix fullMatrix {
+			get {
+				return CalculateFullMatrix();
+			}
+		}
 		internal Matrix projectionMatrix {
 			get {
 				return CalculateProjectionMatrix();
@@ -84,6 +89,20 @@ namespace ArcticFoxEngine.Nodes {
 				projectionMatrix = Matrix.OrthoLH(zoom * Screen.aspectRatio, zoom, nearPlane, farPlane);
 			}
 
+			return projectionMatrix;
+
+		}
+
+		internal Matrix CalculateFullMatrix() {
+
+			Matrix projectionMatrix = new Matrix();
+			if (projectionType == ProjectionType.Perspective) {
+				projectionMatrix = Matrix.PerspectiveFovLH(fov * MathF.PI / 180f, Screen.aspectRatio, nearPlane, farPlane);
+			}
+			if (projectionType == ProjectionType.Orthographic) {
+				projectionMatrix = Matrix.OrthoLH(zoom * Screen.aspectRatio, zoom, nearPlane, farPlane);
+			}
+
 			Matrix cameraTransform = transform.worldMatrix.Invert();
 			return cameraTransform * projectionMatrix;
 
@@ -91,7 +110,7 @@ namespace ArcticFoxEngine.Nodes {
 
 		public Vector3 WorldToCamera(Vector3 worldSpacePos) {
 
-			Matrix projectionResult = Matrix.Translation(worldSpacePos) * CalculateProjectionMatrix();
+			Matrix projectionResult = Matrix.Translation(worldSpacePos) * CalculateFullMatrix();
 			Vector3 cameraSpacePos = new Vector3(projectionResult.M30, projectionResult.M31, projectionResult.M32) / projectionResult.M33;
 			return cameraSpacePos;
 
@@ -133,7 +152,7 @@ namespace ArcticFoxEngine.Nodes {
 		internal void UpdateCameraInfoBuffer(ConstBuffer<ProjectionInfo> projectionInfo) {
 
 			ProjectionInfo info = new ProjectionInfo();
-			info.projectionMatrix = projectionMatrix;
+			info.projectionMatrix = fullMatrix;
 			info.screenWidth = renderWidth;
 			info.screenHeight = renderHeight;
 			info.aspectRatio = (float)renderWidth / renderHeight;

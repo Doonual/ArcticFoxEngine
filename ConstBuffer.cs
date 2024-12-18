@@ -82,6 +82,16 @@ namespace ArcticFoxEngine {
 			}
 		}
 
+		/// <summary>
+		/// Writes data to the constant buffer
+		/// </summary>
+		/// <param name="data">The data to be written to the constant buffer</param>
+		/// <param name="offset">The the position of the 1st element</param>
+		public void Write(T data, int offset) {
+			// Writes the T array to the buffer, ensuring each element starts at a 256 byte aligned location
+			Write(new T[] { data }, offset);
+		}
+
 
 
 		public void Dispose() {

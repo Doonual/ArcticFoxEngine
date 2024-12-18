@@ -54,8 +54,7 @@ namespace ArcticFoxEngine {
 	/// Represents a four dimensional mathematical quaternion.
 	/// </summary>
 	[StructLayout(LayoutKind.Sequential, Pack = 4)]
-	public struct Quaternion : IEquatable<Quaternion>, IFormattable
-	{
+	public struct Quaternion : IEquatable<Quaternion>, IFormattable {
 		/// <summary>
 		/// The size of the <see cref="Quaternion"/> type, in bytes.
 		/// </summary>

@@ -16,7 +16,7 @@ namespace ArcticFoxEngine.Rendering {
 
 		internal static ConstBuffer<ProjectionInfo> projectionInfo;
 
-		private static List<Shader> renderPipelines;
+		public static List<Shader> shaders;
 		internal static Texture[] textures;
 
 		
@@ -53,23 +53,24 @@ namespace ArcticFoxEngine.Rendering {
 
 
 
-			renderPipelines = new List<Shader>();
-			renderPipelines.Add(new UnlitRenderPipeline());
-			renderPipelines.Add(new LitShader());
-			renderPipelines.Add(new MandelbrotRenderPipeline());
+			shaders = new List<Shader>();
+			shaders.Add(Shader.Cache.FindOrLoad(typeof(UnlitShader)));
+			shaders.Add(Shader.Cache.FindOrLoad(typeof(LitShader)));
+			shaders.Add(Shader.Cache.FindOrLoad(typeof(MandelbrotShader)));
+			shaders.Add(Shader.Cache.FindOrLoad(typeof(SkyboxShader)));
 
 			
 
 		}
 
-		public static Shader[] GetAllRenderPipelines() {
-			return renderPipelines.ToArray();
+		public static Shader[] GetAllShaders() {
+			return shaders.ToArray();
 		}
-		public static Shader GetRenderPipeline(string name) {
+		public static Shader GetShader(string name) {
 
-			for (int i = 0; i < renderPipelines.Count; i++) {
-				if (renderPipelines[i].name == name) {
-					return renderPipelines[i];
+			for (int i = 0; i < shaders.Count; i++) {
+				if (shaders[i].name == name) {
+					return shaders[i];
 				}
 			}
 
@@ -125,14 +126,16 @@ namespace ArcticFoxEngine.Rendering {
 			cmdList.ClearDepthStencilView(dsvHandle, ClearFlags.FlagsDepth, 1f, 0);
 
 
-			for (int i = 0; i < renderPipelines.Count; i++) {
+			for (int i = 0; i < shaders.Count; i++) {
 
 
 
-				Shader currentShader = renderPipelines[i];
+				Shader currentShader = shaders[i];
 				GeometryInfo currentGeometryResources = currentShader.geometryResources;
 
-				
+				// Update the pipeline state and set this shaders root signature
+				cmdList.PipelineState = currentShader.pipelineState;
+				cmdList.SetGraphicsRootSignature(currentShader.rootSignature);
 
 				currentShader.Render(camera, renderTarget, rtvDescHeap, dsvDescHeap);
 
@@ -149,8 +152,8 @@ namespace ArcticFoxEngine.Rendering {
 
 
 		internal static void Dispose() {
-			for (int i = 0; i < renderPipelines.Count; i++) {
-				renderPipelines[i].Dispose();
+			for (int i = 0; i < shaders.Count; i++) {
+				shaders[i].Dispose();
 			}
 			cmdList.Dispose();
 

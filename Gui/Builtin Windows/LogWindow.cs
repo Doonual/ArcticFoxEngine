@@ -113,7 +113,7 @@ namespace ArcticFoxEngine.Debug {
 		public override void Render() {
 
 
-			ImGui.Begin("Log");
+			ImGui.Begin("Log", ref open);
 
 			if (ImGui.Button("Clear") == true) {
 				messages.Clear();

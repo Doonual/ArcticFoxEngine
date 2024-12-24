@@ -52,7 +52,7 @@ namespace ArcticFoxEngine.Nodes {
 
 		}
 
-		public override void Debug() {
+		public override void GuiEvent() {
 
 			System.Numerics.Vector3 sunDirSys = lightingWorld.sunDir;
 			ImGui.DragFloat3("Sun direction", ref sunDirSys, 0.01f);

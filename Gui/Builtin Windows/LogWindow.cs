@@ -1,7 +1,7 @@
 ﻿using CoolClassLibrary;
 using ImGuiNET;
 
-namespace ArcticFoxEngine.Debug {
+namespace ArcticFoxEngine.Gui {
 	internal class LogWindow : GuiWindow {
 
 		private List<string> messages;

@@ -3,10 +3,10 @@
 namespace ArcticFoxEngine.Nodes {
 
 	using ArcticFoxEngine.Rendering;
+	using CoolClassLibrary;
 
 	public class MeshRenderer : Node {
 
-		internal override string description => "Renders the mesh to the scene geometry";
 		internal override string nodeIconPath => ".res/NodeIcons/MeshRenderer.png";
 		internal override string nodeIconPath32 => ".res/NodeIcons/MeshRenderer32.png";
 
@@ -100,10 +100,10 @@ namespace ArcticFoxEngine.Nodes {
 		Vector4 vertexColSet;
 
 		private int shaderComboSelected = 0;
-		public override void Debug() {
+		public override void GuiEvent() {
 
 
-
+			ImGui.TextWrapped("Renders the mesh to the scene geometry");
 
 			System.Numerics.Vector3 vec3 = new System.Numerics.Vector3(vertexColSet.x, vertexColSet.y, vertexColSet.z);
 

@@ -37,7 +37,7 @@ cbuffer SkyboxInfo : register(b3) {
 
 float3 GetSkyCol(float3 lookVector) {
 	
-	float normalisedSunDot = (dot(lookVector, -sunDir) + 1) / 2;
+	float normalisedSunDot = (dot(lookVector, sunDir) + 1) / 2;
 	
 	float3 skyCol = lerp(skyBottomCol.rgb, skyTopCol.rgb, normalisedSunDot);
 	

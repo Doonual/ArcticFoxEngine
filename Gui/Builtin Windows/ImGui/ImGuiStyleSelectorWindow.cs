@@ -1,4 +1,4 @@
-﻿using ArcticFoxEngine.Debug;
+﻿using ArcticFoxEngine.Gui;
 using ImGuiNET;
 
 namespace ArcticFoxEngine.Gui.Builtin_Windows {

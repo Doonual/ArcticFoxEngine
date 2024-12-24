@@ -1,7 +1,7 @@
 ﻿using ArcticFoxEngine.Nodes;
 using CoolClassLibrary;
 
-namespace ArcticFoxEngine.Debug.Commands {
+namespace ArcticFoxEngine.Gui.Commands {
 	internal class AddObjectCommand : Command {
 		public string name => "add_obj";
 

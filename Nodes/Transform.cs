@@ -1,4 +1,8 @@
-﻿using ImGuiNET;
+﻿using ArcticFoxEngine.Gui;
+using ArcticFoxEngine.ImGuiIntegration;
+using ImGuiNET;
+using System.Security.Cryptography.Xml;
+using System.Xml.Linq;
 
 namespace ArcticFoxEngine.Nodes {
 
@@ -98,10 +102,27 @@ namespace ArcticFoxEngine.Nodes {
 			localScale = Vector3.One;
 		}
 
+		static Texture transformIcon;
+		
+		internal static IntPtr transformIconPtr {
+			get {
+				if (transformIcon == null) {
+					transformIcon = Texture.Cache.FindOrLoad(".res/NodeIcons/Transform.png");
+					transformIconPtrCache = RenderImGui.RegisterTexture(transformIcon);
+				}
+				return transformIconPtrCache;
+			}
+		}
+		private static IntPtr transformIconPtrCache;
 
 		private bool normaliseRotation = false;
-		public void Debug() {
+		public void DrawTransformGui() {
 
+			
+
+
+
+			// Transform options
 			System.Numerics.Vector3 systemPos = (System.Numerics.Vector3)localPosition;
 			System.Numerics.Vector4 systemRot = new System.Numerics.Vector4(localRotation.x, localRotation.y, localRotation.z, localRotation.w);
 			System.Numerics.Vector3 systemScale = (System.Numerics.Vector3)localScale;
@@ -117,14 +138,19 @@ namespace ArcticFoxEngine.Nodes {
 			if (normaliseRotation == true) {
 				localRotation.Normalize();
 			}
-			
+
 			localScale = new Vector3(systemScale);
 
 			if (ImGui.Button("Reset") == true) {
 				Reset();
 			}
 
+
+
+
 		}
+
+		
 
 
 

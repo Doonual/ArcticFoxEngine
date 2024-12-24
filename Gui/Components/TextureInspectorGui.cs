@@ -2,8 +2,8 @@
 using CoolClassLibrary;
 using ImGuiNET;
 
-namespace ArcticFoxEngine.Debug.GUI_Components {
-	public class TextureInspector {
+namespace ArcticFoxEngine.Gui.Components {
+	public class TextureInspectorGui {
 
 		Texture texture;
 		IntPtr texturePtr;
@@ -24,7 +24,7 @@ namespace ArcticFoxEngine.Debug.GUI_Components {
 
 		public Action<Vector2, Vector2> additionalDraws;
 
-		public TextureInspector() {
+		public TextureInspectorGui() {
 			texture = null;
 			textureSize = 1f;
 		}

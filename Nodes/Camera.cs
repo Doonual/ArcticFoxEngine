@@ -10,7 +10,6 @@ namespace ArcticFoxEngine.Nodes {
 
 	public class Camera : Node {
 
-		internal override string description => "Renders the scene from the camera's point of view";
 		internal override string nodeIconPath => ".res/NodeIcons/Camera.png";
 		internal override string nodeIconPath32 => ".res/NodeIcons/Camera32.png";
 
@@ -132,9 +131,10 @@ namespace ArcticFoxEngine.Nodes {
 
 		}
 
-		public override void Debug() {
+		public override void GuiEvent() {
 
-			base.Debug();
+			ImGui.TextWrapped("Renders the scene from the camera's point of view");
+			
 			ImGuiExtras.ComboEnum(ref projectionType);
 
 			if (projectionType == ProjectionType.Perspective) {

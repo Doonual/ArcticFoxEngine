@@ -1,5 +1,5 @@
-﻿using ArcticFoxEngine.Debug;
-using ArcticFoxEngine.Debug.Commands;
+﻿using ArcticFoxEngine.Gui;
+using ArcticFoxEngine.Gui.Commands;
 using ArcticFoxEngine.Input;
 using ArcticFoxEngine.Input.Bindings;
 using ArcticFoxEngine.Nodes;
@@ -17,9 +17,9 @@ namespace ArcticFoxEngine {
 		// Setup function. Run before any of the loop.
 		public static Action init;
 
-		// Debug and exit buttons
+		// Gui and exit buttons
 		private static ButtonBinding exitButton;
-		private static ButtonBinding toggleDebugButton;
+		private static ButtonBinding toggleGuiButton;
 
 		internal static bool deubgRunMainLoop = true;
 		internal static bool debugRunMainLoopOnce = false;
@@ -79,7 +79,7 @@ namespace ArcticFoxEngine {
 			#endregion
 
 			exitButton = new KeyboardButtonInput(KeyboardButtonInput.KeyboardButton.Escape);
-			toggleDebugButton = new KeyboardButtonInput(KeyboardButtonInput.KeyboardButton.F1);
+			toggleGuiButton = new KeyboardButtonInput(KeyboardButtonInput.KeyboardButton.F1);
 
 
 			if (init != null) { init(); } // Run the main init code
@@ -121,7 +121,7 @@ namespace ArcticFoxEngine {
 
 
 					// Check for debug button
-					if (toggleDebugButton.GetButtonDown() == true) { GuiManager.ToggleGUI(); }
+					if (toggleGuiButton.GetButtonDown() == true) { GuiManager.ToggleGUI(); }
 
 					// Check for exit button
 					if (exitButton.GetButton() == true) { Stop(); }

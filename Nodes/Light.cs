@@ -44,7 +44,7 @@ namespace ArcticFoxEngine.Nodes {
 			mainLightingSystem.RemoveLight(this);
 		}
 
-		public override void Debug() {
+		public override void GuiEvent() {
 
 			System.Numerics.Vector3 colVec = new System.Numerics.Vector3(colour.r / 255f, colour.g / 255f, colour.b / 255f);
 			ImGuiExtras.ItemWidthForText("Light col"); ImGui.ColorEdit3("Light col", ref colVec);

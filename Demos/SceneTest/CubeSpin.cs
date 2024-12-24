@@ -120,8 +120,8 @@ namespace ArcticFoxEngine.Demos.SceneTest {
 
 		}
 
-		public override void Debug() {
-			base.Debug();
+		public override void GuiEvent() {
+			base.GuiEvent();
 			animate ^= ImGui.Checkbox("Animate", ref animate);
 
 			if (animate == false) { ImGui.BeginDisabled(); }

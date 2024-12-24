@@ -1,6 +1,6 @@
 ﻿#pragma warning disable CS8618
 
-using ArcticFoxEngine.Debug;
+using ArcticFoxEngine.Gui;
 using ArcticFoxEngine.Rendering;
 using ImGuiNET;
 using SharpDX.Direct3D12;

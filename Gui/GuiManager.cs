@@ -9,7 +9,7 @@ using CoolClassLibrary;
 using ImGuiNET;
 using SharpDX.Windows;
 
-namespace ArcticFoxEngine.Debug {
+namespace ArcticFoxEngine.Gui {
 	public static class GuiManager {
 
 		private static bool isOpen;
@@ -63,6 +63,8 @@ namespace ArcticFoxEngine.Debug {
 			Log.ListenToLog(GetDebugWindow<LogWindow>().LogEvent);
 			Log.ListenToLogColor(GetDebugWindow<LogWindow>().LogColorEvent);
 
+			AppDomain.CurrentDomain.ProcessExit += (Object sender, EventArgs e) => { Dispose(); };
+
 		}
 
 		internal static T GetDebugWindow<T>() where T : GuiWindow {
@@ -85,11 +87,7 @@ namespace ArcticFoxEngine.Debug {
 		}
 
 		public static void OpenGUI() {
-
-			LoadWindowOptions();
-
 			isOpen = true;
-
 		}
 		public static void CloseGUI() {
 			isOpen = false;
@@ -165,7 +163,6 @@ namespace ArcticFoxEngine.Debug {
 
 					
 					if (ImGui.MenuItem("Close all windows") == true) {
-						SaveWindowOptions();
 						for (int i = 0; i < windows.Count; i ++) {
 							windows[i].open = false;
 						}
@@ -184,7 +181,6 @@ namespace ArcticFoxEngine.Debug {
 					ImGui.PopStyleColor();
 
 					if (ImGui.MenuItem("Close all overlays") == true) {
-						SaveWindowOptions();
 						for (int i = 0; i < overlays.Count; i++) {
 							overlays[i].open = false;
 						}
@@ -192,9 +188,7 @@ namespace ArcticFoxEngine.Debug {
 
 
 					for (int i = 0; i < overlays.Count; i++) {
-						if (ImGui.MenuItem(overlays[i].name, null, ref overlays[i].open) == true) {
-							SaveWindowOptions();
-						}
+						ImGui.MenuItem(overlays[i].name, null, ref overlays[i].open);
 					}
 
 					ImGui.EndMenu();
@@ -211,15 +205,35 @@ namespace ArcticFoxEngine.Debug {
 			// Render builtin windows
 			for (int i = 0; i < windows.Count; i++) {
 				if (windows[i].open == true) {
-					// We can skip the ImGUi.begin here because the imgui windows already have the ImGui.Begin();
-					//ImGui.Begin(imguiWindows[i].name + "##" + imguiWindows[i].GetHashCode(), ref builtinWindows[i].open);
+
+
+					if (windows[i].setWindowPos.x >= 0f) {
+						ImGui.SetNextWindowPos(windows[i].setWindowPos);
+						windows[i].setWindowPos = new Vector2(-1f, -1f);
+					}
+					if (windows[i].setWindowSize.x >= 0f) {
+						ImGui.SetNextWindowSize(windows[i].setWindowSize);
+						windows[i].setWindowSize = new Vector2(-1f, -1f);
+					}
+
 					windows[i].Render();
-					//ImGui.End();
 				}
 			}
+			
+			// Render temporary windows
 			for (int i = temporaryWindows.Count - 1; i >= 0; i--) {
 				if (temporaryWindows[i].open == true) {
-					ImGui.Begin(temporaryWindows[i].name + "##" + temporaryWindows[i].GetHashCode(), ref temporaryWindows[i].open ,ImGuiWindowFlags.None);
+
+					if (temporaryWindows[i].setWindowPos.x >= 0f) {
+						ImGui.SetNextWindowPos(temporaryWindows[i].setWindowPos); 
+						temporaryWindows[i].setWindowPos = new Vector2(-1f, -1f);
+					}
+					if (temporaryWindows[i].setWindowSize.x >= 0f) {
+						ImGui.SetNextWindowSize(temporaryWindows[i].setWindowSize);
+						temporaryWindows[i].setWindowSize = new Vector2(-1f, -1f);
+					}
+
+					ImGui.Begin(temporaryWindows[i].name + "##" + temporaryWindows[i].GetHashCode(), ref temporaryWindows[i].open, ImGuiWindowFlags.None);
 					temporaryWindows[i].Render();
 					ImGui.End();
 				}
@@ -280,17 +294,16 @@ namespace ArcticFoxEngine.Debug {
 			
 			// Render the window option without groups
 			for (int i = 0; i < noGroupWindows.Count; i ++) {
-				if (ImGui.MenuItem(noGroupWindows[i].name, null, ref noGroupWindows[i].open) == true) {
-					SaveWindowOptions();
-				}
+				ImGui.MenuItem(noGroupWindows[i].name, null, ref noGroupWindows[i].open);
 			}
 
 		}
 
 		private static void SaveWindowOptions() {
 
-			JObject windowJson = new JObject();
+			JObject configJson = new JObject();
 			JArray windowOptions = new JArray();
+			JArray overlayOptions = new JArray();
 
 			for (int i = 0; i < windows.Count; i ++) {
 				JObject currentWindowOption = new JObject();
@@ -298,20 +311,30 @@ namespace ArcticFoxEngine.Debug {
 				currentWindowOption.Put("open", windows[i].open);
 				windowOptions.Add(currentWindowOption);
 			}
-			windowJson.Put("windows", windowOptions);
+			configJson.Put("windows", windowOptions);
 
-			File.WriteAllText("windowconfig.json", windowJson.ToString());
-			ImGui.SaveIniSettingsToDisk("imgui.ini");
+			for (int i = 0; i < overlays.Count; i ++) {
+				JObject currentOverlayOption = new JObject();
+				currentOverlayOption.Put("name", overlays[i].name);
+				currentOverlayOption.Put("open", overlays[i].open);
+				overlayOptions.Add(currentOverlayOption);
+			}
+			configJson.Put("overlays", overlayOptions);
+
+			configJson.Put("imgui", ImGui.SaveIniSettingsToMemory());
+
+			File.WriteAllText("gui.json", configJson.ToString());
 
 		}
 		private static void LoadWindowOptions() {
 
-			if (File.Exists("windowconfig.json") == false) {
+			if (File.Exists("gui.json") == false) {
 				return;
 			}
-			JObject windowJson = new JObject(File.ReadAllText("windowconfig.json"));
-			JArray windowOptions = windowJson.GrabArray("windows");
 
+			JObject configJson = new JObject(File.ReadAllText("gui.json"));
+
+			JArray windowOptions = configJson.GrabArray("windows");
 			for (int i = 0; i < windowOptions.Count; i ++) {
 
 				JObject currentWindowOption = windowOptions[i];
@@ -327,16 +350,39 @@ namespace ArcticFoxEngine.Debug {
 
 			}
 
-			
+			JArray overlayOptions = configJson.GrabArray("overlays");
+			for (int i = 0; i < overlayOptions.Count; i++) {
 
+				JObject currentOverlayOption = overlayOptions[i];
+				string name = currentOverlayOption.Grab("name");
+				bool open = currentOverlayOption.Grab("open") == "True";
 
-			ImGui.LoadIniSettingsFromDisk("imgui.ini");
+				for (int n = 0; n < overlays.Count; n++) {
+					if (overlays[n].name == name) {
+						overlays[n].open = open;
+						break;
+					}
+				}
+
+			}
+
+			string imguiConfig = configJson.Grab("imgui");
+			ImGui.LoadIniSettingsFromMemory(imguiConfig);
 
 		}
 
+		static bool disposed = false;
 		public static void Dispose() {
+			if (disposed == true) { return; }
+			disposed = true;
+
+			if (firstOpen == false) {
+				SaveWindowOptions();
+			}
+			
 			RenderImGui.Dispose();
 		}
+
 
 	}
 }

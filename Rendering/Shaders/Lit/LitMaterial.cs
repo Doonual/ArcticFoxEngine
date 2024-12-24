@@ -57,7 +57,7 @@ namespace ArcticFoxEngine.Rendering {
 			ImGuiExtras.ItemWidthForText(longestString);
 			ImGui.SliderFloat("Normal strength", ref materialInfo.normalStrength, -1f, 1f);
 
-			ImGui.Separator();
+			//ImGui.Separator();
 
 
 		}

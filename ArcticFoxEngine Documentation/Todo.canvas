@@ -1,111 +1,212 @@
 {
   "nodes": [
     {
-      "id": "67239c402f22e119",
-      "type": "text",
-      "text": "Tangent and binormal vectors are calculated in the geometry shader. Pre calculate this and package it with the vertex data instead",
+      "id": "c7cf5d277c3f5bd7",
+      "type": "group",
       "styleAttributes": {},
-      "x": 60,
-      "y": -414,
-      "width": 440,
-      "height": 100
+      "x": 840,
+      "y": -1060,
+      "width": 900,
+      "height": 440,
+      "label": "Math"
     },
     {
-      "id": "16b54cd7a272ac57",
-      "type": "text",
-      "text": "Compute Shaders",
+      "id": "2da9457e978f2573",
+      "type": "group",
       "styleAttributes": {},
-      "x": 280,
-      "y": -1200,
-      "width": 1240,
-      "height": 60
+      "x": 1820,
+      "y": -1060,
+      "width": 860,
+      "height": 440,
+      "label": "GUI "
     },
     {
-      "id": "d5dc5de2874adf4e",
-      "type": "text",
-      "text": "Polish the GUI",
+      "id": "6b8fa7d1a033c51c",
+      "type": "group",
       "styleAttributes": {},
-      "x": 1200,
-      "y": -860,
+      "x": 240,
+      "y": -1060,
+      "width": 520,
+      "height": 300,
+      "label": "Rendering"
+    },
+    {
+      "id": "8c54e6eb23a9d877",
+      "type": "text",
+      "text": "Fix matrix class",
+      "styleAttributes": {},
+      "x": 1260,
+      "y": -1040,
       "width": 260,
-      "height": 60
-    },
-    {
-      "id": "109e274aeba1b2d7",
-      "type": "text",
-      "text": "Add texture and shader inspector",
-      "styleAttributes": {},
-      "x": 1180,
-      "y": -574,
-      "width": 260,
-      "height": 60
-    },
-    {
-      "id": "0a70098e97589727",
-      "type": "text",
-      "text": "Ability to move and hide the cursor",
-      "styleAttributes": {},
-      "x": 1480,
-      "y": -700,
-      "width": 260,
-      "height": 60
+      "height": 60,
+      "color": "1"
     },
     {
       "id": "f5ac31e9ca3d48df",
       "type": "text",
       "text": "Add dragging and dropping for objects in the GUI",
       "styleAttributes": {},
-      "x": 854,
-      "y": -740,
+      "x": 1840,
+      "y": -920,
       "width": 260,
-      "height": 100
+      "height": 100,
+      "color": "4"
     },
     {
       "id": "10fa2f03d765097c",
       "type": "text",
       "text": "Remove the System.drawing and System.numerics types from ImGui",
       "styleAttributes": {},
-      "x": 200,
-      "y": -900,
+      "x": 860,
+      "y": -1040,
       "width": 380,
-      "height": 80
+      "height": 80,
+      "color": "1"
     },
     {
       "id": "280746dc8f172315",
       "type": "text",
       "text": "Remove the SharpDX math objects",
       "styleAttributes": {},
-      "x": 208,
-      "y": -760,
+      "x": 860,
+      "y": -940,
       "width": 372,
-      "height": 60
-    }
-  ],
-  "edges": [
-    {
-      "id": "96172369640bd9c4",
-      "styleAttributes": {},
-      "fromNode": "d5dc5de2874adf4e",
-      "fromSide": "bottom",
-      "toNode": "0a70098e97589727",
-      "toSide": "top"
+      "height": 60,
+      "color": "1"
     },
     {
-      "id": "cfc310ff117695fd",
+      "id": "70e9c609905ccf2d",
+      "type": "text",
+      "text": "Log window has really weird text wrapping",
       "styleAttributes": {},
-      "fromNode": "d5dc5de2874adf4e",
-      "fromSide": "bottom",
-      "toNode": "f5ac31e9ca3d48df",
-      "toSide": "top"
+      "x": 1840,
+      "y": -800,
+      "width": 260,
+      "height": 60,
+      "color": "2"
     },
     {
-      "id": "0816bb4cafd5e92a",
+      "id": "0b9c054f7909adec",
+      "type": "text",
+      "text": "Ideas",
       "styleAttributes": {},
-      "fromNode": "d5dc5de2874adf4e",
-      "fromSide": "bottom",
-      "toNode": "109e274aeba1b2d7",
-      "toSide": "top"
+      "x": 1880,
+      "y": -1400,
+      "width": 260,
+      "height": 60,
+      "color": "5"
+    },
+    {
+      "id": "f88d621361341929",
+      "type": "text",
+      "text": "New features",
+      "styleAttributes": {},
+      "x": 1520,
+      "y": -1400,
+      "width": 260,
+      "height": 60,
+      "color": "4"
+    },
+    {
+      "id": "87859b83a6b6e0c5",
+      "type": "text",
+      "text": "Fixes",
+      "styleAttributes": {},
+      "x": 1160,
+      "y": -1400,
+      "width": 260,
+      "height": 60,
+      "color": "1"
+    },
+    {
+      "id": "67239c402f22e119",
+      "type": "text",
+      "text": "Tangent and binormal vectors are calculated in the geometry shader. Pre calculate this and package it with the vertex data instead",
+      "styleAttributes": {},
+      "x": 260,
+      "y": -940,
+      "width": 440,
+      "height": 100,
+      "color": "5"
+    },
+    {
+      "id": "16b54cd7a272ac57",
+      "type": "text",
+      "text": "Compute Shaders",
+      "styleAttributes": {},
+      "x": 260,
+      "y": -1020,
+      "width": 220,
+      "height": 60,
+      "color": "4"
+    },
+    {
+      "id": "4050d912325f2de2",
+      "type": "text",
+      "text": "Make it more clear which functions should only be called by the engine",
+      "styleAttributes": {},
+      "x": -100,
+      "y": -1050,
+      "width": 260,
+      "height": 120,
+      "color": "1"
+    },
+    {
+      "id": "5eb94d41f68efe86",
+      "type": "text",
+      "text": "Non urgent fixes",
+      "styleAttributes": {},
+      "x": 1340,
+      "y": -1480,
+      "width": 260,
+      "height": 60,
+      "color": "2"
+    },
+    {
+      "id": "109e274aeba1b2d7",
+      "type": "text",
+      "text": "Add texture and shader inspector",
+      "styleAttributes": {},
+      "x": 2120,
+      "y": -960,
+      "width": 260,
+      "height": 60,
+      "color": "4"
+    },
+    {
+      "id": "0a70098e97589727",
+      "type": "text",
+      "text": "Ability to move and hide the cursor",
+      "styleAttributes": {},
+      "x": 2120,
+      "y": -880,
+      "width": 260,
+      "height": 60,
+      "color": "4"
+    },
+    {
+      "id": "629ce94655d9904c",
+      "type": "text",
+      "text": "Node tree open states are stored in the node, make a new class for drawing the node tree, not in the node itself",
+      "styleAttributes": {},
+      "x": 2120,
+      "y": -800,
+      "width": 260,
+      "height": 160,
+      "color": "2"
+    },
+    {
+      "id": "05bc3ecd97b2f9ff",
+      "type": "text",
+      "text": "Performance window does not include GUI draw time",
+      "styleAttributes": {},
+      "x": 2120,
+      "y": -1040,
+      "width": 260,
+      "height": 60,
+      "color": "2"
     }
   ],
+  "edges": [],
   "metadata": {}
 }

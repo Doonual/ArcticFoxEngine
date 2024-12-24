@@ -1,6 +1,6 @@
 ﻿using CoolClassLibrary;
 
-namespace ArcticFoxEngine.Debug.Commands {
+namespace ArcticFoxEngine.Gui.Commands {
 	internal class HelpCommand : Command {
 		public string name => "help";
 

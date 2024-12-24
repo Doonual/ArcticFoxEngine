@@ -4,125 +4,27 @@
     "type": "split",
     "children": [
       {
-        "id": "339cccbf7a1f421f",
+        "id": "b3b913945547625b",
         "type": "tabs",
         "children": [
           {
-            "id": "3dd3dd891b3f87ff",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Rendering/Rendering.md",
-                "mode": "preview",
-                "source": true
-              },
-              "icon": "lucide-file",
-              "title": "Rendering"
-            }
-          },
-          {
-            "id": "b81927af5aeda956",
-            "type": "leaf",
-            "state": {
-              "type": "canvas",
-              "state": {
-                "file": "Rendering/Resource Binding Overview.canvas",
-                "viewState": {
-                  "x": -1893.0650623225208,
-                  "y": 963.0956944219374,
-                  "zoom": -0.333333333333333
-                }
-              },
-              "icon": "lucide-layout-dashboard",
-              "title": "Resource Binding Overview"
-            }
-          },
-          {
-            "id": "d78574cb16c2c62c",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Rendering/Shaders.md",
-                "mode": "preview",
-                "source": true
-              },
-              "icon": "lucide-file",
-              "title": "Shaders"
-            }
-          },
-          {
-            "id": "fa3438e5d7ae015a",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "DX12/Terms.md",
-                "mode": "source",
-                "source": true
-              },
-              "icon": "lucide-file",
-              "title": "Terms"
-            }
-          },
-          {
-            "id": "2a2517ecc5206ae6",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "DX12/Graphics Pipeline State.md",
-                "mode": "preview",
-                "source": true
-              },
-              "icon": "lucide-file",
-              "title": "Graphics Pipeline State"
-            }
-          },
-          {
-            "id": "3e8dcf1173ee600f",
+            "id": "7187570dcf2fd6d8",
             "type": "leaf",
             "state": {
               "type": "canvas",
               "state": {
                 "file": "Todo.canvas",
                 "viewState": {
-                  "x": 1067.959454314721,
-                  "y": -940.8252538071065,
-                  "zoom": -0.16020929680981563
+                  "x": 1542.0785229232638,
+                  "y": -793.6895408934345,
+                  "zoom": -0.36575375243344393
                 }
               },
               "icon": "lucide-layout-dashboard",
               "title": "Todo"
             }
-          },
-          {
-            "id": "fa75f424f0f1051b",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "DX12/Descriptor Heap.md",
-                "mode": "source",
-                "source": true
-              },
-              "icon": "lucide-file",
-              "title": "Descriptor Heap"
-            }
-          },
-          {
-            "id": "1bc243d0334cfdf6",
-            "type": "leaf",
-            "state": {
-              "type": "graph",
-              "state": {},
-              "icon": "lucide-git-fork",
-              "title": "Graph view"
-            }
           }
-        ],
-        "currentTab": 5
+        ]
       }
     ],
     "direction": "vertical"
@@ -264,16 +166,17 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "3e8dcf1173ee600f",
+  "active": "7187570dcf2fd6d8",
   "lastOpenFiles": [
-    "Rendering/Shaders.md",
+    "DX12/Descriptor Heap.md",
+    "GUI.md",
+    "Rendering/How it should work.canvas",
     "Todo.canvas",
     "DX12/Graphics Pipeline State.md",
+    "DX12/Terms.md",
     "Rendering/Resource Binding Overview.canvas",
     "Rendering/Rendering.md",
-    "DX12/Terms.md",
-    "Rendering/How it should work.canvas",
-    "DX12/Descriptor Heap.md",
+    "Rendering/Shaders.md",
     "DX12/Root Signature.md",
     "Rendering/Shader Resource binding.md",
     "Graphics.md",
@@ -281,7 +184,6 @@
     "DX12",
     "DX12/Command Queue.md",
     "Input/ButtonBinding.md",
-    "GUI.md",
     "Rendering",
     "Input/AxisBinding.md",
     "Input/Axis2DBinding.md",

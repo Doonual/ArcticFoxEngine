@@ -49,6 +49,7 @@ namespace ArcticFoxEngine.Nodes {
 			decreaseSpeed = new MouseButtonInput(MouseButtonInput.MouseButton.WheelDown);
 
 			speed = 1f;
+			lockRoll = true;
 
 			Enable();
 		}
@@ -129,11 +130,10 @@ namespace ArcticFoxEngine.Nodes {
 		}
 
 		Vector3 rotationAxis = Vector3.Zero;
-		public override void Debug() {
-			base.Debug();
+		public override void GuiEvent() {
+			base.GuiEvent();
 			ImGui.SliderFloat("Speed", ref speed, 0f, 1000f, "%.6f", ImGuiSliderFlags.Logarithmic);
 			ImGui.Checkbox("Lock roll", ref lockRoll);
-				
 
 
 		}

@@ -1,4 +1,5 @@
-﻿using ArcticFoxEngine.Nodes;
+﻿using ArcticFoxEngine.Gui.Builtin_Windows;
+using ArcticFoxEngine.Nodes;
 using CoolClassLibrary;
 using ImGuiNET;
 using System;
@@ -8,13 +9,12 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
-namespace ArcticFoxEngine.Debug {
+namespace ArcticFoxEngine.Gui {
 	internal class NodeGizmosOverlay : GuiOverlay {
 
 		internal override string name => "Gizmos";
 
 		static Camera gizmoCamera = null;
-		static List<(Node, bool)> floatingEditWindows;
 		static List<Node> openNodes; // List of nodes that have their children exposed
 
 		static float circleRadius = 18f;
@@ -30,59 +30,26 @@ namespace ArcticFoxEngine.Debug {
 
 		internal override void Render() {
 
-			if (floatingEditWindows == null) {
-				floatingEditWindows = new List<(Node, bool)>();
-			}
 			if (openNodes == null) {
 				openNodes = new List<Node>();
 			}
 
 			if (Node.rootNode == null) { return; }
-			if (gizmoCamera == null) {
+			if (gizmoCamera == null || gizmoCamera.disposed == true) {
 				gizmoCamera = Node.rootNode.SearchNodeTreeDown<Camera>();
 			}
 
-			// Start debug Gizmos layout tree
-			DebugGizmosLayout(Node.rootNode, Vector2.zero, Vector2.zero, 0f, 0, MathF.PI * 2f, true, true);
+			// Start draw Gizmos layout tree
+			DrawGizmoIconsInWorld(Node.rootNode, Vector2.zero, Vector2.zero, 0f, 0, MathF.PI * 2f, true, true);
 
-			// Render floating windows
-			for (int i = floatingEditWindows.Count - 1; i >= 0; i --) {
-				if (floatingEditWindows[i].Item2 == true) {
-					floatingEditWindows[i] = (floatingEditWindows[i].Item1, false);
-					ImGui.SetNextWindowPos(ImGui.GetMousePos());
-					ImGui.SetNextWindowSize(new Vector2(400f, 0f));
-				}
-
-				bool windowOpen = true;
-				ImGui.Begin(floatingEditWindows[i].Item1.name + " edit ##" + floatingEditWindows[i].Item1.GetHashCode(), ref windowOpen, ImGuiWindowFlags.None);
-				if (ImGui.TreeNode("Transform") == true) {
-					floatingEditWindows[i].Item1.transform.Debug();
-					ImGui.TreePop();
-				}
-				
-				floatingEditWindows[i].Item1.Debug();
-				ImGui.End();
-
-				if (windowOpen == false) {
-					floatingEditWindows.Remove(floatingEditWindows[i]);
-				}
-			}
+			
 
 		}
 
-		internal static void OpenFloatingNodeEdit(Node node) {
-			for (int i = 0; i < floatingEditWindows.Count; i ++) {
-				if (floatingEditWindows[i].Item1 == node) {
-					floatingEditWindows[i] = (node, true);
-					return;
-				}
-			}
-			floatingEditWindows.Add((node, true));
-		}
 
 		// This has a lot of parameters :(
 		// Fix this later
-		internal static void DebugGizmosLayout(Node node, Vector2 prevDrawPos, Vector2 fanCentre, float fanAngle, int fanDepth, float fanRange, bool gizmoInView, bool skipDrawing) {
+		internal static void DrawGizmoIconsInWorld(Node node, Vector2 prevDrawPos, Vector2 fanCentre, float fanAngle, int fanDepth, float fanRange, bool gizmoInView, bool skipDrawing) {
 
 
 			float fanRadius = fanDepth * fanRadiusStep;
@@ -127,12 +94,12 @@ namespace ArcticFoxEngine.Debug {
 				float angle = MathUtil.Map(i + 0.5f, 0, node.GetChildCount(), angleStart, angleEnd) + fanAngle;
 
 				ImGui.PushID(node.GetChild(i).GetHashCode() + " gizmo rendering");
-				DebugGizmosLayout(node.GetChild(i), drawPos, fanCentre, angle, fanDepth + 1, fanRange / Math.Max(2, node.GetChildCount()), gizmoInView, skipDrawing);
+				DrawGizmoIconsInWorld(node.GetChild(i), drawPos, fanCentre, angle, fanDepth + 1, fanRange / Math.Max(2, node.GetChildCount()), gizmoInView, skipDrawing);
 				ImGui.PopID();
 
 			}
 
-			if (node != Node.rootNode && gizmoInView == true && skipDrawing == false) {
+			if (node != Node.rootNode && skipDrawing == false && gizmoInView == true) {
 				DrawGizmoIcon(node, drawPos);
 			}
 			
@@ -141,14 +108,16 @@ namespace ArcticFoxEngine.Debug {
 
 		private static void DrawGizmoIcon(Node node, Vector2 drawPos) {
 
-
-			Vector2 screenPos = drawPos;
 			float circleRadius = 18f;
+			Vector2 screenPos = drawPos;
+
+
+			
 
 			// Setup window
 			ImGui.SetNextWindowPos(screenPos - Vector2.one * circleRadius);
 			ImGui.SetNextWindowSize(Vector2.one * circleRadius * 2);
-			ImGuiWindowFlags windowFlags = ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoBackground;
+			ImGuiWindowFlags windowFlags = ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoBackground | ImGuiWindowFlags.NoFocusOnAppearing;
 			ImGui.Begin(node.GetHashCode() + " Gizmo click window", windowFlags);
 
 
@@ -157,17 +126,13 @@ namespace ArcticFoxEngine.Debug {
 
 			if (((Vector2)ImGui.GetMousePos() - screenPos).GetLength() <= circleRadius) {
 				circleCol = circleHoverCol;
-				if (ImGui.IsMouseDown(ImGuiMouseButton.Left) == true || ImGui.IsMouseDown(ImGuiMouseButton.Left) == true) {
+				if (ImGui.IsMouseDown(ImGuiMouseButton.Left) == true) {
 					circleCol = circlePressedCol;
 				}
 				if (ImGui.IsMouseReleased(ImGuiMouseButton.Left) == true) {
 
-					if (openNodes.Contains(node) == true) {
-						openNodes.Remove(node);
-					}
-					else {
-						openNodes.Add(node);
-					}
+					NodeInspectorGui nodeInspectorGui = new NodeInspectorGui(node);
+					GuiManager.OpenWindow(node.name, () => { nodeInspectorGui.DrawNodeInspector(true); });
 
 				}
 				if (ImGui.IsMouseReleased(ImGuiMouseButton.Right) == true) {
@@ -178,7 +143,24 @@ namespace ArcticFoxEngine.Debug {
 
 			if (ImGui.BeginPopup(node.GetHashCode() + " gizmo context") == true) {
 
-				node.DebugContextMenu();
+				if (ImGui.MenuItem("Edit") == true) {
+					NodeInspectorGui nodeInspectorGui = new NodeInspectorGui(node);
+					GuiManager.OpenWindow(node.name, () => { nodeInspectorGui.DrawNodeInspector(true); });
+				}
+				if (ImGui.MenuItem("Reveal in node tree") == true) {
+
+					SceneWindow.selectedNode = node;
+
+
+					Node parentChain = node.parentNode;
+					while (parentChain != null) {
+						parentChain.nodeOpen = true;
+						parentChain = parentChain.parentNode;
+					}
+
+				}
+
+				node.DrawContextMenuGui();
 				
 
 				ImGui.EndPopup();

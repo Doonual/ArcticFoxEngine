@@ -17,8 +17,6 @@ namespace ArcticFoxEngine.Demos.LightingTest {
 				skybox.mesh.vertices[i].position.y = skybox.mesh.vertices[i].position.z;
 				skybox.mesh.vertices[i].position.z = 0.5f;
 
-				Log.Info(skybox.mesh.vertices[i].position);
-
 			}
 			skybox.UpdateMeshData();
 

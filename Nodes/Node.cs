@@ -1,5 +1,4 @@
-﻿using ArcticFoxEngine.Debug;
-using ArcticFoxEngine.Gui.Components;
+﻿using ArcticFoxEngine.Gui;
 using ArcticFoxEngine.ImGuiIntegration;
 using CoolClassLibrary;
 using ImGuiNET;
@@ -11,10 +10,9 @@ namespace ArcticFoxEngine.Nodes {
 		public static Node rootNode { get; private set; }
 		internal static Node nextParentNode = null;
 
-		private bool disposed = true;
+		public bool disposed { get; private set;}
 
 		public string name = "";
-		internal virtual string description => "";
 		internal virtual string nodeIconPath => ".res/NodeIcons/EmptyNode.png";
 		internal virtual string nodeIconPath32 => ".res/NodeIcons/EmptyNode32.png";
 		internal IntPtr nodeIconId;
@@ -37,6 +35,7 @@ namespace ArcticFoxEngine.Nodes {
 
 			childNodes = new List<Node>();
 			SetParent(nextParentNode);
+			nextParentNode = null;
 
 			nodeIconId = NodeIconBank.LoadIcon(nodeIconPath);
 			transformIconId = NodeIconBank.LoadIcon(".res/NodeIcons/Transform.png");
@@ -86,9 +85,6 @@ namespace ArcticFoxEngine.Nodes {
 					currentNode = currentNode.parentNode;
 				}
 
-			}
-			else {
-				DisposeEvent();
 			}
 
 		}
@@ -430,8 +426,6 @@ namespace ArcticFoxEngine.Nodes {
 
 		}
 
-		bool prevCallingFromRoot = false;
-		
 		
 		~Node() {
 			DisposeEvent();
@@ -465,85 +459,15 @@ namespace ArcticFoxEngine.Nodes {
 		/// <summary>
 		/// Run to render the node gui
 		/// </summary>
-		public virtual void Debug() { }
+		public virtual void GuiEvent() { }
 		
 		
 		public virtual void Dispose() { }
 
-		internal void DebugEvent(bool callingFromRoot) {
-
-			ImGuiWindowFlags flags = ImGuiWindowFlags.MenuBar;
-			ImGui.BeginChild((uint)(GetHashCode() + " parameters").GetHashCode(), new Vector2(0f, 300f), true, flags);
-
-
-			// Default node open states
-			prevCallingFromRoot = callingFromRoot;
-
-
-			ImGui.PushStyleVar(ImGuiStyleVar.ItemSpacing, new Vector2(0f, -1f));
-
-			ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0.3f, 0.3f, 0.3f, 0.0f));
-			ImGui.PushStyleColor(ImGuiCol.ButtonHovered, new Vector4(0.3f, 0.3f, 0.3f, 0.3f));
-			ImGui.PushStyleColor(ImGuiCol.ButtonActive, new Vector4(0.3f, 0.3f, 0.3f, 0.5f));
-			float cursorPosY = ImGui.GetCursorPosY();
-
-			ImGui.BeginMenuBar();
-
-			ImGui.SetCursorPosY(ImGui.GetCursorPosY() + 2f);
-			if (NodeGuiComponents.ImageButtonTextButton(nodeIconId, name, GetHashCode() + "debug menu bar", 16f) == true) {
-				GuiManager.OpenWindow(name, Debug);
-			}
-
-			ImGui.EndMenuBar();
-
-			ImGui.PopStyleVar(1);
-			ImGui.PopStyleVar(1);
-			ImGui.PopStyleColor(3);
-
-			// Description
-			if (description != "") {
-				ImGui.TextWrapped(description);
-			}
-
-
-
-			// Transform and Debug
-			if (NodeGuiComponents.ImageButtonTextButton(transformIconId, "Transform", "Transform button", 16f) == true) {
-				ImGui.OpenPopup(GetHashCode() + " transform popup");
-			}
-
-			if (ImGui.IsPopupOpen(GetHashCode() + " transform popup") == true) {
-				ImGui.SetNextWindowSize(new Vector2(300f, 150f));
-				ImGui.BeginPopup(GetHashCode() + " transform popup");
-
-				ImGui.Text(name + " transform");
-				transform.Debug();
-
-				ImGui.EndPopup();
-			}
-			
-
-			Debug();
-
-
-			ImGui.EndChild();
-
-			if (callingFromRoot == true) {
-				for (int i = 0; i < childNodes.Count; i++) {
-					ImGui.PushID(childNodes[i].GetHashCode() + " debug event");
-					ImGui.NewLine();
-					childNodes[i].DebugEvent(false);
-					ImGui.PopID();
-				}
-			}
-
-			
-
-			ImGui.NewLine();
-
-
-		}
-		internal Node DebugNodeTree(bool rootNode) {
+		float checkboxWidth = 0f;
+		float originalItemSpacing = 0f;
+		internal bool nodeOpen = false;
+		internal Node DrawNodeTreeGui(bool rootNode) {
 
 			nodeOpen |= rootNode;
 
@@ -554,6 +478,7 @@ namespace ArcticFoxEngine.Nodes {
 
 			bool prevGlobalEnabled = globalEnabled;
 
+			originalItemSpacing = ImGui.GetStyle().ItemSpacing.X;
 			ImGui.PushStyleVar(ImGuiStyleVar.ItemSpacing, new Vector2(0f, -1f));
 
 			ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0.3f, 0.3f, 0.3f, 0.0f));
@@ -592,8 +517,9 @@ namespace ArcticFoxEngine.Nodes {
 				ImGui.PushStyleColor(ImGuiCol.ButtonHovered, new Vector4(66f / 255f, 150f / 255f, 250f / 255, 102f / 255f));
 			}
 
+			float coverButtonWidth = -(originalItemSpacing * 2 + checkboxWidth);
 
-			if (ImGui.Button("", new Vector2(-1f, 16f + 6f)) == true) {
+			if (ImGui.Button("", new Vector2(coverButtonWidth, 16f + 6f)) == true) {
 				selectedNode = this;
 			}
 			if (nodeSelectedColourChange == true) {
@@ -608,24 +534,25 @@ namespace ArcticFoxEngine.Nodes {
 
 			// Name button
 			ImGui.SetCursorPosY(cursorPosY);
-			ImGui.PushStyleVar(ImGuiStyleVar.ButtonTextAlign, new Vector2(0f, 0.5f));
+			ImGui.PushStyleVar(ImGuiStyleVar.ButtonTextAlign, new Vector2(coverButtonWidth, 0.5f));
 
 			string actualTypeString = "";
 			if (name != GetType().Name) {
 				actualTypeString = " (" + GetType().Name + ")";
 			}
-			ImGui.Button(name + actualTypeString, new Vector2(-1f, 16f + 6f));
+			ImGui.Button(name + actualTypeString, new Vector2(coverButtonWidth, 16f + 6f));
 
 			ImGui.PopStyleVar();
 
 
 
-
-
-			ImGui.TableNextColumn();
-
+			// Enabled checkbox
 			bool enabledCheck = enabled;
 			ImGui.PushID(GetHashCode() + " enabled check");
+
+			
+			ImGui.SetCursorPosX(ImGui.GetWindowContentRegionMax().X - checkboxWidth - ImGui.GetStyle().ChildBorderSize - originalItemSpacing);
+
 			ImGui.SetCursorPosY(cursorPosY + 1f);
 			if (ImGui.Checkbox("", ref enabledCheck) == true) {
 				if (enabledCheck == false) {
@@ -635,6 +562,7 @@ namespace ArcticFoxEngine.Nodes {
 					Enable();
 				}
 			}
+			checkboxWidth = ImGui.GetItemRectSize().X;
 			ImGui.SetCursorPosY(cursorPosY);
 			ImGui.PopID();
 
@@ -656,8 +584,8 @@ namespace ArcticFoxEngine.Nodes {
 					float childLinesCurrentY = ImGui.GetCursorScreenPos().Y + 11f + 26f;
 					ImGui.GetWindowDrawList().AddLine(new Vector2(childLinesX, childLinesCurrentY), new Vector2(childLinesX + indentSize / 2f, childLinesCurrentY), ImGui.ColorConvertFloat4ToU32(new Vector4(0.5f, 0.5f, 0.5f, 1f)));
 
-					ImGui.PushID(childNodes[i].GetHashCode() + " debug node tree");
-					Node childSelectedNode = childNodes[i].DebugNodeTree(false);
+					ImGui.PushID(childNodes[i].GetHashCode() + " draw node tree");
+					Node childSelectedNode = childNodes[i].DrawNodeTreeGui(false);
 					if (childSelectedNode != null) {
 						selectedNode = childSelectedNode;
 					}
@@ -675,30 +603,57 @@ namespace ArcticFoxEngine.Nodes {
 			return selectedNode;
 
 		}
+		internal static bool DrawImageButtonTextButtonGui(IntPtr imageId, string text, string id, float height, out uint buttonID) {
+
+			// Tell the image and text to have no padding
+			ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, new Vector2(0f, 0f));
+			ImGui.BeginChild((uint)(id.GetHashCode()), new Vector2(0f, height), false);
+
+			// Make button colourless and transparent
+			ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0.3f, 0.3f, 0.3f, 0.0f));
+			ImGui.PushStyleColor(ImGuiCol.ButtonHovered, new Vector4(0.3f, 0.3f, 0.3f, 0.3f));
+			ImGui.PushStyleColor(ImGuiCol.ButtonActive, new Vector4(0.3f, 0.3f, 0.3f, 0.5f));
+
+			// Draw the actual button
+			Vector2 buttonPos = ImGui.GetCursorPos();
+			bool buttonResult = ImGui.Button("##" + id + "actual button", new Vector2(-1f, -1f));
+			buttonID = ImGui.GetItemID();
+			
+
+			// Draw image button
+			ImGui.SetCursorPos(buttonPos);
+			ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, new Vector2(0f, 0f));
+			ImGui.ImageButton(id + "image button", imageId, new Vector2(height, height));
+			ImGui.PopStyleVar();
+
+			ImGui.SameLine();
+
+			// Draw the text
+			float textDownOffset = height / 2f - ImGui.GetTextLineHeight() / 2f;
+			ImGui.SetCursorPosY(ImGui.GetCursorPosY() + textDownOffset);
+			ImGui.Text(text);
 
 
-		// Debug Gizmos
-		public virtual void DebugContextMenu() {
-;
-			if (ImGui.MenuItem("Edit") == true) {
-				NodeGizmosOverlay.OpenFloatingNodeEdit(this);
-			}
-			if (ImGui.MenuItem("Reveal in node tree") == true) {
-				SceneWindow.selectedNode = this;
-				nodeOpen = true;
+			ImGui.PopStyleColor(3);
 
 
-				Node parentChain = parentNode;
-				while (parentChain != null) {
-					parentChain.nodeOpen = true;
-					parentChain = parentChain.parentNode;
-				}
+			ImGui.EndChild();
+			ImGui.PopStyleVar();
 
-			}
+			
+
+			return buttonResult;
 
 		}
 
-		internal bool nodeOpen = false;
+		// Draw Gizmos
+		bool transformInspectorExpanded = false;
+		public virtual void DrawContextMenuGui() {
+
+			
+
+		}
+		
 		
 	}
 }

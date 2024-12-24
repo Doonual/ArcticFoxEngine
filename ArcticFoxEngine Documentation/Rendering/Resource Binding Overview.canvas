@@ -41,57 +41,6 @@
       "label": "Texture Slot"
     },
     {
-      "id": "5848c097861b82b6",
-      "type": "text",
-      "text": "Objects",
-      "styleAttributes": {},
-      "x": -2220,
-      "y": -760,
-      "width": 260,
-      "height": 60
-    },
-    {
-      "id": "11aafe61437711b9",
-      "type": "text",
-      "text": "Methods",
-      "styleAttributes": {},
-      "x": -2220,
-      "y": -660,
-      "width": 260,
-      "height": 60,
-      "color": "1"
-    },
-    {
-      "id": "ac6c34175f42a3fa",
-      "type": "text",
-      "text": "CMD List",
-      "styleAttributes": {},
-      "x": -1420,
-      "y": 1570,
-      "width": 260,
-      "height": 60
-    },
-    {
-      "id": "f2476148bc544382",
-      "type": "text",
-      "text": "Texture2D",
-      "styleAttributes": {},
-      "x": -3420,
-      "y": 370,
-      "width": 260,
-      "height": 60
-    },
-    {
-      "id": "ab3d4b08d3ed049e",
-      "type": "text",
-      "text": "1 Element Descriptor Heap",
-      "styleAttributes": {},
-      "x": -3420,
-      "y": 590,
-      "width": 260,
-      "height": 60
-    },
-    {
       "id": "b5ad2dccd154a194",
       "type": "text",
       "text": "Root Parameter Index",
@@ -128,6 +77,36 @@
       "styleAttributes": {},
       "x": -1740,
       "y": 1410,
+      "width": 260,
+      "height": 60
+    },
+    {
+      "id": "ac6c34175f42a3fa",
+      "type": "text",
+      "text": "CMD List",
+      "styleAttributes": {},
+      "x": -1420,
+      "y": 1570,
+      "width": 260,
+      "height": 60
+    },
+    {
+      "id": "f2476148bc544382",
+      "type": "text",
+      "text": "Texture2D",
+      "styleAttributes": {},
+      "x": -3420,
+      "y": 370,
+      "width": 260,
+      "height": 60
+    },
+    {
+      "id": "ab3d4b08d3ed049e",
+      "type": "text",
+      "text": "1 Element Descriptor Heap",
+      "styleAttributes": {},
+      "x": -3420,
+      "y": 590,
       "width": 260,
       "height": 60
     }

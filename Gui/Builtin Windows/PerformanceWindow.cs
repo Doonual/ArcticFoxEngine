@@ -1,7 +1,7 @@
 ﻿using CoolClassLibrary;
 using ImGuiNET;
 
-namespace ArcticFoxEngine.Debug {
+namespace ArcticFoxEngine.Gui {
 	internal class PerformanceWindow : GuiWindow {
 
 		internal static PerformanceWindow mainWindow;
@@ -112,7 +112,10 @@ namespace ArcticFoxEngine.Debug {
 
 			}
 
-			internal void DrawMetric(Vector2 topLeft, float width, float totalMs, int viewSample, bool rowChecker) {
+			// Returns the total height
+			internal float DrawMetric(Vector2 topLeft, float width, float totalMs, int viewSample, bool rowChecker) {
+
+				float totalHeight = 19f;
 
 				ImGui.PushID(name + "metric total");
 				float start = startMs[viewSample] / totalMs;
@@ -172,11 +175,15 @@ namespace ArcticFoxEngine.Debug {
 					ImGui.EndTooltip();
 				}
 
+				float maxHeightOfAllSubmetrics = 0f;
 				for (int i = 0; i < subMetrics.Count; i++) {
-					subMetrics[i].DrawMetric(topLeft - Vector2.down * 19f, width, totalMs, viewSample, !rowChecker);
+					maxHeightOfAllSubmetrics = MathF.Max(maxHeightOfAllSubmetrics, subMetrics[i].DrawMetric(topLeft - Vector2.down * 19f, width, totalMs, viewSample, !rowChecker));
 				}
+				totalHeight += maxHeightOfAllSubmetrics;
 
 				ImGui.PopID();
+
+				return totalHeight;
 
 			}
 			internal void DrawMetricHist(int numSamples, Vector2 minCoord, Vector2 maxCoord, float maxMs, bool drawRecursive) {
@@ -353,7 +360,15 @@ namespace ArcticFoxEngine.Debug {
 			currentMetric = currentMetric.parentMetric;
 		}
 
+		float recursiveTimeViewHeight = 0f;
 		public override void Render() {
+
+
+			uint borderCol = 0;
+			unsafe {
+				borderCol = ImGui.ColorConvertFloat4ToU32(*ImGui.GetStyleColorVec4(ImGuiCol.Border));
+			}
+			
 
 			ImGui.Begin("Performance", ref open);
 
@@ -416,6 +431,7 @@ namespace ArcticFoxEngine.Debug {
 			if (ImGui.Button("+") == true) {
 				viewSample += 1;
 			}
+			viewSample = Math.Clamp(viewSample, 0, 2000 - 1);
 			ImGui.SameLine();
 			ImGui.Text("View sample");
 			
@@ -485,23 +501,33 @@ namespace ArcticFoxEngine.Debug {
 
 			#endregion
 
+			// Histogram border
+			Vector2 histFramePadding = ImGui.GetStyle().FramePadding;
+			ImGui.GetWindowDrawList().AddRect(histStartScreen - histFramePadding, histEndScreen + histFramePadding, borderCol);
+			
+			
 			#region Recursive time view
 
 			ImGui.NewLine();
 
 			ImGui.PushStyleColor(ImGuiCol.FrameBg, new System.Numerics.Vector4(0.2f, 0.2f, 0.2f, 138f / 255f));
 			ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, new Vector2(0f, 0f));
-			ImGui.BeginChildFrame((uint)"metric recursive child".GetHashCode(), new Vector2(-1f, 76f));
+			ImGui.BeginChildFrame((uint)"metric recursive child".GetHashCode(), new Vector2(-1f, recursiveTimeViewHeight));
+
 
 
 			Vector2 childStart = ImGui.GetCursorPos();
 			float width = ImGui.GetColumnWidth();
 
-			metric.DrawMetric(childStart, width, metric.endMs[viewSample], viewSample, false);
+			recursiveTimeViewHeight = metric.DrawMetric(childStart, width, metric.endMs[viewSample], viewSample, false);
+
+			ImGui.GetWindowDrawList().AddRect(childStart + (Vector2)ImGui.GetWindowPos(), childStart + (Vector2)ImGui.GetWindowPos() + new Vector2(width, recursiveTimeViewHeight), borderCol);
 
 			ImGui.EndChildFrame();
 			ImGui.PopStyleVar();
 			ImGui.PopStyleColor();
+
+			
 
 			#endregion
 

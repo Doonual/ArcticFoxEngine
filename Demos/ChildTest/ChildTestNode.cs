@@ -1,6 +1,7 @@
 ﻿using ArcticFoxEngine.Nodes;
 using ArcticFoxEngine.Demos.SceneTest;
 using ImGuiNET;
+using CoolClassLibrary;
 
 namespace ArcticFoxEngine.Demos.ChildTest {
 
@@ -89,10 +90,11 @@ namespace ArcticFoxEngine.Demos.ChildTest {
 			Enable();
 		}
 
-		public override void Debug() {
+		public override void GuiEvent() {
 			if (ImGui.Button("Recurse") == true) {
 				Recurse();
 			}
+			ImGui.Text("Enabled: " + enabled);
 		}
 
 		public void Recurse() {
@@ -103,6 +105,7 @@ namespace ArcticFoxEngine.Demos.ChildTest {
 			nextChildTestNode.GetChild(0).Disable();
 
 		}
+
 
 	}
 }

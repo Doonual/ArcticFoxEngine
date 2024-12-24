@@ -17,9 +17,9 @@ namespace ArcticFoxEngine.Rendering {
 
 			skyboxInfo = new SkyboxShader.SkyboxInfo() {
 				skyTopCol = new Vector3(111f / 255f, 180f / 255f, 235f / 255f),
-				skyBottomCol = new Vector3(246f / 255f, 236f / 255f, 194f / 255f),
-				groundTopCol = new Vector3(145 / 255f, 102f / 255f, 53f / 255f),
-				groundBottomCol = new Vector3(55f / 255f, 22f / 255f, 5f / 255f),
+				skyBottomCol = new Vector3(246f / 255f, 243f / 255f, 232f / 255f),
+				groundTopCol = new Vector3(116f / 255f, 98f / 255f, 81f / 255f),
+				groundBottomCol = new Vector3(55f / 255f, 40f / 255f, 32f / 255f),
 				sunStrength = -0.00002f,
 				horizonSharpness = -0.0034f,
 			};

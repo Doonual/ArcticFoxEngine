@@ -27,6 +27,7 @@
 		/// <returns>The mesh of the specified primitive</returns>
 		public static Mesh CreatePrimitive(Primitive primitive) {
 
+
 			Vertex[] vertexData = null;
 			int[] indexData = null;
 

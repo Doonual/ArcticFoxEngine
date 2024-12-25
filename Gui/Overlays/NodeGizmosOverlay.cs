@@ -39,8 +39,11 @@ namespace ArcticFoxEngine.Gui {
 				gizmoCamera = Node.rootNode.SearchNodeTreeDown<Camera>();
 			}
 
-			// Start draw Gizmos layout tree
-			DrawGizmoIconsInWorld(Node.rootNode, Vector2.zero, Vector2.zero, 0f, 0, MathF.PI * 2f, true, true);
+			if (gizmoCamera != null) {
+				// Start draw Gizmos layout tree
+				DrawGizmoIconsInWorld(Node.rootNode, Vector2.zero, Vector2.zero, 0f, 0, MathF.PI * 2f, true, true);
+			}
+			
 
 			
 

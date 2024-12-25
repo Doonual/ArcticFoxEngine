@@ -31,94 +31,6 @@
       "label": "Rendering"
     },
     {
-      "id": "8c54e6eb23a9d877",
-      "type": "text",
-      "text": "Fix matrix class",
-      "styleAttributes": {},
-      "x": 1260,
-      "y": -1040,
-      "width": 260,
-      "height": 60,
-      "color": "1"
-    },
-    {
-      "id": "f5ac31e9ca3d48df",
-      "type": "text",
-      "text": "Add dragging and dropping for objects in the GUI",
-      "styleAttributes": {},
-      "x": 1840,
-      "y": -920,
-      "width": 260,
-      "height": 100,
-      "color": "4"
-    },
-    {
-      "id": "10fa2f03d765097c",
-      "type": "text",
-      "text": "Remove the System.drawing and System.numerics types from ImGui",
-      "styleAttributes": {},
-      "x": 860,
-      "y": -1040,
-      "width": 380,
-      "height": 80,
-      "color": "1"
-    },
-    {
-      "id": "280746dc8f172315",
-      "type": "text",
-      "text": "Remove the SharpDX math objects",
-      "styleAttributes": {},
-      "x": 860,
-      "y": -940,
-      "width": 372,
-      "height": 60,
-      "color": "1"
-    },
-    {
-      "id": "70e9c609905ccf2d",
-      "type": "text",
-      "text": "Log window has really weird text wrapping",
-      "styleAttributes": {},
-      "x": 1840,
-      "y": -800,
-      "width": 260,
-      "height": 60,
-      "color": "2"
-    },
-    {
-      "id": "0b9c054f7909adec",
-      "type": "text",
-      "text": "Ideas",
-      "styleAttributes": {},
-      "x": 1880,
-      "y": -1400,
-      "width": 260,
-      "height": 60,
-      "color": "5"
-    },
-    {
-      "id": "f88d621361341929",
-      "type": "text",
-      "text": "New features",
-      "styleAttributes": {},
-      "x": 1520,
-      "y": -1400,
-      "width": 260,
-      "height": 60,
-      "color": "4"
-    },
-    {
-      "id": "87859b83a6b6e0c5",
-      "type": "text",
-      "text": "Fixes",
-      "styleAttributes": {},
-      "x": 1160,
-      "y": -1400,
-      "width": 260,
-      "height": 60,
-      "color": "1"
-    },
-    {
       "id": "67239c402f22e119",
       "type": "text",
       "text": "Tangent and binormal vectors are calculated in the geometry shader. Pre calculate this and package it with the vertex data instead",
@@ -152,6 +64,50 @@
       "color": "1"
     },
     {
+      "id": "8c54e6eb23a9d877",
+      "type": "text",
+      "text": "Fix matrix class",
+      "styleAttributes": {},
+      "x": 1260,
+      "y": -1040,
+      "width": 260,
+      "height": 60,
+      "color": "1"
+    },
+    {
+      "id": "10fa2f03d765097c",
+      "type": "text",
+      "text": "Remove the System.drawing and System.numerics types from ImGui",
+      "styleAttributes": {},
+      "x": 860,
+      "y": -1040,
+      "width": 380,
+      "height": 80,
+      "color": "1"
+    },
+    {
+      "id": "280746dc8f172315",
+      "type": "text",
+      "text": "Remove the SharpDX math objects",
+      "styleAttributes": {},
+      "x": 860,
+      "y": -940,
+      "width": 372,
+      "height": 60,
+      "color": "1"
+    },
+    {
+      "id": "87859b83a6b6e0c5",
+      "type": "text",
+      "text": "Fixes",
+      "styleAttributes": {},
+      "x": 1160,
+      "y": -1400,
+      "width": 260,
+      "height": 60,
+      "color": "1"
+    },
+    {
       "id": "5eb94d41f68efe86",
       "type": "text",
       "text": "Non urgent fixes",
@@ -161,6 +117,39 @@
       "width": 260,
       "height": 60,
       "color": "2"
+    },
+    {
+      "id": "f5ac31e9ca3d48df",
+      "type": "text",
+      "text": "Add dragging and dropping for objects in the GUI",
+      "styleAttributes": {},
+      "x": 1840,
+      "y": -920,
+      "width": 260,
+      "height": 100,
+      "color": "4"
+    },
+    {
+      "id": "70e9c609905ccf2d",
+      "type": "text",
+      "text": "Log window has really weird text wrapping",
+      "styleAttributes": {},
+      "x": 1840,
+      "y": -800,
+      "width": 260,
+      "height": 60,
+      "color": "2"
+    },
+    {
+      "id": "0b9c054f7909adec",
+      "type": "text",
+      "text": "Ideas",
+      "styleAttributes": {},
+      "x": 1880,
+      "y": -1400,
+      "width": 260,
+      "height": 60,
+      "color": "5"
     },
     {
       "id": "109e274aeba1b2d7",
@@ -180,6 +169,17 @@
       "styleAttributes": {},
       "x": 2120,
       "y": -880,
+      "width": 260,
+      "height": 60,
+      "color": "4"
+    },
+    {
+      "id": "f88d621361341929",
+      "type": "text",
+      "text": "New features",
+      "styleAttributes": {},
+      "x": 1520,
+      "y": -1400,
       "width": 260,
       "height": 60,
       "color": "4"

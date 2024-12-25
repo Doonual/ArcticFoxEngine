@@ -7,9 +7,18 @@
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<UseWindowsForms>true</UseWindowsForms>
 		<ImplicitUsings>enable</ImplicitUsings>
+		<Platforms>AnyCPU;x64;x86</Platforms>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+	  <NoWarn>1701;1702</NoWarn>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
+	  <NoWarn>1701;1702</NoWarn>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
 	  <NoWarn>1701;1702</NoWarn>
 	</PropertyGroup>
 
@@ -17,12 +26,20 @@
 	  <NoWarn>1701;1702</NoWarn>
 	</PropertyGroup>
 
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
+	  <NoWarn>1701;1702</NoWarn>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+	  <NoWarn>1701;1702</NoWarn>
+	</PropertyGroup>
+
 	<ItemGroup>
 		<None Remove=".gitignore" />
+		<None Remove="ImGui\build\net40\ImGui.NET.targets" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="ImGui.NET" Version="1.89.7.1" />
 		<PackageReference Include="SharpDX" Version="4.2.0" />
 		<PackageReference Include="SharpDX.D3DCompiler" Version="4.2.0" />
 		<PackageReference Include="SharpDX.Desktop" Version="4.2.0">
@@ -47,14 +64,48 @@
 	
 	
 	<ItemGroup>
-	  <Compile Remove=".Documentation\**" />
 	  <Compile Remove="ArcticFoxEngine Documentation\**" />
-	  <EmbeddedResource Remove=".Documentation\**" />
 	  <EmbeddedResource Remove="ArcticFoxEngine Documentation\**" />
-	  <None Remove=".Documentation\**" />
 	  <None Remove="ArcticFoxEngine Documentation\**" />
 	</ItemGroup>
-	
+
+
+	<!--ItemGroup>
+	  <Content Include="..\ImGui.NET-1.89.7.1\deps\cimgui\win-x64\cimgui.dll" Link="ImGui\cimgui.dll">
+	    <PackagePath>runtimes/win-x64/native</PackagePath>
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	    <Pack>true</Pack>
+	  </Content>
+	  <Content Include="ImGui\build\net40\ImGui.NET.targets">
+	    <PackagePath>build/net40/ImGui.NET.targets</PackagePath>
+	    <Pack>true</Pack>
+	  </Content>
+	</ItemGroup-->
+
+	<ItemGroup>
+
+		<Content Include="cimgui\win-x64\cimgui.dll" Condition=" '$(Platform)' == 'x64' ">
+			<PackagePath>runtimes/win-x64/native</PackagePath>
+			<Pack>true</Pack>
+			<Link>cimgui.dll</Link>
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+
+		<Content Include="cimgui\win-x86\cimgui.dll" Condition=" '$(Platform)' == 'x86' ">
+			<PackagePath>runtimes/win-x86/native</PackagePath>
+			<Pack>true</Pack>
+			<Link>cimgui.dll</Link>
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+
+		<Content Include="cimgui\win-arm64\cimgui.dll" Condition=" '$(Platform)' == 'ARM64' ">
+			<PackagePath>runtimes/win-arm64/native</PackagePath>
+			<Pack>true</Pack>
+			<Link>cimgui.dll</Link>
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+
+	</ItemGroup>
 	
 	<ItemGroup>
 	  <None Include=".res\icon.ico" />

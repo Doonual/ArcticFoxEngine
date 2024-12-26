@@ -1,9 +1,9 @@
 namespace ImGuiNET
 {
-    [System.Flags]
-    public enum ImGuiTableRowFlags
-    {
-        None = 0,
-        Headers = 1,
-    }
+	[System.Flags]
+	public enum ImGuiTableRowFlags
+	{
+		None = 0,
+		Headers = 1,
+	}
 }

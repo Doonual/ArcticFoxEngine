@@ -54,15 +54,14 @@ namespace ArcticFoxEngine.Nodes {
 
 		public override void GuiEvent() {
 
-			System.Numerics.Vector3 sunDirSys = lightingWorld.sunDir;
-			ImGui.DragFloat3("Sun direction", ref sunDirSys, 0.01f);
-			if (sunDirSys.X == float.NaN || sunDirSys.Y == float.NaN || sunDirSys.Z == float.NaN) {
-				sunDirSys = new System.Numerics.Vector3(1f, 0f, 0f);
-			}
-			lightingWorld.sunDir = sunDirSys;
-			lightingWorld.sunDir = lightingWorld.sunDir.Normalize();
-			ImGui.SliderFloat("Sun strength", ref lightingWorld.sunStrength, 0f, 1f);
 
+			ImGui.DragFloat3("Sun direction", ref lightingWorld.sunDir, 0.01f);
+			if (lightingWorld.sunDir.x == float.NaN || lightingWorld.sunDir.y == float.NaN || lightingWorld.sunDir.z == float.NaN) {
+				lightingWorld.sunDir = new Vector3(1f, 0f, 0f);
+			}
+			lightingWorld.sunDir = lightingWorld.sunDir.Normalize();
+
+			ImGui.SliderFloat("Sun strength", ref lightingWorld.sunStrength, 0f, 1f);
 			ImGui.SliderFloat("Ambient light", ref lightingWorld.ambientLight, 0f, 1f);
 
 		}

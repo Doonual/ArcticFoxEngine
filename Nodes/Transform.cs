@@ -123,23 +123,18 @@ namespace ArcticFoxEngine.Nodes {
 
 
 			// Transform options
-			System.Numerics.Vector3 systemPos = (System.Numerics.Vector3)localPosition;
-			System.Numerics.Vector4 systemRot = new System.Numerics.Vector4(localRotation.x, localRotation.y, localRotation.z, localRotation.w);
-			System.Numerics.Vector3 systemScale = (System.Numerics.Vector3)localScale;
+			Vector4 rotVec4 = new Vector4(localRotation.x, localRotation.y, localRotation.z, localRotation.w);
 
-			ImGuiExtras.ItemWidthForText("Rotation"); ImGui.DragFloat3("Position", ref systemPos, 0.01f);
-			ImGuiExtras.ItemWidthForText("Rotation"); ImGui.DragFloat4("Rotation", ref systemRot, 0.01f);
-			ImGuiExtras.ItemWidthForText("Rotation"); ImGui.DragFloat3("Scale", ref systemScale, 0.01f);
+			ImGuiExtras.ItemWidthForText("Rotation"); ImGui.DragFloat3("Position", ref localPosition, 0.01f);
+			ImGuiExtras.ItemWidthForText("Rotation"); ImGui.DragFloat4("Rotation", ref rotVec4, 0.01f);
+			ImGuiExtras.ItemWidthForText("Rotation"); ImGui.DragFloat3("Scale", ref localScale, 0.01f);
 
-			localPosition = new Vector3(systemPos);
-			localRotation = new Quaternion(systemRot.X, systemRot.Y, systemRot.Z, systemRot.W);
+			localRotation = new Quaternion(rotVec4.x, rotVec4.y, rotVec4.z, rotVec4.w);
 
 			ImGui.Checkbox("Normalise rotation", ref normaliseRotation);
 			if (normaliseRotation == true) {
 				localRotation.Normalize();
 			}
-
-			localScale = new Vector3(systemScale);
 
 			if (ImGui.Button("Reset") == true) {
 				Reset();

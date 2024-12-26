@@ -57,6 +57,7 @@ using System.Runtime.InteropServices;
 using SharpDX;
 using Newtonsoft.Json.Linq;
 
+
 namespace ArcticFoxEngine {
 	/// <summary>
 	/// Represents a 4x4 mathematical matrix.

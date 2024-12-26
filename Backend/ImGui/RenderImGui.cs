@@ -84,7 +84,7 @@ namespace ArcticFoxEngine.ImGuiIntegration {
 
 			ImDrawDataPtr data = ImGui.GetDrawData();
 			// Avoid rendering when minimized
-			if (data.DisplaySize.X <= 0.0f || data.DisplaySize.Y <= 0.0f) { return null; }
+			if (data.DisplaySize.x <= 0.0f || data.DisplaySize.y <= 0.0f) { return null; }
 			
 
 			#region Vertex buffer creation
@@ -145,10 +145,10 @@ namespace ArcticFoxEngine.ImGuiIntegration {
 			
 			// Setup orthographic projection matrix into our constant buffer
 			// Our visible imgui space lies from draw_data.DisplayPos (top left) to draw_data.DisplayPos+data_data.DisplaySize (bottom right). DisplayPos is (0,0) for single viewport apps.
-			float L = data.DisplayPos.X;
-			float R = data.DisplayPos.X + data.DisplaySize.X;
-			float T = data.DisplayPos.Y;
-			float B = data.DisplayPos.Y + data.DisplaySize.Y;
+			float L = data.DisplayPos.x;
+			float R = data.DisplayPos.x + data.DisplaySize.x;
+			float T = data.DisplayPos.y;
+			float B = data.DisplayPos.y + data.DisplaySize.y;
 			Matrix projMat = new Matrix(
 				2.0f / (R - L), 0.0f, 0.0f, 0.0f,
 				0.0f, 2.0f / (T - B), 0.0f, 0.0f,
@@ -190,7 +190,7 @@ namespace ArcticFoxEngine.ImGuiIntegration {
 
 			#region Rendering
 
-			SharpDX.ViewportF viewport = new SharpDX.ViewportF(0f, 0f, data.DisplaySize.X, data.DisplaySize.Y, 0f, 1f);
+			SharpDX.ViewportF viewport = new SharpDX.ViewportF(0f, 0f, data.DisplaySize.x, data.DisplaySize.y, 0f, 1f);
 			cmdList.SetViewport(viewport);
 
 			cmdList.SetGraphicsRootSignature(rootSignature);
@@ -219,7 +219,7 @@ namespace ArcticFoxEngine.ImGuiIntegration {
 					else {
 
 
-						cmdList.SetScissorRectangles(new SharpDX.Mathematics.Interop.RawRectangle((int)cmd.ClipRect.X, (int)cmd.ClipRect.Y, (int)cmd.ClipRect.Z, (int)cmd.ClipRect.W));
+						cmdList.SetScissorRectangles(new SharpDX.Mathematics.Interop.RawRectangle((int)cmd.ClipRect.x, (int)cmd.ClipRect.y, (int)cmd.ClipRect.z, (int)cmd.ClipRect.w));
 
 						if (textureResources.TryGetValue(cmd.GetTexID(), out var texture)) {
 							cmdList.SetGraphicsRootDescriptorTable(1, descriptorHeap.GPUDescriptorHandleForHeapStart + descHeapInc * texture.Item2);
@@ -250,7 +250,7 @@ namespace ArcticFoxEngine.ImGuiIntegration {
 
 
 		internal static void Resize(int width, int height) {
-			ImGui.GetIO().DisplaySize = new System.Numerics.Vector2(width, height);
+			ImGui.GetIO().DisplaySize = new Vector2(width, height);
 		}
 
 

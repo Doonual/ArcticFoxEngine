@@ -122,9 +122,9 @@ namespace ArcticFoxEngine.Gui {
 			ImGui.SameLine();
 			pauseOutput ^= ImGui.Checkbox("Pause output", ref pauseOutput);
 
-			ImGui.PushStyleColor(ImGuiCol.FrameBg, new System.Numerics.Vector4(0.16f, 0.16f, 0.16f, 0.54f));
+			ImGui.PushStyleColor(ImGuiCol.FrameBg, new Vector4(0.16f, 0.16f, 0.16f, 0.54f));
 			ImGui.PushStyleVar(ImGuiStyleVar.FrameBorderSize, 1f);
-			ImGui.BeginChildFrame((uint)"DebugLog messages child".GetHashCode(), new System.Numerics.Vector2(-1f, 200f));
+			ImGui.BeginChildFrame((uint)"DebugLog messages child".GetHashCode(), new Vector2(-1f, 200f));
 			ImGui.PopStyleColor();
 			ImGui.PopStyleVar();
 
@@ -144,7 +144,7 @@ namespace ArcticFoxEngine.Gui {
 					if (cols[n].Length >= 6) {
 						System.Drawing.Color? col = MathUtil.ParseColor(cols[n].Substring(0, 6));
 						if (col != null) {
-							ImGui.PushStyleColor(ImGuiCol.Text, new System.Numerics.Vector4(col.Value.R / 255f, col.Value.G / 255f, col.Value.B / 255f, 1f));
+							ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(col.Value.R / 255f, col.Value.G / 255f, col.Value.B / 255f, 1f));
 							pushedCol = true;
 						}
 
@@ -154,7 +154,7 @@ namespace ArcticFoxEngine.Gui {
 						if (pushedCol == true) {
 							ImGui.PopStyleColor();
 						}
-						ImGui.PushStyleVar(ImGuiStyleVar.ItemSpacing, new System.Numerics.Vector2(-1f, 0f));
+						ImGui.PushStyleVar(ImGuiStyleVar.ItemSpacing, new Vector2(-1f, 0f));
 						ImGui.SameLine();
 						ImGui.PopStyleVar();
 

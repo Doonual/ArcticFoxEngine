@@ -105,11 +105,11 @@ namespace ArcticFoxEngine.Nodes {
 
 			ImGui.TextWrapped("Renders the mesh to the scene geometry");
 
-			System.Numerics.Vector3 vec3 = new System.Numerics.Vector3(vertexColSet.x, vertexColSet.y, vertexColSet.z);
+			Vector3 vec3 = new Vector3(vertexColSet.x, vertexColSet.y, vertexColSet.z);
 
 			ImGuiExtras.ItemWidthForText("Vertex col");
 			if (ImGui.ColorEdit3("Vertex col", ref vec3, ImGuiColorEditFlags.NoInputs) == true) {
-				vertexColSet = new Vector4(vec3.X, vec3.Y, vec3.Z, 1f);
+				vertexColSet = new Vector4(vec3.x, vec3.y, vec3.z, 1f);
 				for (int i = 0; i < mesh.vertices.Length; i++) {
 					mesh.vertices[i].color = vertexColSet;
 				}

@@ -1,4 +1,4 @@
 ﻿namespace ImGuiNET
 {
-    public unsafe delegate void ImGuiSizeCallback(ImGuiSizeCallbackData* data);
+	public unsafe delegate void ImGuiSizeCallback(ImGuiSizeCallbackData* data);
 }

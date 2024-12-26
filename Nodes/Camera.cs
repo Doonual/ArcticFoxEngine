@@ -146,6 +146,18 @@ namespace ArcticFoxEngine.Nodes {
 				ImGui.SliderFloat("Zoom", ref zoom, 0.5f, 100f, null, ImGuiSliderFlags.Logarithmic);
 			}
 
+			ImGui.Text("Projection matrix");
+			Vector4 row;
+
+			row = projectionMatrix.Row0;
+			ImGui.InputFloat4("Row 0", ref row);
+			row = projectionMatrix.Row1;
+			ImGui.InputFloat4("Row 1", ref row);
+			row = projectionMatrix.Row2;
+			ImGui.InputFloat4("Row 2", ref row);
+			row = projectionMatrix.Row3;
+			ImGui.InputFloat4("Row 3", ref row);
+
 
 		}
 

@@ -72,13 +72,13 @@
 
 	<!--ItemGroup>
 	  <Content Include="..\ImGui.NET-1.89.7.1\deps\cimgui\win-x64\cimgui.dll" Link="ImGui\cimgui.dll">
-	    <PackagePath>runtimes/win-x64/native</PackagePath>
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	    <Pack>true</Pack>
+		<PackagePath>runtimes/win-x64/native</PackagePath>
+		<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		<Pack>true</Pack>
 	  </Content>
 	  <Content Include="ImGui\build\net40\ImGui.NET.targets">
-	    <PackagePath>build/net40/ImGui.NET.targets</PackagePath>
-	    <Pack>true</Pack>
+		<PackagePath>build/net40/ImGui.NET.targets</PackagePath>
+		<Pack>true</Pack>
 	  </Content>
 	</ItemGroup-->
 

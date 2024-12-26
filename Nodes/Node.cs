@@ -474,11 +474,11 @@ namespace ArcticFoxEngine.Nodes {
 			ImGui.TableNextRow();
 			ImGui.TableNextColumn();
 
-			float childLinesX = ImGui.GetCursorScreenPos().X + 9f;
+			float childLinesX = ImGui.GetCursorScreenPos().x + 9f;
 
 			bool prevGlobalEnabled = globalEnabled;
 
-			originalItemSpacing = ImGui.GetStyle().ItemSpacing.X;
+			originalItemSpacing = ImGui.GetStyle().ItemSpacing.x;
 			ImGui.PushStyleVar(ImGuiStyleVar.ItemSpacing, new Vector2(0f, -1f));
 
 			ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0.3f, 0.3f, 0.3f, 0.0f));
@@ -551,7 +551,7 @@ namespace ArcticFoxEngine.Nodes {
 			ImGui.PushID(GetHashCode() + " enabled check");
 
 			
-			ImGui.SetCursorPosX(ImGui.GetWindowContentRegionMax().X - checkboxWidth - ImGui.GetStyle().ChildBorderSize - originalItemSpacing);
+			ImGui.SetCursorPosX(ImGui.GetWindowContentRegionMax().x - checkboxWidth - ImGui.GetStyle().ChildBorderSize - originalItemSpacing);
 
 			ImGui.SetCursorPosY(cursorPosY + 1f);
 			if (ImGui.Checkbox("", ref enabledCheck) == true) {
@@ -562,7 +562,7 @@ namespace ArcticFoxEngine.Nodes {
 					Enable();
 				}
 			}
-			checkboxWidth = ImGui.GetItemRectSize().X;
+			checkboxWidth = ImGui.GetItemRectSize().x;
 			ImGui.SetCursorPosY(cursorPosY);
 			ImGui.PopID();
 
@@ -576,12 +576,12 @@ namespace ArcticFoxEngine.Nodes {
 			if (nodeOpen == true) {
 				ImGui.TreePush(name + " tree push");
 
-				float childLinesStartY = ImGui.GetCursorScreenPos().Y + 21f;
+				float childLinesStartY = ImGui.GetCursorScreenPos().y + 21f;
 				float indentSize = ImGui.GetStyle().IndentSpacing;
 
 				for (int i = 0; i < childNodes.Count; i++) {
 
-					float childLinesCurrentY = ImGui.GetCursorScreenPos().Y + 11f + 26f;
+					float childLinesCurrentY = ImGui.GetCursorScreenPos().y + 11f + 26f;
 					ImGui.GetWindowDrawList().AddLine(new Vector2(childLinesX, childLinesCurrentY), new Vector2(childLinesX + indentSize / 2f, childLinesCurrentY), ImGui.ColorConvertFloat4ToU32(new Vector4(0.5f, 0.5f, 0.5f, 1f)));
 
 					ImGui.PushID(childNodes[i].GetHashCode() + " draw node tree");
@@ -593,7 +593,7 @@ namespace ArcticFoxEngine.Nodes {
 
 				}
 
-				float childLinesEndY = ImGui.GetCursorScreenPos().Y + 11f;
+				float childLinesEndY = ImGui.GetCursorScreenPos().y + 11f;
 
 				ImGui.GetWindowDrawList().AddLine(new Vector2(childLinesX, childLinesStartY), new Vector2(childLinesX, childLinesEndY), ImGui.ColorConvertFloat4ToU32(new Vector4(0.5f, 0.5f, 0.5f, 1f)));
 

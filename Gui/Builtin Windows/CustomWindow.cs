@@ -1,6 +1,7 @@
 ﻿using ArcticFoxEngine.Gui;
 using CoolClassLibrary;
 using ImGuiNET;
+using ArcticFoxEngine;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,7 +24,7 @@ namespace ArcticFoxEngine.Gui.Builtin_Windows {
 
 			renderFunc();
 
-			float currentWindowHeight = ImGui.GetCursorPosY() + ImGui.GetStyle().WindowPadding.Y;
+			float currentWindowHeight = ImGui.GetCursorPosY() + ImGui.GetStyle().WindowPadding.y;
 			SetSize(new Vector2(defaultWidth, currentWindowHeight));
 		}
 
@@ -31,7 +32,7 @@ namespace ArcticFoxEngine.Gui.Builtin_Windows {
 
 			windowName = name;
 			this.renderFunc = renderFunc;
-			SetPosition(ImGui.GetMousePos() - new System.Numerics.Vector2(defaultWidth / 2f, 0f));
+			SetPosition(ImGui.GetMousePos() - new Vector2(defaultWidth / 2f, 0f));
 
 		}
 		

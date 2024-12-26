@@ -131,7 +131,7 @@ namespace ArcticFoxEngine.Gui {
 				Vector2 windowPosOffset = (Vector2)ImGui.GetWindowPos();
 
 
-				float buttonHeight = ImGui.GetCursorScreenPos().Y;
+				float buttonHeight = ImGui.GetCursorScreenPos().y;
 				ImGui.ColorButton(name + " metric", (Vector4)col, ImGuiColorEditFlags.NoTooltip, buttonSize);
 
 
@@ -239,7 +239,7 @@ namespace ArcticFoxEngine.Gui {
 					}
 
 					ImGui.TableNextColumn();
-					ImGui.ColorButton(metric.name + " table col button", (Vector4)metric.col, ImGuiColorEditFlags.None, (Vector2)ImGui.CalcTextSize("Colour") - Vector2.right * ImGui.GetStyle().FramePadding.X * 1f);
+					ImGui.ColorButton(metric.name + " table col button", (Vector4)metric.col, ImGuiColorEditFlags.None, (Vector2)ImGui.CalcTextSize("Colour") - Vector2.right * ImGui.GetStyle().FramePadding.x * 1f);
 					ImGui.TableNextColumn();
 					ImGui.Text((metric.endMs[viewSample] - metric.startMs[viewSample]).ToString("F3") + " ms");
 					ImGui.TableNextColumn();
@@ -386,22 +386,22 @@ namespace ArcticFoxEngine.Gui {
 				ImGui.TableNextColumn();
 
 				ImGui.Text(msMaxView.ToString("F") + " ms");
-				ImGui.TableSetBgColor(ImGuiTableBgTarget.CellBg, ImGui.ColorConvertFloat4ToU32(new System.Numerics.Vector4(0.8f, 0, 0, 0.25f)));
+				ImGui.TableSetBgColor(ImGuiTableBgTarget.CellBg, ImGui.ColorConvertFloat4ToU32(new Vector4(0.8f, 0, 0, 0.25f)));
 				ImGui.TableNextColumn();
 				ImGui.Text(lastFrameTime.ToString("F") + " ms");
 				ImGui.TableNextColumn();
 				ImGui.Text(msMinView.ToString("F") + " ms");
-				ImGui.TableSetBgColor(ImGuiTableBgTarget.CellBg, ImGui.ColorConvertFloat4ToU32(new System.Numerics.Vector4(0f, 0.8f, 0, 0.25f)));
+				ImGui.TableSetBgColor(ImGuiTableBgTarget.CellBg, ImGui.ColorConvertFloat4ToU32(new Vector4(0f, 0.8f, 0, 0.25f)));
 
 				ImGui.TableNextRow();
 				ImGui.TableNextColumn();
 				ImGui.Text((1000.0 / msMaxView).ToString("F") + " fps");
-				ImGui.TableSetBgColor(ImGuiTableBgTarget.CellBg, ImGui.ColorConvertFloat4ToU32(new System.Numerics.Vector4(0.8f, 0, 0, 0.25f)));
+				ImGui.TableSetBgColor(ImGuiTableBgTarget.CellBg, ImGui.ColorConvertFloat4ToU32(new Vector4(0.8f, 0, 0, 0.25f)));
 				ImGui.TableNextColumn();
 				ImGui.Text((1000.0 / lastFrameTime).ToString("F") + " fps");
 				ImGui.TableNextColumn();
 				ImGui.Text((1000.0 / msMinView).ToString("F") + " fps");
-				ImGui.TableSetBgColor(ImGuiTableBgTarget.CellBg, ImGui.ColorConvertFloat4ToU32(new System.Numerics.Vector4(0f, 0.8f, 0, 0.25f)));
+				ImGui.TableSetBgColor(ImGuiTableBgTarget.CellBg, ImGui.ColorConvertFloat4ToU32(new Vector4(0f, 0.8f, 0, 0.25f)));
 
 				ImGui.EndTable();
 
@@ -441,10 +441,10 @@ namespace ArcticFoxEngine.Gui {
 			histStartScreen = ImGui.GetCursorScreenPos();
 			histStartScreen += (Vector2)ImGui.GetStyle().FramePadding;
 
-			System.Numerics.Vector2 histCurStart = ImGui.GetCursorPos();
+			Vector2 histCurStart = ImGui.GetCursorPos();
 			int histWidth = (int)ImGui.GetCursorPosX();
 
-			ImGui.PushStyleColor(ImGuiCol.FrameBg, new System.Numerics.Vector4(0.2f, 0.2f, 0.2f, 138f / 255f));
+			ImGui.PushStyleColor(ImGuiCol.FrameBg, new Vector4(0.2f, 0.2f, 0.2f, 138f / 255f));
 			float dummyPlot = 0f;
 			ImGui.SetCursorPos(histCurStart);
 
@@ -453,8 +453,8 @@ namespace ArcticFoxEngine.Gui {
 			ImGui.PopStyleColor();
 
 			ImGui.SameLine();
-			histWidth = (int)(ImGui.GetCursorPosX() - histWidth - ImGui.GetStyle().FramePadding.X * 2 - ImGui.GetStyle().ItemSpacing.X);
-			histEndScreen = histStartScreen + new Vector2(histWidth, 150 - ImGui.GetStyle().FramePadding.Y * 2);
+			histWidth = (int)(ImGui.GetCursorPosX() - histWidth - ImGui.GetStyle().FramePadding.x * 2 - ImGui.GetStyle().ItemSpacing.x);
+			histEndScreen = histStartScreen + new Vector2(histWidth, 150 - ImGui.GetStyle().FramePadding.y * 2);
 			numElements = Math.Max(1, histWidth);
 
 			metric.DrawMetricHist(numElements, histStartScreen, histEndScreen, plotMaxMs, drawHistogramColour);
@@ -465,7 +465,7 @@ namespace ArcticFoxEngine.Gui {
 			}
 			
 
-			if (ImGui.GetMousePos().X > histStartScreen.x && ImGui.GetMousePos().X < histEndScreen.x && ImGui.GetMousePos().Y > histStartScreen.y && ImGui.GetMousePos().Y < histEndScreen.y) {
+			if (ImGui.GetMousePos().x > histStartScreen.x && ImGui.GetMousePos().x < histEndScreen.x && ImGui.GetMousePos().y > histStartScreen.y && ImGui.GetMousePos().y < histEndScreen.y) {
 				plotMaxMs *= MathF.Exp(ImGui.GetIO().MouseWheel * -0.2f);
 				plotMaxMs = MathF.Min(MathF.Max(0.01f, plotMaxMs), 80f);
 			}
@@ -486,12 +486,12 @@ namespace ArcticFoxEngine.Gui {
 
 
 
-				Vector2 msTextAlignment = new Vector2(-ImGui.CalcTextSize(msReadout).X, -ImGui.CalcTextSize(msReadout).Y / 2f);
-				Vector2 fpsTextAlignment = new Vector2(0f, -ImGui.CalcTextSize(fpsReadout).Y / 2f);
+				Vector2 msTextAlignment = new Vector2(-ImGui.CalcTextSize(msReadout).x, -ImGui.CalcTextSize(msReadout).y / 2f);
+				Vector2 fpsTextAlignment = new Vector2(0f, -ImGui.CalcTextSize(fpsReadout).y / 2f);
 
 				float msReadoutAlpha = 0.4f;
 
-				ImGui.GetWindowDrawList().AddLine(new Vector2(histStartScreen.x + ImGui.CalcTextSize(fpsReadout).X + 5, height), new Vector2(histEndScreen.x - ImGui.CalcTextSize(msReadout).X - 5, height), ImGui.ColorConvertFloat4ToU32(new Vector4(1f, 1f, 1f, msReadoutAlpha)));
+				ImGui.GetWindowDrawList().AddLine(new Vector2(histStartScreen.x + ImGui.CalcTextSize(fpsReadout).x + 5, height), new Vector2(histEndScreen.x - ImGui.CalcTextSize(msReadout).x - 5, height), ImGui.ColorConvertFloat4ToU32(new Vector4(1f, 1f, 1f, msReadoutAlpha)));
 				ImGui.GetWindowDrawList().AddText(new Vector2(histEndScreen.x, height) + msTextAlignment, ImGui.ColorConvertFloat4ToU32(new Vector4(1f, 1f, 1f, msReadoutAlpha)), msReadout);
 				ImGui.GetWindowDrawList().AddText(new Vector2(histStartScreen.x, height) + fpsTextAlignment, ImGui.ColorConvertFloat4ToU32(new Vector4(1f, 1f, 1f, msReadoutAlpha)), fpsReadout);
 
@@ -510,7 +510,7 @@ namespace ArcticFoxEngine.Gui {
 
 			ImGui.NewLine();
 
-			ImGui.PushStyleColor(ImGuiCol.FrameBg, new System.Numerics.Vector4(0.2f, 0.2f, 0.2f, 138f / 255f));
+			ImGui.PushStyleColor(ImGuiCol.FrameBg, new Vector4(0.2f, 0.2f, 0.2f, 138f / 255f));
 			ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, new Vector2(0f, 0f));
 			ImGui.BeginChildFrame((uint)"metric recursive child".GetHashCode(), new Vector2(-1f, recursiveTimeViewHeight));
 

@@ -26,7 +26,7 @@ namespace ArcticFoxEngine {
 
 		}
 		public static void ItemWidthForText(string text) {
-			ImGui.SetNextItemWidth(-(ImGui.CalcTextSize(text).X + ImGui.GetStyle().ItemInnerSpacing.X));
+			ImGui.SetNextItemWidth(-(ImGui.CalcTextSize(text).x + ImGui.GetStyle().ItemInnerSpacing.x));
 		}
 
 	}

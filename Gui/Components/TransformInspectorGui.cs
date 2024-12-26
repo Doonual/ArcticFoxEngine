@@ -92,7 +92,7 @@ namespace ArcticFoxEngine.Gui.Builtin_Windows {
 			
 			if (skipMenuBar == false) {
 				// Update the height of this window for next frame
-				transformGuiTotalHeight = ImGui.GetCursorPosY() + ImGui.GetStyle().WindowPadding.Y;
+				transformGuiTotalHeight = ImGui.GetCursorPosY() + ImGui.GetStyle().WindowPadding.y;
 				ImGui.EndChild();
 			}
 			

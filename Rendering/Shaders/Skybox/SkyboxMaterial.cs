@@ -37,26 +37,16 @@ namespace ArcticFoxEngine.Rendering {
 
 			bool changed = false;
 
-			System.Numerics.Vector3 systemSkyTopCol = skyboxInfo.skyTopCol;
-			System.Numerics.Vector3 systemSkyBottomCol = skyboxInfo.skyBottomCol;
-			System.Numerics.Vector3 systemGroundTopCol = skyboxInfo.groundTopCol;
-			System.Numerics.Vector3 systemGroundBottomCol = skyboxInfo.groundBottomCol;
+			changed |= ImGui.ColorEdit3("Sky top col", ref skyboxInfo.skyTopCol);
+			changed |= ImGui.ColorEdit3("Sky bottom col", ref skyboxInfo.skyBottomCol);
 
-			changed |= ImGui.ColorEdit3("Sky top col", ref systemSkyTopCol);
-			changed |= ImGui.ColorEdit3("Sky bottom col", ref systemSkyBottomCol);
-
-			changed |= ImGui.ColorEdit3("Ground top col", ref systemGroundTopCol);
-			changed |= ImGui.ColorEdit3("Ground bottom col", ref systemGroundBottomCol);
+			changed |= ImGui.ColorEdit3("Ground top col", ref skyboxInfo.groundTopCol);
+			changed |= ImGui.ColorEdit3("Ground bottom col", ref skyboxInfo.groundBottomCol);
 
 			changed |= ImGui.SliderFloat("Sun strength", ref skyboxInfo.sunStrength, -0.001f, 0f, "%.6f");
 			changed |= ImGui.SliderFloat("Horizon sharpness", ref skyboxInfo.horizonSharpness, -0.1f, 0f, "%.4f");
 
-			
-			skyboxInfo.skyTopCol = systemSkyTopCol;
-			skyboxInfo.skyBottomCol = systemSkyBottomCol;
-			skyboxInfo.groundTopCol = systemGroundTopCol;
-			skyboxInfo.groundBottomCol = systemGroundBottomCol;
-
+		
 			if (changed == true) {
 				skyboxInfoBuffer.Write(skyboxInfo, 0);
 			}

@@ -111,12 +111,12 @@ namespace ArcticFoxEngine {
 		/// Initializes a new instance of the <see cref="Quaternion"/> struct.
 		/// </summary>
 		/// <param name="value">A vector containing the values with which to initialize the components.</param>
-		public Quaternion(SharpDX.Vector4 value)
+		public Quaternion(Vector4 value)
 		{
-			x = value.X;
-			y = value.Y;
-			z = value.Z;
-			w = value.W;
+			x = value.x;
+			y = value.y;
+			z = value.z;
+			w = value.w;
 		}
 
 		/// <summary>
@@ -124,11 +124,11 @@ namespace ArcticFoxEngine {
 		/// </summary>
 		/// <param name="value">A vector containing the values with which to initialize the X, Y, and Z components.</param>
 		/// <param name="w">Initial value for the W component of the quaternion.</param>
-		public Quaternion(SharpDX.Vector3 value, float w)
+		public Quaternion(Vector3 value, float w)
 		{
-			x = value.X;
-			y = value.Y;
-			z = value.Z;
+			x = value.x;
+			y = value.y;
+			z = value.z;
 			this.w = w;
 		}
 
@@ -138,10 +138,10 @@ namespace ArcticFoxEngine {
 		/// <param name="value">A vector containing the values with which to initialize the X and Y components.</param>
 		/// <param name="z">Initial value for the Z component of the quaternion.</param>
 		/// <param name="w">Initial value for the W component of the quaternion.</param>
-		public Quaternion(SharpDX.Vector2 value, float z, float w)
+		public Quaternion(Vector2 value, float z, float w)
 		{
-			x = value.X;
-			y = value.Y;
+			x = value.x;
+			y = value.y;
 			this.z = z;
 			this.w = w;
 		}
@@ -219,16 +219,16 @@ namespace ArcticFoxEngine {
 		/// Gets the axis components of the quaternion.
 		/// </summary>
 		/// <value>The axis components of the quaternion.</value>
-		public SharpDX.Vector3 Axis
+		public Vector3 Axis
 		{
 			get
 			{
 				float length = x * x + y * y + z * z;
 				if (MathUtil.IsZero(length))
-					return SharpDX.Vector3.UnitX;
+					return new Vector3(1f, 0f, 0f);
 
 				float inv = 1.0f / (float)Math.Sqrt(length);
-				return new SharpDX.Vector3(x * inv, y * inv, z * inv);
+				return new Vector3(x * inv, y * inv, z * inv);
 			}
 		}
 
@@ -756,18 +756,21 @@ namespace ArcticFoxEngine {
 		/// <param name="axis">The axis of rotation.</param>
 		/// <param name="angle">The angle of rotation.</param>
 		/// <param name="result">When the method completes, contains the newly created quaternion.</param>
-		public static void RotationAxis(ref SharpDX.Vector3 axis, float angle, out Quaternion result)
+		public static void RotationAxis(ref Vector3 axis, float angle, out Quaternion result)
 		{
-			SharpDX.Vector3 normalized;
-			SharpDX.Vector3.Normalize(ref axis, out normalized);
+			if (axis.SqrLength() < float.Epsilon) {
+				result = Quaternion.Identity;
+				return;
+			}
+			Vector3 normalized = axis.Normalize();
 
 			float half = angle * 0.5f;
 			float sin = (float)Math.Sin(half);
 			float cos = (float)Math.Cos(half);
 
-			result.x = normalized.X * sin;
-			result.y = normalized.Y * sin;
-			result.z = normalized.Z * sin;
+			result.x = normalized.x * sin;
+			result.y = normalized.y * sin;
+			result.z = normalized.z * sin;
 			result.w = cos;
 		}
 
@@ -777,7 +780,7 @@ namespace ArcticFoxEngine {
 		/// <param name="axis">The axis of rotation.</param>
 		/// <param name="angle">The angle of rotation.</param>
 		/// <returns>The newly created quaternion.</returns>
-		public static Quaternion RotationAxis(SharpDX.Vector3 axis, float angle)
+		public static Quaternion RotationAxis(Vector3 axis, float angle)
 		{
 			Quaternion result;
 			RotationAxis(ref axis, angle, out result);
@@ -844,6 +847,7 @@ namespace ArcticFoxEngine {
 		/// <param name="result">When the method completes, contains the newly created quaternion.</param>
 		public static void RotationMatrix(ref Matrix3x3 matrix, out Quaternion result)
 		{
+
 			float sqrt;
 			float half;
 			float scale = matrix.M11 + matrix.M22 + matrix.M33;
@@ -897,7 +901,7 @@ namespace ArcticFoxEngine {
 		/// <param name="target">The camera look-at target.</param>
 		/// <param name="up">The camera's up vector.</param>
 		/// <param name="result">When the method completes, contains the created look-at quaternion.</param>
-		public static void LookAtLH(ref SharpDX.Vector3 eye, ref SharpDX.Vector3 target, ref SharpDX.Vector3 up, out Quaternion result)
+		public static void LookAtLH(ref Vector3 eye, ref Vector3 target, ref Vector3 up, out Quaternion result)
 		{
 			Matrix3x3 matrix;
 			Matrix3x3.LookAtLH(ref eye, ref target, ref up, out matrix);
@@ -911,7 +915,7 @@ namespace ArcticFoxEngine {
 		/// <param name="target">The camera look-at target.</param>
 		/// <param name="up">The camera's up vector.</param>
 		/// <returns>The created look-at quaternion.</returns>
-		public static Quaternion LookAtLH(SharpDX.Vector3 eye, SharpDX.Vector3 target, SharpDX.Vector3 up)
+		public static Quaternion LookAtLH(Vector3 eye, Vector3 target, Vector3 up)
 		{
 			Quaternion result;
 			LookAtLH(ref eye, ref target, ref up, out result);
@@ -924,9 +928,9 @@ namespace ArcticFoxEngine {
 		/// <param name="forward">The camera's forward direction.</param>
 		/// <param name="up">The camera's up vector.</param>
 		/// <param name="result">When the method completes, contains the created look-at quaternion.</param>
-		public static void RotationLookAtLH(ref SharpDX.Vector3 forward, ref SharpDX.Vector3 up, out Quaternion result)
+		public static void RotationLookAtLH(ref Vector3 forward, ref Vector3 up, out Quaternion result)
 		{
-			SharpDX.Vector3 eye = SharpDX.Vector3.Zero;
+			Vector3 eye = Vector3.Zero;
 			LookAtLH(ref eye, ref forward, ref up, out result);
 		}
 
@@ -936,7 +940,7 @@ namespace ArcticFoxEngine {
 		/// <param name="forward">The camera's forward direction.</param>
 		/// <param name="up">The camera's up vector.</param>
 		/// <returns>The created look-at quaternion.</returns>
-		public static Quaternion RotationLookAtLH(SharpDX.Vector3 forward, SharpDX.Vector3 up)
+		public static Quaternion RotationLookAtLH(Vector3 forward, Vector3 up)
 		{
 			Quaternion result;
 			RotationLookAtLH(ref forward, ref up, out result);
@@ -950,7 +954,7 @@ namespace ArcticFoxEngine {
 		/// <param name="target">The camera look-at target.</param>
 		/// <param name="up">The camera's up vector.</param>
 		/// <param name="result">When the method completes, contains the created look-at quaternion.</param>
-		public static void LookAtRH(ref SharpDX.Vector3 eye, ref SharpDX.Vector3 target, ref SharpDX.Vector3 up, out Quaternion result)
+		public static void LookAtRH(ref Vector3 eye, ref Vector3 target, ref Vector3 up, out Quaternion result)
 		{
 			Matrix3x3 matrix;
 			Matrix3x3.LookAtRH(ref eye, ref target, ref up, out matrix);
@@ -964,7 +968,7 @@ namespace ArcticFoxEngine {
 		/// <param name="target">The camera look-at target.</param>
 		/// <param name="up">The camera's up vector.</param>
 		/// <returns>The created look-at quaternion.</returns>
-		public static Quaternion LookAtRH(SharpDX.Vector3 eye, SharpDX.Vector3 target, SharpDX.Vector3 up)
+		public static Quaternion LookAtRH(Vector3 eye, Vector3 target, Vector3 up)
 		{
 			Quaternion result;
 			LookAtRH(ref eye, ref target, ref up, out result);
@@ -977,9 +981,9 @@ namespace ArcticFoxEngine {
 		/// <param name="forward">The camera's forward direction.</param>
 		/// <param name="up">The camera's up vector.</param>
 		/// <param name="result">When the method completes, contains the created look-at quaternion.</param>
-		public static void RotationLookAtRH(ref SharpDX.Vector3 forward, ref SharpDX.Vector3 up, out Quaternion result)
+		public static void RotationLookAtRH(ref Vector3 forward, ref Vector3 up, out Quaternion result)
 		{
-			SharpDX.Vector3 eye = SharpDX.Vector3.Zero;
+			Vector3 eye = Vector3.Zero;
 			LookAtRH(ref eye, ref forward, ref up, out result);
 		}
 
@@ -989,7 +993,7 @@ namespace ArcticFoxEngine {
 		/// <param name="forward">The camera's forward direction.</param>
 		/// <param name="up">The camera's up vector.</param>
 		/// <returns>The created look-at quaternion.</returns>
-		public static Quaternion RotationLookAtRH(SharpDX.Vector3 forward, SharpDX.Vector3 up)
+		public static Quaternion RotationLookAtRH(Vector3 forward, Vector3 up)
 		{
 			Quaternion result;
 			RotationLookAtRH(ref forward, ref up, out result);
@@ -1001,10 +1005,10 @@ namespace ArcticFoxEngine {
 		/// </summary>
 		/// <param name="objectPosition">The position of the object around which the billboard will rotate.</param>
 		/// <param name="cameraPosition">The position of the camera.</param>
-		/// <param name="cameraUpSharpDX.Vector">The up vector of the camera.</param>
-		/// <param name="cameraForwardSharpDX.Vector">The forward vector of the camera.</param>
+		/// <param name="cameraUpVector">The up vector of the camera.</param>
+		/// <param name="cameraForwardVector">The forward vector of the camera.</param>
 		/// <param name="result">When the method completes, contains the created billboard quaternion.</param>
-		public static void BillboardLH(ref SharpDX.Vector3 objectPosition, ref SharpDX.Vector3 cameraPosition, ref SharpDX.Vector3 cameraUpVector, ref SharpDX.Vector3 cameraForwardVector, out Quaternion result)
+		public static void BillboardLH(ref Vector3 objectPosition, ref Vector3 cameraPosition, ref Vector3 cameraUpVector, ref Vector3 cameraForwardVector, out Quaternion result)
 		{
 			Matrix3x3 matrix;
 			Matrix3x3.BillboardLH(ref objectPosition, ref cameraPosition, ref cameraUpVector, ref cameraForwardVector, out matrix);
@@ -1019,7 +1023,7 @@ namespace ArcticFoxEngine {
 		/// <param name="cameraUp">The up vector of the camera.</param>
 		/// <param name="cameraForward">The forward vector of the camera.</param>
 		/// <returns>The created billboard quaternion.</returns>
-		public static Quaternion BillboardLH(SharpDX.Vector3 objectPosition, SharpDX.Vector3 cameraPosition, SharpDX.Vector3 cameraUp, SharpDX.Vector3 cameraForward)
+		public static Quaternion BillboardLH(Vector3 objectPosition, Vector3 cameraPosition, Vector3 cameraUp, Vector3 cameraForward)
 		{
 			Quaternion result;
 			BillboardLH(ref objectPosition, ref cameraPosition, ref cameraUp, ref cameraForward, out result);
@@ -1034,7 +1038,7 @@ namespace ArcticFoxEngine {
 		/// <param name="cameraUp">The up vector of the camera.</param>
 		/// <param name="cameraForward">The forward vector of the camera.</param>
 		/// <param name="result">When the method completes, contains the created billboard quaternion.</param>
-		public static void BillboardRH(ref SharpDX.Vector3 objectPosition, ref SharpDX.Vector3 cameraPosition, ref SharpDX.Vector3 cameraUp, ref SharpDX.Vector3 cameraForward, out Quaternion result)
+		public static void BillboardRH(ref Vector3 objectPosition, ref Vector3 cameraPosition, ref Vector3 cameraUp, ref Vector3 cameraForward, out Quaternion result)
 		{
 			Matrix3x3 matrix;
 			Matrix3x3.BillboardRH(ref objectPosition, ref cameraPosition, ref cameraUp, ref cameraForward, out matrix);
@@ -1049,7 +1053,7 @@ namespace ArcticFoxEngine {
 		/// <param name="cameraUp">The up vector of the camera.</param>
 		/// <param name="cameraForward">The forward vector of the camera.</param>
 		/// <returns>The created billboard quaternion.</returns>
-		public static Quaternion BillboardRH(SharpDX.Vector3 objectPosition, SharpDX.Vector3 cameraPosition, SharpDX.Vector3 cameraUp, SharpDX.Vector3 cameraForward)
+		public static Quaternion BillboardRH(Vector3 objectPosition, Vector3 cameraPosition, Vector3 cameraUp, Vector3 cameraForward)
 		{
 			Quaternion result;
 			BillboardRH(ref objectPosition, ref cameraPosition, ref cameraUp, ref cameraForward, out result);
@@ -1432,10 +1436,6 @@ namespace ArcticFoxEngine {
 			return Equals(ref strongValue);
 		}
 
-		public static implicit operator SharpDX.Quaternion(Quaternion q)
-		{
-			return new SharpDX.Quaternion(q.x, q.y, q.z, q.w);
-		}
 
 	}
 }

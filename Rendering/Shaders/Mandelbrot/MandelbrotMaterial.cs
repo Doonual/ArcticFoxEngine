@@ -27,9 +27,8 @@ namespace ArcticFoxEngine.Rendering {
 
 		public override void Debug() {
 
-			System.Numerics.Vector2 viewportInfoSys = viewportInfo.viewCenter;
-			ImGui.DragFloat2("View center", ref viewportInfoSys, viewportInfo.zoom * 0.001f, -2f, 2f, null, ImGuiSliderFlags.NoRoundToFormat);
-			viewportInfo.viewCenter = viewportInfoSys;
+
+			ImGui.DragFloat2("View center", ref viewportInfo.viewCenter, viewportInfo.zoom * 0.001f, -2f, 2f, null, ImGuiSliderFlags.NoRoundToFormat);
 
 
 			ImGui.DragFloat("Zoom", ref viewportInfo.zoom, viewportInfo.zoom * 0.001f, 0.00000001f, 3f, null, ImGuiSliderFlags.NoRoundToFormat);

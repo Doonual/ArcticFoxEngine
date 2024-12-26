@@ -1,16 +1,6 @@
 {
   "nodes": [
     {
-      "id": "c7cf5d277c3f5bd7",
-      "type": "group",
-      "styleAttributes": {},
-      "x": 840,
-      "y": -1060,
-      "width": 900,
-      "height": 440,
-      "label": "Math"
-    },
-    {
       "id": "2da9457e978f2573",
       "type": "group",
       "styleAttributes": {},
@@ -31,28 +21,6 @@
       "label": "Rendering"
     },
     {
-      "id": "67239c402f22e119",
-      "type": "text",
-      "text": "Tangent and binormal vectors are calculated in the geometry shader. Pre calculate this and package it with the vertex data instead",
-      "styleAttributes": {},
-      "x": 260,
-      "y": -940,
-      "width": 440,
-      "height": 100,
-      "color": "5"
-    },
-    {
-      "id": "16b54cd7a272ac57",
-      "type": "text",
-      "text": "Compute Shaders",
-      "styleAttributes": {},
-      "x": 260,
-      "y": -1020,
-      "width": 220,
-      "height": 60,
-      "color": "4"
-    },
-    {
       "id": "4050d912325f2de2",
       "type": "text",
       "text": "Make it more clear which functions should only be called by the engine",
@@ -61,61 +29,6 @@
       "y": -1050,
       "width": 260,
       "height": 120,
-      "color": "1"
-    },
-    {
-      "id": "8c54e6eb23a9d877",
-      "type": "text",
-      "text": "Fix matrix class",
-      "styleAttributes": {},
-      "x": 1260,
-      "y": -1040,
-      "width": 260,
-      "height": 60,
-      "color": "1"
-    },
-    {
-      "id": "10fa2f03d765097c",
-      "type": "text",
-      "text": "Remove the System.drawing and System.numerics types from ImGui",
-      "styleAttributes": {},
-      "x": 860,
-      "y": -1040,
-      "width": 380,
-      "height": 80,
-      "color": "1"
-    },
-    {
-      "id": "280746dc8f172315",
-      "type": "text",
-      "text": "Remove the SharpDX math objects",
-      "styleAttributes": {},
-      "x": 860,
-      "y": -940,
-      "width": 372,
-      "height": 60,
-      "color": "1"
-    },
-    {
-      "id": "87859b83a6b6e0c5",
-      "type": "text",
-      "text": "Fixes",
-      "styleAttributes": {},
-      "x": 1160,
-      "y": -1400,
-      "width": 260,
-      "height": 60,
-      "color": "1"
-    },
-    {
-      "id": "5eb94d41f68efe86",
-      "type": "text",
-      "text": "Non urgent fixes",
-      "styleAttributes": {},
-      "x": 1340,
-      "y": -1480,
-      "width": 260,
-      "height": 60,
       "color": "2"
     },
     {
@@ -136,6 +49,50 @@
       "styleAttributes": {},
       "x": 1840,
       "y": -800,
+      "width": 260,
+      "height": 60,
+      "color": "2"
+    },
+    {
+      "id": "8c54e6eb23a9d877",
+      "type": "text",
+      "text": "Fix matrix class",
+      "styleAttributes": {},
+      "x": 1260,
+      "y": -1040,
+      "width": 260,
+      "height": 60,
+      "color": "1"
+    },
+    {
+      "id": "87859b83a6b6e0c5",
+      "type": "text",
+      "text": "Fixes",
+      "styleAttributes": {},
+      "x": 1160,
+      "y": -1400,
+      "width": 260,
+      "height": 60,
+      "color": "1"
+    },
+    {
+      "id": "f88d621361341929",
+      "type": "text",
+      "text": "New features",
+      "styleAttributes": {},
+      "x": 1520,
+      "y": -1400,
+      "width": 260,
+      "height": 60,
+      "color": "4"
+    },
+    {
+      "id": "5eb94d41f68efe86",
+      "type": "text",
+      "text": "Non urgent fixes",
+      "styleAttributes": {},
+      "x": 1340,
+      "y": -1480,
       "width": 260,
       "height": 60,
       "color": "2"
@@ -174,17 +131,6 @@
       "color": "4"
     },
     {
-      "id": "f88d621361341929",
-      "type": "text",
-      "text": "New features",
-      "styleAttributes": {},
-      "x": 1520,
-      "y": -1400,
-      "width": 260,
-      "height": 60,
-      "color": "4"
-    },
-    {
       "id": "629ce94655d9904c",
       "type": "text",
       "text": "Node tree open states are stored in the node, make a new class for drawing the node tree, not in the node itself",
@@ -205,6 +151,28 @@
       "width": 260,
       "height": 60,
       "color": "2"
+    },
+    {
+      "id": "67239c402f22e119",
+      "type": "text",
+      "text": "Tangent and binormal vectors are calculated in the geometry shader. Pre calculate this and package it with the vertex data instead",
+      "styleAttributes": {},
+      "x": 260,
+      "y": -940,
+      "width": 440,
+      "height": 100,
+      "color": "5"
+    },
+    {
+      "id": "16b54cd7a272ac57",
+      "type": "text",
+      "text": "Compute Shaders",
+      "styleAttributes": {},
+      "x": 260,
+      "y": -1020,
+      "width": 220,
+      "height": 60,
+      "color": "4"
     }
   ],
   "edges": [],

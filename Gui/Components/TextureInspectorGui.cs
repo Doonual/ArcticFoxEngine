@@ -90,14 +90,11 @@ namespace ArcticFoxEngine.Gui.Components {
 
 			if (showViewOptions == true) {
 
-				System.Numerics.Vector2 systemVec = viewCentre;
-				
 				if (ImGui.DragFloat("Zoom", ref zoom, 1f, 1f, texture.width / 4, null, ImGuiSliderFlags.Logarithmic) == true) {
 					scrollVelocity = 0f;
 				}
-				ImGui.DragFloat2("View Centre", ref systemVec, 1, 0, texture.width - 1);
+				ImGui.DragFloat2("View Centre", ref viewCentre, 1, 0, texture.width - 1);
 				ImGui.Checkbox("Allow pan outside texture", ref addExtraPadding);
-				viewCentre = systemVec;
 
 			}
 

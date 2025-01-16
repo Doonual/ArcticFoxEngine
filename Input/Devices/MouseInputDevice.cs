@@ -1,4 +1,5 @@
 ﻿using ArcticFoxEngine.ImGuiIntegration;
+using CoolClassLibrary;
 using SharpDX.DirectInput;
 
 namespace ArcticFoxEngine.Input.Devices {

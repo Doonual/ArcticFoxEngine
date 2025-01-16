@@ -33,7 +33,6 @@ namespace ArcticFoxEngine.Rendering {
 
 			ImGui.DragFloat("Zoom", ref viewportInfo.zoom, viewportInfo.zoom * 0.001f, 0.00000001f, 3f, null, ImGuiSliderFlags.NoRoundToFormat);
 			ImGui.DragInt("Iterations", ref viewportInfo.numIterations, 0.1f, 1, 10000, null);
-			ImGui.Checkbox("Double precision", ref viewportInfo.doublePrecision);
 
 
 		}

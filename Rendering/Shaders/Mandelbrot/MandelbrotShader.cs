@@ -16,7 +16,6 @@ namespace ArcticFoxEngine.Rendering {
 			public Vector2 viewCenter = Vector2.zero;
 			public float zoom = 1f;
 			public int numIterations = 100;
-			public bool doublePrecision = false;
 
 			public ViewportInfo() {
 

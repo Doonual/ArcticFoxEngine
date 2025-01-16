@@ -45,7 +45,14 @@ namespace ArcticFoxEngine {
 		/// <param name="numBytes">The number of bytes to be uploaded</param>
 		/// <returns>A pointer to the start of the temporary buffer. Use this to fill the temporary buffer with data</returns>
 		internal static IntPtr BeginBufferUpload(long numBytes) {
-			if (uploadResource != null) { Log.Error("Cannot begin buffer upload, upload not ready"); }
+			if (uploadResource != null) {
+				Log.Error("Cannot begin buffer upload, upload not ready");
+				return IntPtr.Zero;
+			}
+			if (numBytes <= 0) {
+				Log.Error("Cannot begin buffer upload, numBytes cant be 0");
+				return IntPtr.Zero;
+			}
 
 			uploadBytes = numBytes;
 			uploadResource = Graphics.device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None, ResourceDescription.Buffer(uploadBytes), ResourceStates.GenericRead);

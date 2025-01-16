@@ -93,7 +93,10 @@ namespace ArcticFoxEngine {
 
 					// Input update
 					Profiler.MetricBegin("Input update");
-					InputManager.NextFrame();
+
+					if (deubgRunMainLoop == true || debugRunMainLoopOnce == true) {
+						InputManager.NextFrame();
+					}
 					InputManager.GetInputDeviceUpdates();
 					Profiler.MetricEnd();
 

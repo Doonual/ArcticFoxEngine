@@ -19,8 +19,11 @@ namespace ArcticFoxEngine.Nodes {
 		internal IntPtr nodeIconId32;
 		internal IntPtr transformIconId;
 
-		protected bool globalEnabled;
-		public bool enabled { get; private set; }
+
+		// Indicates whether, after considering this node's place in the whole node tree, whether this node should be enabled or not
+		// Should only be set by CheckEnableEvents()
+		protected bool globalEnabled; 
+		public bool enabled { get; private set; } // Indicates whether this node, if given the opportunity, will be enabled
 
 		// Object Hierarchy
 		public Node parentNode { get; private set; } // When null, indicates it is in the scene root
@@ -31,6 +34,9 @@ namespace ArcticFoxEngine.Nodes {
 		protected Node() {
 
 			disposed = false;
+			enabled = true;
+			globalEnabled = false;
+
 			transform = new Transform(this);
 
 			childNodes = new List<Node>();
@@ -57,7 +63,7 @@ namespace ArcticFoxEngine.Nodes {
 			}
 
 			Node.rootNode = rootNode;
-			rootNode.globalEnabled = true;
+			rootNode.CheckEnableEvents();
 
 			Node.rootNode.LinkNodesEvent();
 
@@ -73,11 +79,9 @@ namespace ArcticFoxEngine.Nodes {
 			}
 
 			this.parentNode = parentNode;
-			globalEnabled |= enabled;
 
 			if (parentNode != null) {
 				parentNode.childNodes.Add(this);
-				globalEnabled &= parentNode.globalEnabled;
 
 				Node currentNode = parentNode;
 				while (currentNode != null) {
@@ -86,6 +90,8 @@ namespace ArcticFoxEngine.Nodes {
 				}
 
 			}
+
+			CheckEnableEvents();
 
 		}
 
@@ -364,6 +370,10 @@ namespace ArcticFoxEngine.Nodes {
 			enabled = true;
 			CheckEnableEvents();
 		}
+		
+		/// <summary>
+		/// Checkes whether the node is enabled or disabled overall.
+		/// </summary>
 		protected void CheckEnableEvents() {
 
 			bool prevGlobalEnabled = globalEnabled;
@@ -373,12 +383,21 @@ namespace ArcticFoxEngine.Nodes {
 					globalEnabled = parentNode.globalEnabled;
 				}
 				else {
-					globalEnabled = true;
+
+					// If this node is the root node, global enabled should be true
+					// If this node is not the root node. It has no parent to enable it to be global enabled
+					globalEnabled = rootNode == this;
+
+
+
 				}
 			}
 			if (enabled == false) {
 				globalEnabled = false;
 			}
+			
+
+
 
 			if (globalEnabled != prevGlobalEnabled) {
 				if (globalEnabled == true) {

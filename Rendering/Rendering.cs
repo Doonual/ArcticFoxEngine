@@ -9,15 +9,15 @@ namespace ArcticFoxEngine.Rendering {
 	/// </summary>
 	public static class Rendering {
 
-		internal static GraphicsCommandList cmdList;
-		internal static DescriptorHeap gpuDescriptorHeap;
+		public static GraphicsCommandList cmdList;
+		public static DescriptorHeap gpuDescriptorHeap;
 		private static int descriptorCopyPos;
-		internal static int descriptorHeapIncrement;
+		public static int descriptorHeapIncrement;
 
-		internal static ConstBuffer<ProjectionInfo> projectionInfo;
+		public static ConstBuffer<ProjectionInfo> projectionInfo;
 
 		public static List<Shader> shaders;
-		internal static Texture[] textures;
+		public static Texture[] textures;
 
 		
 

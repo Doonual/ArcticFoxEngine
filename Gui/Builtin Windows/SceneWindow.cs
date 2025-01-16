@@ -7,7 +7,7 @@ using SixLabors.ImageSharp.PixelFormats;
 using System.Windows.Forms;
 
 namespace ArcticFoxEngine.Gui {
-	internal class SceneWindow : GuiWindow {
+	public class SceneWindow : GuiWindow {
 
 		internal static Node selectedNode = null;
 		internal static NodeInspectorGui selectedNodeGui;
@@ -16,8 +16,11 @@ namespace ArcticFoxEngine.Gui {
 		public SceneWindow(params string[] menuGroups) : base(menuGroups) {
 
 			testTexId = RenderImGui.CreateImageTexture(SixLabors.ImageSharp.Image.Load<Rgba32>(".res/Textures/tiger.png"), SharpDX.DXGI.Format.R8G8B8A8_UNorm);
+			
 
 		}
+
+		
 
 		public override string name => "Scene";
 		public override void Render() {

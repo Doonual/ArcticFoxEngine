@@ -90,7 +90,7 @@ namespace ArcticFoxEngine.Demos.ChildTest {
 			Enable();
 		}
 
-		public override void GuiEvent() {
+		public override void DrawInspector() {
 			if (ImGui.Button("Recurse") == true) {
 				Recurse();
 			}

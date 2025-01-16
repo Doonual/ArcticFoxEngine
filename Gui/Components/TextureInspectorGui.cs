@@ -125,7 +125,7 @@ namespace ArcticFoxEngine.Gui.Components {
 			
 			Vector2 newScrollPos = new Vector2(ImGui.GetScrollX(), ImGui.GetScrollY());
 			
-			if ((scrollPos - newScrollPos).GetLength() > 1.2f && false) {
+			if ((scrollPos - newScrollPos).Length() > 1.2f && false) {
 				viewCentre = newScrollPos - Vector2.one * columnWidth / 2;
 				viewCentre *= pixelScale;
 				viewCentre += new Vector2(texture.width / 2 / zoom, texture.height / 2 / zoom);

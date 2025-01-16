@@ -46,11 +46,14 @@
 			this.y = y;
 		}
 
-		public float GetLength() {
+		public float Length() {
 			return MathF.Sqrt(x * x + y * y);
 		}
+		public float SqrLength() {
+			return x * x + y * y;
+		}
 		public Vector2 SetLength(float length) {
-			float currentLength = GetLength();
+			float currentLength = Length();
 			return new Vector2(x * length / currentLength, y * length / currentLength);
 		}
 		public Vector2 Round() {

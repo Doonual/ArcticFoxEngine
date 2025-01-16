@@ -33,7 +33,7 @@ namespace ArcticFoxEngine.Rendering {
 			skyShader.skyBoxInfo.SetData(skyboxInfoBuffer, 0);
 		}
 
-		public override void Debug() {
+		public override void DrawInspectorGUI() {
 
 			bool changed = false;
 

@@ -1,5 +1,4 @@
 ﻿using ArcticFoxEngine.Gui;
-using ArcticFoxEngine.Gui.Commands;
 using ArcticFoxEngine.Input;
 using ArcticFoxEngine.Input.Bindings;
 using ArcticFoxEngine.Nodes;
@@ -55,11 +54,6 @@ namespace ArcticFoxEngine {
 				Log.Error("Create window failed");
 				Log.Raw(e);
 			}
-
-			CommandController.Init(new List<Command>() {
-				new HelpCommand(),
-				new AddObjectCommand(),
-			});
 
 
 			#endregion
@@ -155,7 +149,6 @@ namespace ArcticFoxEngine {
 
 			loop.Dispose();
 			loop = null;
-			CommandController.Stop();
 			GuiManager.Dispose();
 			Graphics.Dispose();
 			Rendering.Rendering.Dispose();

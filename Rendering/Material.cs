@@ -4,7 +4,7 @@ namespace ArcticFoxEngine.Rendering {
 
 		public abstract void BindResources(Shader shader);
 
-		public abstract void Debug();
+		public abstract void DrawInspectorGUI();
 
 	}
 }

@@ -15,16 +15,76 @@
               "state": {
                 "file": "Todo.canvas",
                 "viewState": {
-                  "x": 1271.3067952053539,
-                  "y": -986.9259542595548,
+                  "x": 1806.6948960662016,
+                  "y": -908.0571277911199,
                   "zoom": -0.2896542052377619
                 }
               },
               "icon": "lucide-layout-dashboard",
               "title": "Todo"
             }
+          },
+          {
+            "id": "4548b2b036070a43",
+            "type": "leaf",
+            "state": {
+              "type": "canvas",
+              "state": {
+                "file": "Rendering/How it should work.canvas",
+                "viewState": {
+                  "x": 1357.162162162162,
+                  "y": 2291.3721413721414,
+                  "zoom": -2.3950285858116303
+                }
+              },
+              "icon": "lucide-layout-dashboard",
+              "title": "How it should work"
+            }
+          },
+          {
+            "id": "6d03acd732c56a6a",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Rendering/Shaders.md",
+                "mode": "preview",
+                "source": true
+              },
+              "icon": "lucide-file",
+              "title": "Shaders"
+            }
+          },
+          {
+            "id": "24e7d2ce6f82565e",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "DX12/Graphics Pipeline State.md",
+                "mode": "preview",
+                "source": true
+              },
+              "icon": "lucide-file",
+              "title": "Graphics Pipeline State"
+            }
+          },
+          {
+            "id": "4c352fdaa33a16c7",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Rendering/Rendering.md",
+                "mode": "preview",
+                "source": true
+              },
+              "icon": "lucide-file",
+              "title": "Rendering"
+            }
           }
-        ]
+        ],
+        "currentTab": 2
       }
     ],
     "direction": "vertical"
@@ -148,7 +208,8 @@
               "title": "Outline of Todo"
             }
           }
-        ]
+        ],
+        "currentTab": 3
       }
     ],
     "direction": "horizontal",
@@ -165,6 +226,12 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "7bd63a127cf4d5e9",
-  "lastOpenFiles": []
+  "active": "6d03acd732c56a6a",
+  "lastOpenFiles": [
+    "Todo.canvas",
+    "Rendering/How it should work.canvas",
+    "DX12/Graphics Pipeline State.md",
+    "Rendering/Shaders.md",
+    "Rendering/Rendering.md"
+  ]
 }

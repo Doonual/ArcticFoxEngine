@@ -35,12 +35,12 @@ namespace ArcticFoxEngine.Nodes {
 
 		public ProjectionType projectionType = ProjectionType.Perspective;
 
-		internal Matrix fullMatrix {
+		public Matrix fullMatrix {
 			get {
 				return CalculateFullMatrix();
 			}
 		}
-		internal Matrix projectionMatrix {
+		public Matrix projectionMatrix {
 			get {
 				return CalculateProjectionMatrix();
 			}
@@ -91,22 +91,19 @@ namespace ArcticFoxEngine.Nodes {
 			return projectionMatrix;
 
 		}
-
 		internal Matrix CalculateFullMatrix() {
 
-			Matrix projectionMatrix = new Matrix();
-			if (projectionType == ProjectionType.Perspective) {
-				projectionMatrix = Matrix.PerspectiveFovLH(fov * MathF.PI / 180f, Screen.aspectRatio, nearPlane, farPlane);
-			}
-			if (projectionType == ProjectionType.Orthographic) {
-				projectionMatrix = Matrix.OrthoLH(zoom * Screen.aspectRatio, zoom, nearPlane, farPlane);
-			}
-
+			Matrix projectionMatrix = CalculateProjectionMatrix();
 			Matrix cameraTransform = transform.worldMatrix.Invert();
 			return cameraTransform * projectionMatrix;
 
 		}
 
+		/// <summary>
+		/// Calculates the camera space position of a point in world space
+		/// </summary>
+		/// <param name="worldSpacePos">The point in world space</param>
+		/// <returns>The point in camera space</returns>
 		public Vector3 WorldToCamera(Vector3 worldSpacePos) {
 
 			Matrix projectionResult = Matrix.Translation(worldSpacePos) * CalculateFullMatrix();
@@ -114,15 +111,25 @@ namespace ArcticFoxEngine.Nodes {
 			return cameraSpacePos;
 
 		}
+		/// <summary>
+		/// Calculates the screen space position of a point in camera space
+		/// </summary>
+		/// <param name="cameraSpacePos">The camera space position</param>
+		/// <returns>The screen space position</returns>
 		public Vector2 CameraToScreen(Vector3 cameraSpacePos) {
 
-			Vector2 screenSpacePos = new Vector2(cameraSpacePos.x, cameraSpacePos.y);
-			screenSpacePos *= new Vector2(0.9f, -0.5f);
-			screenSpacePos *= new Vector2(Screen.height, Screen.height);
-			screenSpacePos += new Vector2(Screen.width / 2f, Screen.height / 2f);
+			Vector2 screenSpacePos = new Vector2(cameraSpacePos.x, -cameraSpacePos.y) / 2f;
+			screenSpacePos *= new Vector2(Screen.width, Screen.height);
+			screenSpacePos += new Vector2(Screen.width, Screen.height) / 2f;
+
 			return screenSpacePos;
 
 		}
+		/// <summary>
+		/// Calculates the screen space position of a point in world space
+		/// </summary>
+		/// <param name="worldSpacePos"></param>
+		/// <returns>The screen space position</returns>
 		public Vector2 WorldToScreen(Vector3 worldSpacePos) {
 
 			Vector3 cameraSpacePos = WorldToCamera(worldSpacePos);
@@ -131,7 +138,40 @@ namespace ArcticFoxEngine.Nodes {
 
 		}
 
-		public override void GuiEvent() {
+		/// <summary>
+		/// Calculates the camera space position of a pixel coordinate. The camera space position ranges from -1 to 1 on the x, y, z axis
+		/// </summary>
+		/// <param name="screenSpacePos"></param>
+		/// <returns>Camera space position. Ranging from -1 to 1 on the x, y, z axis</returns>
+		public Vector3 ScreenToCamera(Vector2 screenSpacePos, float depth = 1f) {
+
+			Vector2 normalizedScreenPos = screenSpacePos - new Vector2(Screen.width, Screen.height) / 2f;
+			normalizedScreenPos = 2f * normalizedScreenPos / new Vector2(Screen.width, Screen.height);
+			Vector3 cameraPos = new Vector3(normalizedScreenPos.x, -normalizedScreenPos.y, depth);
+			return cameraPos;
+
+		}
+		/// <summary>
+		/// Calculates the world space position of a point in camera space.
+		/// </summary>
+		/// <param name="cameraSpacePos">The position of the point in camera space</param>
+		/// <returns>The world space position of the point</returns>
+		public Vector3 CameraToWorld(Vector3 cameraSpacePos) {
+			
+			Vector4 lhs = new Vector4(cameraSpacePos.x, cameraSpacePos.y, cameraSpacePos.z, 1f);
+			Vector3 worldSpacePos = transform.worldMatrix * (projectionMatrix.Invert() * lhs);
+			return worldSpacePos;
+		}
+		/// <summary>
+		/// Calculates the World space position of a point in camera space
+		/// </summary>
+		/// <param name="screenSpacePos"></param>
+		/// <returns></returns>
+		public Vector3 ScreenToWorld(Vector2 screenSpacePos, float depth = 1f) {
+			return CameraToWorld(ScreenToCamera(screenSpacePos, depth));
+		}
+
+		public override void DrawInspector() {
 
 			ImGui.TextWrapped("Renders the scene from the camera's point of view");
 			

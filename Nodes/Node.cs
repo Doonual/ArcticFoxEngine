@@ -478,7 +478,7 @@ namespace ArcticFoxEngine.Nodes {
 		/// <summary>
 		/// Run to render the node gui
 		/// </summary>
-		public virtual void GuiEvent() { }
+		public virtual void DrawInspector() { }
 		
 		
 		public virtual void Dispose() { }

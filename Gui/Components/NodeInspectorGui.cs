@@ -125,7 +125,7 @@ namespace ArcticFoxEngine.Gui.Builtin_Windows {
 			// Inspector
 			if (nodeInspectorExpanded == true) {
 				transformInspectorGui.DrawTransformInspector(false);
-				targetNode.GuiEvent();
+				targetNode.DrawInspector();
 
 				if (childInspectorGuis.Count() != 0) {
 					ImGui.SeparatorText("Children");

@@ -127,7 +127,7 @@ namespace ArcticFoxEngine.Gui {
 			ImDrawListPtr bgDrawList = ImGui.GetBackgroundDrawList();
 			uint circleCol = circleNormalCol;
 
-			if (((Vector2)ImGui.GetMousePos() - screenPos).GetLength() <= circleRadius) {
+			if (((Vector2)ImGui.GetMousePos() - screenPos).Length() <= circleRadius) {
 				circleCol = circleHoverCol;
 				if (ImGui.IsMouseDown(ImGuiMouseButton.Left) == true) {
 					circleCol = circlePressedCol;

@@ -30,11 +30,11 @@ namespace ArcticFoxEngine.Input.Bindings {
 
 
 			if (mouseButton == MouseButton.WheelUp) {
-				inputButton = e.Value == 120;
+				inputButton |= e.Value == 120;
 				return;
 			}
 			if (mouseButton == MouseButton.WheelDown) {
-				inputButton = e.Value == -120;
+				inputButton |= e.Value == -120;
 				return;
 			}
 			if (((int)e.Offset) != ((int)mouseButton)) {

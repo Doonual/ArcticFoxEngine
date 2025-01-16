@@ -130,8 +130,8 @@ namespace ArcticFoxEngine.Nodes {
 		}
 
 		Vector3 rotationAxis = Vector3.Zero;
-		public override void GuiEvent() {
-			base.GuiEvent();
+		public override void DrawInspector() {
+			base.DrawInspector();
 			ImGui.SliderFloat("Speed", ref speed, 0f, 1000f, "%.6f", ImGuiSliderFlags.Logarithmic);
 			ImGui.Checkbox("Lock roll", ref lockRoll);
 

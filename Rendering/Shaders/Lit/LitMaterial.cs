@@ -38,7 +38,7 @@ namespace ArcticFoxEngine.Rendering {
 
 
 
-		public override void Debug() {
+		public override void DrawInspectorGUI() {
 
 			string longestString = "Normal Texture ID";
 

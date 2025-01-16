@@ -1348,7 +1348,7 @@ namespace ImGuiNET
 			}
 		}
 		public static bool ColorEdit3(string label, ref Color col) {
-			Vector3 vector3 = new Vector3(col.r / 255f, col.g / 255f, col.b / 255f);
+			Vector3 vector3 = new Vector3(col.r, col.g, col.b);
 			bool result = ColorEdit3(label, ref vector3);
 			col = new Color(vector3.x, vector3.y, vector3.z);
 			return result;
@@ -1378,7 +1378,7 @@ namespace ImGuiNET
 			}
 		}
 		public static bool ColorEdit3(string label, ref Color col, ImGuiColorEditFlags flags) {
-			Vector3 vector3 = new Vector3(col.r / 255f, col.g / 255f, col.b / 255f);
+			Vector3 vector3 = new Vector3(col.r, col.g, col.b);
 			bool result = ColorEdit3(label, ref vector3, flags);
 			col = new Color(vector3.x, vector3.y, vector3.z);
 			return result;
@@ -1408,6 +1408,12 @@ namespace ImGuiNET
 				return ret != 0;
 			}
 		}
+		public static bool ColorEdit4(string label, ref Color col) {
+			Vector4 vector4 = new Vector4(col.r, col.g, col.b, col.a);
+			bool result = ColorEdit4(label, ref vector4);
+			col = new Color(vector4.x, vector4.y, vector4.z, vector4.w);
+			return result;
+		}
 		public static bool ColorEdit4(string label, ref Vector4 col, ImGuiColorEditFlags flags) {
 			byte* native_label;
 			int label_byteCount = 0;
@@ -1431,6 +1437,12 @@ namespace ImGuiNET
 				}
 				return ret != 0;
 			}
+		}
+		public static bool ColorEdit4(string label, ref Color col, ImGuiColorEditFlags flags) {
+			Vector4 vector4 = new Vector4(col.r, col.g, col.b, col.a);
+			bool result = ColorEdit4(label, ref vector4, flags);
+			col = new Color(vector4.x, vector4.y, vector4.z, vector4.w);
+			return result;
 		}
 		public static bool ColorPicker3(string label, ref Vector3 col) {
 			byte* native_label;
@@ -1458,7 +1470,7 @@ namespace ImGuiNET
 			}
 		}
 		public static bool ColorPicker3(string label, ref Color col) {
-			Vector3 vecCol = new Vector3(col.r / 255f, col.g / 255f, col.b / 255f);
+			Vector3 vecCol = new Vector3(col.r, col.g, col.b);
 			bool result = ColorPicker3(label, ref vecCol);
 			col = new Color(vecCol.x, vecCol.y, vecCol.z);
 			return result;
@@ -1488,7 +1500,7 @@ namespace ImGuiNET
 			}
 		}
 		public static bool ColorPicker3(string label, ref Color col, ImGuiColorEditFlags flags) {
-			Vector3 vecCol = new Vector3(col.r / 255f, col.g / 255f, col.b / 255f);
+			Vector3 vecCol = new Vector3(col.r, col.g, col.b);
 			bool result = ColorPicker3(label, ref vecCol, flags);
 			col = new Color(vecCol.x, vecCol.y, vecCol.z);
 			return result;
@@ -1519,6 +1531,12 @@ namespace ImGuiNET
 				return ret != 0;
 			}
 		}
+		public static bool ColorPicker4(string label, ref Color col) {
+			Vector4 vecCol = new Vector4(col.r, col.g, col.b, col.a);
+			bool result = ColorPicker4(label, ref vecCol);
+			col = new Color(vecCol.x, vecCol.y, vecCol.z, vecCol.w);
+			return result;
+		}
 		public static bool ColorPicker4(string label, ref Vector4 col, ImGuiColorEditFlags flags) {
 			byte* native_label;
 			int label_byteCount = 0;
@@ -1543,6 +1561,12 @@ namespace ImGuiNET
 				}
 				return ret != 0;
 			}
+		}
+		public static bool ColorPicker4(string label, ref Color col, ImGuiColorEditFlags flags) {
+			Vector4 vecCol = new Vector4(col.r, col.g, col.b, col.a);
+			bool result = ColorPicker4(label, ref vecCol, flags);
+			col = new Color(vecCol.x, vecCol.y, vecCol.z, vecCol.w);
+			return result;
 		}
 		public static bool ColorPicker4(string label, ref Vector4 col, ImGuiColorEditFlags flags, ref float ref_col) {
 			byte* native_label;
@@ -1569,6 +1593,12 @@ namespace ImGuiNET
 					return ret != 0;
 				}
 			}
+		}
+		public static bool ColorPicker4(string label, ref Color col, ImGuiColorEditFlags flags, ref float ref_col) {
+			Vector4 vecCol = new Vector4(col.r, col.g, col.b, col.a);
+			bool result = ColorPicker4(label, ref vecCol, flags, ref ref_col);
+			col = new Color(vecCol.x, vecCol.y, vecCol.z, vecCol.w);
+			return result;
 		}
 		public static void Columns() {
 			int count = 1;

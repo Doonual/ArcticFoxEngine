@@ -12,25 +12,25 @@ namespace ArcticFoxEngine.Rendering {
 	/// </summary>
 	public class GeometryInfo {
 
-		internal static int kbPerBuffer = 2048;
+		internal static int kbPerBuffer = 128 * 1024;
 
 		internal static int numVertexBufferElements = kbPerBuffer * 1024 / Utilities.SizeOf<Vertex>();
 		internal static int numIndexBufferElements = kbPerBuffer * 1024 / sizeof(int);
-		internal static int numTransformBufferElements = 128 * 1024 / Utilities.SizeOf<TransformInfo>();
+		internal static int numTransformBufferElements = kbPerBuffer * 1024 / Utilities.SizeOf<TransformInfo>();
 
-		internal List<MeshRenderer> meshRenderers;
-		internal List<(int vertexBufferStart, int indexBufferStart, int transformBufferStart)> meshRendererPositions;
+		public List<MeshRenderer> meshRenderers;
+		public List<(int vertexBufferStart, int indexBufferStart, int transformBufferStart)> meshRendererPositions;
 
-		internal int[] vertexGap;
-		internal Resource vertexBuffer;
-		internal VertexBufferView vertexBufferView;
+		public int[] vertexGap;
+		public Resource vertexBuffer;
+		public VertexBufferView vertexBufferView;
 
-		internal int[] indexGap;
-		internal Resource indexBuffer;
-		internal IndexBufferView indexBufferView;
+		public int[] indexGap;
+		public Resource indexBuffer;
+		public IndexBufferView indexBufferView;
 
-		internal int[] transformGap;
-		internal ConstBuffer<TransformInfo> transformBuffer;
+		public int[] transformGap;
+		public ConstBuffer<TransformInfo> transformBuffer;
 
 
 		/// <summary>
@@ -40,6 +40,10 @@ namespace ArcticFoxEngine.Rendering {
 
 			meshRenderers = new List<MeshRenderer>();
 			meshRendererPositions = new List<(int vertexBufferStart, int indexBufferStart, int transformBufferStart)>();
+
+			Log.Info("VB Size: " + numVertexBufferElements);
+			Log.Info("IB Size: " + numIndexBufferElements);
+			Log.Info("TB Size: " + numTransformBufferElements);
 
 			// Create gap arrays
 			vertexGap = new int[numVertexBufferElements];
@@ -321,7 +325,7 @@ namespace ArcticFoxEngine.Rendering {
 		/// <summary>
 		/// Updates the transform data buffer for all mesh renderers added to this GeometryResources
 		/// </summary>
-		internal void UpdateObjectInfoBuffer() {
+		public void UpdateObjectInfoBuffer() {
 
 			int maxObjectInfoIndex = -1;
 

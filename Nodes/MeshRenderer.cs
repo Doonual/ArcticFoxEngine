@@ -100,7 +100,7 @@ namespace ArcticFoxEngine.Nodes {
 		Vector4 vertexColSet;
 
 		private int shaderComboSelected = 0;
-		public override void GuiEvent() {
+		public override void DrawInspector() {
 
 
 			ImGui.TextWrapped("Renders the mesh to the scene geometry");
@@ -134,7 +134,7 @@ namespace ArcticFoxEngine.Nodes {
 
 			ImGui.Text("Material Settings");
 			if (material != null) {
-				material.Debug();
+				material.DrawInspectorGUI();
 			}
 
 			

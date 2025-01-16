@@ -117,7 +117,7 @@ namespace ArcticFoxEngine.Rendering {
 		}
 
 		int setTextureId = 0;
-		public override void Debug() {
+		public override void DrawInspectorGUI() {
 
 
 			if (ImGui.InputInt("Texture ID", ref setTextureId) == true) {

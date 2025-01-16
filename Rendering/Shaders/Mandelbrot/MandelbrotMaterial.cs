@@ -25,7 +25,7 @@ namespace ArcticFoxEngine.Rendering {
 
 		}
 
-		public override void Debug() {
+		public override void DrawInspectorGUI() {
 
 
 			ImGui.DragFloat2("View center", ref viewportInfo.viewCenter, viewportInfo.zoom * 0.001f, -2f, 2f, null, ImGuiSliderFlags.NoRoundToFormat);

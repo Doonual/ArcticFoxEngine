@@ -2,7 +2,7 @@
 
 	// Input structs must be 256 byte aligned!!
 
-	internal struct TransformInfo {
+	public struct TransformInfo {
 		public Matrix transformationMatrix; // 64 bytes
 		public Matrix inverseTransformationMatrix;
 	};

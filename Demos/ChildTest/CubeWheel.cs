@@ -52,8 +52,8 @@ namespace ArcticFoxEngine.Demos.ChildTest {
 
 		}
 
-		public override void GuiEvent() {
-			base.GuiEvent();
+		public override void DrawInspector() {
+			base.DrawInspector();
 			ImGui.SliderFloat("Radius", ref radius, 1.9f, 6f);
 			ImGui.SliderFloat("Angle", ref angle, 0f, MathF.PI * 2);
 			ImGui.SliderFloat("Omega", ref omega, 0.004f, 0.01f);

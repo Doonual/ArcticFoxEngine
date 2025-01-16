@@ -12,7 +12,7 @@ namespace ArcticFoxEngine {
 
 		public static bool isDebug = false;
 
-		internal static Device device;
+		public static Device device { get; private set; }
 
 		static RenderForm mainRenderForm;
 		internal static SwapChain3 swapChain;

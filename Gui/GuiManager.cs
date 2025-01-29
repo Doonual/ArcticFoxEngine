@@ -49,7 +49,7 @@ namespace ArcticFoxEngine.Gui {
 			temporaryWindows = new List<CustomWindow>();
 
 			overlays = new List<GuiOverlay>() {
-				new NodeGizmosOverlay(),
+				new NodeIconsOverlay(),
 			};
 
 			demoNodes = new List<Type>() {
@@ -339,7 +339,7 @@ namespace ArcticFoxEngine.Gui {
 
 				JObject currentWindowOption = windowOptions[i];
 				string name = currentWindowOption.Grab("name");
-				bool open = currentWindowOption.Grab("open") == "True";
+				bool open = bool.Parse(currentWindowOption.Grab("open"));
 
 				for (int n = 0; n < windows.Count; n ++) {
 					if (windows[n].name == name) {
@@ -355,7 +355,7 @@ namespace ArcticFoxEngine.Gui {
 
 				JObject currentOverlayOption = overlayOptions[i];
 				string name = currentOverlayOption.Grab("name");
-				bool open = currentOverlayOption.Grab("open") == "True";
+				bool open = bool.Parse(currentOverlayOption.Grab("open"));
 
 				for (int n = 0; n < overlays.Count; n++) {
 					if (overlays[n].name == name) {

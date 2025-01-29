@@ -101,6 +101,17 @@ namespace ArcticFoxEngine.Nodes {
 			localRotation = Quaternion.Identity;
 			localScale = Vector3.One;
 		}
+		public bool IsIdentity() {
+
+			if (localPosition.SqrLength() > 0.0001f) { return false; }
+			if (localRotation.IsIdentity == false) { return false; }
+			if (MathF.Abs(localScale.x - 1f) > 0.0001f) { return false; }
+			if (MathF.Abs(localScale.y - 1f) > 0.0001f) { return false; }
+			if (MathF.Abs(localScale.z - 1f) > 0.0001f) { return false; }
+
+			return true;
+
+		}
 
 		static Texture transformIcon;
 		

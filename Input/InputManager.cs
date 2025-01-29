@@ -8,8 +8,6 @@ namespace ArcticFoxEngine.Input {
 		static List<Action> inputDeviceUpdateActions;
 		internal static DirectInput directInput;
 
-		public static bool imGuiBlocksInput = false;
-
 		internal static void Init() {
 			inputs = new List<InputBinding>();
 			inputDeviceUpdateActions = new List<Action>();

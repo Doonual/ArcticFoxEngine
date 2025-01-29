@@ -19,7 +19,6 @@ namespace ArcticFoxEngine.Gui.Builtin_Windows {
 
 		float defaultWidth = 400f;
 
-		internal float lastWindowHeight;
 		public override void Render() {
 
 			renderFunc();

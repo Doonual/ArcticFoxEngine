@@ -112,9 +112,7 @@ namespace ArcticFoxEngine.Gui {
 
 		public override void Render() {
 
-
 			ImGui.Begin("Log", ref open);
-
 			if (ImGui.Button("Clear") == true) {
 				messages.Clear();
 				messages.Add("");
@@ -125,8 +123,8 @@ namespace ArcticFoxEngine.Gui {
 			ImGui.PushStyleColor(ImGuiCol.FrameBg, new Vector4(0.16f, 0.16f, 0.16f, 0.54f));
 			ImGui.PushStyleVar(ImGuiStyleVar.FrameBorderSize, 1f);
 			ImGui.BeginChildFrame((uint)"DebugLog messages child".GetHashCode(), new Vector2(-1f, 200f));
-			ImGui.PopStyleColor();
 			ImGui.PopStyleVar();
+			ImGui.PopStyleColor();
 
 			if (scrollToBottom == true) {
 				scrollToBottom = false;
@@ -151,13 +149,14 @@ namespace ArcticFoxEngine.Gui {
 					}
 					if (cols[n].Length > 6) {
 						ImGui.TextWrapped(cols[n].Substring(6));
-						if (pushedCol == true) {
-							ImGui.PopStyleColor();
-						}
 						ImGui.PushStyleVar(ImGuiStyleVar.ItemSpacing, new Vector2(-1f, 0f));
 						ImGui.SameLine();
 						ImGui.PopStyleVar();
 
+					}
+
+					if (pushedCol == true) {
+						ImGui.PopStyleColor();
 					}
 
 				}
@@ -169,7 +168,7 @@ namespace ArcticFoxEngine.Gui {
 
 			}
 
-			ImGui.EndChild();
+			ImGui.EndChildFrame();
 
 
 			ImGui.PushItemWidth(-45f);
@@ -187,7 +186,7 @@ namespace ArcticFoxEngine.Gui {
 				CommandController.ExecuteCommand(cmdInput);
 				cmdInput = "";
 			}
-
+			
 			ImGui.End();
 
 

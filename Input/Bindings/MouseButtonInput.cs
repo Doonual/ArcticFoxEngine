@@ -1,12 +1,13 @@
 ﻿using ArcticFoxEngine.Input.Devices;
 using CoolClassLibrary;
+using ImGuiNET;
 using SharpDX.DirectInput;
 using Swan;
 
 namespace ArcticFoxEngine.Input.Bindings {
 	public class MouseButtonInput : ButtonBinding {
 
-
+		bool ignoreImGui;
 		MouseButton mouseButton;
 		public enum MouseButton {
 
@@ -20,14 +21,23 @@ namespace ArcticFoxEngine.Input.Bindings {
 
 		}
 
-		public MouseButtonInput(MouseButton mouseButton) {
+		public MouseButtonInput(MouseButton mouseButton, bool ignoreImGui = false) {
 			MouseInputDevice.Init();
 			MouseInputDevice.deviceUpdate.Add(MouseUpdate);
 			this.mouseButton = mouseButton;
+			this.ignoreImGui = ignoreImGui;
 		}
 
 		private void MouseUpdate(MouseUpdate e) {
 
+			if (((int)e.Offset) != ((int)mouseButton) || mouseButton == MouseButton.WheelUp || mouseButton == MouseButton.WheelDown) {
+				return;
+			}
+
+			if (ImGui.GetIO().WantCaptureMouse == true && ignoreImGui == false) {
+				inputButton = false;
+				return;
+			}
 
 			if (mouseButton == MouseButton.WheelUp) {
 				inputButton |= e.Value == 120;
@@ -37,9 +47,9 @@ namespace ArcticFoxEngine.Input.Bindings {
 				inputButton |= e.Value == -120;
 				return;
 			}
-			if (((int)e.Offset) != ((int)mouseButton)) {
-				return;
-			}
+
+			
+
 			inputButton = e.Value == 128;
 			
 

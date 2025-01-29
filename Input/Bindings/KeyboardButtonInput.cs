@@ -1,5 +1,6 @@
 ﻿using ArcticFoxEngine.Input.Devices;
 using CoolClassLibrary;
+using ImGuiNET;
 using SharpDX.DirectInput;
 using SharpDX.RawInput;
 using System;
@@ -11,7 +12,7 @@ using System.Threading.Tasks;
 namespace ArcticFoxEngine.Input.Bindings {
 	public class KeyboardButtonInput : ButtonBinding {
 
-
+		bool ignoreImGui;
 		KeyboardButton keyboardButton;
 		public enum KeyboardButton {
 			Escape = 1,
@@ -162,17 +163,24 @@ namespace ArcticFoxEngine.Input.Bindings {
 
 		}
 
-		public KeyboardButtonInput(KeyboardButton keyboardButton) {
+		public KeyboardButtonInput(KeyboardButton keyboardButton, bool ignoreImGui = false) {
 			KeyboardInputDevice.Init();
 			KeyboardInputDevice.deviceUpdate.Add(KeyboardUpdate);
 			this.keyboardButton = keyboardButton;
+			this.ignoreImGui = ignoreImGui;
 		}
 
 		private void KeyboardUpdate(KeyboardUpdate e) {
 
+			
 			if (((int)e.Key) != ((int)keyboardButton)) {
 				return;
 			}
+			if (ImGui.GetIO().WantCaptureKeyboard == true && ignoreImGui == false) {
+				inputButton = false;
+				return;
+			}
+
 			inputButton = e.IsPressed;
 			
 		}

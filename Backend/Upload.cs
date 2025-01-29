@@ -18,10 +18,6 @@ namespace ArcticFoxEngine {
 
 		static GraphicsCommandList cmdList;
 
-		static AutoResetEvent fenceEvent;
-		static Fence uploadFence;
-		static int fenceValue;
-
 		/// <summary>
 		/// Initialises all GPU_Upload
 		/// </summary>
@@ -162,15 +158,7 @@ namespace ArcticFoxEngine {
 			if (uploadResource != null) { uploadResource.Dispose(); }
 			cmdList.Dispose();
 
-			if (fenceEvent != null) {
-				fenceEvent.Close();
-				fenceEvent.Dispose();
-			}
 
-
-
-			uploadFence.Dispose();
-			fenceValue = 0;
 
 		}
 

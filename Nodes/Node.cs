@@ -665,8 +665,7 @@ namespace ArcticFoxEngine.Nodes {
 
 		}
 
-		// Draw Gizmos
-		bool transformInspectorExpanded = false;
+
 		public virtual void DrawContextMenuGui() {
 
 			

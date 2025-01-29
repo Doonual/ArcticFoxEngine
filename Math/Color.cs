@@ -39,7 +39,7 @@ namespace ArcticFoxEngine {
 			this.r = r;
 			this.g = g;
 			this.b = b;
-			a = 0xff;
+			a = 255f;
 		}
 
 		public Color(int r, int g, int b, int a) {

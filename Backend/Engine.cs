@@ -72,8 +72,8 @@ namespace ArcticFoxEngine {
 
 			#endregion
 
-			exitButton = new KeyboardButtonInput(KeyboardButtonInput.KeyboardButton.Escape);
-			toggleGuiButton = new KeyboardButtonInput(KeyboardButtonInput.KeyboardButton.F1);
+			exitButton = new KeyboardButtonInput(KeyboardButtonInput.KeyboardButton.Escape, ignoreImGui: true);
+			toggleGuiButton = new KeyboardButtonInput(KeyboardButtonInput.KeyboardButton.F1, ignoreImGui: true);
 
 
 			if (init != null) { init(); } // Run the main init code

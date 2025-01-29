@@ -27,7 +27,6 @@ namespace ArcticFoxEngine.Input.Devices {
 			KeyboardUpdate[] updates = keyboard.GetBufferedData();
 			for (int i = 0; i < updates.Length; i++) {
 				ImGuiInput.UpdateKeyboard(updates[i]);
-				if (InputManager.imGuiBlocksInput == true && ImGui.GetIO().WantCaptureKeyboard == true) { continue; }
 				for (int n = 0; n < deviceUpdate.Count; n++) {
 					deviceUpdate[n](updates[i]);
 				}

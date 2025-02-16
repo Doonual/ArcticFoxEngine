@@ -1,4 +1,5 @@
-﻿using ArcticFoxEngine.Input.Devices;
+﻿using ArcticFoxEngine.Gui;
+using ArcticFoxEngine.Input.Devices;
 using CoolClassLibrary;
 using ImGuiNET;
 using SharpDX.DirectInput;
@@ -35,6 +36,11 @@ namespace ArcticFoxEngine.Input.Bindings {
 			}
 
 			if (ImGui.GetIO().WantCaptureMouse == true && ignoreImGui == false) {
+				inputButton = false;
+				return;
+			}
+
+			if (GuiManager.IsGuiOpen() == true && ImGui.GetIO().WantCaptureMouse == true && ignoreImGui == false) {
 				inputButton = false;
 				return;
 			}

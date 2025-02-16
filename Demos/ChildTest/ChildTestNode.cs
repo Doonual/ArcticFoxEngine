@@ -2,14 +2,20 @@
 using ArcticFoxEngine.Demos.SceneTest;
 using ImGuiNET;
 using CoolClassLibrary;
+using ArcticFoxEngine.Rendering;
 
 namespace ArcticFoxEngine.Demos.ChildTest {
 
 	public class ChildTestNode : Node {
 
+		Texture groundTexture;
+		Texture cubeTexture;
 
 		public ChildTestNode() {
 			name = "Child Test";
+
+			groundTexture = new Texture(".res/Textures/BrickCol.png");
+			cubeTexture = new Texture(".res/Textures/uv_blender.jpg");
 
 			CameraController cameraController = CreateChild<CameraController>();
 			cameraController.CreateChild<Camera>();
@@ -20,28 +26,31 @@ namespace ArcticFoxEngine.Demos.ChildTest {
 
 			MeshRenderer blockPlatform = platformsNode.CreateChild<MeshRenderer>("Block tower platform");
 			blockPlatform.SetMesh(Mesh.CreatePrimitive(Mesh.Primitive.Cube));
+			((UnlitMaterial)blockPlatform.material).mainTex = groundTexture;
 			blockPlatform.transform.localPosition = new Vector3(0f, -0.5f, 0f);
 			blockPlatform.transform.localScale = new Vector3(5f, 1f, 5f);
 
 			MeshRenderer blockTowerA = CreateChild<MeshRenderer>("Block Tower A");
 			blockTowerA.SetMesh(Mesh.CreatePrimitive(Mesh.Primitive.Cube));
+			((UnlitMaterial)blockTowerA.material).mainTex = cubeTexture;
 			blockTowerA.transform.localPosition = new Vector3(0f, 0.5f, 0f);
 
 			MeshRenderer blockTowerB = blockTowerA.CreateChild<MeshRenderer>("Block Tower B");
 			blockTowerB.SetMesh(Mesh.CreatePrimitive(Mesh.Primitive.Cube));
+			((UnlitMaterial)blockTowerB.material).mainTex = cubeTexture;
 			blockTowerB.transform.localPosition = new Vector3(0f, 2f, 0f);
 
 			MeshRenderer blockTowerC = blockTowerB.CreateChild<MeshRenderer>("Block Tower C");
 			blockTowerC.SetMesh(Mesh.CreatePrimitive(Mesh.Primitive.Cube));
+			((UnlitMaterial)blockTowerC.material).mainTex = cubeTexture;
 			blockTowerC.transform.localPosition = new Vector3(0f, 2f, 0f);
 
 			#endregion
-
-
 			#region Cube Cube
 
 			MeshRenderer cubePlatform = platformsNode.CreateChild<MeshRenderer>("Cube cube platform");
 			cubePlatform.SetMesh(Mesh.CreatePrimitive(Mesh.Primitive.Cube));
+			((UnlitMaterial)cubePlatform.material).mainTex = groundTexture;
 			cubePlatform.transform.localPosition = new Vector3(-7f, -0.5f, 1f);
 			cubePlatform.transform.localScale = new Vector3(7f, 1f, 7f);
 
@@ -60,6 +69,7 @@ namespace ArcticFoxEngine.Demos.ChildTest {
 			for (int i = 0; i < positions.Length; i++) {
 				MeshRenderer cubeObj = cubeParent.CreateChild<MeshRenderer>("Cube #" + i);
 				cubeObj.SetMesh(Mesh.CreatePrimitive(Mesh.Primitive.Cube));
+				((UnlitMaterial)cubeObj.material).mainTex = cubeTexture;
 				cubeObj.transform.localPosition = positions[i];
 			}
 
@@ -69,24 +79,6 @@ namespace ArcticFoxEngine.Demos.ChildTest {
 			tester.transform.localPosition = new Vector3(8f / 2f + 3.5f, -0.5f, (8f / 2f) - 2.5f);
 			tester.GenerateTree(8);
 			
-			/*
-			#region Cube Wheel
-
-			float cubeWheelSize = 8f;
-
-			Node cubeWheelPlatform = platformsNode.CreateChild<BaseNode>("Cube wheel platform");
-			cubeWheelPlatform.CreateChild<Transform>();
-			cubeWheelPlatform.transform.localPosition = new Vector3(cubeWheelSize / 2f + 3.5f, -0.5f, (cubeWheelSize / 2f) - 2.5f);
-			cubeWheelPlatform.transform.localScale = new Vector3(cubeWheelSize, 1f, cubeWheelSize);
-			cubeWheelPlatform.CreateChild<MeshRenderer>().SetMesh(Mesh.CreatePrimitive(Mesh.Primitive.Cube));
-
-			CubeWheel cubeWheel = CreateChild<CubeWheel>("Cube Wheel");
-			cubeWheel.transform.localPosition.x = cubeWheelSize / 2f + 3.5f;
-			cubeWheel.Propagate(5, 4f);
-			cubeWheel.Stop();
-
-			#endregion
-			*/
 			Enable();
 		}
 

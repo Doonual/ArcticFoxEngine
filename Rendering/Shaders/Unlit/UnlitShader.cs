@@ -106,23 +106,13 @@ namespace ArcticFoxEngine.Rendering {
 			UnlitShader unlitShader = (UnlitShader)shader;
 
 
-			if (mainTex == null) {
-				unlitShader.mainTexSlot.SetTexture(Rendering.textures[0]);
-			}
-			else {
-				unlitShader.mainTexSlot.SetTexture(mainTex);
-			}
-			
+			unlitShader.mainTexSlot.SetTexture(mainTex);
 
 		}
 
 		int setTextureId = 0;
 		public override void DrawInspectorGUI() {
 
-
-			if (ImGui.InputInt("Texture ID", ref setTextureId) == true) {
-				mainTex = Rendering.textures[setTextureId];
-			}
 
 		}
 

@@ -59,7 +59,11 @@ namespace ArcticFoxEngine {
 			#endregion
 			#region Setup rendering
 
-			Graphics.Init(form);
+			bool debug = false;
+#if DEBUG
+			debug = true;
+#endif
+			Graphics.Init(form, debug);
 			Upload.Init();
 			Rendering.Rendering.Init();
 			Screen.Init(form);

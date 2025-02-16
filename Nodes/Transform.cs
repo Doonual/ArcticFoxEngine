@@ -23,7 +23,6 @@ namespace ArcticFoxEngine.Nodes {
 			}
 		}
 
-
 		public Vector3 worldPosition {
 			get {
 				return worldMatrix.Row3;
@@ -49,8 +48,6 @@ namespace ArcticFoxEngine.Nodes {
 
 			}
 		}
-
-		#region Directions
 
 		public Vector3 Right {
 			get {
@@ -84,9 +81,6 @@ namespace ArcticFoxEngine.Nodes {
 		}
 
 
-		#endregion
-
-
 		public Transform(Node containedNode) {
 
 			localPosition = Vector3.Zero;
@@ -118,7 +112,7 @@ namespace ArcticFoxEngine.Nodes {
 		internal static IntPtr transformIconPtr {
 			get {
 				if (transformIcon == null) {
-					transformIcon = Texture.Cache.FindOrLoad(".res/NodeIcons/Transform.png");
+					transformIcon = new Texture(".res/NodeIcons/Transform.png");
 					transformIconPtrCache = RenderImGui.RegisterTexture(transformIcon);
 				}
 				return transformIconPtrCache;

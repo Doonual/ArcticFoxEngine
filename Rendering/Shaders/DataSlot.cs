@@ -22,16 +22,10 @@ namespace ArcticFoxEngine.Rendering {
 
 		public void SetData<T>(ConstBuffer<T> dataSource, int sourceIndex) where T : struct {
 
-			// Copy the descriptors
-			int destDescPos = Rendering.ReserveDescriptorHeapSpace(1);
-			CpuDescriptorHandle destDescriptor = Rendering.gpuDescriptorHeap.CPUDescriptorHandleForHeapStart + destDescPos * Rendering.descriptorHeapIncrement;
 			CpuDescriptorHandle srcDescriptor = dataSource.descriptorHeap.CPUDescriptorHandleForHeapStart + sourceIndex * Rendering.descriptorHeapIncrement;
-			Graphics.device.CopyDescriptorsSimple(1, destDescriptor, srcDescriptor, DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView);
+			GpuDescriptorHandle destDescriptor = Rendering.CopyDescriptorsIn(srcDescriptor, 1);
 
-			// Tell the dataslot where to find the descriptors
-			currentDescriptorLocation = Rendering.gpuDescriptorHeap.GPUDescriptorHandleForHeapStart + destDescPos * Rendering.descriptorHeapIncrement;
-
-			Rendering.cmdList.SetGraphicsRootDescriptorTable(rootParameterIndex, currentDescriptorLocation);
+			Rendering.cmdList.SetGraphicsRootDescriptorTable(rootParameterIndex, destDescriptor);
 
 		}
 

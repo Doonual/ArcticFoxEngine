@@ -46,9 +46,7 @@ namespace ArcticFoxEngine.Nodes {
 
 		public override void DrawInspector() {
 
-			Vector3 colVec = new Vector3(colour.r / 255f, colour.g / 255f, colour.b / 255f);
-			ImGuiExtras.ItemWidthForText("Light col"); ImGui.ColorEdit3("Light col", ref colVec);
-			colour = new Color(colVec.x, colVec.y, colVec.z);
+			ImGuiExtras.ItemWidthForText("Light col"); ImGui.ColorEdit3("Light col", ref colour);
 
 			ImGuiExtras.ItemWidthForText("Light col"); ImGui.SliderFloat("Strength", ref strength, 0f, 5f);
 			ImGuiExtras.ItemWidthForText("Light col"); ImGui.DragFloat("Strength##lol", ref strength);

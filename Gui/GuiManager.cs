@@ -7,23 +7,56 @@ using ArcticFoxEngine.ImGuiIntegration;
 using ArcticFoxEngine.Nodes;
 using CoolClassLibrary;
 using ImGuiNET;
+using SharpDX.Direct3D12;
 using SharpDX.Windows;
 
 namespace ArcticFoxEngine.Gui {
 	public static class GuiManager {
 
+		private static Texture renderTexture;
+		private static DescriptorHeap rtvDescHeap;
+		private static Texture depthTexture;
+		private static DescriptorHeap dsvDescHeap;
+
+
 		private static bool isOpen;
 
 		private static List<GuiWindow> windows;
 		private static List<CustomWindow> temporaryWindows;
-
 		private static List<GuiOverlay> overlays;
-
 		private static List<Type> demoNodes;
 
 		private static Vector4 menuSubtitleCol = new Vector4(0.5f, 0.5f, 0.5f, 1.0f);
 
+
 		internal static void Init(RenderForm form) {
+
+			// Create render texture and accompanying descriptor heap
+			renderTexture = new Texture(Screen.width, Screen.height, flags: ResourceFlags.AllowRenderTarget);
+			DescriptorHeapDescription rtvDescHeapDescription = new DescriptorHeapDescription() {
+				DescriptorCount = 1,
+				Flags = DescriptorHeapFlags.None,
+				Type = DescriptorHeapType.RenderTargetView,
+			};
+			rtvDescHeap = Graphics.device.CreateDescriptorHeap(rtvDescHeapDescription);
+			Graphics.device.CreateRenderTargetView(renderTexture.resource, null, rtvDescHeap.CPUDescriptorHandleForHeapStart);
+
+			// Create depth texture and accompanying descriptor heap
+			depthTexture = new Texture(Screen.width, Screen.height, format: SharpDX.DXGI.Format.D32_Float, flags: ResourceFlags.AllowDepthStencil, initialState: ResourceStates.DepthWrite);
+			DescriptorHeapDescription dsvDescHeapDescription = new DescriptorHeapDescription() {
+				DescriptorCount = 1,
+				Flags = DescriptorHeapFlags.None,
+				Type = DescriptorHeapType.DepthStencilView,
+			};
+			dsvDescHeap = Graphics.device.CreateDescriptorHeap(dsvDescHeapDescription);
+
+
+			DepthStencilViewDescription dsvDescription = new DepthStencilViewDescription() {
+				Flags = DepthStencilViewFlags.None,
+				Format = SharpDX.DXGI.Format.D32_Float,
+			};
+
+			Graphics.device.CreateDepthStencilView(depthTexture.resource, null, dsvDescHeap.CPUDescriptorHandleForHeapStart);
 
 			RenderImGui.Init(1920, 1080);
 			ImGuiInput.Init(form.Handle);
@@ -63,7 +96,7 @@ namespace ArcticFoxEngine.Gui {
 			Log.ListenToLog(GetDebugWindow<LogWindow>().LogEvent);
 			Log.ListenToLogColor(GetDebugWindow<LogWindow>().LogColorEvent);
 
-			AppDomain.CurrentDomain.ProcessExit += (Object sender, EventArgs e) => { Dispose(); };
+			AppDomain.CurrentDomain.ProcessExit += (System.Object sender, EventArgs e) => { Dispose(); };
 
 		}
 
@@ -86,6 +119,9 @@ namespace ArcticFoxEngine.Gui {
 			temporaryWindows.Add(newWindow);
 		}
 
+		public static bool IsGuiOpen() {
+			return isOpen;
+		}
 		public static void OpenGUI() {
 			isOpen = true;
 		}
@@ -104,7 +140,8 @@ namespace ArcticFoxEngine.Gui {
 		public static void UpdateImGui() {
 
 			if (isOpen == false) { return; }
-			RenderImGui.Render(Graphics.renderTargets[Graphics.frameIndex], Graphics.rtvHeap, Graphics.dsvHeap);
+			RenderImGui.Render();
+			Graphics.Blit(RenderImGui.renderTexture, Graphics.GetActiveResource());
 
 		}
 

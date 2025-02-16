@@ -8,16 +8,7 @@ namespace ArcticFoxEngine.Rendering {
 	
 	public class LitShader : Shader {
 
-		public struct MaterialInfo {
-
-			public float normalStrength = 0.5f;
-			public float textureScale = 1f;
-
-			public MaterialInfo() {
-
-			}
-
-		}
+		
 
 		public struct LightingWorld {
 

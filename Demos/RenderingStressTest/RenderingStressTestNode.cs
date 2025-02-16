@@ -8,12 +8,10 @@ namespace ArcticFoxEngine.Demos.RenderingStressTest {
 		public RenderingStressTestNode() {
 			name = "Rendering Stress Test";
 
-			Shader litShader = Shader.Cache.FindOrLoad(typeof(LitShader));
-			Shader skyboxShader = Shader.Cache.FindOrLoad(typeof(SkyboxShader));
 
 			CreateChild<LightingSystem>();
 			MeshRenderer skybox = CreateChild<MeshRenderer>("skybox");
-			skybox.SetShader(skyboxShader);
+			skybox.SetShader<SkyboxShader>();
 			skybox.SetMesh(Mesh.CreatePrimitive(Mesh.Primitive.Quad));
 			for (int i = 0; i < skybox.mesh.vertices.Length; i++) {
 				skybox.mesh.vertices[i].position.y = skybox.mesh.vertices[i].position.z;
@@ -41,7 +39,7 @@ namespace ArcticFoxEngine.Demos.RenderingStressTest {
 						MeshRenderer newObj = cubeStack.CreateChild<MeshRenderer>("Object #" + currentObject);
 						newObj.transform.localPosition = new Vector3(x * 2f - maxDim / 2f + 0.5f, y * 2f - maxDim / 2f + 0.5f, z * 2f - maxDim / 2f + 0.5f);
 						newObj.SetMesh(Mesh.CreatePrimitive(Mesh.Primitive.Cube));
-						newObj.SetShader(litShader);
+						newObj.SetShader<LitShader>();
 						currentObject++;
 					}
 				}

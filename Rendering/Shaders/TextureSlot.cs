@@ -24,16 +24,13 @@ namespace ArcticFoxEngine.Rendering {
 
 		public void SetTexture(Texture texture) {
 
-			// Copy the descriptors
-			int destDescPos = Rendering.ReserveDescriptorHeapSpace(1);
-			CpuDescriptorHandle destDescriptor = Rendering.gpuDescriptorHeap.CPUDescriptorHandleForHeapStart + destDescPos * Rendering.descriptorHeapIncrement;
-			CpuDescriptorHandle srcDescriptor = texture.descriptorHeap.CPUDescriptorHandleForHeapStart;
-			Graphics.device.CopyDescriptorsSimple(1, destDescriptor, srcDescriptor, DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView);
+			if (texture == null) {
+				SetTexture(Rendering.missingTexture);
+				return;
+			}
 
-			// Tell the dataslot where to find the descriptors
-			currentDescriptorLocation = Rendering.gpuDescriptorHeap.GPUDescriptorHandleForHeapStart + destDescPos * Rendering.descriptorHeapIncrement;
-
-			Rendering.cmdList.SetGraphicsRootDescriptorTable(rootParameterIndex, currentDescriptorLocation);
+			GpuDescriptorHandle destDescriptor =  Rendering.CopyDescriptorsIn(texture.descriptorHeap.CPUDescriptorHandleForHeapStart, 1);
+			Rendering.cmdList.SetGraphicsRootDescriptorTable(rootParameterIndex, destDescriptor);
 
 		}
 

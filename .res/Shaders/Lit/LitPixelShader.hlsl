@@ -58,7 +58,7 @@ float4 Pixel_Main(Vertex input) : SV_Target {
 		
 		lightVal = max(0, dot(normalVal, normalize(lightData[i].pos.xyz - input.world_position.xyz)));
 		lightVal *= lightStrength * lightStrength;
-		outCol += lightVal * lightData[i].col * unlitCol;
+		outCol += lightVal * lightData[i].col * 255 * unlitCol;
 		
 	}
 	

@@ -1,4 +1,5 @@
-﻿using ArcticFoxEngine.ImGuiIntegration;
+﻿using ArcticFoxEngine.Gui;
+using ArcticFoxEngine.ImGuiIntegration;
 using ArcticFoxEngine.Input.Devices;
 using ImGuiNET;
 using SharpDX.DirectInput;

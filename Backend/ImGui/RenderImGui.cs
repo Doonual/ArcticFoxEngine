@@ -34,6 +34,11 @@ namespace ArcticFoxEngine.ImGuiIntegration {
 		static ConstBuffer<Matrix> constantBuffer;
 		static GraphicsCommandList cmdList;
 
+		public static Texture renderTexture;
+		static DescriptorHeap rtvDescHeap;
+		static Texture depthTexture;
+		static DescriptorHeap dsvDescHeap;
+
 
 		static readonly Dictionary<IntPtr, (Texture, int)> textureResources = new();
 
@@ -63,6 +68,27 @@ namespace ArcticFoxEngine.ImGuiIntegration {
 			CreateDeviceObjects();
 
 			cmdList = Graphics.CreateDirectCommandList();
+
+
+			renderTexture = new Texture(Screen.width, Screen.height, flags: ResourceFlags.AllowRenderTarget);
+			DescriptorHeapDescription rtvHeapDescription = new DescriptorHeapDescription() {
+				DescriptorCount = 1,
+				Flags = DescriptorHeapFlags.None,
+				Type = DescriptorHeapType.RenderTargetView,
+			};
+			rtvDescHeap = Graphics.device.CreateDescriptorHeap(rtvHeapDescription);
+			Graphics.device.CreateRenderTargetView(renderTexture.resource, null, rtvDescHeap.CPUDescriptorHandleForHeapStart);
+
+			depthTexture = new Texture(Screen.width, Screen.height, format: SharpDX.DXGI.Format.D32_Float, flags: ResourceFlags.AllowDepthStencil, initialState: ResourceStates.DepthWrite);
+			DescriptorHeapDescription dsvHeapDescription = new DescriptorHeapDescription() {
+				DescriptorCount = 1,
+				Flags = DescriptorHeapFlags.None,
+				Type = DescriptorHeapType.DepthStencilView,
+			};
+			dsvDescHeap = Graphics.device.CreateDescriptorHeap(dsvHeapDescription);
+			Graphics.device.CreateDepthStencilView(depthTexture.resource, null, dsvDescHeap.CPUDescriptorHandleForHeapStart);
+			
+
 		}
 
 		internal static void Update(float deltaTime, Action DoRender) {
@@ -163,7 +189,7 @@ namespace ArcticFoxEngine.ImGuiIntegration {
 
 		}
 
-		internal static void Render(Resource renderTarget, DescriptorHeap rtvDescHeap, DescriptorHeap dsvDescHeap) {
+		internal static void Render() {
 
 			
 
@@ -179,12 +205,12 @@ namespace ArcticFoxEngine.ImGuiIntegration {
 
 
 			// Indicate that the back buffer will be used as a render target
-			cmdList.ResourceBarrierTransition(renderTarget, ResourceStates.Present, ResourceStates.RenderTarget);
+			cmdList.ResourceBarrierTransition(renderTexture.resource, ResourceStates.Present, ResourceStates.RenderTarget);
 
 			// Set render target and depth stencil
 			CpuDescriptorHandle rtvHandle = rtvDescHeap.CPUDescriptorHandleForHeapStart;
 			CpuDescriptorHandle dsvHandle = dsvDescHeap.CPUDescriptorHandleForHeapStart;
-			rtvHandle += Graphics.frameIndex * Graphics.rtvHeapIncrement;
+
 			cmdList.SetRenderTargets(rtvHandle, dsvHandle);
 			cmdList.ClearDepthStencilView(dsvHandle, ClearFlags.FlagsDepth, 1f, 0);
 
@@ -235,7 +261,7 @@ namespace ArcticFoxEngine.ImGuiIntegration {
 			#endregion
 			ReplaceFontIfRequired();
 
-			cmdList.ResourceBarrierTransition(renderTarget, ResourceStates.RenderTarget, ResourceStates.Present);
+			cmdList.ResourceBarrierTransition(renderTexture.resource, ResourceStates.RenderTarget, ResourceStates.Present);
 
 
 			cmdList.Close();
@@ -341,7 +367,9 @@ namespace ArcticFoxEngine.ImGuiIntegration {
 				pixelArray[i] = pixels[i];
 			}
 			Texture fontTex = new Texture(width, height);
-			fontTex.AddToDescriptorHeap(descriptorHeap, descriptorHeapIndex);
+			Graphics.device.CreateShaderResourceView(fontTex.resource, null, descriptorHeap.CPUDescriptorHandleForHeapStart + Rendering.Rendering.descriptorHeapIncrement * descriptorHeapIndex);
+
+			//fontTex.PrepareAsShaderResource(descriptorHeap, descriptorHeapIndex);
 
 			fontTex.SetData(pixelArray);
 
@@ -352,7 +380,8 @@ namespace ArcticFoxEngine.ImGuiIntegration {
 
 		public static IntPtr RegisterTexture(Texture texture) {
 			IntPtr imguiID = texture.GetNativePointer();
-			texture.AddToDescriptorHeap(descriptorHeap, descriptorHeapIndex);
+			Graphics.device.CreateShaderResourceView(texture.resource, null, descriptorHeap.CPUDescriptorHandleForHeapStart + Rendering.Rendering.descriptorHeapIncrement * descriptorHeapIndex);
+			//texture.PrepareAsShaderResource(descriptorHeap, descriptorHeapIndex);
 			textureResources.TryAdd(imguiID, (texture, descriptorHeapIndex));
 			descriptorHeapIndex++;
 			return imguiID;

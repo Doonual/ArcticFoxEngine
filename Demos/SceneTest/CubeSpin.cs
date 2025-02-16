@@ -1,8 +1,11 @@
 ﻿using ArcticFoxEngine.Nodes;
+using ArcticFoxEngine.Rendering;
 using ImGuiNET;
 
 namespace ArcticFoxEngine.Demos.SceneTest {
 	public class CubeSpin : Node {
+
+		Texture mainTex;
 
 		List<Node> xSpin;
 		List<Node> ySpin;
@@ -17,6 +20,7 @@ namespace ArcticFoxEngine.Demos.SceneTest {
 		public CubeSpin() {
 			name = "Cube Spin";
 
+			mainTex = new Texture(".res/Textures/uv_512.png");
 
 			CameraController cameraController = CreateChild<CameraController>();
 			cameraController.CreateChild<Camera>();
@@ -42,6 +46,7 @@ namespace ArcticFoxEngine.Demos.SceneTest {
 
 				MeshRenderer xObj = xRing.CreateChild<MeshRenderer>("X" + (i + 1));
 				xObj.SetMesh(cubeMesh);
+				((UnlitMaterial)xObj.material).mainTex = mainTex;
 				xSpin.Add(xObj);
 
 			}
@@ -57,6 +62,7 @@ namespace ArcticFoxEngine.Demos.SceneTest {
 
 				MeshRenderer yObj = yRing.CreateChild<MeshRenderer>("Y" + (i + 1));
 				yObj.SetMesh(cubeMesh);
+				((UnlitMaterial)yObj.material).mainTex = mainTex;
 				ySpin.Add(yObj);
 
 			}
@@ -72,6 +78,7 @@ namespace ArcticFoxEngine.Demos.SceneTest {
 
 				MeshRenderer zObj = zRing.CreateChild<MeshRenderer>("Z" + (i + 1));
 				zObj.SetMesh(cubeMesh);
+				((UnlitMaterial)zObj.material).mainTex = mainTex;
 				zSpin.Add(zObj);
 
 			}

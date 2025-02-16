@@ -2,6 +2,7 @@
 using CoolClassLibrary;
 using ImGuiNET;
 using SharpDX;
+using SharpDX.Direct3D12;
 using RectangleF = SharpDX.RectangleF;
 
 namespace ArcticFoxEngine.Nodes {
@@ -13,19 +14,11 @@ namespace ArcticFoxEngine.Nodes {
 		internal override string nodeIconPath => ".res/NodeIcons/Camera.png";
 		internal override string nodeIconPath32 => ".res/NodeIcons/Camera32.png";
 
-		public int renderWidth {
-			get {
-				return Screen.width;
-			}
-		}
-		public int renderHeight {
-			get {
-				return Screen.height;
-			}
-		}
-
-		public float viewportWidth;
-		public float viewportHeight;
+		public Texture renderTexture;
+		internal DescriptorHeap rtvDescriptorHeap;
+		public Texture depthTexture;
+		internal DescriptorHeap dsvDescriptorHeap;
+		internal ConstBuffer<ProjectionInfo> projectionInfo;
 
 		public float fov = 100f;
 		public float nearPlane = 0.01f;
@@ -49,8 +42,8 @@ namespace ArcticFoxEngine.Nodes {
 		internal ViewportF viewport {
 			get {
 				ViewportF viewport = new ViewportF();
-				viewport.Width = viewportWidth;
-				viewport.Height = viewportHeight;
+				viewport.Width = renderTexture.width;
+				viewport.Height = renderTexture.height;
 				viewport.MaxDepth = 1f;
 				return viewport;
 			}
@@ -58,8 +51,8 @@ namespace ArcticFoxEngine.Nodes {
 		internal RectangleF scissorRect {
 			get {
 				RectangleF scissorRect = new RectangleF();
-				scissorRect.Right = viewportWidth;
-				scissorRect.Bottom = viewportHeight;
+				scissorRect.Right = renderTexture.width;
+				scissorRect.Bottom = renderTexture.height;
 				return scissorRect;
 			}
 		}
@@ -71,11 +64,30 @@ namespace ArcticFoxEngine.Nodes {
 
 		public Camera() {
 			name = "Camera";
+			renderTexture = new Texture(Screen.width, Screen.height, format: SharpDX.DXGI.Format.R8G8B8A8_UNorm, flags: ResourceFlags.AllowRenderTarget, initialState: ResourceStates.RenderTarget);
+			depthTexture = new Texture(renderTexture.width, renderTexture.height, format: SharpDX.DXGI.Format.D32_Float, flags: ResourceFlags.AllowDepthStencil, initialState: ResourceStates.DepthWrite);
 
-			viewportWidth = Screen.width;
-			viewportHeight = Screen.height;
+			projectionInfo = new ConstBuffer<ProjectionInfo>(1);
 
-			Enable();
+			// Create render target view descriptor heap and add the render texture to it
+			DescriptorHeapDescription rtvHeapDesc = new DescriptorHeapDescription() {
+				DescriptorCount = 1,
+				Flags = DescriptorHeapFlags.None,
+				Type = DescriptorHeapType.RenderTargetView
+			};
+			rtvDescriptorHeap = Graphics.device.CreateDescriptorHeap(rtvHeapDesc);
+			Graphics.device.CreateRenderTargetView(renderTexture.resource, null, rtvDescriptorHeap.CPUDescriptorHandleForHeapStart);
+
+			// Create depth stencil view descriptor heap and add the depth stencil texture to it
+			DescriptorHeapDescription dsvHeapDesc = new DescriptorHeapDescription() {
+				DescriptorCount = 1,
+				Flags = DescriptorHeapFlags.None,
+				Type = DescriptorHeapType.DepthStencilView,
+			};
+			dsvDescriptorHeap = Graphics.device.CreateDescriptorHeap(dsvHeapDesc);
+			Graphics.device.CreateDepthStencilView(depthTexture.resource, null, dsvDescriptorHeap.CPUDescriptorHandleForHeapStart);
+
+
 		}
 
 		internal Matrix CalculateProjectionMatrix() {
@@ -201,18 +213,22 @@ namespace ArcticFoxEngine.Nodes {
 
 		}
 
-		internal void UpdateCameraInfoBuffer(ConstBuffer<ProjectionInfo> projectionInfo) {
+		public override void Update() {
 
 			ProjectionInfo info = new ProjectionInfo();
 			info.projectionMatrix = fullMatrix;
-			info.screenWidth = renderWidth;
-			info.screenHeight = renderHeight;
-			info.aspectRatio = (float)renderWidth / renderHeight;
+			info.screenWidth = renderTexture.width;
+			info.screenHeight = renderTexture.height;
+			info.aspectRatio = (float)renderTexture.width / renderTexture.height;
 			projectionInfo.Write(new ProjectionInfo[] { info }, 0);
 
 		}
+
 		public override void Render() {
-			Rendering.Rendering.RenderScene(Graphics.renderTargets[Graphics.frameIndex], Graphics.rtvHeap, Graphics.dsvHeap, this);
+
+			Rendering.Rendering.RenderScene(this);
+			Graphics.Blit(renderTexture, Graphics.GetActiveResource());
+
 		}
 
 

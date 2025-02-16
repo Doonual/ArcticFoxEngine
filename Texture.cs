@@ -9,79 +9,10 @@ namespace ArcticFoxEngine {
 
 	public class Texture : IDisposable {
 
-		public static class Cache {
-
-			// The key is the path of the image file
-			// The value is a Texture / int pair, where the Texture is the cached texture
-			// and the int is the number of refrences to the texture that exists
-			private static Dictionary<string, (Texture, int)> textureCache;
-
-			static Cache() {
-				textureCache = new Dictionary<string, (Texture, int)>();
-			}
-
-
-			public static Texture FindOrLoad(string path) {
-
-				if (textureCache.ContainsKey(path) == true) {
-
-					// Retrieve the cached texture
-					(Texture cachedTexture, int numRefs) = textureCache[path];
-					textureCache[path] = (cachedTexture, numRefs + 1); // update the number of refrences to this texture
-
-					return cachedTexture;
-				}
-
-				Texture loadedTexture = new Texture(path);
-				textureCache.Add(path, (loadedTexture, 1));
-				return loadedTexture;
-
-			}
-
-			public static void Release(string path) {
-
-				if (textureCache.ContainsKey(path) == true) {
-
-					// Retrieve the cached texture
-					(Texture cachedTexture, int numRefs) = textureCache[path];
-
-					// update the number of refrences to this texture
-					textureCache[path] = (cachedTexture, numRefs - 1); 
-
-					// If there are no more refrences to this texture, dispose it and remove the dictionary entry
-					if (numRefs == 0) {
-						cachedTexture.Dispose();
-						textureCache.Remove(path);
-					}
-
-					return;
-
-				}
-
-				Log.Warn("Cannot release texture from cache, not added to cache");
-
-			}
-
-			public static void Release(Texture texture) {
-
-				for (int i = 0; i < textureCache.Count; i ++) {
-					if (textureCache.ElementAt(i).Value.Item1 == texture) {
-						Release(textureCache.ElementAt(i).Key);
-						return;
-					}
-				}
-
-				Log.Warn("Cannot release texture from cache, not added to cache");
-
-			}
-
-
-		}
-
 		private bool disposed = true;
 
 		internal DescriptorHeap descriptorHeap;
-		Resource texture;
+		internal Resource resource;
 
 		public Format format { get; private set; }
 		public int width;
@@ -93,25 +24,24 @@ namespace ArcticFoxEngine {
 		/// </summary>
 		/// <param name="width">Width of the texture</param>
 		/// <param name="height">Height of the texture</param>
-		public Texture(int width, int height, bool allowUnorderedAccess = false, Format format = Format.R8G8B8A8_UNorm) {
+		public Texture(int width, int height, Format format = Format.R8G8B8A8_UNorm, ResourceFlags flags = ResourceFlags.None, ResourceStates initialState = ResourceStates.CopyDestination) {
 			disposed = false;
 
 			this.width = width;
 			this.height = height;
 			this.format = format;
-			ResourceDescription textureDesc = ResourceDescription.Texture2D(format, width, height);
-
-			textureDesc.Flags |= allowUnorderedAccess ? ResourceFlags.AllowUnorderedAccess : ResourceFlags.None;
-
-			texture = Graphics.device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.None, textureDesc, ResourceStates.CopyDestination);
 			textureDataClone = new byte[width * height * format.SizeOfInBytes()];
 
-			DescriptorHeapDescription dhd = new DescriptorHeapDescription() {
-				DescriptorCount = 1,
-				Type = DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView,
-			};
-			descriptorHeap = Graphics.device.CreateDescriptorHeap(dhd);
-			AddToDescriptorHeap(descriptorHeap, 0);
+			ResourceDescription textureDesc = ResourceDescription.Texture2D(format, width, height, flags: flags);
+			resource = Graphics.device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.None, textureDesc, initialState);
+
+			if (format == Format.D32_Float) {
+				PrepareAsShaderResource(0, 0, 0, 0);
+			}
+			else {
+				PrepareAsShaderResource(0, 1, 2, 3);
+			}
+			
 
 		}
 
@@ -128,7 +58,7 @@ namespace ArcticFoxEngine {
 			height = image.Height;
 			format = Format.R8G8B8A8_UNorm;
 			ResourceDescription textureDesc = ResourceDescription.Texture2D(Format.R8G8B8A8_UNorm, width, height);
-			texture = Graphics.device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.None, textureDesc, ResourceStates.CopyDestination);
+			resource = Graphics.device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.None, textureDesc, ResourceStates.CopyDestination);
 			textureDataClone = new byte[width * height * format.SizeOfInBytes()];
 
 			byte[] imageData = new byte[image.Width * image.Height * 4];
@@ -143,12 +73,7 @@ namespace ArcticFoxEngine {
 			image.Dispose();
 			SetData(imageData);
 
-			DescriptorHeapDescription dhd = new DescriptorHeapDescription() {
-				DescriptorCount = 1,
-				Type = DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView,
-			};
-			descriptorHeap = Graphics.device.CreateDescriptorHeap(dhd);
-			AddToDescriptorHeap(descriptorHeap, 0);
+			PrepareAsShaderResource(0, 1, 2, 3);
 
 		}
 
@@ -157,17 +82,28 @@ namespace ArcticFoxEngine {
 		/// </summary>
 		/// <param name="destDescriptorHeap">The descriptor heap to add the texture to</param>
 		/// <param name="offset">The offset into the descriptor heap the texture should be added to</param>
-		internal void AddToDescriptorHeap(DescriptorHeap destDescriptorHeap, int offset) {
+		internal void PrepareAsShaderResource(int componentMappingR, int componentMappingG, int componentMappingB, int componentMappingA) {
 
+			// Create descriptor heap
+			DescriptorHeapDescription dhd = new DescriptorHeapDescription() {
+				DescriptorCount = 1,
+				Type = DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView,
+			};
+			descriptorHeap = Graphics.device.CreateDescriptorHeap(dhd);
+
+			Format testFormat = format;
+			if (format == Format.D32_Float) {
+				format = Format.R32_Float;
+			}
+
+			int componentMapping = ComponentMapping(componentMappingR, componentMappingG, componentMappingB, componentMappingA);
 			ShaderResourceViewDescription srvDesc = new ShaderResourceViewDescription() {
-				Shader4ComponentMapping = ComponentMapping(0, 1, 2, 3),
-				Format = Format.R8G8B8A8_UNorm,
+				Shader4ComponentMapping = componentMapping,
+				Format = format,
 				Dimension = ShaderResourceViewDimension.Texture2D,
 				Texture2D = { MipLevels = 1 },
 			};
-
-			Graphics.device.CreateShaderResourceView(texture, srvDesc, destDescriptorHeap.CPUDescriptorHandleForHeapStart + Graphics.device.GetDescriptorHandleIncrementSize(DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView) * offset);
-
+			Graphics.device.CreateShaderResourceView(resource, srvDesc, descriptorHeap.CPUDescriptorHandleForHeapStart);
 
 		}
 
@@ -176,7 +112,7 @@ namespace ArcticFoxEngine {
 		/// </summary>
 		/// <param name="data">The data to be uploaded</param>
 		public void SetData(byte[] data) {
-			Upload.Texture2DUpload(texture, width, height, format, data);
+			Upload.Texture2DUpload(resource, width, height, format, data);
 			textureDataClone = data;
 		}
 
@@ -185,7 +121,7 @@ namespace ArcticFoxEngine {
 				//Log.Warn("Trying to set pixel outside of the texture, ignoring");
 				return;
 			}
-			Upload.Texture2DPixelUpload(texture, x, y, format, data);
+			Upload.Texture2DPixelUpload(resource, x, y, format, data);
 		}
 		public void SetAllPixels(byte[] data) {
 			byte[] allData = new byte[format.SizeOfInBytes() * width * height];
@@ -227,7 +163,7 @@ namespace ArcticFoxEngine {
 			
 		}
 		public void BatchSync() {
-			Upload.Texture2DUpload(texture, width, height, format, textureDataClone);
+			Upload.Texture2DUpload(resource, width, height, format, textureDataClone);
 		}
 
 
@@ -236,7 +172,7 @@ namespace ArcticFoxEngine {
 		/// </summary>
 		/// <returns>The native pointer of the texture</returns>
 		internal IntPtr GetNativePointer() {
-			return texture.NativePointer;
+			return resource.NativePointer;
 		}
 
 		internal static int ComponentMapping(int src0, int src1, int src2, int src3) {
@@ -259,7 +195,7 @@ namespace ArcticFoxEngine {
 		public void Dispose() {
 			if (disposed == true) { return; }
 			disposed = true;
-			texture.Dispose();
+			resource.Dispose();
 			descriptorHeap.Dispose();
 		}
 		~Texture() {

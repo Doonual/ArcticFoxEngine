@@ -13,7 +13,7 @@ namespace ArcticFoxEngine.Rendering {
 
 	public abstract class Shader : IDisposable {
 
-		public static class Cache {
+		private static class Cache {
 
 			// The key of the dictionary is the type of the shader
 			// The value of the dictionary is a pair of a Shader and an int
@@ -84,6 +84,16 @@ namespace ArcticFoxEngine.Rendering {
 
 			}
 
+			public static List<Shader> GetAllShaders() {
+
+				List<Shader> allShaders = new List<Shader>();
+				for (int i = 0; i < shaderCache.Count(); i ++) {
+					allShaders.Add(shaderCache.Values.ElementAt(i).Item1);
+				}
+				return allShaders;
+
+			}
+
 		}
 
 		
@@ -149,6 +159,12 @@ namespace ArcticFoxEngine.Rendering {
 		}
 		public abstract Material GetDefaultMaterial();
 
+		public static Shader Load<T>() where T : Shader {
+			return Cache.FindOrLoad(typeof(T));
+		}
+		internal static List<Shader> GetAllShaders() {
+			return Cache.GetAllShaders();
+		}
 
 		public enum ShaderType {
 			Vertex,
@@ -346,15 +362,10 @@ namespace ArcticFoxEngine.Rendering {
 		public void DefaultRender(Camera camera, Resource renderTarget, DescriptorHeap rtvDescHeap, DescriptorHeap dsvDescHeap, DataSlot projectionInfoDataSlot, DataSlot transformInfoDataSlot) {
 
 			geometryResources.UpdateObjectInfoBuffer();
-
-			
-
-
-			// Bind the projection data
-			projectionInfoDataSlot.SetData(Rendering.projectionInfo, 0);
+			projectionInfoDataSlot.SetData(camera.projectionInfo, 0);
 
 			// Bind the shader global data
-
+			
 
 			// Set geometry
 			Rendering.cmdList.PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList;

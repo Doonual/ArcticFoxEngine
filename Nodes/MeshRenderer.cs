@@ -24,7 +24,7 @@ namespace ArcticFoxEngine.Nodes {
 			name = "Mesh Renderer";
 
 			mesh = null;
-			SetShader(Rendering.GetShader("Unlit"));
+			SetShader<UnlitShader>();
 			material = new UnlitMaterial();
 
 			Enable();
@@ -45,6 +45,13 @@ namespace ArcticFoxEngine.Nodes {
 			}
 
 		}
+		public void SetShader<T>() where T : Shader {
+
+			Shader loadShader = Shader.Load<T>();
+			SetShader(loadShader);
+
+		}
+
 		public void SetMesh(Mesh mesh) {
 
 			// If the object has a mesh already loaded, delete it
@@ -118,9 +125,9 @@ namespace ArcticFoxEngine.Nodes {
 
 
 			// Shader combo
-			Shader[] shaders = Rendering.GetAllShaders();
-			string[] shaderNames = new string[shaders.Length];
-			for (int i = 0; i < shaders.Length; i++) {
+			List<Shader> shaders = Shader.GetAllShaders();
+			string[] shaderNames = new string[shaders.Count()];
+			for (int i = 0; i < shaders.Count(); i++) {
 				shaderNames[i] = shaders[i].name;
 				if (shader == shaders[i]) {
 					shaderComboSelected = i;
@@ -128,7 +135,7 @@ namespace ArcticFoxEngine.Nodes {
 			}
 
 			ImGuiExtras.ItemWidthForText("Shader");
-			if (ImGui.Combo("Shader", ref shaderComboSelected, shaderNames, shaders.Length) == true) {
+			if (ImGui.Combo("Shader", ref shaderComboSelected, shaderNames, shaders.Count()) == true) {
 				SetShader(shaders[shaderComboSelected]);
 			}
 

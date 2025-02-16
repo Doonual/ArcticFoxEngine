@@ -16,39 +16,28 @@ namespace ArcticFoxEngine {
 
 		static RenderForm mainRenderForm;
 		internal static SwapChain3 swapChain;
+		internal static Resource[] swapchainResources;
 		internal const int swapChainFrameCount = 2;
 		internal static int frameIndex;
-
-
-		// Render target view descriptor heap
-		internal static DescriptorHeap rtvHeap;
-		internal static Resource[] renderTargets;
-		internal static int rtvHeapIncrement;
-
-		// Depth Stencil descriptor heap
-		internal static DescriptorHeap dsvHeap;
-		internal static Resource depthStencilBuffer;
 
 
 		#region Command queue objects
 
 		internal static CommandAllocator cmdAllocatorDirect;
 		internal static CommandQueue cmdQueueDirect;
+		internal static GraphicsCommandList directCmdList;
 		private static Fence fenceDirect;
 		private static long fenceValueDirect;
 
 		internal static CommandAllocator cmdAllocatorCopy;
 		internal static CommandQueue cmdQueueCopy;
+		internal static GraphicsCommandList copyCmdList;
 		private static Fence fenceCopy;
 		private static long fenceValueCopy;
 
 		private static AutoResetEvent fenceEvent;
 
 		#endregion
-
-
-		// Main setup function
-		// Combines all the individual steps to setting up rendering
 
 
 		/// <summary>
@@ -58,11 +47,14 @@ namespace ArcticFoxEngine {
 		/// settup up the swap chain and resources for rendering to the screen.
 		/// </summary>
 		/// <param name="form"></param>
-		internal static void Init(RenderForm form) {
+		internal static void Init(RenderForm form, bool isDebug) {
+
+			Graphics.isDebug = isDebug;
 
 			if (isDebug == true) {
 				// Enable the D3D12 debug layer
 				DebugInterface.Get().EnableDebugLayer();
+				Log.Info("Enabled D3D12 Debugging Layer");
 			}
 
 			mainRenderForm = form;
@@ -113,11 +105,12 @@ namespace ArcticFoxEngine {
 
 			// Create synchronisation objects
 			fenceDirect = device.CreateFence(0, FenceFlags.None);
-			fenceValueDirect = 1;
+			fenceValueDirect = 0;
 
 			// Give the fenceDirect a default completed value
-			cmdQueueDirect.Signal(fenceDirect, fenceValueDirect);
+			fenceDirect.Signal(fenceValueDirect);
 
+			directCmdList = CreateDirectCommandList();
 
 
 		}
@@ -130,8 +123,8 @@ namespace ArcticFoxEngine {
 			cmdList.Reset(cmdAllocatorDirect, null);
 		}
 		internal static void ExecuteDirectCommandList(GraphicsCommandList cmdList) {
-			cmdQueueDirect.ExecuteCommandList(cmdList);
 
+			cmdQueueDirect.ExecuteCommandList(cmdList);
 			fenceValueDirect++;
 			cmdQueueDirect.Signal(fenceDirect, fenceValueDirect);
 
@@ -157,10 +150,13 @@ namespace ArcticFoxEngine {
 
 			fenceCopy = device.CreateFence(0, FenceFlags.None);
 			fenceCopy.Name = "Upload Fence";
-			fenceValueDirect = 1;
+			fenceValueCopy = 0;
 
 			// Give the fenceDirect a default completed value
-			cmdQueueCopy.Signal(fenceCopy, fenceValueDirect);
+			fenceCopy.Signal(fenceValueCopy);
+
+			copyCmdList = CreateCopyCommandList();
+
 
 		}
 		internal static GraphicsCommandList CreateCopyCommandList() {
@@ -174,10 +170,10 @@ namespace ArcticFoxEngine {
 			cmdList.Reset(cmdAllocatorCopy, null);
 		}
 		internal static void ExecuteCopyCommandList(GraphicsCommandList cmdList) {
-			cmdQueueCopy.ExecuteCommandList(cmdList);
 
+			cmdQueueCopy.ExecuteCommandList(cmdList);
 			fenceValueCopy++;
-			cmdQueueCopy.Signal(fenceCopy, fenceValueCopy);
+			cmdQueueCopy.Signal(fenceCopy, fenceValueCopy);			
 
 		}
 		internal static void WaitForCopyCommandQueue() {
@@ -185,16 +181,13 @@ namespace ArcticFoxEngine {
 		}
 
 		internal static void WaitForFenceValue(long value, Fence fence) {
-			
+
 			if (fence.CompletedValue < value) {
 				fence.SetEventOnCompletion(value, fenceEvent.SafeWaitHandle.DangerousGetHandle());
 				fenceEvent.WaitOne();
 			}
 
 		}
-
-
-
 
 		private static void SetupSwapChain(int width, int height, int refreshRate, CommandQueue commandQueue) {
 
@@ -208,7 +201,7 @@ namespace ArcticFoxEngine {
 					Usage = Usage.RenderTargetOutput,
 					SwapEffect = SwapEffect.FlipDiscard,
 					OutputHandle = mainRenderForm.Handle,
-					Flags = SwapChainFlags.None | SwapChainFlags.AllowModeSwitch,
+					Flags = SwapChainFlags.AllowModeSwitch,
 					SampleDescription = new SampleDescription(1, 0),
 					IsWindowed = true
 				};
@@ -220,57 +213,17 @@ namespace ArcticFoxEngine {
 			}
 
 
-			#region Setup RTV descripto heaps and resources
-
-			// Create a render target view (RTV) descriptor heap
-			DescriptorHeapDescription rtvHeapDesc = new DescriptorHeapDescription() {
-				DescriptorCount = swapChainFrameCount,
-				Flags = DescriptorHeapFlags.None,
-				Type = DescriptorHeapType.RenderTargetView
-			};
-			rtvHeap = device.CreateDescriptorHeap(rtvHeapDesc);
-			rtvHeapIncrement = device.GetDescriptorHandleIncrementSize(DescriptorHeapType.RenderTargetView);
-
-
-			// Add render target resources to RTV descriptor heap
-			CpuDescriptorHandle rtvHandle = rtvHeap.CPUDescriptorHandleForHeapStart;
-			renderTargets = new Resource[swapChainFrameCount];
+			// Grab the swapchain resources
+			swapchainResources = new Resource[swapChainFrameCount];
 			for (int n = 0; n < swapChainFrameCount; n++) {
-				renderTargets[n] = swapChain.GetBackBuffer<Resource>(n);
-				device.CreateRenderTargetView(renderTargets[n], null, rtvHandle);
-				rtvHandle += rtvHeapIncrement;
+				swapchainResources[n] = swapChain.GetBackBuffer<Resource>(n);
 			}
 
-			#endregion
-			#region Setup DSV descriptor heap and resources
-
-			DescriptorHeapDescription dsvHeapDesc = new DescriptorHeapDescription() {
-				DescriptorCount = 1,
-				Type = DescriptorHeapType.DepthStencilView,
-				Flags = DescriptorHeapFlags.None
-			};
-			dsvHeap = device.CreateDescriptorHeap(dsvHeapDesc);
-
-			DepthStencilViewDescription depthStencilDesc = new DepthStencilViewDescription() {
-				Format = Format.D32_Float,
-				Dimension = DepthStencilViewDimension.Texture2D,
-				Flags = DepthStencilViewFlags.None
-			};
-			depthStencilBuffer = device.CreateCommittedResource(
-				new HeapProperties(HeapType.Default),
-				HeapFlags.None, ResourceDescription.Texture2D(Format.D32_Float, width, height, flags: ResourceFlags.AllowDepthStencil),
-				ResourceStates.DepthWrite
-			);
-			depthStencilBuffer.Name = "Depth / Stencil Resource Heap";
-			device.CreateDepthStencilView(depthStencilBuffer, depthStencilDesc, dsvHeap.CPUDescriptorHandleForHeapStart);
-
-			#endregion
 
 
 		}
 
-		
-		
+
 		
 		/// <summary>
 		/// Shows the render target to the screen and swaps which resource is the render target
@@ -310,6 +263,35 @@ namespace ArcticFoxEngine {
 			}
 
 		}
+
+		public static Resource GetActiveResource() {
+			return swapchainResources[frameIndex];
+		}
+		public static void Blit(Resource src, Resource dst) {
+
+			WaitForDirectCommandQueue();
+			ResetDirectCommandList(directCmdList);
+
+			TextureCopyLocation srcLocation = new TextureCopyLocation(src, 0);
+			TextureCopyLocation dstLocation = new TextureCopyLocation(dst, 0);
+
+			directCmdList.CopyTextureRegion(dstLocation, 0, 0, 0, srcLocation, null);
+
+			directCmdList.Close();
+			ExecuteDirectCommandList(directCmdList);
+
+			
+		}
+		public static void Blit(Texture src, Resource dst) {
+			Blit(src.resource, dst);
+		}
+		public static void Blit(Resource src, Texture dst) {
+			Blit(src, dst.resource);
+		}
+		public static void Blit(Texture src, Texture dst) {
+			Blit(src.resource, src.resource);
+		}
+
 
 		/// <summary>
 		/// Disposes all resources held by Graphics

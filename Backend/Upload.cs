@@ -99,12 +99,15 @@ namespace ArcticFoxEngine {
 			uploadResource.WriteToSubresource(0, null, ptr, texturePixelSize * width, textureData.Length);
 			handle.Free();
 
-			cmdList.CopyTextureRegion(new TextureCopyLocation(dstTexture, 0), 0, 0, 0, new TextureCopyLocation(uploadResource, 0), null);
+			for (int i = 0; i < 500; i ++) {
+				cmdList.CopyTextureRegion(new TextureCopyLocation(dstTexture, 0), 0, 0, 0, new TextureCopyLocation(uploadResource, 0), null);
+			}
+			
 			cmdList.Close();
 
 			Graphics.ExecuteCopyCommandList(cmdList);
-
 			Graphics.WaitForCopyCommandQueue();
+			
 			uploadResource.Dispose();
 			uploadResource = null;
 

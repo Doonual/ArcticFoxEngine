@@ -23,17 +23,10 @@ namespace ArcticFoxEngine.Rendering {
 
 		public void SetBuffer<T>(StructuredBuffer<T> buffer, int srcOffset) where T : struct {
 
-			// Copy the descriptors
-			int destDescPos = Rendering.ReserveDescriptorHeapSpace(1);
-			CpuDescriptorHandle destDescriptor = Rendering.gpuDescriptorHeap.CPUDescriptorHandleForHeapStart + destDescPos * Rendering.descriptorHeapIncrement;
 			CpuDescriptorHandle srcDescriptor = buffer.descriptorHeap.CPUDescriptorHandleForHeapStart + srcOffset * Rendering.descriptorHeapIncrement;
-			Graphics.device.CopyDescriptorsSimple(1, destDescriptor, srcDescriptor, DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView);
+			GpuDescriptorHandle destDescriptor = Rendering.CopyDescriptorsIn(srcDescriptor, buffer.numElements);
 
-
-			// Tell the bufferSlot where to find the descriptors
-			currentDescriptorLocation = Rendering.gpuDescriptorHeap.GPUDescriptorHandleForHeapStart + destDescPos * Rendering.descriptorHeapIncrement;
-
-			Rendering.cmdList.SetGraphicsRootDescriptorTable(rootParameterIndex, currentDescriptorLocation);
+			Rendering.cmdList.SetGraphicsRootDescriptorTable(rootParameterIndex, destDescriptor);
 
 		}
 

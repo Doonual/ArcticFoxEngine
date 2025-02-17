@@ -29,7 +29,7 @@ namespace ArcticFoxEngine.Input.Bindings {
 				return;
 			}
 
-			if (ImGui.GetIO().WantCaptureMouse == true && ignoreImGui == false) {
+			if (ImGui.GetIO().WantCaptureMouse == true && GuiManager.IsGuiOpen() == true && ignoreImGui == false) {
 				axisActive = 0f;
 				return;
 			}

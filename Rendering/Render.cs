@@ -8,7 +8,7 @@ namespace ArcticFoxEngine.Rendering {
 	/// <summary>
 	/// Encapsulates all the tasks required to render a GeometryResources instance
 	/// </summary>
-	public static class Rendering {
+	public static class Render {
 
 		public static GraphicsCommandList cmdList;
 		public static DescriptorHeap gpuDescriptorHeap;
@@ -31,7 +31,9 @@ namespace ArcticFoxEngine.Rendering {
 			cmdList = Graphics.CreateDirectCommandList();
 
 
+			
 			missingTexture = new Texture(64, 64);
+			missingTexture.name = "Missing Texture";
 			for (int x = 0; x < 64; x ++) {
 				for (int y = 0; y < 64; y ++) {
 					byte[] pixelData = new byte[] { 0x00, 0x00, 0x00, 0xff }; ;
@@ -42,6 +44,7 @@ namespace ArcticFoxEngine.Rendering {
 				}
 			}
 			missingTexture.BatchSync();
+			
 		}
 
 		/// <summary>
@@ -82,9 +85,6 @@ namespace ArcticFoxEngine.Rendering {
 
 			cmdList.SetDescriptorHeaps(gpuDescriptorHeap);
 
-			// Indicate that the back buffer will be used as a render target
-			//cmdList.ResourceBarrierTransition(camera.renderTexture.resource, ResourceStates.Common, ResourceStates.RenderTarget);
-
 			// Set viewport and scissor rectancles
 			cmdList.SetViewport(camera.viewport);
 			cmdList.SetScissorRectangles(camera.scissorRect);
@@ -104,10 +104,8 @@ namespace ArcticFoxEngine.Rendering {
 			List<Shader> shadersToRender = Shader.GetAllShaders();
 			for (int i = 0; i < shadersToRender.Count; i++) {
 
-
-
 				Shader currentShader = shadersToRender[i];
-				GeometryInfo currentGeometryResources = currentShader.geometryResources;
+				GeometryBank currentGeometryResources = currentShader.geometryResources;
 
 				// Update the pipeline state and set this shaders root signature
 				cmdList.PipelineState = currentShader.pipelineState;
@@ -117,15 +115,10 @@ namespace ArcticFoxEngine.Rendering {
 
 			}
 
-			// Indicate that the back buffer will now be used to present
-			//cmdList.ResourceBarrierTransition(camera.renderTexture.resource, ResourceStates.RenderTarget, ResourceStates.Common);
-
-
 			cmdList.Close();
 			Graphics.ExecuteDirectCommandList(cmdList);
 
 		}
-
 
 		internal static void Dispose() {
 			cmdList.Dispose();

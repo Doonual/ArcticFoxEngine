@@ -107,18 +107,16 @@ namespace ArcticFoxEngine.Nodes {
 
 		}
 
-		static Texture transformIcon;
-		
-		internal static IntPtr transformIconPtr {
+
+		internal static Texture transformIcon {
 			get {
-				if (transformIcon == null) {
-					transformIcon = new Texture(".res/NodeIcons/Transform.png");
-					transformIconPtrCache = RenderImGui.RegisterTexture(transformIcon);
+				if (transformIcon_ == null) {
+					transformIcon_ = new Texture(".res/NodeIcons/Transform.png");
 				}
-				return transformIconPtrCache;
+				return transformIcon_;
 			}
 		}
-		private static IntPtr transformIconPtrCache;
+		private static Texture transformIcon_;
 
 		private bool normaliseRotation = false;
 		public void DrawTransformGui() {

@@ -64,9 +64,11 @@ namespace ArcticFoxEngine.Nodes {
 
 		public Camera() {
 			name = "Camera";
-			renderTexture = new Texture(Screen.width, Screen.height, format: SharpDX.DXGI.Format.R8G8B8A8_UNorm, flags: ResourceFlags.AllowRenderTarget, initialState: ResourceStates.RenderTarget);
-			depthTexture = new Texture(renderTexture.width, renderTexture.height, format: SharpDX.DXGI.Format.D32_Float, flags: ResourceFlags.AllowDepthStencil, initialState: ResourceStates.DepthWrite);
 
+			renderTexture = new Texture(MainWindow.width, MainWindow.height, format: Format.R8G8B8A8_UNorm, flags: ResourceFlags.AllowRenderTarget, initialState: ResourceStates.RenderTarget);
+			renderTexture.name = "Camera Render Texture";
+			depthTexture = new Texture(renderTexture.width, renderTexture.height, format: Format.D32_Float, flags: ResourceFlags.AllowDepthStencil, initialState: ResourceStates.DepthWrite);
+			depthTexture.name = "Camera Depth Texture";
 			projectionInfo = new ConstBuffer<ProjectionInfo>(1);
 
 			// Create render target view descriptor heap and add the render texture to it
@@ -94,10 +96,10 @@ namespace ArcticFoxEngine.Nodes {
 
 			Matrix projectionMatrix = new Matrix();
 			if (projectionType == ProjectionType.Perspective) {
-				projectionMatrix = Matrix.PerspectiveFovLH(fov * MathF.PI / 180f, Screen.aspectRatio, nearPlane, farPlane);
+				projectionMatrix = Matrix.PerspectiveFovLH(fov * MathF.PI / 180f, MainWindow.aspectRatio, nearPlane, farPlane);
 			}
 			if (projectionType == ProjectionType.Orthographic) {
-				projectionMatrix = Matrix.OrthoLH(zoom * Screen.aspectRatio, zoom, nearPlane, farPlane);
+				projectionMatrix = Matrix.OrthoLH(zoom * MainWindow.aspectRatio, zoom, nearPlane, farPlane);
 			}
 
 			return projectionMatrix;
@@ -131,8 +133,8 @@ namespace ArcticFoxEngine.Nodes {
 		public Vector2 CameraToScreen(Vector3 cameraSpacePos) {
 
 			Vector2 screenSpacePos = new Vector2(cameraSpacePos.x, -cameraSpacePos.y) / 2f;
-			screenSpacePos *= new Vector2(Screen.width, Screen.height);
-			screenSpacePos += new Vector2(Screen.width, Screen.height) / 2f;
+			screenSpacePos *= new Vector2(MainWindow.width, MainWindow.height);
+			screenSpacePos += new Vector2(MainWindow.width, MainWindow.height) / 2f;
 
 			return screenSpacePos;
 
@@ -157,8 +159,8 @@ namespace ArcticFoxEngine.Nodes {
 		/// <returns>Camera space position. Ranging from -1 to 1 on the x, y, z axis</returns>
 		public Vector3 ScreenToCamera(Vector2 screenSpacePos, float depth = 1f) {
 
-			Vector2 normalizedScreenPos = screenSpacePos - new Vector2(Screen.width, Screen.height) / 2f;
-			normalizedScreenPos = 2f * normalizedScreenPos / new Vector2(Screen.width, Screen.height);
+			Vector2 normalizedScreenPos = screenSpacePos - new Vector2(MainWindow.width, MainWindow.height) / 2f;
+			normalizedScreenPos = 2f * normalizedScreenPos / new Vector2(MainWindow.width, MainWindow.height);
 			Vector3 cameraPos = new Vector3(normalizedScreenPos.x, -normalizedScreenPos.y, depth);
 			return cameraPos;
 
@@ -226,11 +228,18 @@ namespace ArcticFoxEngine.Nodes {
 
 		public override void Render() {
 
-			Rendering.Rendering.RenderScene(this);
+			Rendering.Render.RenderScene(this);
 			Graphics.Blit(renderTexture, Graphics.GetActiveResource());
 
 		}
 
+		public override void Dispose() {
+			renderTexture.Dispose();
+			rtvDescriptorHeap.Dispose();
+			depthTexture.Dispose();
+			dsvDescriptorHeap.Dispose();
+			projectionInfo.Dispose();
+		}
 
 
 	}

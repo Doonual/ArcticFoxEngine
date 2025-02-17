@@ -28,7 +28,7 @@
 
 		internal override void BufferValues() {
 
-			if (Engine.form.Focused == false) {
+			if (MainWindow.form.Focused == false) {
 				axisActive = 0f;
 			}
 

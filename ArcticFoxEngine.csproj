@@ -13,7 +13,7 @@
 
 	<ItemGroup>
 		<None Remove=".gitignore" />
-		<None Remove="ImGui\build\net40\ImGui.NET.targets" />
+		<None Remove="Gui\ImGui\build\net40\ImGui.NET.targets" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -46,19 +46,6 @@
 	  <None Remove="ArcticFoxEngine Documentation\**" />
 	</ItemGroup>
 
-
-	<!--ItemGroup>
-	  <Content Include="..\ImGui.NET-1.89.7.1\deps\cimgui\win-x64\cimgui.dll" Link="ImGui\cimgui.dll">
-		<PackagePath>runtimes/win-x64/native</PackagePath>
-		<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		<Pack>true</Pack>
-	  </Content>
-	  <Content Include="ImGui\build\net40\ImGui.NET.targets">
-		<PackagePath>build/net40/ImGui.NET.targets</PackagePath>
-		<Pack>true</Pack>
-	  </Content>
-	</ItemGroup-->
-
 	<ItemGroup>
 
 		<Content Include="cimgui\win-x64\cimgui.dll" Condition=" '$(Platform)' == 'x64' ">
@@ -67,7 +54,7 @@
 			<Link>cimgui.dll</Link>
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
-
+		
 		<Content Include="cimgui\win-x86\cimgui.dll" Condition=" '$(Platform)' == 'x86' ">
 			<PackagePath>runtimes/win-x86/native</PackagePath>
 			<Pack>true</Pack>

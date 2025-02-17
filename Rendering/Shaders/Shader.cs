@@ -150,11 +150,11 @@ namespace ArcticFoxEngine.Rendering {
 		public PipelineState pipelineState;
 		public RootSignature rootSignature;
 
-		public GeometryInfo geometryResources;
+		public GeometryBank geometryResources;
 
 		public Shader() {
 
-			geometryResources = new GeometryInfo();
+			geometryResources = new GeometryBank();
 
 		}
 		public abstract Material GetDefaultMaterial();
@@ -364,13 +364,13 @@ namespace ArcticFoxEngine.Rendering {
 			geometryResources.UpdateObjectInfoBuffer();
 			projectionInfoDataSlot.SetData(camera.projectionInfo, 0);
 
-			// Bind the shader global data
-			
+            // Bind the shader global data
 
-			// Set geometry
-			Rendering.cmdList.PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList;
-			Rendering.cmdList.SetVertexBuffer(0, geometryResources.vertexBufferView);
-			Rendering.cmdList.SetIndexBuffer(geometryResources.indexBufferView);
+
+            // Set geometry
+            Rendering.Render.cmdList.PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList;
+            Rendering.Render.cmdList.SetVertexBuffer(0, geometryResources.vertexBufferView);
+            Rendering.Render.cmdList.SetIndexBuffer(geometryResources.indexBufferView);
 
 
 			// Render each mesh
@@ -387,8 +387,8 @@ namespace ArcticFoxEngine.Rendering {
 				// Bind the data from the material
 				geometryResources.meshRenderers[i].material.BindResources(this);
 
-				// Draw the mesh
-				Rendering.cmdList.DrawIndexedInstanced(currentMeshIndexCount, 1, indexBufferStartIndex, vertexBufferStartIndex, vertexBufferStartIndex);
+                // Draw the mesh
+                Rendering.Render.cmdList.DrawIndexedInstanced(currentMeshIndexCount, 1, indexBufferStartIndex, vertexBufferStartIndex, vertexBufferStartIndex);
 
 			}
 

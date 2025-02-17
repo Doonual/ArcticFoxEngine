@@ -177,7 +177,7 @@ namespace ArcticFoxEngine.Input.Bindings {
 			if (((int)e.Key) != ((int)keyboardButton)) {
 				return;
 			}
-			if (ImGui.GetIO().WantCaptureKeyboard == true && ignoreImGui == false) {
+			if (ImGui.GetIO().WantCaptureKeyboard == true && GuiManager.IsGuiOpen() == true && ignoreImGui == false) {
 				inputButton = false;
 				return;
 			}

@@ -45,6 +45,23 @@
             "id": "6d03acd732c56a6a",
             "type": "leaf",
             "state": {
+              "type": "canvas",
+              "state": {
+                "file": "Todo.canvas",
+                "viewState": {
+                  "x": 1673.8556219655056,
+                  "y": -841.4089046944317,
+                  "zoom": -0.10145047007714048
+                }
+              },
+              "icon": "lucide-layout-dashboard",
+              "title": "Todo"
+            }
+          },
+          {
+            "id": "0d69fd8e0e43ae4b",
+            "type": "leaf",
+            "state": {
               "type": "markdown",
               "state": {
                 "file": "Rendering/Shaders.md",
@@ -103,7 +120,8 @@
             "state": {
               "type": "file-explorer",
               "state": {
-                "sortOrder": "alphabetical"
+                "sortOrder": "alphabetical",
+                "autoReveal": false
               },
               "icon": "lucide-folder-closed",
               "title": "Files"
@@ -228,10 +246,11 @@
   },
   "active": "6d03acd732c56a6a",
   "lastOpenFiles": [
+    "Rendering/Texture.md",
+    "Rendering/Shaders.md",
     "Todo.canvas",
     "Rendering/How it should work.canvas",
     "DX12/Graphics Pipeline State.md",
-    "Rendering/Shaders.md",
     "Rendering/Rendering.md"
   ]
 }

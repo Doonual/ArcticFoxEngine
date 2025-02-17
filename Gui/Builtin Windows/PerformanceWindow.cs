@@ -37,7 +37,7 @@ namespace ArcticFoxEngine.Gui {
 				float blue = blueParams[0] + blueParams[1] * MathF.Cos(2f * MathF.PI * (blueParams[2] * palettePos + blueParams[3]));
 				palettePos += 0.21f;
 
-				col = new Color(red, green, blue);
+				col = new Color(red * 255f, green * 255f, blue * 255f);
 				if (name == "Untracked") {
 					col = new Color(170, 170, 170);
 				}
@@ -57,7 +57,7 @@ namespace ArcticFoxEngine.Gui {
 				float blue = blueParams[0] + blueParams[1] * MathF.Cos(2f * MathF.PI * (blueParams[2] * palettePos + blueParams[3]));
 				palettePos += 0.13f;
 
-				col = new Color(red, green, blue);
+				col = new Color(red * 255f, green * 255f, blue * 255f);
 				if (name == "Untracked") {
 					col = new Color(170, 170, 170);
 				}

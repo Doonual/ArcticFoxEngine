@@ -17,7 +17,7 @@
       "x": 240,
       "y": -1060,
       "width": 520,
-      "height": 300,
+      "height": 360,
       "label": "Rendering"
     },
     {
@@ -43,6 +43,39 @@
       "color": "4"
     },
     {
+      "id": "f88d621361341929",
+      "type": "text",
+      "text": "New features",
+      "styleAttributes": {},
+      "x": 880,
+      "y": -1480,
+      "width": 260,
+      "height": 60,
+      "color": "4"
+    },
+    {
+      "id": "87859b83a6b6e0c5",
+      "type": "text",
+      "text": "Fixes",
+      "styleAttributes": {},
+      "x": 1240,
+      "y": -1480,
+      "width": 260,
+      "height": 60,
+      "color": "1"
+    },
+    {
+      "id": "43b4e50947f5032f",
+      "type": "text",
+      "text": "GPU Instancing",
+      "styleAttributes": {},
+      "x": 260,
+      "y": -810,
+      "width": 260,
+      "height": 60,
+      "color": "5"
+    },
+    {
       "id": "109e274aeba1b2d7",
       "type": "text",
       "text": "Add texture and shader inspector",
@@ -52,6 +85,17 @@
       "width": 260,
       "height": 60,
       "color": "4"
+    },
+    {
+      "id": "05bc3ecd97b2f9ff",
+      "type": "text",
+      "text": "Performance window does not include GUI draw time",
+      "styleAttributes": {},
+      "x": 2120,
+      "y": -1040,
+      "width": 260,
+      "height": 60,
+      "color": "2"
     },
     {
       "id": "0a70098e97589727",
@@ -76,17 +120,6 @@
       "color": "2"
     },
     {
-      "id": "05bc3ecd97b2f9ff",
-      "type": "text",
-      "text": "Performance window does not include GUI draw time",
-      "styleAttributes": {},
-      "x": 2120,
-      "y": -1040,
-      "width": 260,
-      "height": 60,
-      "color": "2"
-    },
-    {
       "id": "5eb94d41f68efe86",
       "type": "text",
       "text": "Non urgent fixes",
@@ -96,17 +129,6 @@
       "width": 260,
       "height": 60,
       "color": "2"
-    },
-    {
-      "id": "87859b83a6b6e0c5",
-      "type": "text",
-      "text": "Fixes",
-      "styleAttributes": {},
-      "x": 1240,
-      "y": -1480,
-      "width": 260,
-      "height": 60,
-      "color": "1"
     },
     {
       "id": "f5ac31e9ca3d48df",
@@ -120,17 +142,6 @@
       "color": "4"
     },
     {
-      "id": "70e9c609905ccf2d",
-      "type": "text",
-      "text": "Log window has really weird text wrapping",
-      "styleAttributes": {},
-      "x": 1840,
-      "y": -800,
-      "width": 260,
-      "height": 60,
-      "color": "2"
-    },
-    {
       "id": "8c54e6eb23a9d877",
       "type": "text",
       "text": "Fix matrix class",
@@ -139,6 +150,17 @@
       "y": -1040,
       "width": 260,
       "height": 60,
+      "color": "2"
+    },
+    {
+      "id": "4050d912325f2de2",
+      "type": "text",
+      "text": "Make it more clear which functions should only be called by the engine",
+      "styleAttributes": {},
+      "x": 1260,
+      "y": -940,
+      "width": 260,
+      "height": 120,
       "color": "2"
     },
     {
@@ -153,39 +175,6 @@
       "color": "5"
     },
     {
-      "id": "f88d621361341929",
-      "type": "text",
-      "text": "New features",
-      "styleAttributes": {},
-      "x": 880,
-      "y": -1480,
-      "width": 260,
-      "height": 60,
-      "color": "4"
-    },
-    {
-      "id": "4050d912325f2de2",
-      "type": "text",
-      "text": "Make it more clear which functions should only be called by the engine",
-      "styleAttributes": {},
-      "x": 1260,
-      "y": -940,
-      "width": 260,
-      "height": 120,
-      "color": "2"
-    },
-    {
-      "id": "e1744005e2555424",
-      "type": "text",
-      "text": "Fix world to screen projection",
-      "styleAttributes": {},
-      "x": 790,
-      "y": -1100,
-      "width": 260,
-      "height": 60,
-      "color": "1"
-    },
-    {
       "id": "283d0c6fcc0463f1",
       "type": "text",
       "text": "For creating node children. If we only allow classes extending from Node to create nodes, we can use reflection to set the new node's parent to the one that created it",
@@ -195,6 +184,28 @@
       "width": 260,
       "height": 220,
       "color": "5"
+    },
+    {
+      "id": "70e9c609905ccf2d",
+      "type": "text",
+      "text": "Log window has really weird text wrapping",
+      "styleAttributes": {},
+      "x": 1840,
+      "y": -800,
+      "width": 260,
+      "height": 60,
+      "color": "2"
+    },
+    {
+      "id": "e0013fff21bb8274",
+      "type": "text",
+      "text": "Texture format should be limited to allow for propper SRV allocation",
+      "styleAttributes": {},
+      "x": 1260,
+      "y": -780,
+      "width": 260,
+      "height": 100,
+      "color": "1"
     }
   ],
   "edges": [],

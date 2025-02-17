@@ -10,7 +10,6 @@ namespace ArcticFoxEngine {
 
 		private static bool disposed = true;
 
-		internal static RenderForm form;
 		private static RenderLoop loop;
 
 		// Setup function. Run before any of the loop.
@@ -30,51 +29,27 @@ namespace ArcticFoxEngine {
 		/// <param name="height">The height of the window</param>
 		/// <param name="title">The title of the window</param>
 		/// <param name="iconPath">The path to the icon the window will use</param>
-		public static void Run(int width, int height, string title = "Arctic Fox", string iconPath = ".res/icon.ico") {
+		public static void Run(int width, int height, string title = "Arctic Fox Engine", string iconPath = ".res/icon.ico") {
 			if (disposed == false) { Log.Warn("Cannot run ArcticFoxEngine, already running"); return; }
 			disposed = false;
 
-			#region Create the main window
+			MainWindow.CreateWindow(width, height, title, iconPath);
 
-			try {
-				form = new RenderForm(title) {
-					Width = width + 16,
-					Height = height + 39,
-					Icon = new Icon(iconPath),
-					FormBorderStyle = FormBorderStyle.None,
-				};
-				form.BackColor = new Color(0, 0, 0);
-
-				form.Width = 1920;
-				form.Height = 1080;
-				form.Location = new Point(0, 0);
-				Log.Success("Created window");
-			}
-			catch (Exception e) {
-				Log.Error("Create window failed");
-				Log.Raw(e);
-			}
-
-
-			#endregion
-			#region Setup rendering
 
 			bool debug = false;
-#if DEBUG
+			#if DEBUG
 			debug = true;
-#endif
-			Graphics.Init(form, debug);
-			Upload.Init();
-			Rendering.Rendering.Init();
-			Screen.Init(form);
+			#endif
+			Graphics.Init(MainWindow.form, debug);
 			InputManager.Init();
+			Upload.Init();
+			
+			Rendering.Render.Init();
+			GuiManager.Init(MainWindow.form);
 
-			GuiManager.Init(form);
 			Log.Success("Engine initialisation complete");
-
 			Log.Raw("");
 
-			#endregion
 
 			exitButton = new KeyboardButtonInput(KeyboardButtonInput.KeyboardButton.Escape, ignoreImGui: true);
 			toggleGuiButton = new KeyboardButtonInput(KeyboardButtonInput.KeyboardButton.F1, ignoreImGui: true);
@@ -84,19 +59,19 @@ namespace ArcticFoxEngine {
 
 
 			// Main game loop
-			using (loop = new RenderLoop(form)) {
+			using (loop = new RenderLoop(MainWindow.form)) {
 				while (loop != null && loop.NextFrame()) {
 
 					Profiler.FrameBegin();
 
 					// Input update
 					Profiler.MetricBegin("Input update");
-
 					if (deubgRunMainLoop == true || debugRunMainLoopOnce == true) {
 						InputManager.NextFrame();
 					}
 					InputManager.GetInputDeviceUpdates();
 					Profiler.MetricEnd();
+
 
 					if (deubgRunMainLoop == true || debugRunMainLoopOnce == true) {
 
@@ -123,19 +98,14 @@ namespace ArcticFoxEngine {
 
 					// Check for debug button
 					if (toggleGuiButton.GetButtonDown() == true) { GuiManager.ToggleGUI(); }
-
-					// Check for exit button
-					if (exitButton.GetButton() == true) { Stop(); }
-
-
-
 					GuiManager.UpdateImGui();
 
 					Graphics.WaitForDirectCommandQueue();
 					Graphics.Buffer();
+					MainWindow.form.Show();
 
-
-					form.Show();
+					// Check for exit button
+					if (exitButton.GetButton() == true) { Stop(); }
 				}
 			}
 
@@ -155,7 +125,7 @@ namespace ArcticFoxEngine {
 			loop = null;
 			GuiManager.Dispose();
 			Graphics.Dispose();
-			Rendering.Rendering.Dispose();
+			Rendering.Render.Dispose();
 			GuiManager.CloseGUI();
 
 			Environment.Exit(0);

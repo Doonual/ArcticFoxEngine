@@ -21,7 +21,7 @@ namespace ArcticFoxEngine.Input {
 
 		internal override void BufferValues() {
 
-			if (Engine.form.Focused == false) {
+			if (MainWindow.form.Focused == false) {
 				axis2DActive = Vector2.zero;
 			}
 

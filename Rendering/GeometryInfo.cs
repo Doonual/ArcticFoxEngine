@@ -10,7 +10,7 @@ namespace ArcticFoxEngine.Rendering {
 	/// Contains and controls all the resources needed for rendering geometry
 	/// This is the vertex buffer, index buffers and the transform buffers
 	/// </summary>
-	public class GeometryInfo {
+	public class GeometryBank {
 
 		internal static int kbPerBuffer = 128 * 1024;
 
@@ -36,7 +36,7 @@ namespace ArcticFoxEngine.Rendering {
 		/// <summary>
 		/// Creates a new instance GeometryResources
 		/// </summary>
-		public GeometryInfo() {
+		public GeometryBank() {
 
 			meshRenderers = new List<MeshRenderer>();
 			meshRendererPositions = new List<(int vertexBufferStart, int indexBufferStart, int transformBufferStart)>();
@@ -356,7 +356,7 @@ namespace ArcticFoxEngine.Rendering {
 			indexBuffer.Dispose();
 			transformBuffer.Dispose();
 		}
-		~GeometryInfo() {
+		~GeometryBank() {
 			Dispose();
 		}
 

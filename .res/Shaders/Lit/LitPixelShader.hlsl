@@ -64,6 +64,6 @@ float4 Pixel_Main(Vertex input) : SV_Target {
 	
 	
 
-	return float4(outCol, 0.0);
+	return float4(outCol, 1.0);
 	
 }

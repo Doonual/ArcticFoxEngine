@@ -50,7 +50,7 @@ namespace ArcticFoxEngine.Gui.Builtin_Windows {
 				// Draw the node icon and name in menu bar
 				ImGui.BeginMenuBar();
 				ImGui.SetCursorPosY(ImGui.GetCursorPosY() + 2f);
-				if (Node.DrawImageButtonTextButtonGui(Transform.transformIconPtr, "Transform", GetHashCode() + "debug menu bar", 16f, out uint buttonID) == true) {
+				if (Node.DrawImageButtonTextButtonGui(Transform.transformIcon.imGuiID, "Transform", GetHashCode() + "debug menu bar", 16f, out uint buttonID) == true) {
 					transformInspectorExpanded = !transformInspectorExpanded;
 				}
 

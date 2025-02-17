@@ -11,12 +11,8 @@ namespace ArcticFoxEngine.Gui {
 
 		internal static Node selectedNode = null;
 		internal static NodeInspectorGui selectedNodeGui;
-		internal IntPtr testTexId;
 
 		public SceneWindow(params string[] menuGroups) : base(menuGroups) {
-
-			testTexId = RenderImGui.CreateImageTexture(SixLabors.ImageSharp.Image.Load<Rgba32>(".res/Textures/tiger.png"), SharpDX.DXGI.Format.R8G8B8A8_UNorm);
-			
 
 		}
 

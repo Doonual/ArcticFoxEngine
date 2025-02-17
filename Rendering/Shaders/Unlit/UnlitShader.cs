@@ -32,10 +32,10 @@ namespace ArcticFoxEngine.Rendering {
 		private PipelineState CreatePipelineObject() {
 
 			InputElement[] inputLayout = new InputElement[] {
-				new InputElement("SV_Position", 0, Format.R32G32B32_Float, 0, 0), // 12 bytes
-				new InputElement("COLOR", 0, Format.R32G32B32A32_Float, 12, 0), // 16 bytes
-				new InputElement("TEXCOORD", 0, Format.R32G32_Float, 28, 0), // 8 bytes
-				new InputElement("NORMAL", 0, Format.R32G32B32A32_Float, 36, 0), // 16 bytes
+				new InputElement("SV_Position", 0, SharpDX.DXGI.Format.R32G32B32_Float, 0, 0), // 12 bytes
+				new InputElement("COLOR", 0, SharpDX.DXGI.Format.R32G32B32A32_Float, 12, 0), // 16 bytes
+				new InputElement("TEXCOORD", 0, SharpDX.DXGI.Format.R32G32_Float, 28, 0), // 8 bytes
+				new InputElement("NORMAL", 0, SharpDX.DXGI.Format.R32G32B32A32_Float, 36, 0), // 16 bytes
 			};
 
 			RasterizerStateDescription rasterStateDescription = RasterizerStateDescription.Default();
@@ -67,7 +67,7 @@ namespace ArcticFoxEngine.Rendering {
 				PrimitiveTopologyType = PrimitiveTopologyType.Triangle,
 				RasterizerState = rasterStateDescription,
 				DepthStencilState = depthStencilDesc,
-				DepthStencilFormat = Format.D32_Float,
+				DepthStencilFormat = SharpDX.DXGI.Format.D32_Float,
 				BlendState = BlendStateDescription.Default(),
 				VertexShader = vertexShader,
 				GeometryShader = geometryShader,
@@ -78,7 +78,7 @@ namespace ArcticFoxEngine.Rendering {
 				SampleMask = int.MaxValue,
 				Flags = PipelineStateFlags.None,
 			};
-			pipelineStateDescription.RenderTargetFormats[0] = Format.R8G8B8A8_UNorm;
+			pipelineStateDescription.RenderTargetFormats[0] = SharpDX.DXGI.Format.R8G8B8A8_UNorm;
 
 			return Graphics.device.CreateGraphicsPipelineState(pipelineStateDescription);
 
@@ -110,7 +110,6 @@ namespace ArcticFoxEngine.Rendering {
 
 		}
 
-		int setTextureId = 0;
 		public override void DrawInspectorGUI() {
 
 

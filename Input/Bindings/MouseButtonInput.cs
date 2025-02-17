@@ -31,12 +31,7 @@ namespace ArcticFoxEngine.Input.Bindings {
 
 		private void MouseUpdate(MouseUpdate e) {
 
-			if (((int)e.Offset) != ((int)mouseButton) || mouseButton == MouseButton.WheelUp || mouseButton == MouseButton.WheelDown) {
-				return;
-			}
-
-			if (ImGui.GetIO().WantCaptureMouse == true && ignoreImGui == false) {
-				inputButton = false;
+			if (((int)e.Offset) != ((int)mouseButton) && mouseButton != MouseButton.WheelUp && mouseButton != MouseButton.WheelDown) {
 				return;
 			}
 

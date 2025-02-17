@@ -12,9 +12,6 @@ using ImDrawIdx = System.UInt16;
 
 namespace ArcticFoxEngine.ImGuiIntegration {
 
-
-
-
 	unsafe internal static class RenderImGui {
 
 #nullable enable
@@ -36,12 +33,15 @@ namespace ArcticFoxEngine.ImGuiIntegration {
 
 		public static Texture renderTexture;
 		static DescriptorHeap rtvDescHeap;
-		static Texture depthTexture;
+		public static Texture depthTexture;
 		static DescriptorHeap dsvDescHeap;
 
 
 		static readonly Dictionary<IntPtr, (Texture, int)> textureResources = new();
-
+		private static List<Texture> textureRegisterQueue;
+		static RenderImGui() {
+			textureRegisterQueue = new List<Texture>();
+		}
 
 
 		private static bool replaceFont = false;
@@ -51,7 +51,7 @@ namespace ArcticFoxEngine.ImGuiIntegration {
 		private static FontGlyphRangeType fontLanguage;
 		private static Dictionary<string, (IntPtr Handle, uint Width, uint Height)> loadedTexturesPtrs;
 
-
+		
 		internal static void Init(int width, int height) {
 			descriptorHeapIndex = 1;
 
@@ -66,11 +66,14 @@ namespace ArcticFoxEngine.ImGuiIntegration {
 			ImGui.StyleColorsDark();
 			Resize(width, height);
 			CreateDeviceObjects();
+			CreatePipelineState();
+			CreateFontsTexture();
 
 			cmdList = Graphics.CreateDirectCommandList();
 
 
-			renderTexture = new Texture(Screen.width, Screen.height, flags: ResourceFlags.AllowRenderTarget);
+			renderTexture = new Texture(MainWindow.width, MainWindow.height, flags: ResourceFlags.AllowRenderTarget);
+			renderTexture.name = "ImGui Render Texture";
 			DescriptorHeapDescription rtvHeapDescription = new DescriptorHeapDescription() {
 				DescriptorCount = 1,
 				Flags = DescriptorHeapFlags.None,
@@ -79,7 +82,8 @@ namespace ArcticFoxEngine.ImGuiIntegration {
 			rtvDescHeap = Graphics.device.CreateDescriptorHeap(rtvHeapDescription);
 			Graphics.device.CreateRenderTargetView(renderTexture.resource, null, rtvDescHeap.CPUDescriptorHandleForHeapStart);
 
-			depthTexture = new Texture(Screen.width, Screen.height, format: SharpDX.DXGI.Format.D32_Float, flags: ResourceFlags.AllowDepthStencil, initialState: ResourceStates.DepthWrite);
+			depthTexture = new Texture(MainWindow.width, MainWindow.height, format: Format.D32_Float, flags: ResourceFlags.AllowDepthStencil, initialState: ResourceStates.DepthWrite);
+			depthTexture.name = "ImGui Depth Texture";
 			DescriptorHeapDescription dsvHeapDescription = new DescriptorHeapDescription() {
 				DescriptorCount = 1,
 				Flags = DescriptorHeapFlags.None,
@@ -88,8 +92,125 @@ namespace ArcticFoxEngine.ImGuiIntegration {
 			dsvDescHeap = Graphics.device.CreateDescriptorHeap(dsvHeapDescription);
 			Graphics.device.CreateDepthStencilView(depthTexture.resource, null, dsvDescHeap.CPUDescriptorHandleForHeapStart);
 			
+			for (int i = 0; i < textureRegisterQueue.Count; i ++) {
+				textureRegisterQueue[i].imGuiID = RegisterTexture(textureRegisterQueue[i]);
+			}
+			textureRegisterQueue.Clear();
 
 		}
+
+		static void CreateDeviceObjects() {
+
+			#region Root signature
+
+			// Basically what constants are you going to pass to the shaders
+			// Create a root signature with one root argument
+			RootParameter[] rootParameters = new RootParameter[] {
+
+				new RootParameter(ShaderVisibility.All, new DescriptorRange() {
+					RangeType = DescriptorRangeType.ConstantBufferView,
+					BaseShaderRegister = 0,
+					OffsetInDescriptorsFromTableStart = int.MinValue,
+					DescriptorCount = 1
+				}),
+				new RootParameter(ShaderVisibility.Pixel, new DescriptorRange() {
+					RangeType = DescriptorRangeType.ShaderResourceView,
+					BaseShaderRegister = 0,
+					OffsetInDescriptorsFromTableStart = int.MinValue,
+					DescriptorCount = 1,
+				}),
+
+			};
+
+			StaticSamplerDescription[] staticSamplerDescription = new StaticSamplerDescription[] {
+				new StaticSamplerDescription(ShaderVisibility.Pixel, 0, 0) {
+					Filter = Filter.MinMagMipPoint,
+					AddressUVW = TextureAddressMode.Wrap,
+				}
+			};
+
+
+			RootSignatureDescription rootSignatureDesc = new RootSignatureDescription(RootSignatureFlags.AllowInputAssemblerInputLayout, rootParameters, staticSamplerDescription);
+			rootSignature = Graphics.device.CreateRootSignature(rootSignatureDesc.Serialize());
+
+			#endregion
+
+			DescriptorHeapDescription dhd = new DescriptorHeapDescription() {
+				DescriptorCount = 1 + 2048,
+				Flags = DescriptorHeapFlags.ShaderVisible,
+				Type = DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView,
+			};
+			descriptorHeap = Graphics.device.CreateDescriptorHeap(dhd);
+			constantBuffer = new ConstBuffer<Matrix>(1);
+			constantBuffer.AddToDescriptorHeap(descriptorHeap, 0);
+
+		}
+
+		static void CreatePipelineState() {
+
+			ShaderBytecode vertexShader = Shader.CompileShader(".res/Shaders/ImGui/ImGui_shaders.hlsl", Shader.ShaderType.Vertex);
+			ShaderBytecode pixelShader = Shader.CompileShader(".res/Shaders/ImGui/ImGui_shaders.hlsl", Shader.ShaderType.Pixel);
+
+			// Input format
+			InputElement[] inputElementDescs = new InputElement[] {
+				new InputElement("POSITION", 0, SharpDX.DXGI.Format.R32G32_Float, 0, 0),
+				new InputElement("TEXCOORD", 0, SharpDX.DXGI.Format.R32G32_Float, 8, 0),
+				new InputElement("COLOR", 0, SharpDX.DXGI.Format.R8G8B8A8_UNorm, 16, 0),
+			};
+
+			DepthStencilOperationDescription defaultStencilOp = new DepthStencilOperationDescription() {
+				FailOperation = StencilOperation.Keep,
+				DepthFailOperation = StencilOperation.Keep,
+				PassOperation = StencilOperation.Keep,
+				Comparison = Comparison.Always
+			};
+			DepthStencilStateDescription depthState = new DepthStencilStateDescription() {
+
+				IsDepthEnabled = true,
+				DepthWriteMask = DepthWriteMask.All,
+				DepthComparison = Comparison.Always,
+
+				IsStencilEnabled = false,
+				StencilReadMask = 0xff,
+				StencilWriteMask = 0xff,
+				FrontFace = defaultStencilOp,
+				BackFace = defaultStencilOp,
+
+			};
+
+			RasterizerStateDescription rasterState = RasterizerStateDescription.Default();
+			rasterState.CullMode = CullMode.None;
+
+			BlendStateDescription blendState = BlendStateDescription.Default();
+			blendState.RenderTarget[0].IsBlendEnabled = true;
+			blendState.RenderTarget[0].SourceBlend = BlendOption.SourceAlpha;
+			blendState.RenderTarget[0].DestinationBlend = BlendOption.InverseSourceAlpha;
+			blendState.RenderTarget[0].SourceAlphaBlend = BlendOption.One;
+			blendState.RenderTarget[0].DestinationAlphaBlend = BlendOption.InverseSourceAlpha;
+
+			GraphicsPipelineStateDescription psonDesc = new GraphicsPipelineStateDescription() {
+
+				InputLayout = new InputLayoutDescription(inputElementDescs),
+				RootSignature = rootSignature,
+				VertexShader = vertexShader,
+				PixelShader = pixelShader,
+				RasterizerState = rasterState,
+				BlendState = blendState,
+				DepthStencilFormat = SharpDX.DXGI.Format.D32_Float,
+				DepthStencilState = depthState,
+				SampleMask = int.MaxValue,
+				PrimitiveTopologyType = PrimitiveTopologyType.Triangle,
+				RenderTargetCount = 1,
+				Flags = PipelineStateFlags.None,
+				SampleDescription = new SharpDX.DXGI.SampleDescription(1, 0),
+				StreamOutput = new StreamOutputDescription()
+
+			};
+			psonDesc.RenderTargetFormats[0] = SharpDX.DXGI.Format.R8G8B8A8_UNorm;
+			pipelineState = Graphics.device.CreateGraphicsPipelineState(psonDesc);
+
+		}
+
 
 		internal static void Update(float deltaTime, Action DoRender) {
 			var io = ImGui.GetIO();
@@ -98,8 +219,6 @@ namespace ArcticFoxEngine.ImGuiIntegration {
 			DoRender?.Invoke();
 			ImGui.Render();
 		}
-
-
 		private static ImDrawDataPtr? UpdateImGuiDrawList() {
 
 			
@@ -212,6 +331,7 @@ namespace ArcticFoxEngine.ImGuiIntegration {
 			CpuDescriptorHandle dsvHandle = dsvDescHeap.CPUDescriptorHandleForHeapStart;
 
 			cmdList.SetRenderTargets(rtvHandle, dsvHandle);
+			cmdList.ClearRenderTargetView(rtvHandle, new SharpDX.Mathematics.Interop.RawColor4(0f, 0f, 0f, 1f));
 			cmdList.ClearDepthStencilView(dsvHandle, ClearFlags.FlagsDepth, 1f, 0);
 
 			#region Rendering
@@ -272,9 +392,6 @@ namespace ArcticFoxEngine.ImGuiIntegration {
 
 		}
 
-
-
-
 		internal static void Resize(int width, int height) {
 			ImGui.GetIO().DisplaySize = new Vector2(width, height);
 		}
@@ -282,10 +399,10 @@ namespace ArcticFoxEngine.ImGuiIntegration {
 
 		#region Textures
 
-		internal static IntPtr CreateImageTexture(Image<Rgba32> image, SharpDX.DXGI.Format format) {
+		internal static IntPtr CreateImageTexture(Image<Rgba32> image, SharpDX.DXGI.Format format, string name) {
 
 			Texture texture = new Texture(image.Width, image.Height);
-			
+			texture.name = name;
 
 			if (!image.DangerousTryGetSinglePixelMemory(out Memory<Rgba32> memory)) {
 				throw new Exception("Make sure to initialize MemoryAllocator.Default!");
@@ -303,15 +420,13 @@ namespace ArcticFoxEngine.ImGuiIntegration {
 
 			texture.SetData(imageData);
 
-			return RegisterTexture(texture);
+			return texture.imGuiID;
 
 		}
-
 		internal static bool RemoveImageTexture(IntPtr handle) {
 			var tex = RenderImGui.DeRegisterTexture(handle);
 			return tex != null;
 		}
-
 		internal static void UpdateFontTexture(string fontPathName, float fontSize, ushort[]? fontCustomGlyphRange, FontGlyphRangeType fontLanguage) {
 			var io = ImGui.GetIO();
 			DeRegisterTexture(io.Fonts.TexID)?.Dispose();
@@ -356,7 +471,6 @@ namespace ArcticFoxEngine.ImGuiIntegration {
 			CreateFontsTexture();
 			ImGuiNative.ImFontConfig_destroy(config);
 		}
-
 		static void CreateFontsTexture() {
 			var io = ImGui.GetIO();
 
@@ -367,26 +481,32 @@ namespace ArcticFoxEngine.ImGuiIntegration {
 				pixelArray[i] = pixels[i];
 			}
 			Texture fontTex = new Texture(width, height);
-			Graphics.device.CreateShaderResourceView(fontTex.resource, null, descriptorHeap.CPUDescriptorHandleForHeapStart + Rendering.Rendering.descriptorHeapIncrement * descriptorHeapIndex);
+			fontTex.name = "ImGui Font Texture";
+			Graphics.device.CreateShaderResourceView(fontTex.resource, null, descriptorHeap.CPUDescriptorHandleForHeapStart + Rendering.Render.descriptorHeapIncrement * descriptorHeapIndex);
 
 			//fontTex.PrepareAsShaderResource(descriptorHeap, descriptorHeapIndex);
 
 			fontTex.SetData(pixelArray);
 
-			io.Fonts.SetTexID(RegisterTexture(fontTex));
+			io.Fonts.SetTexID(fontTex.imGuiID);
 			io.Fonts.ClearTexData();
 
 		}
-
 		public static IntPtr RegisterTexture(Texture texture) {
+			
+			if (descriptorHeap == null) {
+				textureRegisterQueue.Add(texture);
+				return IntPtr.Zero;
+			}
+
 			IntPtr imguiID = texture.GetNativePointer();
-			Graphics.device.CreateShaderResourceView(texture.resource, null, descriptorHeap.CPUDescriptorHandleForHeapStart + Rendering.Rendering.descriptorHeapIncrement * descriptorHeapIndex);
+			texture.PrepareAsShaderResource(descriptorHeap.CPUDescriptorHandleForHeapStart + Rendering.Render.descriptorHeapIncrement * descriptorHeapIndex);
+			//Graphics.device.CreateShaderResourceView(texture.resource, null, descriptorHeap.CPUDescriptorHandleForHeapStart + Rendering.Rendering.descriptorHeapIncrement * descriptorHeapIndex);
 			//texture.PrepareAsShaderResource(descriptorHeap, descriptorHeapIndex);
 			textureResources.TryAdd(imguiID, (texture, descriptorHeapIndex));
 			descriptorHeapIndex++;
 			return imguiID;
 		}
-
 		public static Texture? DeRegisterTexture(IntPtr texturePtr) {
 			if (textureResources.Remove(texturePtr, out var texture)) {
 				return texture.Item1;
@@ -395,7 +515,6 @@ namespace ArcticFoxEngine.ImGuiIntegration {
 				return null;
 			}
 		}
-
 		static void DeRegisterAllTexture() {
 			foreach (var key in textureResources.Keys.ToArray()) {
 				DeRegisterTexture(key)?.Dispose();
@@ -472,7 +591,7 @@ namespace ArcticFoxEngine.ImGuiIntegration {
 				var configuration = Configuration.Default.Clone();
 				configuration.PreferContiguousImageBuffers = true;
 				using var image = Image.Load<Rgba32>(configuration, filePath);
-				handle = RenderImGui.CreateImageTexture(image, srgb ? SharpDX.DXGI.Format.R8G8B8A8_UNorm_SRgb : SharpDX.DXGI.Format.R8G8B8A8_UNorm);
+				handle = RenderImGui.CreateImageTexture(image, srgb ? SharpDX.DXGI.Format.R8G8B8A8_UNorm_SRgb : SharpDX.DXGI.Format.R8G8B8A8_UNorm, filePath);
 				width = (uint)image.Width;
 				height = (uint)image.Height;
 				loadedTexturesPtrs.Add(filePath, new(handle, width, height));
@@ -494,7 +613,7 @@ namespace ArcticFoxEngine.ImGuiIntegration {
 				handle = data.Handle;
 			}
 			else {
-				handle = RenderImGui.CreateImageTexture(image, srgb ? SharpDX.DXGI.Format.R8G8B8A8_UNorm_SRgb : SharpDX.DXGI.Format.R8G8B8A8_UNorm);
+				handle = RenderImGui.CreateImageTexture(image, srgb ? SharpDX.DXGI.Format.R8G8B8A8_UNorm_SRgb : SharpDX.DXGI.Format.R8G8B8A8_UNorm, name);
 				loadedTexturesPtrs.Add(name, new(handle, (uint)image.Width, (uint)image.Height));
 			}
 		}
@@ -514,121 +633,7 @@ namespace ArcticFoxEngine.ImGuiIntegration {
 
 		#endregion
 
-		static void CreateDeviceObjects() {
-
-			#region Root signature
-
-			// Basically what constants are you going to pass to the shaders
-			// Create a root signature with one root argument
-			RootParameter[] rootParameters = new RootParameter[] {
-
-				new RootParameter(ShaderVisibility.All, new DescriptorRange() {
-					RangeType = DescriptorRangeType.ConstantBufferView,
-					BaseShaderRegister = 0,
-					OffsetInDescriptorsFromTableStart = int.MinValue,
-					DescriptorCount = 1
-				}),
-				new RootParameter(ShaderVisibility.Pixel, new DescriptorRange() {
-					RangeType = DescriptorRangeType.ShaderResourceView,
-					BaseShaderRegister = 0,
-					OffsetInDescriptorsFromTableStart = int.MinValue,
-					DescriptorCount = 1,
-				}),
-
-			};
-
-			StaticSamplerDescription[] staticSamplerDescription = new StaticSamplerDescription[] {
-				new StaticSamplerDescription(ShaderVisibility.Pixel, 0, 0) {
-					Filter = SharpDX.Direct3D12.Filter.MinimumMinMagMipPoint,
-					AddressUVW = SharpDX.Direct3D12.TextureAddressMode.Border,
-				}
-			};
-
-
-			RootSignatureDescription rootSignatureDesc = new RootSignatureDescription(RootSignatureFlags.AllowInputAssemblerInputLayout, rootParameters, staticSamplerDescription);
-			rootSignature = Graphics.device.CreateRootSignature(rootSignatureDesc.Serialize());
-
-			#endregion
-
-			DescriptorHeapDescription dhd = new DescriptorHeapDescription() {
-				DescriptorCount = 1 + 2048,
-				Flags = DescriptorHeapFlags.ShaderVisible,
-				Type = DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView,
-			};
-			descriptorHeap = Graphics.device.CreateDescriptorHeap(dhd);
-			constantBuffer = new ConstBuffer<Matrix>(1);
-			constantBuffer.AddToDescriptorHeap(descriptorHeap, 0);
-
-			CreatePipelineState();
-			CreateFontsTexture();
-
-		}
-
-		static void CreatePipelineState() {
-			
-			ShaderBytecode vertexShader = Shader.CompileShader(".res/Shaders/ImGui/ImGui_shaders.hlsl", Shader.ShaderType.Vertex);
-			ShaderBytecode pixelShader = Shader.CompileShader(".res/Shaders/ImGui/ImGui_shaders.hlsl", Shader.ShaderType.Pixel);
-
-			// Input format
-			InputElement[] inputElementDescs = new InputElement[] {
-				new InputElement("POSITION", 0, SharpDX.DXGI.Format.R32G32_Float, 0, 0),
-				new InputElement("TEXCOORD", 0, SharpDX.DXGI.Format.R32G32_Float, 8, 0),
-				new InputElement("COLOR", 0, SharpDX.DXGI.Format.R8G8B8A8_UNorm, 16, 0),
-			};
-
-			SharpDX.Direct3D12.DepthStencilOperationDescription defaultStencilOp = new SharpDX.Direct3D12.DepthStencilOperationDescription() {
-				FailOperation = SharpDX.Direct3D12.StencilOperation.Keep,
-				DepthFailOperation = SharpDX.Direct3D12.StencilOperation.Keep,
-				PassOperation = SharpDX.Direct3D12.StencilOperation.Keep,
-				Comparison = Comparison.Always
-			};
-			DepthStencilStateDescription depthState = new DepthStencilStateDescription() {
-
-				IsDepthEnabled = true,
-				DepthWriteMask = SharpDX.Direct3D12.DepthWriteMask.All,
-				DepthComparison = Comparison.Always,
-
-				IsStencilEnabled = false,
-				StencilReadMask = 0xff,
-				StencilWriteMask = 0xff,
-				FrontFace = defaultStencilOp,
-				BackFace = defaultStencilOp,
-
-			};
-
-			RasterizerStateDescription rasterState = RasterizerStateDescription.Default();
-			rasterState.CullMode = SharpDX.Direct3D12.CullMode.None;
-
-			BlendStateDescription blendState = BlendStateDescription.Default();
-			blendState.RenderTarget[0].IsBlendEnabled = true;
-			blendState.RenderTarget[0].SourceBlend = BlendOption.SourceAlpha;
-			blendState.RenderTarget[0].DestinationBlend = BlendOption.InverseSourceAlpha;
-			blendState.RenderTarget[0].SourceAlphaBlend = BlendOption.One;
-			blendState.RenderTarget[0].DestinationAlphaBlend = BlendOption.InverseSourceAlpha;
-
-			GraphicsPipelineStateDescription psonDesc = new GraphicsPipelineStateDescription() {
-
-				InputLayout = new InputLayoutDescription(inputElementDescs),
-				RootSignature = rootSignature,
-				VertexShader = vertexShader,
-				PixelShader = pixelShader,
-				RasterizerState = rasterState,
-				BlendState = blendState,
-				DepthStencilFormat = SharpDX.DXGI.Format.D32_Float,
-				DepthStencilState = depthState,
-				SampleMask = int.MaxValue,
-				PrimitiveTopologyType = PrimitiveTopologyType.Triangle,
-				RenderTargetCount = 1,
-				Flags = PipelineStateFlags.None,
-				SampleDescription = new SharpDX.DXGI.SampleDescription(1, 0),
-				StreamOutput = new StreamOutputDescription()
-
-			};
-			psonDesc.RenderTargetFormats[0] = SharpDX.DXGI.Format.R8G8B8A8_UNorm;
-			pipelineState = Graphics.device.CreateGraphicsPipelineState(psonDesc);
-
-		}
-
+		
 		internal static void Dispose() {
 
 			if (loadedTexturesPtrs != null) {

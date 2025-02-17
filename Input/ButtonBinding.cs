@@ -19,7 +19,7 @@
 
 		internal override void BufferValues() {
 
-			if (Engine.form.Focused == false) {
+			if (MainWindow.form.Focused == false) {
 				inputButton = false;
 			}
 

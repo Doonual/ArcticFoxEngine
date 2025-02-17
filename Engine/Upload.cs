@@ -90,7 +90,7 @@ namespace ArcticFoxEngine {
 			Graphics.ResetCopyCommandList(cmdList);
 
 			// Create a temporary Texture2D resource to fill with data, and then copy in to the dstTexture
-			uploadResource = Graphics.device.CreateCommittedResource(new HeapProperties(CpuPageProperty.WriteBack, MemoryPool.L0), HeapFlags.None, ResourceDescription.Texture2D(format, width, height), ResourceStates.GenericRead);
+			uploadResource = Graphics.device.CreateCommittedResource(new HeapProperties(CpuPageProperty.WriteBack, MemoryPool.L0), HeapFlags.None, ResourceDescription.Texture2D((SharpDX.DXGI.Format)format, width, height), ResourceStates.GenericRead);
 			int texturePixelSize = format.SizeOfInBytes();
 
 
@@ -127,7 +127,7 @@ namespace ArcticFoxEngine {
 			Graphics.ResetCopyCommandList(cmdList);
 
 			// Create a temporary Texture2D resource to fill with data, and then copy in to the dstTexture
-			uploadResource = Graphics.device.CreateCommittedResource(new HeapProperties(CpuPageProperty.WriteBack, MemoryPool.L0), HeapFlags.None, ResourceDescription.Texture2D(format, 1, 1), ResourceStates.GenericRead);
+			uploadResource = Graphics.device.CreateCommittedResource(new HeapProperties(CpuPageProperty.WriteBack, MemoryPool.L0), HeapFlags.None, ResourceDescription.Texture2D((SharpDX.DXGI.Format)format, 1, 1), ResourceStates.GenericRead);
 			int texturePixelSize = format.SizeOfInBytes();
 
 

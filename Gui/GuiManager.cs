@@ -3,6 +3,7 @@ using ArcticFoxEngine.Demos.LightingTest;
 using ArcticFoxEngine.Demos.RenderingStressTest;
 using ArcticFoxEngine.Demos.SceneTest;
 using ArcticFoxEngine.Gui.Builtin_Windows;
+using ArcticFoxEngine.Gui.Tools;
 using ArcticFoxEngine.ImGuiIntegration;
 using ArcticFoxEngine.Nodes;
 using CoolClassLibrary;
@@ -13,18 +14,18 @@ using SharpDX.Windows;
 namespace ArcticFoxEngine.Gui {
 	public static class GuiManager {
 
-		private static Texture renderTexture;
-		private static DescriptorHeap rtvDescHeap;
-		private static Texture depthTexture;
-		private static DescriptorHeap dsvDescHeap;
-
 
 		private static bool isOpen;
 
 		private static List<GuiWindow> windows;
 		private static List<CustomWindow> temporaryWindows;
 		private static List<GuiOverlay> overlays;
+
+		private static List<Type> tools;
+		private static List<GuiWindow> loadedTools;
+
 		private static List<Type> demoNodes;
+		
 
 		private static Vector4 menuSubtitleCol = new Vector4(0.5f, 0.5f, 0.5f, 1.0f);
 
@@ -32,32 +33,6 @@ namespace ArcticFoxEngine.Gui {
 		internal static void Init(RenderForm form) {
 
 			// Create render texture and accompanying descriptor heap
-			renderTexture = new Texture(Screen.width, Screen.height, flags: ResourceFlags.AllowRenderTarget);
-			DescriptorHeapDescription rtvDescHeapDescription = new DescriptorHeapDescription() {
-				DescriptorCount = 1,
-				Flags = DescriptorHeapFlags.None,
-				Type = DescriptorHeapType.RenderTargetView,
-			};
-			rtvDescHeap = Graphics.device.CreateDescriptorHeap(rtvDescHeapDescription);
-			Graphics.device.CreateRenderTargetView(renderTexture.resource, null, rtvDescHeap.CPUDescriptorHandleForHeapStart);
-
-			// Create depth texture and accompanying descriptor heap
-			depthTexture = new Texture(Screen.width, Screen.height, format: SharpDX.DXGI.Format.D32_Float, flags: ResourceFlags.AllowDepthStencil, initialState: ResourceStates.DepthWrite);
-			DescriptorHeapDescription dsvDescHeapDescription = new DescriptorHeapDescription() {
-				DescriptorCount = 1,
-				Flags = DescriptorHeapFlags.None,
-				Type = DescriptorHeapType.DepthStencilView,
-			};
-			dsvDescHeap = Graphics.device.CreateDescriptorHeap(dsvDescHeapDescription);
-
-
-			DepthStencilViewDescription dsvDescription = new DepthStencilViewDescription() {
-				Flags = DepthStencilViewFlags.None,
-				Format = SharpDX.DXGI.Format.D32_Float,
-			};
-
-			Graphics.device.CreateDepthStencilView(depthTexture.resource, null, dsvDescHeap.CPUDescriptorHandleForHeapStart);
-
 			RenderImGui.Init(1920, 1080);
 			ImGuiInput.Init(form.Handle);
 			
@@ -84,6 +59,11 @@ namespace ArcticFoxEngine.Gui {
 			overlays = new List<GuiOverlay>() {
 				new NodeIconsOverlay(),
 			};
+
+			tools = new List<Type>() {
+				typeof(TextureInspectorTool),
+			};
+			loadedTools = new List<GuiWindow>();
 
 			demoNodes = new List<Type>() {
 				typeof(CubeSpin),
@@ -231,7 +211,20 @@ namespace ArcticFoxEngine.Gui {
 					ImGui.EndMenu();
 				}
 
-			
+				if (ImGui.BeginMenu("Tools") == true) {
+
+					for (int i = 0; i < tools.Count; i ++) {
+
+						if (ImGui.MenuItem(tools[i].Name) == true) {
+							GuiWindow currentTool = (GuiWindow)Activator.CreateInstance(tools[i]);
+							currentTool.open = true;
+							loadedTools.Add(currentTool);
+						}
+
+					}
+
+					ImGui.EndMenu();
+				}
 
 				ImGui.EndMenuBar();
 
@@ -279,6 +272,12 @@ namespace ArcticFoxEngine.Gui {
 				}
 			}
 
+			for (int i = loadedTools.Count - 1; i >= 0; i --) {
+				loadedTools[i].Render();
+				if (loadedTools[i].open == false) {
+					loadedTools.RemoveAt(i);
+				}
+			}
 
 			for (int i = 0; i < overlays.Count; i++) {
 				if (overlays[i].open == true) {

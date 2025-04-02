@@ -3,10 +3,7 @@ namespace ArcticFoxEngine.Gui {
 
 	public abstract class GuiWindow {
 
-		public string[] menuGroups;
-
-		public abstract string name { get; }
-		public bool open = false;
+		public bool open = true;
 
 		// When these two are not negative, the window's position is updated in GuiManager
 		internal Vector2 setWindowPos;
@@ -14,8 +11,7 @@ namespace ArcticFoxEngine.Gui {
 
 		
 
-		public GuiWindow(params string[] menuGroups) {
-			this.menuGroups = menuGroups;
+		public GuiWindow() {
 			setWindowPos = new Vector2(-1f, -1f);
 			setWindowSize = new Vector2(-1f, -1f);
 		}

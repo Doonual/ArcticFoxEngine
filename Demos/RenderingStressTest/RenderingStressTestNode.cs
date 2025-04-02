@@ -1,6 +1,6 @@
 ﻿using ArcticFoxEngine.Nodes;
 using CoolClassLibrary;
-using ArcticFoxEngine.Rendering;
+using ArcticFoxEngine.Render;
 
 namespace ArcticFoxEngine.Demos.RenderingStressTest {
 	public class RenderingStressTestNode : Node {

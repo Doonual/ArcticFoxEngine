@@ -19,14 +19,14 @@ namespace ArcticFoxEngine {
 		/// </summary>
 		internal static void FrameBegin() {
 
-			PerformanceWindow.mainWindow.ProcessMetrics();
+			PerformanceWindow.ProcessMetrics();
 			Graphics.cmdQueueDirect.GetClockCalibration(out long gpuTimestamp, out _);
 
 			frameBegin = gpuTimestamp;
 			deltaTime = (gpuTimestamp - prevGpuTimestamp) / (float)Graphics.cmdQueueDirect.TimestampFrequency;
 			prevGpuTimestamp = gpuTimestamp;
 
-			PerformanceWindow.mainWindow.FrameStart(gpuTimestamp);
+			PerformanceWindow.FrameStart(gpuTimestamp);
 
 		}
 
@@ -40,7 +40,7 @@ namespace ArcticFoxEngine {
 
 			frameTime = (gpuTimestamp - frameBegin) / (float)Graphics.cmdQueueDirect.TimestampFrequency;
 
-			PerformanceWindow.mainWindow.FrameDone(gpuTimestamp, frameTime);
+			PerformanceWindow.FrameDone(gpuTimestamp, frameTime);
 
 		}
 
@@ -52,7 +52,7 @@ namespace ArcticFoxEngine {
 		public static void MetricBegin(string name) {
 
 			Graphics.cmdQueueDirect.GetClockCalibration(out long timestamp, out _);
-			PerformanceWindow.mainWindow.MetricBegin(timestamp, name);
+			PerformanceWindow.MetricBegin(timestamp, name);
 
 		}
 
@@ -62,7 +62,7 @@ namespace ArcticFoxEngine {
 		public static void MetricEnd() {
 
 			Graphics.cmdQueueDirect.GetClockCalibration(out long timestamp, out _);
-			GuiManager.GetDebugWindow<PerformanceWindow>().MetricEnd(timestamp);
+			PerformanceWindow.MetricEnd(timestamp);
 
 		}
 

@@ -6,10 +6,10 @@ using SharpDX.DXGI;
 using System;
 using System.IO;
 using static ArcticFoxEngine.Graphics;
-using static ArcticFoxEngine.Rendering.Shader;
+using static ArcticFoxEngine.Render.Shader;
 using Resource = SharpDX.Direct3D12.Resource;
 
-namespace ArcticFoxEngine.Rendering {
+namespace ArcticFoxEngine.Render {
 
 	public abstract class Shader : IDisposable {
 
@@ -150,11 +150,11 @@ namespace ArcticFoxEngine.Rendering {
 		public PipelineState pipelineState;
 		public RootSignature rootSignature;
 
-		public GeometryBank geometryResources;
+		public GeometryBank geometryBank;
 
 		public Shader() {
 
-			geometryResources = new GeometryBank();
+			geometryBank = new GeometryBank();
 
 		}
 		public abstract Material GetDefaultMaterial();
@@ -361,34 +361,34 @@ namespace ArcticFoxEngine.Rendering {
 
 		public void DefaultRender(Camera camera, Resource renderTarget, DescriptorHeap rtvDescHeap, DescriptorHeap dsvDescHeap, DataSlot projectionInfoDataSlot, DataSlot transformInfoDataSlot) {
 
-			geometryResources.UpdateObjectInfoBuffer();
+			geometryBank.UpdateObjectInfoBuffer();
 			projectionInfoDataSlot.SetData(camera.projectionInfo, 0);
 
             // Bind the shader global data
 
 
             // Set geometry
-            Rendering.Render.cmdList.PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList;
-            Rendering.Render.cmdList.SetVertexBuffer(0, geometryResources.vertexBufferView);
-            Rendering.Render.cmdList.SetIndexBuffer(geometryResources.indexBufferView);
+            Rendering.cmdList.PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList;
+            Rendering.cmdList.SetVertexBuffer(0, geometryBank.vertexBufferView);
+            Rendering.cmdList.SetIndexBuffer(geometryBank.indexBufferView);
 
 
 			// Render each mesh
-			for (int i = 0; i < geometryResources.meshRenderers.Count; i++) {
+			for (int i = 0; i < geometryBank.meshRenderers.Count; i++) {
 
-				int currentMeshIndexCount = geometryResources.meshRenderers[i].mesh.indices.Length;
-				int vertexBufferStartIndex = geometryResources.GetMeshPosInVertexBuffer(i);
-				int indexBufferStartIndex = geometryResources.GetMeshPosInIndexBuffer(i);
-				int objectBufferStartIndex = geometryResources.GetMeshPosInObjectBuffer(i);
+				int currentMeshIndexCount = geometryBank.meshRenderers[i].mesh.indices.Length;
+				int vertexBufferStartIndex = geometryBank.GetMeshPosInVertexBuffer(i);
+				int indexBufferStartIndex = geometryBank.GetMeshPosInIndexBuffer(i);
+				int objectBufferStartIndex = geometryBank.GetMeshPosInObjectBuffer(i);
 
 				// Bind the transform data
-				transformInfoDataSlot.SetData(geometryResources.transformBuffer, objectBufferStartIndex);
+				transformInfoDataSlot.SetData(geometryBank.transformBuffer, objectBufferStartIndex);
 
 				// Bind the data from the material
-				geometryResources.meshRenderers[i].material.BindResources(this);
+				geometryBank.meshRenderers[i].material.BindResources(this);
 
                 // Draw the mesh
-                Rendering.Render.cmdList.DrawIndexedInstanced(currentMeshIndexCount, 1, indexBufferStartIndex, vertexBufferStartIndex, vertexBufferStartIndex);
+                ArcticFoxEngine.Render.Rendering.cmdList.DrawIndexedInstanced(currentMeshIndexCount, 1, indexBufferStartIndex, vertexBufferStartIndex, vertexBufferStartIndex);
 
 			}
 
@@ -408,7 +408,7 @@ namespace ArcticFoxEngine.Rendering {
 			pipelineState.Dispose();
 			rootSignature.Dispose();
 
-			geometryResources.Dispose();
+			geometryBank.Dispose();
 
 		}
 

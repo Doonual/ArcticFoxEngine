@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ArcticFoxEngine.Rendering {
+namespace ArcticFoxEngine.Render {
 
 	public class MandelbrotMaterial : Material {
 

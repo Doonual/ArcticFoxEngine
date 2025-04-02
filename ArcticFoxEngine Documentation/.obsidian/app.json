@@ -1,6 +1,6 @@
 {
-  "livePreview": false,
+  "livePreview": true,
   "defaultViewMode": "preview",
-  "readableLineLength": false,
+  "readableLineLength": true,
   "alwaysUpdateLinks": true
 }

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ArcticFoxEngine.Rendering {
+namespace ArcticFoxEngine.Render {
 
 	public class SkyboxMaterial : Material {
 
@@ -20,7 +20,7 @@ namespace ArcticFoxEngine.Rendering {
 				skyBottomCol = new Vector3(246f / 255f, 243f / 255f, 232f / 255f),
 				groundTopCol = new Vector3(116f / 255f, 98f / 255f, 81f / 255f),
 				groundBottomCol = new Vector3(55f / 255f, 40f / 255f, 32f / 255f),
-				sunStrength = -0.00002f,
+				sunSharpness = -0.00002f,
 				horizonSharpness = -0.0034f,
 			};
 			skyboxInfoBuffer = new ConstBuffer<SkyboxShader.SkyboxInfo>(1);
@@ -43,7 +43,7 @@ namespace ArcticFoxEngine.Rendering {
 			changed |= ImGui.ColorEdit3("Ground top col", ref skyboxInfo.groundTopCol);
 			changed |= ImGui.ColorEdit3("Ground bottom col", ref skyboxInfo.groundBottomCol);
 
-			changed |= ImGui.SliderFloat("Sun strength", ref skyboxInfo.sunStrength, -0.001f, 0f, "%.6f");
+			changed |= ImGui.SliderFloat("Sun strength", ref skyboxInfo.sunSharpness, -0.001f, 0f, "%.6f");
 			changed |= ImGui.SliderFloat("Horizon sharpness", ref skyboxInfo.horizonSharpness, -0.1f, 0f, "%.4f");
 
 		

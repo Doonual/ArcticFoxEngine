@@ -7,18 +7,13 @@ using SixLabors.ImageSharp.PixelFormats;
 using System.Windows.Forms;
 
 namespace ArcticFoxEngine.Gui {
+
+	[GuiWindowOptions("Scene")]
 	public class SceneWindow : GuiWindow {
 
 		internal static Node selectedNode = null;
 		internal static NodeInspectorGui selectedNodeGui;
 
-		public SceneWindow(params string[] menuGroups) : base(menuGroups) {
-
-		}
-
-		
-
-		public override string name => "Scene";
 		public override void Render() {
 
 			ImGui.Begin("Scene", ref open);

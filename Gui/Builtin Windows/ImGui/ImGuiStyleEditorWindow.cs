@@ -2,16 +2,15 @@
 using ImGuiNET;
 
 namespace ArcticFoxEngine.Gui.Builtin_Windows {
+
+	[GuiWindowOptions("ImGui/Style Editor")]
 	internal class ImGuiStyleEditorWindow : GuiWindow {
-
-		public override string name => "Style Editor";
-
-		public ImGuiStyleEditorWindow(params string[] menuGroups) : base(menuGroups) { }
 
 		public override void Render() {
 			ImGui.Begin("Style Editor", ref open);
 			ImGui.ShowStyleEditor();
 			ImGui.End();
 		}
+
 	}
 }

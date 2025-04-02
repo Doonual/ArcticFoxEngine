@@ -1,68 +1,29 @@
 ﻿using ArcticFoxEngine.Nodes;
-using CoolClassLibrary;
 using ImGuiNET;
 using SharpDX.Direct3D12;
 using SharpDX.DXGI;
 
-namespace ArcticFoxEngine.Rendering {
-	
-	public class LitShader : Shader {
+namespace ArcticFoxEngine.Render {
+	public class UnlitShader : Shader {
 
-		
-
-		public struct LightingWorld {
-
-			public Vector3 sunDir;
-			public float sunStrength;
-			public float ambientLight;
-
-			public LightingWorld() {
-				sunDir = new Vector3(-0.25f, -0.5f, 0.4f).Normalize();
-				sunStrength = 0.8f;
-				ambientLight = 0.2f;
-			}
-
-		}
-		public struct LightData {
-
-			public Vector4 pos;
-			public Vector3 col;
-			public float strength;
-
-		}
-
-		public static ConstBuffer<LightingWorld> lightingInfoBuffer;
-		public static StructuredBuffer<LightData> lightBuffer;
-
-		public override string name => "Lit";
+		public override string name => "Unlit";
 
 		public DataSlot projectionInfoDataSlot = new DataSlot(ShaderVisibility.All);
 		public DataSlot transformInfoDataSlot = new DataSlot(ShaderVisibility.All);
-
-		public DataSlot lightingWorldSlot = new DataSlot(ShaderVisibility.Pixel);
-		public DataSlot materialInfoSlot = new DataSlot(ShaderVisibility.Pixel);
-
 		public TextureSlot mainTexSlot = new TextureSlot(ShaderVisibility.Pixel);
-		public TextureSlot normalTexSlot = new TextureSlot(ShaderVisibility.Pixel);
-
-		public BufferSlot lightInfoSlot = new BufferSlot(16, ShaderVisibility.Pixel);
-
-		public TextureSampler textureSampler = new TextureSampler(ShaderVisibility.Pixel) {
+		public TextureSampler sampler = new TextureSampler(ShaderVisibility.Pixel) {
 			addressUVW = TextureAddressMode.Wrap,
 			filter = Filter.MinimumMinMagMipPoint,
 		};
 
-		public LitShader() {
-
-			lightBuffer = new StructuredBuffer<LightData>(16);
-			lightingInfoBuffer = new ConstBuffer<LightingWorld>(1);
+		public UnlitShader() {
 
 
 			rootSignature = CreateRootSignature(
-				new DataSlot[] { projectionInfoDataSlot, transformInfoDataSlot, lightingWorldSlot, materialInfoSlot },
-				new BufferSlot[] { lightInfoSlot },
-				new TextureSlot[] { mainTexSlot, normalTexSlot },
-				new TextureSampler[] { textureSampler }
+				new DataSlot[] { projectionInfoDataSlot, transformInfoDataSlot },
+				new BufferSlot[] { },
+				new TextureSlot[] { mainTexSlot },
+				new TextureSampler[] { sampler }
 			);
 			pipelineState = CreatePipelineObject();
 
@@ -98,9 +59,7 @@ namespace ArcticFoxEngine.Rendering {
 
 			ShaderBytecode vertexShader = CompileShader(".res/Shaders/VertexShader.hlsl", ShaderType.Vertex);
 			ShaderBytecode geometryShader = CompileShader(".res/Shaders/GeometryShader.hlsl", ShaderType.Geometry);
-			ShaderBytecode pixelShader = CompileShader(".res/Shaders/Lit/LitPixelShader.hlsl", ShaderType.Pixel);
-
-
+			ShaderBytecode pixelShader = CompileShader(".res/Shaders/Unlit/PixelShader.hlsl", ShaderType.Pixel);
 
 			GraphicsPipelineStateDescription pipelineStateDescription = new GraphicsPipelineStateDescription() {
 				InputLayout = inputLayout,
@@ -125,30 +84,37 @@ namespace ArcticFoxEngine.Rendering {
 
 		}
 
-		public static void SetLightingInfo(LightingWorld lightingInfo) {
-			lightingInfoBuffer.Write(new LightingWorld[] { lightingInfo }, 0);
-		}
-		public static void SetLightData(LightData lightData, int bufferPos) {
-			lightBuffer.Write(new LightData[] { lightData }, bufferPos);
-		}
-
 		public override void Render(Camera camera, SharpDX.Direct3D12.Resource renderTarget, DescriptorHeap rtvDescHeap, DescriptorHeap dsvDescHeap) {
 
-			lightingWorldSlot.SetData(lightingInfoBuffer, 0);
-			lightInfoSlot.SetBuffer(lightBuffer, 0);
-
 			DefaultRender(camera, renderTarget, rtvDescHeap, dsvDescHeap, projectionInfoDataSlot, transformInfoDataSlot);
-
 		}
 
 		public override Material GetDefaultMaterial() {
-			return new LitMaterial();
+			return new UnlitMaterial();
 		}
+
+
 
 	}
 
-	
+	public class UnlitMaterial : Material {
 
-	
+		public Texture mainTex;
+		
+
+		public override void BindResources(Shader shader) {
+			UnlitShader unlitShader = (UnlitShader)shader;
+
+
+			unlitShader.mainTexSlot.SetTexture(mainTex);
+
+		}
+
+		public override void DrawInspectorGUI() {
+
+
+		}
+
+	}
 
 }

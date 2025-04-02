@@ -104,10 +104,7 @@ namespace ArcticFoxEngine.Gui.Builtin_Windows {
 					}
 
 					if (ImGui.MenuItem("Pop out") == true) {
-
-						NodeInspectorGui popOutNodeInspector = new NodeInspectorGui(targetNode);
-						GuiManager.OpenWindow(targetNode.name, () => { popOutNodeInspector.DrawNodeInspector(true); });
-
+						GuiManager.OpenGuiWindow(new NodeInspectorWindow(targetNode));
 					}
 
 

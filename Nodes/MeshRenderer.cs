@@ -2,7 +2,7 @@
 
 namespace ArcticFoxEngine.Nodes {
 
-	using ArcticFoxEngine.Rendering;
+	using ArcticFoxEngine.Render;
 	using CoolClassLibrary;
 
 	public class MeshRenderer : Node {
@@ -69,19 +69,19 @@ namespace ArcticFoxEngine.Nodes {
 
 		private void LoadMesh() {
 			if (mesh == null || meshLoaded == true || shader == null) { return; }
-			bool meshAdded = shader.geometryResources.AddMesh(this);
+			bool meshAdded = shader.geometryBank.AddMesh(this);
 			if (meshAdded == true) {
 				meshLoaded = true;
 			}
 		}
 		private void UnloadMesh() {
 			if (meshLoaded == false || shader == null) { return; }
-			shader.geometryResources.RemoveMesh(this);
+			shader.geometryBank.RemoveMesh(this);
 			meshLoaded = false;
 		}
 		public void UpdateMeshData() {
 			if (mesh == null || meshLoaded == false) { return; }
-			shader.geometryResources.UpdateMeshData(this);
+			shader.geometryBank.UpdateMeshData(this);
 		}
 
 		internal TransformInfo GetObjectInfo() {

@@ -1,8 +1,8 @@
-SHADERS SHOULD NOT NEED TO BE STORED ANYWHERE TO BE USED.
-ALL THAT SHOULD BE NEEDED IS THE SHADER OBJECT ITSELF.
-
-SHADERS ARE STORED IN RENDERING ONLY SO THEY CAN BE RETRIEVED WHEN NEEDED
-
+---
+tags:
+  - rendering
+---
+## Overview
 Shaders serve as the bridge between the CPU and the GPU for rendering meshes. They contain all the information necessary for drawing an object and for binding data used for drawing
 
 Shader is an abstract class that facilitates creating and using shaders for rendering, as well as binding data to the shader
@@ -28,6 +28,8 @@ One of the things the Shader class helps with the most is binding data to the GP
 - CreateBufferSlot
 - CreateTextureSlot
 
+
+Just before a shader renders an object, the material associated with the mesh will bind resources to its [[Shader#DataSlot|dataslots]]. The dataslot will use Rendering.CopyDescriptorsIn to copy the descriptor from the resource being bound into the main descriptor heap. The dataslot will also record where the descriptor is copied to and binds the descriptor to the root parameter the dataslot targets.
 
 ### Shader Registers
 Each DataSlot, BufferSlot and TextureSlot takes up a shader register. This is how you specify which variables are connected to what slots in HLSL.
@@ -66,6 +68,7 @@ Each DataSlot takes up one kind of shader register
 A DataSlot is used to bind one group of data to a shader. You would use a DataSlot to get access to 1 struct / primitive in the shader. It can be rebound between drawing objects to get different data per object.
 
 For shader global data, this is how the DataSlot should be used
+
 ```csharp title:"Global data using a DataSlot - C# Side"
 public class MyShader : Shader {
 
@@ -182,7 +185,7 @@ float4 Pixel_Main(Vertex input) : SV_Target {
 ```
 
 ### TextureSlot
-Like the name suggests, TextureSlots are used to bind textures to shaders. You would use a TextureSlot to get access to a Texture in the shader
+Like the name suggests, TextureSlots are used to bind [[Texture|textures]] to shaders. You would use a TextureSlot to get access to a Texture in the shader
 This is how you would use a TextureSlot
 ```csharp title="Using a TextureSlot - C# Side"
 public class MyShader : Shader {
@@ -203,3 +206,9 @@ public class MyShader : Shader {
 }
 ```
 
+
+## Compiling shaders
+Shaders are compiled with Graphics.CompileShader
+```csharp
+ShaderBytecode pixelShader = Graphics.CompileShader(".res/Shaders/Lit/LitPixelShader.hlsl", Graphics.ShaderType.Pixel);
+```

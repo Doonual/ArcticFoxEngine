@@ -166,8 +166,7 @@ namespace ArcticFoxEngine.Gui {
 				}
 				if (ImGui.IsMouseReleased(ImGuiMouseButton.Left) == true) {
 
-					NodeInspectorGui nodeInspectorGui = new NodeInspectorGui(node);
-					GuiManager.OpenWindow(node.name, () => { nodeInspectorGui.DrawNodeInspector(true); });
+					GuiManager.OpenGuiWindow(new NodeInspectorWindow(node));
 
 				}
 				if (ImGui.IsMouseReleased(ImGuiMouseButton.Right) == true) {
@@ -180,7 +179,7 @@ namespace ArcticFoxEngine.Gui {
 
 				if (ImGui.MenuItem("Edit") == true) {
 					NodeInspectorGui nodeInspectorGui = new NodeInspectorGui(node);
-					GuiManager.OpenWindow(node.name, () => { nodeInspectorGui.DrawNodeInspector(true); });
+					GuiManager.OpenGuiWindow(new NodeInspectorWindow(node));
 				}
 				if (ImGui.MenuItem("Reveal in node tree") == true) {
 

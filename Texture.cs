@@ -315,6 +315,7 @@ namespace ArcticFoxEngine {
 		
 		internal bool disposed = true;
 
+		internal static ResourceStates defaultState = ResourceStates.CopyDestination;
 		internal DescriptorHeap descriptorHeap;
 		internal Resource resource;
 		internal IntPtr imGuiID;
@@ -323,27 +324,24 @@ namespace ArcticFoxEngine {
 		public Format format { get; private set; }
 		public int width;
 		public int height;
-		byte[] textureDataClone;
 
 		/// <summary>
 		/// Creates an empty texture
 		/// </summary>
 		/// <param name="width">Width of the texture</param>
 		/// <param name="height">Height of the texture</param>
-		public Texture(int width, int height, Format format = Format.R8G8B8A8_UNorm, ResourceFlags flags = ResourceFlags.None, ResourceStates initialState = ResourceStates.CopyDestination) {
-
+		public Texture(int width, int height, Format format = Format.R8G8B8A8_UNorm, ResourceFlags flags = ResourceFlags.None) {
+			
 			name = GetHashCode() + "";
-			TextureInspectorTool.RegisterTexture(this);
-
+			TextureInspectorWindow.RegisterTexture(this);
 			disposed = false;
 
 			this.width = width;
 			this.height = height;
 			this.format = format;
-			textureDataClone = new byte[width * height * format.SizeOfInBits()];
 
 			ResourceDescription textureDesc = ResourceDescription.Texture2D((SharpDX.DXGI.Format)format, width, height, flags: flags, mipLevels: 1);
-			resource = Graphics.device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.None, textureDesc, initialState);
+			resource = Graphics.device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.None, textureDesc, defaultState);
 
 			PrepareAsShaderResource();
 			imGuiID = RenderImGui.RegisterTexture(this);
@@ -356,7 +354,7 @@ namespace ArcticFoxEngine {
 		/// <param name="path">The path to the image containing the data to be uploaded</param>
 		public Texture(string path) {
 			name = path;
-			TextureInspectorTool.RegisterTexture(this);
+			TextureInspectorWindow.RegisterTexture(this);
 
 			disposed = false;
 
@@ -367,7 +365,6 @@ namespace ArcticFoxEngine {
 			format = Format.R8G8B8A8_UNorm;
 			ResourceDescription textureDesc = ResourceDescription.Texture2D((SharpDX.DXGI.Format)format, width, height);
 			resource = Graphics.device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.None, textureDesc, ResourceStates.CopyDestination);
-			textureDataClone = new byte[width * height * format.SizeOfInBits()];
 
 			byte[] imageData = new byte[image.Width * image.Height * 4];
 			for (int i = 0; i < image.Width; i++) {
@@ -449,12 +446,10 @@ namespace ArcticFoxEngine {
 		/// <param name="data">The data to be uploaded</param>
 		public void SetData(byte[] data) {
 			Upload.Texture2DUpload(resource, width, height, format, data);
-			textureDataClone = data;
 		}
 
 		public void SetPixel(byte[] data, int x, int y) {
 			if (x < 0 || y < 0 || x >= width || y >= height) {
-				//Log.Warn("Trying to set pixel outside of the texture, ignoring");
 				return;
 			}
 			Upload.Texture2DPixelUpload(resource, x, y, format, data);
@@ -471,35 +466,21 @@ namespace ArcticFoxEngine {
 			SetData(allData);
 		}
 
-		public byte[] GetPixel(int x, int y) {
-
-			byte[] pixelData = new byte[format.SizeOfInBytes()];
-
-			if (x < 0 || y < 0 || x >= width || y >= height) {
-				//Log.Warn("Trying to get pixel outside of the texture, returning 0s");
-				for (int i = 0; i < pixelData.Length; i ++) {
-					pixelData[i] = 0x00;
-				}
-				return pixelData;
-			}
-			for (int i = 0; i < pixelData.Length; i++) {
-				pixelData[i] = textureDataClone[x * format.SizeOfInBytes() + y * width * format.SizeOfInBytes() + i];
-			}
-			return pixelData;
-		}
-
+		byte[] batchUploadData;
 		public void SetPixelBatch(byte[] data, int x, int y) {
 			if (x < 0 || y < 0 || x >= width || y >= height) {
-				//Log.Warn("Trying to set pixel outside of the texture, ignoring");
 				return;
 			}
+			if (batchUploadData == null) { batchUploadData = new byte[width * height * format.SizeOfInBytes()]; }
+
 			for (int i = 0; i < data.Length; i ++) {
-				textureDataClone[x * format.SizeOfInBytes() + y * width * format.SizeOfInBytes() + i] = data[i];
+				batchUploadData[x * format.SizeOfInBytes() + y * width * format.SizeOfInBytes() + i] = data[i];
 			}
 			
 		}
 		public void BatchSync() {
-			Upload.Texture2DUpload(resource, width, height, format, textureDataClone);
+			Upload.Texture2DUpload(resource, width, height, format, batchUploadData);
+			batchUploadData = null;
 		}
 
 
@@ -533,7 +514,7 @@ namespace ArcticFoxEngine {
 			disposed = true;
 			resource.Dispose();
 			descriptorHeap.Dispose();
-			TextureInspectorTool.DeRegisterTexture(this);
+			TextureInspectorWindow.DeRegisterTexture(this);
 			RenderImGui.DeRegisterTexture(imGuiID);
 		}
 		~Texture() {

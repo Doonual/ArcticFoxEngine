@@ -4,7 +4,7 @@ using SharpDX;
 using SharpDX.Direct3D12;
 
 
-namespace ArcticFoxEngine.Rendering {
+namespace ArcticFoxEngine.Render {
 
 	/// <summary>
 	/// Contains and controls all the resources needed for rendering geometry
@@ -40,10 +40,6 @@ namespace ArcticFoxEngine.Rendering {
 
 			meshRenderers = new List<MeshRenderer>();
 			meshRendererPositions = new List<(int vertexBufferStart, int indexBufferStart, int transformBufferStart)>();
-
-			Log.Info("VB Size: " + numVertexBufferElements);
-			Log.Info("IB Size: " + numIndexBufferElements);
-			Log.Info("TB Size: " + numTransformBufferElements);
 
 			// Create gap arrays
 			vertexGap = new int[numVertexBufferElements];

@@ -60,8 +60,7 @@ namespace ArcticFoxEngine.Gui.Builtin_Windows {
 
 					if (ImGui.MenuItem("Pop out") == true) {
 
-						TransformInspectorGui popOutNodeInspector = new TransformInspectorGui(targetTransform);
-						GuiManager.OpenWindow("Transform", () => { popOutNodeInspector.DrawTransformInspector(true); });
+						GuiManager.OpenGuiWindow(new TransformInspectorWindow(targetTransform));
 
 					}
 

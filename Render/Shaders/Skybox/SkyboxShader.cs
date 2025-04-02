@@ -7,9 +7,9 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
-using static ArcticFoxEngine.Rendering.LitShader;
+using static ArcticFoxEngine.Render.LitShader;
 
-namespace ArcticFoxEngine.Rendering {
+namespace ArcticFoxEngine.Render {
 
 
 	internal class SkyboxShader : Shader {
@@ -23,21 +23,17 @@ namespace ArcticFoxEngine.Rendering {
 
 		private ConstBuffer<Matrix> projMatrixBuffer;
 		private ConstBuffer<Matrix> camTransformMatrixBuffer;
-		
 
+		[StructLayout(LayoutKind.Explicit)]
 		public struct SkyboxInfo {
 
-			public Vector3 skyBottomCol;
-			public float sunStrength;
+			[FieldOffset(0 * 4)] public Vector3 skyTopCol;
+			[FieldOffset(4 * 4)] public Vector3 skyBottomCol;
+			[FieldOffset(8 * 4)] public Vector3 groundTopCol;
+			[FieldOffset(12 * 4)] public Vector3 groundBottomCol;
 
-			public Vector3 skyTopCol;
-			public float horizonSharpness;
-
-			public Vector3 groundTopCol;
-			public float dummy;
-
-			public Vector3 groundBottomCol;
-
+			[FieldOffset(15 * 4)] public float sunSharpness;
+			[FieldOffset(16 * 4)] public float horizonSharpness;
 
 		}
 
@@ -117,11 +113,11 @@ namespace ArcticFoxEngine.Rendering {
 		
 		public override void Render(Camera camera, SharpDX.Direct3D12.Resource renderTarget, DescriptorHeap rtvDescHeap, DescriptorHeap dsvDescHeap) {
 
-			geometryResources.UpdateObjectInfoBuffer();
+			geometryBank.UpdateObjectInfoBuffer();
 
             // Update the pipeline state and set this shaders root signature
-            Rendering.Render.cmdList.PipelineState = pipelineState;
-            Rendering.Render.cmdList.SetGraphicsRootSignature(rootSignature);
+            ArcticFoxEngine.Render.Rendering.cmdList.PipelineState = pipelineState;
+            ArcticFoxEngine.Render.Rendering.cmdList.SetGraphicsRootSignature(rootSignature);
 
 			// Bind the projection data
 			projMatrixBuffer.Write(camera.projectionMatrix.Invert(), 0);
@@ -133,24 +129,24 @@ namespace ArcticFoxEngine.Rendering {
 			lightingWorld.SetData(LitShader.lightingInfoBuffer, 0);
 
             // Set geometry
-            Rendering.Render.cmdList.PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList;
-            Rendering.Render.cmdList.SetVertexBuffer(0, geometryResources.vertexBufferView);
-            Rendering.Render.cmdList.SetIndexBuffer(geometryResources.indexBufferView);
+            ArcticFoxEngine.Render.Rendering.cmdList.PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList;
+            ArcticFoxEngine.Render.Rendering.cmdList.SetVertexBuffer(0, geometryBank.vertexBufferView);
+            ArcticFoxEngine.Render.Rendering.cmdList.SetIndexBuffer(geometryBank.indexBufferView);
 
 
 			// Render each mesh
-			for (int i = 0; i < geometryResources.meshRenderers.Count; i++) {
+			for (int i = 0; i < geometryBank.meshRenderers.Count; i++) {
 
-				int currentMeshIndexCount = geometryResources.meshRenderers[i].mesh.indices.Length;
-				int vertexBufferStartIndex = geometryResources.GetMeshPosInVertexBuffer(i);
-				int indexBufferStartIndex = geometryResources.GetMeshPosInIndexBuffer(i);
-				int objectBufferStartIndex = geometryResources.GetMeshPosInObjectBuffer(i);
+				int currentMeshIndexCount = geometryBank.meshRenderers[i].mesh.indices.Length;
+				int vertexBufferStartIndex = geometryBank.GetMeshPosInVertexBuffer(i);
+				int indexBufferStartIndex = geometryBank.GetMeshPosInIndexBuffer(i);
+				int objectBufferStartIndex = geometryBank.GetMeshPosInObjectBuffer(i);
 
 				// Bind the data from the material
-				geometryResources.meshRenderers[i].material.BindResources(this);
+				geometryBank.meshRenderers[i].material.BindResources(this);
 
                 // Draw the mesh
-                Rendering.Render.cmdList.DrawIndexedInstanced(currentMeshIndexCount, 1, indexBufferStartIndex, vertexBufferStartIndex, vertexBufferStartIndex);
+                ArcticFoxEngine.Render.Rendering.cmdList.DrawIndexedInstanced(currentMeshIndexCount, 1, indexBufferStartIndex, vertexBufferStartIndex, vertexBufferStartIndex);
 
 			}
 

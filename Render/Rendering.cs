@@ -1,6 +1,6 @@
 ﻿ using ArcticFoxEngine.Nodes;
 
-namespace ArcticFoxEngine.Rendering {
+namespace ArcticFoxEngine.Render {
 	using SharpDX;
 	using SharpDX.Direct3D12;
 
@@ -8,7 +8,7 @@ namespace ArcticFoxEngine.Rendering {
 	/// <summary>
 	/// Encapsulates all the tasks required to render a GeometryResources instance
 	/// </summary>
-	public static class Render {
+	public static class Rendering {
 
 		public static GraphicsCommandList cmdList;
 		public static DescriptorHeap gpuDescriptorHeap;
@@ -76,23 +76,24 @@ namespace ArcticFoxEngine.Rendering {
 		/// <param name="camera">The camera to render from</param>
 		internal static void RenderScene(Camera camera) {
 
-			Graphics.WaitForCopyCommandQueue();
 			Graphics.WaitForDirectCommandQueue();
 			Graphics.ResetDirectCommandList(cmdList);
 
 			descriptorCopyPos = 0;
 			
-
 			cmdList.SetDescriptorHeaps(gpuDescriptorHeap);
 
 			// Set viewport and scissor rectancles
 			cmdList.SetViewport(camera.viewport);
 			cmdList.SetScissorRectangles(camera.scissorRect);
 
+
 			// Set render target and depth stencil
+			cmdList.ResourceBarrierTransition(camera.renderTexture.resource, Texture.defaultState, ResourceStates.RenderTarget);
+			cmdList.ResourceBarrierTransition(camera.depthTexture.resource, Texture.defaultState, ResourceStates.DepthWrite);
+
 			CpuDescriptorHandle rtvHandle = camera.rtvDescriptorHeap.CPUDescriptorHandleForHeapStart;
 			CpuDescriptorHandle dsvHandle = camera.dsvDescriptorHeap.CPUDescriptorHandleForHeapStart;
-			//rtvHandle += Graphics.frameIndex * Graphics.rtvHeapIncrement;
 			cmdList.SetRenderTargets(rtvHandle, dsvHandle);
 
 
@@ -105,7 +106,6 @@ namespace ArcticFoxEngine.Rendering {
 			for (int i = 0; i < shadersToRender.Count; i++) {
 
 				Shader currentShader = shadersToRender[i];
-				GeometryBank currentGeometryResources = currentShader.geometryResources;
 
 				// Update the pipeline state and set this shaders root signature
 				cmdList.PipelineState = currentShader.pipelineState;
@@ -114,6 +114,9 @@ namespace ArcticFoxEngine.Rendering {
 				currentShader.Render(camera, camera.renderTexture.resource, camera.rtvDescriptorHeap, camera.dsvDescriptorHeap);
 
 			}
+
+			cmdList.ResourceBarrierTransition(camera.renderTexture.resource, ResourceStates.RenderTarget, Texture.defaultState);
+			cmdList.ResourceBarrierTransition(camera.depthTexture.resource, ResourceStates.DepthWrite, Texture.defaultState);
 
 			cmdList.Close();
 			Graphics.ExecuteDirectCommandList(cmdList);

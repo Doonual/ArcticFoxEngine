@@ -27,8 +27,5 @@ Graphics.Buffer();
 ```
 This will swap the shown texture in the swap chain and present the RTV to the screen
 
-### Compiling shaders
-Shaders are compiled with Graphics.CompileShader
-```csharp
-ShaderBytecode pixelShader = Graphics.CompileShader(".res/Shaders/Lit/LitPixelShader.hlsl", Graphics.ShaderType.Pixel);
-```
+### Blitting textures
+[[Texture|Textures]] may be coppied on to each other by calling ```Blit(Texture src, Texture dst)```

@@ -22,16 +22,13 @@ cbuffer LightingWorld : register(b2) {
 };
 cbuffer SkyboxInfo : register(b3) {
 	
-	float3 skyBottomCol;
-	float sunSharpness;
-	
 	float3 skyTopCol;
-	float horizonSharpness;
-	
+	float3 skyBottomCol;
 	float3 groundTopCol;
-	float dummy;
-	
 	float3 groundBottomCol;
+	
+	float sunSharpness;
+	float horizonSharpness;
 	
 };
 

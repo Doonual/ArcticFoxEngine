@@ -2,11 +2,9 @@
 using ImGuiNET;
 
 namespace ArcticFoxEngine.Gui.Builtin_Windows {
+
+	[GuiWindowOptions("ImGui/Font Selector")]
 	internal class ImGuiFontSelectorWindow : GuiWindow {
-
-		public override string name => "Font Selector";
-
-		public ImGuiFontSelectorWindow(params string[] menuGroups) : base(menuGroups) { }
 
 		public override void Render() {
 			ImGui.Begin("Font Selector", ref open);

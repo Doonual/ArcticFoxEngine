@@ -2,7 +2,7 @@
 using ArcticFoxEngine.ImGuiIntegration;
 using ArcticFoxEngine.Nodes;
 using ArcticFoxEngine.Nodes.Templates;
-using ArcticFoxEngine.Rendering;
+using ArcticFoxEngine.Render;
 using CoolClassLibrary;
 
 namespace ArcticFoxEngine.Demos.LightingTest {

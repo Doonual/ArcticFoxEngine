@@ -2,11 +2,9 @@
 using ImGuiNET;
 
 namespace ArcticFoxEngine.Gui.Builtin_Windows {
+
+	[GuiWindowOptions("ImGui/Demo")]
 	internal class ImGuiDemoWindow : GuiWindow {
-
-		public override string name => "Demo";
-
-		public ImGuiDemoWindow(params string[] menuGroups) : base(menuGroups) { }
 
 		public override void Render() {
 			ImGui.ShowDemoWindow(ref open);

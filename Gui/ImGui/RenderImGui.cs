@@ -1,7 +1,7 @@
 ﻿#pragma warning disable CS8618
 
 using ArcticFoxEngine.Gui;
-using ArcticFoxEngine.Rendering;
+using ArcticFoxEngine.Render;
 using ImGuiNET;
 using SharpDX.Direct3D12;
 using SixLabors.ImageSharp;
@@ -71,7 +71,6 @@ namespace ArcticFoxEngine.ImGuiIntegration {
 
 			cmdList = Graphics.CreateDirectCommandList();
 
-
 			renderTexture = new Texture(MainWindow.width, MainWindow.height, flags: ResourceFlags.AllowRenderTarget);
 			renderTexture.name = "ImGui Render Texture";
 			DescriptorHeapDescription rtvHeapDescription = new DescriptorHeapDescription() {
@@ -82,7 +81,7 @@ namespace ArcticFoxEngine.ImGuiIntegration {
 			rtvDescHeap = Graphics.device.CreateDescriptorHeap(rtvHeapDescription);
 			Graphics.device.CreateRenderTargetView(renderTexture.resource, null, rtvDescHeap.CPUDescriptorHandleForHeapStart);
 
-			depthTexture = new Texture(MainWindow.width, MainWindow.height, format: Format.D32_Float, flags: ResourceFlags.AllowDepthStencil, initialState: ResourceStates.DepthWrite);
+			depthTexture = new Texture(MainWindow.width, MainWindow.height, format: Format.D32_Float, flags: ResourceFlags.AllowDepthStencil);
 			depthTexture.name = "ImGui Depth Texture";
 			DescriptorHeapDescription dsvHeapDescription = new DescriptorHeapDescription() {
 				DescriptorCount = 1,
@@ -324,7 +323,7 @@ namespace ArcticFoxEngine.ImGuiIntegration {
 
 
 			// Indicate that the back buffer will be used as a render target
-			cmdList.ResourceBarrierTransition(renderTexture.resource, ResourceStates.Present, ResourceStates.RenderTarget);
+			cmdList.ResourceBarrierTransition(renderTexture.resource, Texture.defaultState, ResourceStates.RenderTarget);
 
 			// Set render target and depth stencil
 			CpuDescriptorHandle rtvHandle = rtvDescHeap.CPUDescriptorHandleForHeapStart;
@@ -381,7 +380,7 @@ namespace ArcticFoxEngine.ImGuiIntegration {
 			#endregion
 			ReplaceFontIfRequired();
 
-			cmdList.ResourceBarrierTransition(renderTexture.resource, ResourceStates.RenderTarget, ResourceStates.Present);
+			cmdList.ResourceBarrierTransition(renderTexture.resource, ResourceStates.RenderTarget, Texture.defaultState);
 
 
 			cmdList.Close();
@@ -389,6 +388,7 @@ namespace ArcticFoxEngine.ImGuiIntegration {
 			Graphics.ExecuteDirectCommandList(cmdList);
 
 			ImGuiInput.ReSetLastCursor();
+
 
 		}
 
@@ -482,7 +482,7 @@ namespace ArcticFoxEngine.ImGuiIntegration {
 			}
 			Texture fontTex = new Texture(width, height);
 			fontTex.name = "ImGui Font Texture";
-			Graphics.device.CreateShaderResourceView(fontTex.resource, null, descriptorHeap.CPUDescriptorHandleForHeapStart + Rendering.Render.descriptorHeapIncrement * descriptorHeapIndex);
+			Graphics.device.CreateShaderResourceView(fontTex.resource, null, descriptorHeap.CPUDescriptorHandleForHeapStart + ArcticFoxEngine.Render.Rendering.descriptorHeapIncrement * descriptorHeapIndex);
 
 			//fontTex.PrepareAsShaderResource(descriptorHeap, descriptorHeapIndex);
 
@@ -500,7 +500,7 @@ namespace ArcticFoxEngine.ImGuiIntegration {
 			}
 
 			IntPtr imguiID = texture.GetNativePointer();
-			texture.PrepareAsShaderResource(descriptorHeap.CPUDescriptorHandleForHeapStart + Rendering.Render.descriptorHeapIncrement * descriptorHeapIndex);
+			texture.PrepareAsShaderResource(descriptorHeap.CPUDescriptorHandleForHeapStart + ArcticFoxEngine.Render.Rendering.descriptorHeapIncrement * descriptorHeapIndex);
 			//Graphics.device.CreateShaderResourceView(texture.resource, null, descriptorHeap.CPUDescriptorHandleForHeapStart + Rendering.Rendering.descriptorHeapIncrement * descriptorHeapIndex);
 			//texture.PrepareAsShaderResource(descriptorHeap, descriptorHeapIndex);
 			textureResources.TryAdd(imguiID, (texture, descriptorHeapIndex));

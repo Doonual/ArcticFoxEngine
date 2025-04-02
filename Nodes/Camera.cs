@@ -1,4 +1,4 @@
-﻿using ArcticFoxEngine.Rendering;
+﻿using ArcticFoxEngine.Render;
 using CoolClassLibrary;
 using ImGuiNET;
 using SharpDX;
@@ -65,9 +65,9 @@ namespace ArcticFoxEngine.Nodes {
 		public Camera() {
 			name = "Camera";
 
-			renderTexture = new Texture(MainWindow.width, MainWindow.height, format: Format.R8G8B8A8_UNorm, flags: ResourceFlags.AllowRenderTarget, initialState: ResourceStates.RenderTarget);
+			renderTexture = new Texture(MainWindow.width, MainWindow.height, format: Format.R8G8B8A8_UNorm, flags: ResourceFlags.AllowRenderTarget);
 			renderTexture.name = "Camera Render Texture";
-			depthTexture = new Texture(renderTexture.width, renderTexture.height, format: Format.D32_Float, flags: ResourceFlags.AllowDepthStencil, initialState: ResourceStates.DepthWrite);
+			depthTexture = new Texture(renderTexture.width, renderTexture.height, format: Format.D32_Float, flags: ResourceFlags.AllowDepthStencil);
 			depthTexture.name = "Camera Depth Texture";
 			projectionInfo = new ConstBuffer<ProjectionInfo>(1);
 
@@ -228,7 +228,7 @@ namespace ArcticFoxEngine.Nodes {
 
 		public override void Render() {
 
-			Rendering.Render.RenderScene(this);
+			Rendering.RenderScene(this);
 			Graphics.Blit(renderTexture, Graphics.GetActiveResource());
 
 		}

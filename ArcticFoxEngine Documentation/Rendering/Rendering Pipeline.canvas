@@ -1,0 +1,346 @@
+{
+  "nodes": [
+    {
+      "id": "0a33237a9f86bf16",
+      "type": "text",
+      "text": "Camera.Render",
+      "styleAttributes": {},
+      "x": -860,
+      "y": -180,
+      "width": 260,
+      "height": 60,
+      "color": "1"
+    },
+    {
+      "id": "50834c2d8ccb0070",
+      "type": "text",
+      "text": "Camera",
+      "styleAttributes": {},
+      "x": -860,
+      "y": -300,
+      "width": 260,
+      "height": 60,
+      "color": "1"
+    },
+    {
+      "id": "a1dfc70be73e8989",
+      "type": "text",
+      "text": "Rendering",
+      "styleAttributes": {},
+      "x": -420,
+      "y": -300,
+      "width": 260,
+      "height": 60,
+      "color": "2"
+    },
+    {
+      "id": "6becf7af1f7262bc",
+      "type": "text",
+      "text": "Shader",
+      "styleAttributes": {},
+      "x": 20,
+      "y": -300,
+      "width": 260,
+      "height": 60,
+      "color": "3"
+    },
+    {
+      "id": "f4486003b78d66ad",
+      "type": "text",
+      "text": "Rendering.RenderScene",
+      "styleAttributes": {},
+      "x": -420,
+      "y": -80,
+      "width": 260,
+      "height": 60,
+      "color": "2"
+    },
+    {
+      "id": "ca99bcd056efc3ee",
+      "type": "text",
+      "text": "Set descriptor heap copy pos to 0",
+      "styleAttributes": {},
+      "x": -420,
+      "y": 20,
+      "width": 260,
+      "height": 60,
+      "color": "2"
+    },
+    {
+      "id": "d12ade644238f7f4",
+      "type": "text",
+      "text": "Assign the main descriptor heap",
+      "styleAttributes": {},
+      "x": -420,
+      "y": 120,
+      "width": 260,
+      "height": 60,
+      "color": "2"
+    },
+    {
+      "id": "473fae94f7a772a8",
+      "type": "text",
+      "text": "For all shaders",
+      "styleAttributes": {},
+      "x": -420,
+      "y": 220,
+      "width": 260,
+      "height": 60,
+      "color": "2"
+    },
+    {
+      "id": "768bd02e67527a7c",
+      "type": "text",
+      "text": "Switch pipeline state to the shader's pipeline state",
+      "styleAttributes": {},
+      "x": -420,
+      "y": 320,
+      "width": 260,
+      "height": 60,
+      "color": "2"
+    },
+    {
+      "id": "8b94bf99b1482af2",
+      "type": "text",
+      "text": "Switch root signature to the shader's root signature",
+      "styleAttributes": {},
+      "x": -420,
+      "y": 420,
+      "width": 260,
+      "height": 60,
+      "color": "2"
+    },
+    {
+      "id": "74a8cc8904f2baeb",
+      "type": "text",
+      "text": "Shader.Render",
+      "styleAttributes": {},
+      "x": 20,
+      "y": 520,
+      "width": 260,
+      "height": 60,
+      "color": "3"
+    },
+    {
+      "id": "39eb0bff1ac9874f",
+      "type": "text",
+      "text": "Update the GeometryBank buffer for object info",
+      "styleAttributes": {},
+      "x": 20,
+      "y": 620,
+      "width": 260,
+      "height": 60,
+      "color": "3"
+    },
+    {
+      "id": "4ef31b00695db33a",
+      "type": "text",
+      "text": "Update the projection info buffer",
+      "styleAttributes": {},
+      "x": 20,
+      "y": 720,
+      "width": 260,
+      "height": 60,
+      "color": "3"
+    },
+    {
+      "id": "ab6b37bf7fd20008",
+      "type": "text",
+      "text": "For all meshs",
+      "styleAttributes": {},
+      "x": 20,
+      "y": 820,
+      "width": 260,
+      "height": 60,
+      "color": "3"
+    },
+    {
+      "id": "283dc5e37cc8f9d8",
+      "type": "text",
+      "text": "Grab the material for the mesh and call Material.BindResources",
+      "styleAttributes": {},
+      "x": 0,
+      "y": 920,
+      "width": 300,
+      "height": 60,
+      "color": "3"
+    },
+    {
+      "id": "14650cdbd9fdf4b2",
+      "type": "text",
+      "text": "Draw the mesh",
+      "styleAttributes": {},
+      "x": 20,
+      "y": 1020,
+      "width": 260,
+      "height": 60,
+      "color": "3"
+    },
+    {
+      "id": "9e42b28916a489e3",
+      "type": "text",
+      "text": "Execute command list",
+      "styleAttributes": {},
+      "x": -420,
+      "y": 1120,
+      "width": 260,
+      "height": 60,
+      "color": "2"
+    },
+    {
+      "id": "5be040d72c88f9ed",
+      "type": "text",
+      "text": "Blit render texture to back buffer",
+      "styleAttributes": {},
+      "x": -860,
+      "y": 1220,
+      "width": 260,
+      "height": 60,
+      "color": "1"
+    }
+  ],
+  "edges": [
+    {
+      "id": "79e44d841182899c",
+      "styleAttributes": {},
+      "fromNode": "0a33237a9f86bf16",
+      "fromSide": "right",
+      "toNode": "f4486003b78d66ad",
+      "toSide": "left"
+    },
+    {
+      "id": "d20dfd04c1109397",
+      "styleAttributes": {},
+      "fromNode": "f4486003b78d66ad",
+      "fromSide": "bottom",
+      "toNode": "ca99bcd056efc3ee",
+      "toSide": "top"
+    },
+    {
+      "id": "8e1e460f94bc8d69",
+      "styleAttributes": {},
+      "fromNode": "ca99bcd056efc3ee",
+      "fromSide": "bottom",
+      "toNode": "d12ade644238f7f4",
+      "toSide": "top"
+    },
+    {
+      "id": "7cf009e761b368aa",
+      "styleAttributes": {},
+      "fromNode": "d12ade644238f7f4",
+      "fromSide": "bottom",
+      "toNode": "473fae94f7a772a8",
+      "toSide": "top"
+    },
+    {
+      "id": "ecebb4a182127c21",
+      "styleAttributes": {},
+      "fromNode": "473fae94f7a772a8",
+      "fromSide": "bottom",
+      "toNode": "768bd02e67527a7c",
+      "toSide": "top"
+    },
+    {
+      "id": "8bbbeffd76e61aab",
+      "styleAttributes": {},
+      "fromNode": "768bd02e67527a7c",
+      "fromSide": "bottom",
+      "toNode": "8b94bf99b1482af2",
+      "toSide": "top"
+    },
+    {
+      "id": "4bd9b3a3c116d778",
+      "styleAttributes": {},
+      "fromNode": "8b94bf99b1482af2",
+      "fromSide": "right",
+      "toNode": "74a8cc8904f2baeb",
+      "toSide": "left"
+    },
+    {
+      "id": "b4e3ce67adbd7f4c",
+      "styleAttributes": {},
+      "fromNode": "74a8cc8904f2baeb",
+      "fromSide": "bottom",
+      "toNode": "39eb0bff1ac9874f",
+      "toSide": "top"
+    },
+    {
+      "id": "d12dff61bf8b9174",
+      "styleAttributes": {},
+      "fromNode": "39eb0bff1ac9874f",
+      "fromSide": "bottom",
+      "toNode": "4ef31b00695db33a",
+      "toSide": "top"
+    },
+    {
+      "id": "8a03af521d84bb0e",
+      "styleAttributes": {},
+      "fromNode": "4ef31b00695db33a",
+      "fromSide": "bottom",
+      "toNode": "ab6b37bf7fd20008",
+      "toSide": "top"
+    },
+    {
+      "id": "0af7515a333386ae",
+      "styleAttributes": {
+        "pathfindingMethod": null
+      },
+      "fromNode": "14650cdbd9fdf4b2",
+      "fromSide": "left",
+      "toNode": "ab6b37bf7fd20008",
+      "toSide": "left",
+      "label": "Not last mesh"
+    },
+    {
+      "id": "9688bbfd8424a1db",
+      "styleAttributes": {
+        "pathfindingMethod": "square"
+      },
+      "fromNode": "14650cdbd9fdf4b2",
+      "fromSide": "right",
+      "toNode": "473fae94f7a772a8",
+      "toSide": "right",
+      "label": "Last mesh"
+    },
+    {
+      "id": "9ca41868d1128ed6",
+      "styleAttributes": {},
+      "fromNode": "14650cdbd9fdf4b2",
+      "fromSide": "left",
+      "toNode": "9e42b28916a489e3",
+      "toSide": "right",
+      "label": "Last shader"
+    },
+    {
+      "id": "1bce1e1a879a0eeb",
+      "styleAttributes": {},
+      "fromNode": "9e42b28916a489e3",
+      "fromSide": "left",
+      "toNode": "5be040d72c88f9ed",
+      "toSide": "right"
+    },
+    {
+      "id": "142d9426ebefd180",
+      "styleAttributes": {},
+      "fromNode": "ab6b37bf7fd20008",
+      "fromSide": "bottom",
+      "toNode": "283dc5e37cc8f9d8",
+      "toSide": "top"
+    },
+    {
+      "id": "390dbb250c9dcf57",
+      "styleAttributes": {},
+      "fromNode": "283dc5e37cc8f9d8",
+      "fromSide": "bottom",
+      "toNode": "14650cdbd9fdf4b2",
+      "toSide": "top"
+    }
+  ],
+  "metadata": {
+    "properties": {
+      "cssclasses": [
+        ""
+      ]
+    }
+  }
+}

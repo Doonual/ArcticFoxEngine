@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ArcticFoxEngine.Rendering {
+namespace ArcticFoxEngine.Render {
 
 	public class BufferSlot {
 
@@ -23,10 +23,10 @@ namespace ArcticFoxEngine.Rendering {
 
 		public void SetBuffer<T>(StructuredBuffer<T> buffer, int srcOffset) where T : struct {
 
-			CpuDescriptorHandle srcDescriptor = buffer.descriptorHeap.CPUDescriptorHandleForHeapStart + srcOffset * Render.descriptorHeapIncrement;
-			GpuDescriptorHandle destDescriptor = Render.CopyDescriptorsIn(srcDescriptor, buffer.numElements);
+			CpuDescriptorHandle srcDescriptor = buffer.descriptorHeap.CPUDescriptorHandleForHeapStart + srcOffset * Rendering.descriptorHeapIncrement;
+			GpuDescriptorHandle destDescriptor = Rendering.CopyDescriptorsIn(srcDescriptor, buffer.numElements);
 
-			Render.cmdList.SetGraphicsRootDescriptorTable(rootParameterIndex, destDescriptor);
+			Rendering.cmdList.SetGraphicsRootDescriptorTable(rootParameterIndex, destDescriptor);
 
 		}
 

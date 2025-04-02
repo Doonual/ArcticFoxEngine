@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ArcticFoxEngine.Rendering {
+namespace ArcticFoxEngine.Render {
 
 	public class TextureSlot {
 
@@ -25,12 +25,12 @@ namespace ArcticFoxEngine.Rendering {
 		public void SetTexture(Texture texture) {
 
 			if (texture == null) {
-				SetTexture(Render.missingTexture);
+				SetTexture(Rendering.missingTexture);
 				return;
 			}
 
-			GpuDescriptorHandle destDescriptor =  Render.CopyDescriptorsIn(texture.descriptorHeap.CPUDescriptorHandleForHeapStart, 1);
-			Render.cmdList.SetGraphicsRootDescriptorTable(rootParameterIndex, destDescriptor);
+			GpuDescriptorHandle destDescriptor =  Rendering.CopyDescriptorsIn(texture.descriptorHeap.CPUDescriptorHandleForHeapStart, 1);
+			Rendering.cmdList.SetGraphicsRootDescriptorTable(rootParameterIndex, destDescriptor);
 
 		}
 

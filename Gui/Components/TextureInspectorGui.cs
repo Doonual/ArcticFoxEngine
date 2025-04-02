@@ -42,7 +42,7 @@ namespace ArcticFoxEngine.Gui.Components {
 		Vector2 textureRectTL = Vector2.zero;
 		Vector2 textureRectBR = Vector2.zero;
 
-		public void Render() {
+		public void Render(bool enableInteraction = true) {
 
 			if (texture == null || texture.disposed == true) {
 				ImGui.Text("Set a texture to begin");
@@ -64,7 +64,7 @@ namespace ArcticFoxEngine.Gui.Components {
 			Vector2 scrollPos = new Vector2(-10f, -10f);
 
 			// Mouse controls
-			if (ImGui.GetIO().WantCaptureMouse == true && ImGui.IsMouseHoveringRect(textureRectTL, textureRectBR) == true && allowPan == true) {
+			if (enableInteraction && ImGui.IsMouseHoveringRect(textureRectTL, textureRectBR) == true && allowPan == true) {
 
 				if (MathF.Abs(scrollVelocity) < 0.00001f) { scrollVelocity = 0f; }
 				scrollVelocity += ImGui.GetIO().MouseWheel * 0.02f;

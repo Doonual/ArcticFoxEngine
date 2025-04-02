@@ -267,6 +267,7 @@ namespace ArcticFoxEngine {
 		public static Resource GetActiveResource() {
 			return swapchainResources[frameIndex];
 		}
+
 		public static void Blit(Resource src, Resource dst) {
 
 			WaitForDirectCommandQueue();
@@ -275,13 +276,7 @@ namespace ArcticFoxEngine {
 			TextureCopyLocation srcLocation = new TextureCopyLocation(src, 0);
 			TextureCopyLocation dstLocation = new TextureCopyLocation(dst, 0);
 
-			//directCmdList.ResourceBarrierTransition(dst, ResourceStates.Present, ResourceStates.CopyDestination);
-			//directCmdList.ResourceBarrierTransition(src, ResourceStates.Present, ResourceStates.CopySource);
-
 			directCmdList.CopyTextureRegion(dstLocation, 0, 0, 0, srcLocation, null);
-
-			//directCmdList.ResourceBarrierTransition(dst, ResourceStates.CopyDestination, ResourceStates.Present);
-			//directCmdList.ResourceBarrierTransition(src, ResourceStates.CopySource, ResourceStates.Present);
 
 			directCmdList.Close();
 			ExecuteDirectCommandList(directCmdList);

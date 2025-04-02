@@ -3,29 +3,43 @@ using ImGuiNET;
 using SharpDX.Direct3D12;
 using SharpDX.DXGI;
 
-namespace ArcticFoxEngine.Rendering {
-	public class UnlitShader : Shader {
+namespace ArcticFoxEngine.Render {
 
-		public override string name => "Unlit";
+	public class MandelbrotShader : Shader {
+
+		public override string name => "Mandelbrot";
+
+		public ConstBuffer<ViewportInfo> viewportInfoBuffer;
+
+		public struct ViewportInfo {
+
+			public Vector2 viewCenter = Vector2.zero;
+			public float zoom = 1f;
+			public int numIterations = 100;
+
+			public ViewportInfo() {
+
+			}
+
+		};
 
 		public DataSlot projectionInfoDataSlot = new DataSlot(ShaderVisibility.All);
 		public DataSlot transformInfoDataSlot = new DataSlot(ShaderVisibility.All);
-		public TextureSlot mainTexSlot = new TextureSlot(ShaderVisibility.Pixel);
-		public TextureSampler sampler = new TextureSampler(ShaderVisibility.Pixel) {
-			addressUVW = TextureAddressMode.Wrap,
-			filter = Filter.MinimumMinMagMipPoint,
-		};
+		public DataSlot viewportInfoSlot = new DataSlot(ShaderVisibility.Pixel);
 
-		public UnlitShader() {
+		public MandelbrotShader() {
 
+			viewportInfoBuffer = new ConstBuffer<ViewportInfo>(1);
 
 			rootSignature = CreateRootSignature(
-				new DataSlot[] { projectionInfoDataSlot, transformInfoDataSlot },
+				new DataSlot[] { projectionInfoDataSlot, transformInfoDataSlot, viewportInfoSlot},
 				new BufferSlot[] { },
-				new TextureSlot[] { mainTexSlot },
-				new TextureSampler[] { sampler }
+				new TextureSlot[] { },
+				new TextureSampler[] { }
 			);
 			pipelineState = CreatePipelineObject();
+			
+			
 
 		}
 
@@ -59,7 +73,7 @@ namespace ArcticFoxEngine.Rendering {
 
 			ShaderBytecode vertexShader = CompileShader(".res/Shaders/VertexShader.hlsl", ShaderType.Vertex);
 			ShaderBytecode geometryShader = CompileShader(".res/Shaders/GeometryShader.hlsl", ShaderType.Geometry);
-			ShaderBytecode pixelShader = CompileShader(".res/Shaders/Unlit/PixelShader.hlsl", ShaderType.Pixel);
+			ShaderBytecode pixelShader = CompileShader(".res/Shaders/Mandelbrot/MandelbrotPixelShader.hlsl", ShaderType.Pixel);
 
 			GraphicsPipelineStateDescription pipelineStateDescription = new GraphicsPipelineStateDescription() {
 				InputLayout = inputLayout,
@@ -87,34 +101,16 @@ namespace ArcticFoxEngine.Rendering {
 		public override void Render(Camera camera, SharpDX.Direct3D12.Resource renderTarget, DescriptorHeap rtvDescHeap, DescriptorHeap dsvDescHeap) {
 
 			DefaultRender(camera, renderTarget, rtvDescHeap, dsvDescHeap, projectionInfoDataSlot, transformInfoDataSlot);
+
 		}
 
 		public override Material GetDefaultMaterial() {
-			return new UnlitMaterial();
+
+			return new MandelbrotMaterial();
+
 		}
-
-
-
 	}
 
-	public class UnlitMaterial : Material {
-
-		public Texture mainTex;
-		
-
-		public override void BindResources(Shader shader) {
-			UnlitShader unlitShader = (UnlitShader)shader;
-
-
-			unlitShader.mainTexSlot.SetTexture(mainTex);
-
-		}
-
-		public override void DrawInspectorGUI() {
-
-
-		}
-
-	}
+	
 
 }

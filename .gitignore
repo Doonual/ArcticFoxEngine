@@ -405,3 +405,5 @@ obj/
 # Others' themes and plugins
 ArcticFoxEngine*Documentation/.obsidian/plugins
 ArcticFoxEngine*Documentation/.obsidian/themes
+
+ArcticFoxEngine*Documentation/.obsidian/workspace.json

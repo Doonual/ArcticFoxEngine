@@ -1,28 +1,20 @@
 ﻿using ArcticFoxEngine.Gui.Components;
-using CoolClassLibrary;
 using ImGuiNET;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ArcticFoxEngine.Gui.Tools {
 
-	public class TextureInspectorTool : GuiWindow {
+	[GuiWindowOptions("Texture Inspector", allowMultipleWindows: true)]
+	public class TextureInspectorWindow : GuiWindow {
 
-		public override string name => "Texture Inspector";
 		private static List<Texture> allTextures;
 
 		public Texture texture;
 		private TextureInspectorGui textureInspector;
 		public bool cinematicMode;
 
-		public TextureInspectorTool() {
+		public TextureInspectorWindow() {
 
-			texture = Rendering.Render.missingTexture;
+			texture = ArcticFoxEngine.Render.Rendering.missingTexture;
 			textureInspector = new TextureInspectorGui();
 			textureInspector.SetTexture(texture);
 
@@ -31,7 +23,7 @@ namespace ArcticFoxEngine.Gui.Tools {
 		}
 
 
-		static TextureInspectorTool() {
+		static TextureInspectorWindow() {
 			allTextures = new List<Texture>();
 		}
 		internal static void RegisterTexture(Texture texture) {
@@ -67,7 +59,7 @@ namespace ArcticFoxEngine.Gui.Tools {
 			ImGui.Columns(2);
 			ImGui.SetColumnWidth(0, 300f);
 
-			
+
 			ImGui.SeparatorText("Loaded Textures: " + allTextures.Count);
 			ImGui.BeginChildFrame((uint)("Texture list child" + GetHashCode()).GetHashCode(), ImGui.GetContentRegionAvail(), ImGuiWindowFlags.NoBackground);
 			for (int i = 0; i < allTextures.Count; i++) {
@@ -83,14 +75,14 @@ namespace ArcticFoxEngine.Gui.Tools {
 			ImGui.NextColumn();
 
 			if (texture.disposed == true) {
-				texture = Rendering.Render.missingTexture;
+				texture = ArcticFoxEngine.Render.Rendering.missingTexture;
 				textureInspector.SetTexture(texture);
 			}
 			textureInspector.additionalDraws = null;
 			textureInspector.Render();
 
 			maximumDrawCoord.x = ImGui.GetItemRectMax().x - ImGui.GetWindowPos().x;
-			
+
 
 			ImGui.Checkbox("Cinematic mode", ref cinematicMode);
 			maximumDrawCoord.y = ImGui.GetItemRectMax().y - ImGui.GetWindowPos().y;
@@ -118,12 +110,8 @@ namespace ArcticFoxEngine.Gui.Tools {
 
 			textureInspector.additionalDraws = DrawCinematicModeCinematicToggle;
 
-			textureInspector.Render();
+			textureInspector.Render(ImGui.IsWindowFocused());
 			textureInspectorSize = ImGui.GetItemRectSize();
-
-			
-
-			
 
 			ImGui.End();
 			ImGui.PopStyleVar();
@@ -133,13 +121,13 @@ namespace ArcticFoxEngine.Gui.Tools {
 			Vector2 windowTL = screenTopLeft - ImGui.GetWindowPos();
 			Vector2 windowBR = screenBottomRight - ImGui.GetWindowPos();
 
-			
+
 			ImGui.SetCursorPos(new Vector2(windowTL.x, windowBR.y - cinematicModeButtonSize.y));
 			if (cinematicModeButtonSize.x < 0f || ImGui.IsMouseHoveringRect(ImGui.GetCursorScreenPos(), ImGui.GetCursorScreenPos() + cinematicModeButtonSize)) {
 				ImGui.Checkbox("Cinematic mode##" + GetHashCode(), ref cinematicMode);
 				cinematicModeButtonSize = ImGui.GetItemRectSize();
 			}
-			
+
 
 		}
 	}

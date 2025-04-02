@@ -2,9 +2,10 @@
 using ImGuiNET;
 
 namespace ArcticFoxEngine.Gui {
+
+	[GuiWindowOptions("Performance")]
 	internal class PerformanceWindow : GuiWindow {
 
-		internal static PerformanceWindow mainWindow;
 
 		internal class Metric {
 
@@ -273,50 +274,46 @@ namespace ArcticFoxEngine.Gui {
 
 		}
 
-		long frameStartTimestamp;
-		float lastFrameTime = 0f;
-		float msMax = 0.0f;
-		float msMaxView = 0.0f;
-		float msMin = 0.0f;
-		float msMinView = 0.0f;
+		static long frameStartTimestamp;
+		static float lastFrameTime = 0f;
+		static float msMax = 0.0f;
+		static float msMaxView = 0.0f;
+		static float msMin = 0.0f;
+		static float msMinView = 0.0f;
 
-		internal Metric metric;
+		static internal Metric metric;
 		private static Metric currentMetric;
 
-		int numElements;
-		float plotMaxMs = 10f;
-		bool autoAdjustPlotMaxMs = false;
+		static int numElements;
+		static float plotMaxMs = 10f;
+		static bool autoAdjustPlotMaxMs = false;
 
-		bool updatePlot = true;
+		static bool updatePlot = true;
 		bool drawHistogramColour = false;
-		bool updatePlotActual = true;
+		static bool updatePlotActual = true;
 
 		int viewSample = 1999;
 
-		public override string name => "Performance";
 
-		internal PerformanceWindow(params string[] menuGroups) : base(menuGroups) {
-
-			mainWindow = this;
+		static PerformanceWindow() {
 			numElements = 2000;
 			metric = new Metric("Frame time");
-
 		}
 
-		internal void ProcessMetrics() {
+		internal static void ProcessMetrics() {
 			if (updatePlotActual == false) { return; }
 			metric.NewFrame();
 			metric.startMs[metric.startMs.Length - 1] = 0f;
 			currentMetric = metric;
 		}
-		internal void FrameStart(long timestamp) {
+		internal static void FrameStart(long timestamp) {
 			if (updatePlotActual == false) { return; }
 
 			frameStartTimestamp = timestamp;
 
 
 		}
-		internal void FrameDone(long timestamp, float frameTime) {
+		internal static void FrameDone(long timestamp, float frameTime) {
 
 
 			if (updatePlotActual == false) {
@@ -349,12 +346,12 @@ namespace ArcticFoxEngine.Gui {
 
 		}
 
-		internal void MetricBegin(long timestamp, string name) {
+		internal static void MetricBegin(long timestamp, string name) {
 			if (updatePlotActual == false) { return; }
 			currentMetric = currentMetric.GetOrCreateChildMetric(name);
 			currentMetric.startMs[metric.startMs.Length - 1] = 1000f * (float)(timestamp - frameStartTimestamp) / Graphics.cmdQueueDirect.TimestampFrequency;
 		}
-		internal void MetricEnd(long timestamp) {
+		internal static void MetricEnd(long timestamp) {
 			if (updatePlotActual == false) { return; }
 			currentMetric.endMs[metric.endMs.Length - 1] = 1000f * (float)(timestamp - frameStartTimestamp) / Graphics.cmdQueueDirect.TimestampFrequency;
 			currentMetric = currentMetric.parentMetric;

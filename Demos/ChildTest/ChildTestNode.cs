@@ -2,7 +2,7 @@
 using ArcticFoxEngine.Demos.SceneTest;
 using ImGuiNET;
 using CoolClassLibrary;
-using ArcticFoxEngine.Rendering;
+using ArcticFoxEngine.Render;
 
 namespace ArcticFoxEngine.Demos.ChildTest {
 

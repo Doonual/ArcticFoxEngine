@@ -10,6 +10,8 @@ using CoolClassLibrary;
 using ImGuiNET;
 using SharpDX.Direct3D12;
 using SharpDX.Windows;
+using System.Reflection;
+
 
 namespace ArcticFoxEngine.Gui {
 	public static class GuiManager {
@@ -17,12 +19,10 @@ namespace ArcticFoxEngine.Gui {
 
 		private static bool isOpen;
 
+		private static List<Type> possibleWindowsList;
 		private static List<GuiWindow> windows;
-		private static List<CustomWindow> temporaryWindows;
 		private static List<GuiOverlay> overlays;
 
-		private static List<Type> tools;
-		private static List<GuiWindow> loadedTools;
 
 		private static List<Type> demoNodes;
 		
@@ -38,32 +38,30 @@ namespace ArcticFoxEngine.Gui {
 			
 			isOpen = false;
 
-			windows = new List<GuiWindow>() {
-				new ImGuiAboutWindow("ImGui"),
-				new ImGuiDebugLogWindow("ImGui"),
-				new ImGuiDemoWindow("ImGui"),
-				new ImGuiFontSelectorWindow("ImGui"),
-				new ImGuiMetricsWindow("ImGui"),
-				new ImGuiStackToolWindow("ImGui"),
-				new ImGuiStyleEditorWindow("ImGui"),
-				new ImGuiStyleSelectorWindow("ImGui"),
-				new ImGuiUserGuideWindow("ImGui"),
-
-				new LogWindow(),
-				new PerformanceWindow(),
-				new SceneWindow(),
+			possibleWindowsList = new List<Type>() {
+				typeof(ImGuiAboutWindow),
+				typeof(ImGuiDebugLogWindow),
+				typeof(ImGuiDemoWindow),
+				typeof(ImGuiFontSelectorWindow),
+				typeof(ImGuiMetricsWindow),
+				typeof(ImGuiStackToolWindow),
+				typeof(ImGuiStyleEditorWindow),
+				typeof(ImGuiStyleSelectorWindow),
+				typeof(ImGuiUserGuideWindow),
+				typeof(LogWindow),
+				typeof(PerformanceWindow),
+				typeof(SceneWindow),
+				typeof(TextureInspectorWindow),
 
 			};
-			temporaryWindows = new List<CustomWindow>();
+			possibleWindowsList = SortGuiWindowsAlphabetically(possibleWindowsList);
+
+			windows = new List<GuiWindow>();
 
 			overlays = new List<GuiOverlay>() {
 				new NodeIconsOverlay(),
 			};
 
-			tools = new List<Type>() {
-				typeof(TextureInspectorTool),
-			};
-			loadedTools = new List<GuiWindow>();
 
 			demoNodes = new List<Type>() {
 				typeof(CubeSpin),
@@ -73,31 +71,13 @@ namespace ArcticFoxEngine.Gui {
 			};
 
 
-			Log.ListenToLog(GetDebugWindow<LogWindow>().LogEvent);
-			Log.ListenToLogColor(GetDebugWindow<LogWindow>().LogColorEvent);
+			//Log.ListenToLog(GetDebugWindow<LogWindow>().LogEvent);
+			//Log.ListenToLogColor(GetDebugWindow<LogWindow>().LogColorEvent);
 
 			AppDomain.CurrentDomain.ProcessExit += (System.Object sender, EventArgs e) => { Dispose(); };
 
 		}
 
-		internal static T GetDebugWindow<T>() where T : GuiWindow {
-
-			for (int i = 0; i < windows.Count; i++) {
-				if (windows[i].GetType() == typeof(T)) {
-					return (T)windows[i];
-				}
-			}
-			return null;
-
-		}
-		public static void AddGuiWindow(GuiWindow newWindow) {
-			windows.Add(newWindow);
-		}
-		public static void OpenWindow(string name, Action renderFunc) {
-			CustomWindow newWindow = new CustomWindow(name, renderFunc);
-			newWindow.open = true;
-			temporaryWindows.Add(newWindow);
-		}
 
 		public static bool IsGuiOpen() {
 			return isOpen;
@@ -116,8 +96,50 @@ namespace ArcticFoxEngine.Gui {
 				CloseGUI();
 			}
 		}
+		
+		public static void OpenGuiWindow(Type guiWindowType) {
 
-		public static void UpdateImGui() {
+			if (GetAllowMultipleOfGuiWindow(guiWindowType) == false) {
+
+				for (int i = 0; i < windows.Count; i ++) {
+					if (windows[i].GetType() == guiWindowType) {
+						return;
+					}
+				}
+
+			}
+
+			GuiWindow newWindow = (GuiWindow)Activator.CreateInstance(guiWindowType);
+			windows.Add(newWindow);
+
+			SaveWindowOptions();
+
+		}
+		public static void OpenGuiWindow(GuiWindow guiWindow) {
+			windows.Add(guiWindow);
+
+			SaveWindowOptions();
+		}
+
+		public static void CloseGuiWindow(Type guiWindowType) {
+
+			for (int i = windows.Count - 1; i >= 0; i --) {
+				if (windows[i].GetType() == guiWindowType) {
+					windows.RemoveAt(i);
+				}
+			}
+
+			SaveWindowOptions();
+
+		}
+		public static void CloseGuiWindow(GuiWindow guiWindow) {
+			windows.Remove(guiWindow);
+
+			SaveWindowOptions();
+
+		}
+
+		internal static void UpdateImGui() {
 
 			if (isOpen == false) { return; }
 			RenderImGui.Render();
@@ -180,16 +202,11 @@ namespace ArcticFoxEngine.Gui {
 
 					
 					if (ImGui.MenuItem("Close all windows") == true) {
-						for (int i = 0; i < windows.Count; i ++) {
-							windows[i].open = false;
-						}
+						windows.Clear();
 					}
 
 
-
-					List<GuiWindow> windowOptionList = new List<GuiWindow>();
-					windowOptionList.AddRange(windows);
-					DrawWindowMenu(windowOptionList, 0);
+					DrawWindowMenu(possibleWindowsList, 0);
 
 					ImGui.Separator();
 
@@ -211,20 +228,6 @@ namespace ArcticFoxEngine.Gui {
 					ImGui.EndMenu();
 				}
 
-				if (ImGui.BeginMenu("Tools") == true) {
-
-					for (int i = 0; i < tools.Count; i ++) {
-
-						if (ImGui.MenuItem(tools[i].Name) == true) {
-							GuiWindow currentTool = (GuiWindow)Activator.CreateInstance(tools[i]);
-							currentTool.open = true;
-							loadedTools.Add(currentTool);
-						}
-
-					}
-
-					ImGui.EndMenu();
-				}
 
 				ImGui.EndMenuBar();
 
@@ -233,51 +236,27 @@ namespace ArcticFoxEngine.Gui {
 
 
 			// Render builtin windows
-			for (int i = 0; i < windows.Count; i++) {
-				if (windows[i].open == true) {
+			for (int i = windows.Count - 1; i >= 0; i--) {
 
-
-					if (windows[i].setWindowPos.x >= 0f) {
-						ImGui.SetNextWindowPos(windows[i].setWindowPos);
-						windows[i].setWindowPos = new Vector2(-1f, -1f);
-					}
-					if (windows[i].setWindowSize.x >= 0f) {
-						ImGui.SetNextWindowSize(windows[i].setWindowSize);
-						windows[i].setWindowSize = new Vector2(-1f, -1f);
-					}
-
-					windows[i].Render();
+				if (windows[i].open == false) {
+					CloseGuiWindow(windows[i]);
+					continue;
 				}
+
+				if (windows[i].setWindowPos.x >= 0f) {
+					ImGui.SetNextWindowPos(windows[i].setWindowPos);
+					windows[i].setWindowPos = new Vector2(-1f, -1f);
+				}
+				if (windows[i].setWindowSize.x >= 0f) {
+					ImGui.SetNextWindowSize(windows[i].setWindowSize);
+					windows[i].setWindowSize = new Vector2(-1f, -1f);
+				}
+
+				windows[i].Render();
+
 			}
 			
-			// Render temporary windows
-			for (int i = temporaryWindows.Count - 1; i >= 0; i--) {
-				if (temporaryWindows[i].open == true) {
-
-					if (temporaryWindows[i].setWindowPos.x >= 0f) {
-						ImGui.SetNextWindowPos(temporaryWindows[i].setWindowPos); 
-						temporaryWindows[i].setWindowPos = new Vector2(-1f, -1f);
-					}
-					if (temporaryWindows[i].setWindowSize.x >= 0f) {
-						ImGui.SetNextWindowSize(temporaryWindows[i].setWindowSize);
-						temporaryWindows[i].setWindowSize = new Vector2(-1f, -1f);
-					}
-
-					ImGui.Begin(temporaryWindows[i].name + "##" + temporaryWindows[i].GetHashCode(), ref temporaryWindows[i].open, ImGuiWindowFlags.None);
-					temporaryWindows[i].Render();
-					ImGui.End();
-				}
-				else {
-					temporaryWindows.RemoveAt(i);
-				}
-			}
-
-			for (int i = loadedTools.Count - 1; i >= 0; i --) {
-				loadedTools[i].Render();
-				if (loadedTools[i].open == false) {
-					loadedTools.RemoveAt(i);
-				}
-			}
+			
 
 			for (int i = 0; i < overlays.Count; i++) {
 				if (overlays[i].open == true) {
@@ -287,51 +266,112 @@ namespace ArcticFoxEngine.Gui {
 
 		}
 
-		private static void DrawWindowMenu(List<GuiWindow> optionsToRender, int groupStartIndex) {
+		private static void DrawWindowMenu(List<Type> optionsToRender, int currentNameSplitDepth) {
 
-			// Figure out what windows to render without putting them in groups
-			List<GuiWindow> noGroupWindows = new List<GuiWindow>();
-			for (int i = 0; i < optionsToRender.Count; i ++) {
+			List<Type> currentOptionsToRender = new List<Type>();
+			currentOptionsToRender.AddRange(optionsToRender);
 
-				if (optionsToRender[i].menuGroups.Length == groupStartIndex) {
-					// There are no more menu groups to process, draw the option here
-					noGroupWindows.Add(optionsToRender[i]);
-					optionsToRender.RemoveAt(i);
-					i--;
-				}
-			}
+			while (currentOptionsToRender.Count > 0) {
 
-			if (optionsToRender.Count != 0) {
+				string[] currentWindowNameSplit = GetNameOfGuiWindow(currentOptionsToRender[0]).Split('/');
 
-				List<GuiWindow> currentOptions = new List<GuiWindow>();
-				string firstGroupName = optionsToRender[0].menuGroups[groupStartIndex]; // Record the group name of the 1st GuiWindow
+				if (currentNameSplitDepth >= currentWindowNameSplit.Length - 1) {
 
-				// Loop through all the GuiWindows and record all of them that have the same group name of the 1st one
-				for (int i = 0; i < optionsToRender.Count; i++) {
-					if (optionsToRender[i].menuGroups[groupStartIndex] == firstGroupName) {
-						currentOptions.Add(optionsToRender[i]);
+					// Check whether we should include a tick for the windows that can only be instantiated once
+					if (GetAllowMultipleOfGuiWindow(currentOptionsToRender[0]) == false) {
+						bool enabled = false;
+						for (int i = 0; i < windows.Count; i ++) {
+							if (windows[i].GetType() == currentOptionsToRender[0]) {
+								enabled = true;
+							}
+						}
+						bool changed = ImGui.MenuItem(currentWindowNameSplit[currentWindowNameSplit.Length - 1], null, ref enabled);
+						if (changed == true && enabled == true) {
+							OpenGuiWindow(currentOptionsToRender[0]);
+						}
+						if (changed == true && enabled == false) {
+							CloseGuiWindow(currentOptionsToRender[0]);
+						}
+
 					}
+					else {
+						if (ImGui.MenuItem(currentWindowNameSplit[currentWindowNameSplit.Length - 1]) == true) {
+							OpenGuiWindow(currentOptionsToRender[0]);
+						}
+					}
+
+					
+
+					currentOptionsToRender.RemoveAt(0);
+					continue;
 				}
 
-				// Remove all the recorded GuiWindows from the render list
-				for (int i = 0; i < currentOptions.Count; i++) {
-					optionsToRender.Remove(currentOptions[i]);
+
+
+
+				string nextGroupName = currentWindowNameSplit[currentNameSplitDepth];
+				List<Type> optionsToRenderInNextGroup = new List<Type>();
+				while (currentOptionsToRender.Count != 0 && GetNameOfGuiWindow(currentOptionsToRender[0]).Split('/')[currentNameSplitDepth] == nextGroupName) {
+					optionsToRenderInNextGroup.Add(currentOptionsToRender[0]);
+					currentOptionsToRender.RemoveAt(0);
 				}
 
-				if (ImGui.BeginMenu(firstGroupName) == true) {
-
-					DrawWindowMenu(currentOptions, groupStartIndex + 1);
+				if (ImGui.BeginMenu(nextGroupName) == true) {
+					DrawWindowMenu(optionsToRenderInNextGroup, currentNameSplitDepth + 1);
 					ImGui.EndMenu();
 				}
+				
 
-				DrawWindowMenu(optionsToRender, groupStartIndex);
 
 			}
-			
-			// Render the window option without groups
-			for (int i = 0; i < noGroupWindows.Count; i ++) {
-				ImGui.MenuItem(noGroupWindows[i].name, null, ref noGroupWindows[i].open);
+
+
+		}
+		
+		private static List<Type> SortGuiWindowsAlphabetically(List<Type> guiWindows) {
+
+
+			Type[] guiWindowsArray = guiWindows.ToArray();
+			string[] names = new string[guiWindows.Count];
+			long[] sortingKeys = new long[guiWindows.Count];
+			for (int i = 0; i < guiWindows.Count; i++) {
+
+				
+				string nameOfWindow = GetNameOfGuiWindow(guiWindowsArray[i]);
+				names[i] = nameOfWindow;
+
+				long currentKey = 0;
+				for (int n = 0; n < nameOfWindow.Length; n++) {
+					currentKey += (long)nameOfWindow[n];
+					currentKey *= 256;
+				}
+
+				sortingKeys[i] = currentKey;
+
 			}
+
+			Array.Sort(names, guiWindowsArray);
+
+			return guiWindowsArray.ToList();
+
+		}
+		private static string GetNameOfGuiWindow(Type t) {
+
+			GuiWindowOptionsAttribute nameAttribute = (GuiWindowOptionsAttribute)Attribute.GetCustomAttribute(t, typeof(GuiWindowOptionsAttribute));
+			if (nameAttribute != null) {
+				return nameAttribute.name;
+			}
+
+			return t.Name;
+
+		}
+		private static bool GetAllowMultipleOfGuiWindow(Type t) {
+
+			GuiWindowOptionsAttribute guiWindowAttribute = (GuiWindowOptionsAttribute)Attribute.GetCustomAttribute(t, typeof(GuiWindowOptionsAttribute));
+			if (guiWindowAttribute != null) {
+				return guiWindowAttribute.allowMultipleWindows;
+			}
+			return false;
 
 		}
 
@@ -343,8 +383,7 @@ namespace ArcticFoxEngine.Gui {
 
 			for (int i = 0; i < windows.Count; i ++) {
 				JObject currentWindowOption = new JObject();
-				currentWindowOption.Put("name", windows[i].name);
-				currentWindowOption.Put("open", windows[i].open);
+				currentWindowOption.Put("name", GetNameOfGuiWindow(windows[i].GetType()));
 				windowOptions.Add(currentWindowOption);
 			}
 			configJson.Put("windows", windowOptions);
@@ -368,21 +407,23 @@ namespace ArcticFoxEngine.Gui {
 				return;
 			}
 
-			JObject configJson = new JObject(File.ReadAllText("gui.json"));
+			
+			windows.Clear();
 
+			JObject configJson = new JObject(File.ReadAllText("gui.json"));
 			JArray windowOptions = configJson.GrabArray("windows");
 			for (int i = 0; i < windowOptions.Count; i ++) {
 
 				JObject currentWindowOption = windowOptions[i];
 				string name = currentWindowOption.Grab("name");
-				bool open = bool.Parse(currentWindowOption.Grab("open"));
-
-				for (int n = 0; n < windows.Count; n ++) {
-					if (windows[n].name == name) {
-						windows[n].open = open;
-						break;
+				
+				// Open target window
+				for (int n = 0; n < possibleWindowsList.Count; n ++) {
+					if (GetNameOfGuiWindow(possibleWindowsList[n]) == name) {
+						OpenGuiWindow((GuiWindow)Activator.CreateInstance(possibleWindowsList[i]));
 					}
 				}
+
 
 			}
 

@@ -1,4 +1,4 @@
-﻿namespace ArcticFoxEngine.Rendering {
+﻿namespace ArcticFoxEngine.Render {
 
 	// Input structs must be 256 byte aligned!!
 

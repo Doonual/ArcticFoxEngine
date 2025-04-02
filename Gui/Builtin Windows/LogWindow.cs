@@ -2,22 +2,27 @@
 using ImGuiNET;
 
 namespace ArcticFoxEngine.Gui {
+
+	[GuiWindowOptions("Log")]
 	internal class LogWindow : GuiWindow {
 
-		private List<string> messages;
-		private string cmdInput;
-		private bool scrollToBottom;
-		private bool pauseOutput;
+		static private List<string> messages;
+		static private string cmdInput;
+		static private bool scrollToBottom;
+		static private bool pauseOutput;
 
-		public override string name => "Log";
 
-		internal LogWindow(params string[] menuGroups) : base(menuGroups) {
+		public LogWindow() {
 			messages = new List<string>();
 			messages.Add("");
 			cmdInput = "";
 		}
 
-		internal void LogEvent(string text) {
+		static LogWindow() {
+			Log.ListenToLog(LogEvent);
+			Log.ListenToLogColor(LogColorEvent);
+		}
+		internal static void LogEvent(string text) {
 
 			if (pauseOutput == true) { return; }
 
@@ -33,7 +38,7 @@ namespace ArcticFoxEngine.Gui {
 			scrollToBottom = true;
 
 		}
-		internal void LogColorEvent(ConsoleColor col) {
+		internal static void LogColorEvent(ConsoleColor col) {
 
 			if (pauseOutput == true) { return; }
 

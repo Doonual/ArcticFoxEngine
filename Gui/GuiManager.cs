@@ -420,7 +420,6 @@ namespace ArcticFoxEngine.Gui {
 				// Open target window
 				for (int n = 0; n < possibleWindowsList.Count; n ++) {
 					if (GetNameOfGuiWindow(possibleWindowsList[n]) == name) {
-						Log.Info("Found match with " + name);
 						OpenGuiWindow((GuiWindow)Activator.CreateInstance(possibleWindowsList[n]));
 					}
 				}

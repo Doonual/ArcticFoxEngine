@@ -13,6 +13,7 @@ namespace ArcticFoxEngine {
 		public static bool isDebug = false;
 
 		public static Device device { get; private set; }
+		public static int descriptorHeapIncrement;
 
 		static RenderForm mainRenderForm;
 		internal static SwapChain3 swapChain;
@@ -34,6 +35,12 @@ namespace ArcticFoxEngine {
 		internal static GraphicsCommandList copyCmdList;
 		private static Fence fenceCopy;
 		private static long fenceValueCopy;
+
+		internal static CommandAllocator cmdAllocatorCompute;
+		internal static CommandQueue cmdQueueCompute;
+		internal static GraphicsCommandList computeCmdList;
+		private static Fence fenceCompute;
+		private static long fenceValueCompute;
 
 		private static AutoResetEvent fenceEvent;
 
@@ -71,6 +78,7 @@ namespace ArcticFoxEngine {
 				fenceEvent = new AutoResetEvent(false);
 				SetupDirectCommandAllocator();
 				SetupCopyCommandAllocator();
+				SetupComputeCommandAllocator();
 
 				SetupSwapChain(width, height, refreshRate, cmdQueueDirect);
 
@@ -89,6 +97,8 @@ namespace ArcticFoxEngine {
 		private static void SetupDevice() {
 			// Create the graphics device
 			device = new Device(null, SharpDX.Direct3D.FeatureLevel.Level_11_0);
+
+			descriptorHeapIncrement = Graphics.device.GetDescriptorHandleIncrementSize(DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView);
 		}
 		
 		
@@ -179,6 +189,46 @@ namespace ArcticFoxEngine {
 		internal static void WaitForCopyCommandQueue() {
 			WaitForFenceValue(fenceValueCopy, fenceCopy);
 		}
+
+		private static void SetupComputeCommandAllocator() {
+
+			// Create the command list
+			// Command lists are created in the recording state, but there is nothing
+			// to record yet. The main loop expects it to be closed, so close it now.
+			cmdAllocatorCompute = device.CreateCommandAllocator(CommandListType.Compute);
+			cmdQueueCompute = device.CreateCommandQueue(new CommandQueueDescription(CommandListType.Compute));
+
+
+			// Create synchronisation objects
+			fenceCompute = device.CreateFence(0, FenceFlags.None);
+			fenceValueCompute = 0;
+
+			// Give the fenceCompute a default completed value
+			fenceCompute.Signal(fenceValueCompute);
+
+			computeCmdList = CreateComputeCommandList();
+
+		}
+		internal static GraphicsCommandList CreateComputeCommandList() {
+			GraphicsCommandList cmdList = device.CreateCommandList(CommandListType.Compute, cmdAllocatorCompute, null);
+			cmdList.Close();
+			return cmdList;
+		}
+		internal static void ResetComputeCommandList(GraphicsCommandList cmdList) {
+			cmdList.Reset(cmdAllocatorCompute, null);
+		}
+		internal static void ExecuteComputeCommandList(GraphicsCommandList cmdList) {
+
+			cmdQueueCompute.ExecuteCommandList(cmdList);
+			fenceValueCompute++;
+			cmdQueueCompute.Signal(fenceCompute, fenceValueCompute);
+
+		}
+		internal static void WaitForComputeCommandQueue() {
+			WaitForFenceValue(fenceValueCompute, fenceCompute);
+		}
+
+
 
 		internal static void WaitForFenceValue(long value, Fence fence) {
 

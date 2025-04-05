@@ -228,7 +228,7 @@ namespace ArcticFoxEngine.Nodes {
 
 		public override void Render() {
 
-			Rendering.RenderScene(this);
+			RenderEngine.RenderScene(this);
 			Graphics.Blit(renderTexture, Graphics.GetActiveResource());
 
 		}

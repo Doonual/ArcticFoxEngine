@@ -25,12 +25,12 @@ namespace ArcticFoxEngine.Render {
 		public void SetTexture(Texture texture) {
 
 			if (texture == null) {
-				SetTexture(Rendering.missingTexture);
+				SetTexture(RenderEngine.missingTexture);
 				return;
 			}
 
-			GpuDescriptorHandle destDescriptor =  Rendering.CopyDescriptorsIn(texture.descriptorHeap.CPUDescriptorHandleForHeapStart, 1);
-			Rendering.cmdList.SetGraphicsRootDescriptorTable(rootParameterIndex, destDescriptor);
+			GpuDescriptorHandle destDescriptor = RenderEngine.CopyDescriptorsIn(texture.descriptorHeap.CPUDescriptorHandleForHeapStart, 1);
+			RenderEngine.cmdList.SetGraphicsRootDescriptorTable(rootParameterIndex, destDescriptor);
 
 		}
 

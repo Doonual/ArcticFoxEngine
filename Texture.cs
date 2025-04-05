@@ -324,6 +324,7 @@ namespace ArcticFoxEngine {
 		public Format format { get; private set; }
 		public int width;
 		public int height;
+		bool allowUnorderedAccess;
 
 		/// <summary>
 		/// Creates an empty texture
@@ -333,6 +334,13 @@ namespace ArcticFoxEngine {
 		public Texture(int width, int height, Format format = Format.R8G8B8A8_UNorm, ResourceFlags flags = ResourceFlags.None) {
 			
 			name = GetHashCode() + "";
+			if ((flags & ResourceFlags.AllowUnorderedAccess) != 0) {
+				allowUnorderedAccess = true;
+			}
+			else {
+				allowUnorderedAccess = false;
+			}
+
 			TextureInspectorWindow.RegisterTexture(this);
 			disposed = false;
 
@@ -342,8 +350,8 @@ namespace ArcticFoxEngine {
 
 			ResourceDescription textureDesc = ResourceDescription.Texture2D((SharpDX.DXGI.Format)format, width, height, flags: flags, mipLevels: 1);
 			resource = Graphics.device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.None, textureDesc, defaultState);
-
-			PrepareAsShaderResource();
+			
+			PrepareDescriptorHeaps();
 			imGuiID = RenderImGui.RegisterTexture(this);
 
 		}
@@ -378,7 +386,7 @@ namespace ArcticFoxEngine {
 			image.Dispose();
 			SetData(imageData);
 
-			PrepareAsShaderResource();
+			PrepareDescriptorHeaps();
 
 			imGuiID = RenderImGui.RegisterTexture(this);
 
@@ -387,11 +395,11 @@ namespace ArcticFoxEngine {
 		/// <summary>
 		/// Creates a descriptor heap for a shader resource view, and adds the texture to it
 		/// </summary>
-		internal void PrepareAsShaderResource() {
+		internal void PrepareDescriptorHeaps() {
 
 			// Create descriptor heap
 			DescriptorHeapDescription dhd = new DescriptorHeapDescription() {
-				DescriptorCount = 1,
+				DescriptorCount = 2,
 				Type = DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView,
 			};
 			descriptorHeap = Graphics.device.CreateDescriptorHeap(dhd);
@@ -406,12 +414,22 @@ namespace ArcticFoxEngine {
 			};
 			Graphics.device.CreateShaderResourceView(resource, srvDesc, descriptorHeap.CPUDescriptorHandleForHeapStart);
 
+			if (allowUnorderedAccess == true) {
+				UnorderedAccessViewDescription uavDesc = new UnorderedAccessViewDescription() {
+					Texture2D = new UnorderedAccessViewDescription.Texture2DResource() { },
+					Dimension = UnorderedAccessViewDimension.Texture2D,
+					Format = (SharpDX.DXGI.Format)format.SRVFormat(),
+				};
+				Graphics.device.CreateUnorderedAccessView(resource, null, uavDesc, descriptorHeap.CPUDescriptorHandleForHeapStart + Graphics.device.GetDescriptorHandleIncrementSize(DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView));
+			}
+
+
 		}
 		/// <summary>
 		/// Adds the texture to a shader resource view descriptor heap.
 		/// </summary>
 		/// <param name="destDescriptorHeap">The descriptor heap to add the texture to</param>
-		internal void PrepareAsShaderResource(CpuDescriptorHandle destDescriptor) {
+		internal void AllowShaderResource(CpuDescriptorHandle destDescriptor) {
 
 			int componentMappingR = 0;
 			int componentMappingG = 1;
@@ -439,6 +457,7 @@ namespace ArcticFoxEngine {
 			Graphics.device.CreateShaderResourceView(resource, srvDesc, destDescriptor);
 
 		}
+
 
 		/// <summary>
 		/// Uploads data to the textue

@@ -82,6 +82,13 @@
 	<ItemGroup>
 	  <ProjectReference Include="..\CoolClassLibrary\CoolClassLibrary.csproj" />
 	</ItemGroup>
+	
+	
+	<ItemGroup>
+	  <None Update="Demos\ComputeTest\gol_compute.hlsl">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	</ItemGroup>
 
 
 </Project>

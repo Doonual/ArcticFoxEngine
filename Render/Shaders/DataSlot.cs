@@ -22,10 +22,10 @@ namespace ArcticFoxEngine.Render {
 
 		public void SetData<T>(ConstBuffer<T> dataSource, int sourceIndex) where T : struct {
 
-			CpuDescriptorHandle srcDescriptor = dataSource.descriptorHeap.CPUDescriptorHandleForHeapStart + sourceIndex * Rendering.descriptorHeapIncrement;
-			GpuDescriptorHandle destDescriptor = Rendering.CopyDescriptorsIn(srcDescriptor, 1);
+			CpuDescriptorHandle srcDescriptor = dataSource.descriptorHeap.CPUDescriptorHandleForHeapStart + sourceIndex * Graphics.descriptorHeapIncrement;
+			GpuDescriptorHandle destDescriptor = RenderEngine.CopyDescriptorsIn(srcDescriptor, 1);
 
-			Rendering.cmdList.SetGraphicsRootDescriptorTable(rootParameterIndex, destDescriptor);
+			RenderEngine.cmdList.SetGraphicsRootDescriptorTable(rootParameterIndex, destDescriptor);
 
 		}
 

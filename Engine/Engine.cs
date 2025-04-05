@@ -44,7 +44,7 @@ namespace ArcticFoxEngine {
 			InputManager.Init();
 			Upload.Init();
 			
-			Render.Rendering.Init();
+			Render.RenderEngine.Init();
 			GuiManager.Init(MainWindow.form);
 
 			Log.Success("Engine initialisation complete");
@@ -125,7 +125,7 @@ namespace ArcticFoxEngine {
 			loop = null;
 			GuiManager.Dispose();
 			Graphics.Dispose();
-			Render.Rendering.Dispose();
+			Render.RenderEngine.Dispose();
 			GuiManager.CloseGUI();
 
 			Environment.Exit(0);

@@ -8,12 +8,12 @@ namespace ArcticFoxEngine.Render {
 	/// <summary>
 	/// Encapsulates all the tasks required to render a GeometryResources instance
 	/// </summary>
-	public static class Rendering {
+	public static class RenderEngine {
 
 		public static GraphicsCommandList cmdList;
 		public static DescriptorHeap gpuDescriptorHeap;
 		private static int descriptorCopyPos;
-		public static int descriptorHeapIncrement;
+		
 
 		public static Texture missingTexture;
 
@@ -26,7 +26,7 @@ namespace ArcticFoxEngine.Render {
 			};
 			gpuDescriptorHeap = Graphics.device.CreateDescriptorHeap(descHeapDesc);
 			descriptorCopyPos = 0;
-			descriptorHeapIncrement = Graphics.device.GetDescriptorHandleIncrementSize(DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView);
+			
 
 			cmdList = Graphics.CreateDirectCommandList();
 
@@ -59,11 +59,11 @@ namespace ArcticFoxEngine.Render {
 			descriptorCopyPos += numDescriptors;
 
 			// Copy the descriptors
-			CpuDescriptorHandle destDescriptor = gpuDescriptorHeap.CPUDescriptorHandleForHeapStart + destinationDescriptorIndex * descriptorHeapIncrement;
+			CpuDescriptorHandle destDescriptor = gpuDescriptorHeap.CPUDescriptorHandleForHeapStart + destinationDescriptorIndex * Graphics.descriptorHeapIncrement;
 			Graphics.device.CopyDescriptorsSimple(numDescriptors, destDescriptor, srcDescriptorHandle, DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView);
 
 			// Tell the dataslot where to find the descriptors
-			return gpuDescriptorHeap.GPUDescriptorHandleForHeapStart + destinationDescriptorIndex * descriptorHeapIncrement;
+			return gpuDescriptorHeap.GPUDescriptorHandleForHeapStart + destinationDescriptorIndex * Graphics.descriptorHeapIncrement;
 
 		}
 

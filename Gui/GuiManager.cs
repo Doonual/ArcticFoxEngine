@@ -1,4 +1,5 @@
 ﻿using ArcticFoxEngine.Demos.ChildTest;
+using ArcticFoxEngine.Demos.ComputeTest;
 using ArcticFoxEngine.Demos.LightingTest;
 using ArcticFoxEngine.Demos.RenderingStressTest;
 using ArcticFoxEngine.Demos.SceneTest;
@@ -68,6 +69,7 @@ namespace ArcticFoxEngine.Gui {
 				typeof(ChildTestNode),
 				typeof(RenderingStressTestNode),
 				typeof(LightingTestNode),
+				typeof(ComputeTestNode),
 			};
 
 

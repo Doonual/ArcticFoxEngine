@@ -116,8 +116,8 @@ namespace ArcticFoxEngine.Render {
 			geometryBank.UpdateObjectInfoBuffer();
 
             // Update the pipeline state and set this shaders root signature
-            ArcticFoxEngine.Render.Rendering.cmdList.PipelineState = pipelineState;
-            ArcticFoxEngine.Render.Rendering.cmdList.SetGraphicsRootSignature(rootSignature);
+            ArcticFoxEngine.Render.RenderEngine.cmdList.PipelineState = pipelineState;
+            ArcticFoxEngine.Render.RenderEngine.cmdList.SetGraphicsRootSignature(rootSignature);
 
 			// Bind the projection data
 			projMatrixBuffer.Write(camera.projectionMatrix.Invert(), 0);
@@ -129,9 +129,9 @@ namespace ArcticFoxEngine.Render {
 			lightingWorld.SetData(LitShader.lightingInfoBuffer, 0);
 
             // Set geometry
-            ArcticFoxEngine.Render.Rendering.cmdList.PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList;
-            ArcticFoxEngine.Render.Rendering.cmdList.SetVertexBuffer(0, geometryBank.vertexBufferView);
-            ArcticFoxEngine.Render.Rendering.cmdList.SetIndexBuffer(geometryBank.indexBufferView);
+            ArcticFoxEngine.Render.RenderEngine.cmdList.PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList;
+            ArcticFoxEngine.Render.RenderEngine.cmdList.SetVertexBuffer(0, geometryBank.vertexBufferView);
+            ArcticFoxEngine.Render.RenderEngine.cmdList.SetIndexBuffer(geometryBank.indexBufferView);
 
 
 			// Render each mesh
@@ -146,7 +146,7 @@ namespace ArcticFoxEngine.Render {
 				geometryBank.meshRenderers[i].material.BindResources(this);
 
                 // Draw the mesh
-                ArcticFoxEngine.Render.Rendering.cmdList.DrawIndexedInstanced(currentMeshIndexCount, 1, indexBufferStartIndex, vertexBufferStartIndex, vertexBufferStartIndex);
+                ArcticFoxEngine.Render.RenderEngine.cmdList.DrawIndexedInstanced(currentMeshIndexCount, 1, indexBufferStartIndex, vertexBufferStartIndex, vertexBufferStartIndex);
 
 			}
 

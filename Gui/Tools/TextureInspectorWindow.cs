@@ -14,7 +14,7 @@ namespace ArcticFoxEngine.Gui.Tools {
 
 		public TextureInspectorWindow() {
 
-			texture = ArcticFoxEngine.Render.Rendering.missingTexture;
+			texture = ArcticFoxEngine.Render.RenderEngine.missingTexture;
 			textureInspector = new TextureInspectorGui();
 			textureInspector.SetTexture(texture);
 
@@ -75,7 +75,7 @@ namespace ArcticFoxEngine.Gui.Tools {
 			ImGui.NextColumn();
 
 			if (texture.disposed == true) {
-				texture = ArcticFoxEngine.Render.Rendering.missingTexture;
+				texture = ArcticFoxEngine.Render.RenderEngine.missingTexture;
 				textureInspector.SetTexture(texture);
 			}
 			textureInspector.additionalDraws = null;

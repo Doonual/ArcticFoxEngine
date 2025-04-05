@@ -14,19 +14,28 @@ namespace ArcticFoxEngine.Render {
 		public int rootParameterIndex;
 		public GpuDescriptorHandle currentDescriptorLocation;
 
-		public BufferSlot(int length, ShaderVisibility visibility) {
+		private bool compute;
+
+		public BufferSlot(int length, ShaderVisibility visibility, bool compute = false) {
 			shaderVisibility = visibility;
 			this.length = length;
 			rootParameterIndex = -1;
 			currentDescriptorLocation = new GpuDescriptorHandle();
+			this.compute = compute;
 		}
 
 		public void SetBuffer<T>(StructuredBuffer<T> buffer, int srcOffset) where T : struct {
 
-			CpuDescriptorHandle srcDescriptor = buffer.descriptorHeap.CPUDescriptorHandleForHeapStart + srcOffset * Rendering.descriptorHeapIncrement;
-			GpuDescriptorHandle destDescriptor = Rendering.CopyDescriptorsIn(srcDescriptor, buffer.numElements);
+			CpuDescriptorHandle srcDescriptor = buffer.descriptorHeap.CPUDescriptorHandleForHeapStart + srcOffset * Graphics.descriptorHeapIncrement;
+			GpuDescriptorHandle destDescriptor = RenderEngine.CopyDescriptorsIn(srcDescriptor, buffer.numElements);
 
-			Rendering.cmdList.SetGraphicsRootDescriptorTable(rootParameterIndex, destDescriptor);
+			if (compute == false) {
+				RenderEngine.cmdList.SetGraphicsRootDescriptorTable(rootParameterIndex, destDescriptor);
+			}
+			else {
+				
+			}
+			
 
 		}
 

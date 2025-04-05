@@ -95,9 +95,6 @@ namespace ArcticFoxEngine.Render {
 			}
 
 		}
-
-		
-		
 		public class TextureSampler {
 
 			public TextureSampler(ShaderVisibility shaderVisibility) {
@@ -368,9 +365,9 @@ namespace ArcticFoxEngine.Render {
 
 
             // Set geometry
-            Rendering.cmdList.PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList;
-            Rendering.cmdList.SetVertexBuffer(0, geometryBank.vertexBufferView);
-            Rendering.cmdList.SetIndexBuffer(geometryBank.indexBufferView);
+            RenderEngine.cmdList.PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList;
+            RenderEngine.cmdList.SetVertexBuffer(0, geometryBank.vertexBufferView);
+            RenderEngine.cmdList.SetIndexBuffer(geometryBank.indexBufferView);
 
 
 			// Render each mesh
@@ -388,7 +385,7 @@ namespace ArcticFoxEngine.Render {
 				geometryBank.meshRenderers[i].material.BindResources(this);
 
                 // Draw the mesh
-                ArcticFoxEngine.Render.Rendering.cmdList.DrawIndexedInstanced(currentMeshIndexCount, 1, indexBufferStartIndex, vertexBufferStartIndex, vertexBufferStartIndex);
+                ArcticFoxEngine.Render.RenderEngine.cmdList.DrawIndexedInstanced(currentMeshIndexCount, 1, indexBufferStartIndex, vertexBufferStartIndex, vertexBufferStartIndex);
 
 			}
 

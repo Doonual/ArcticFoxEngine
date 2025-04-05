@@ -482,7 +482,7 @@ namespace ArcticFoxEngine.ImGuiIntegration {
 			}
 			Texture fontTex = new Texture(width, height);
 			fontTex.name = "ImGui Font Texture";
-			Graphics.device.CreateShaderResourceView(fontTex.resource, null, descriptorHeap.CPUDescriptorHandleForHeapStart + ArcticFoxEngine.Render.Rendering.descriptorHeapIncrement * descriptorHeapIndex);
+			Graphics.device.CreateShaderResourceView(fontTex.resource, null, descriptorHeap.CPUDescriptorHandleForHeapStart + Graphics.descriptorHeapIncrement * descriptorHeapIndex);
 
 			//fontTex.PrepareAsShaderResource(descriptorHeap, descriptorHeapIndex);
 
@@ -500,7 +500,7 @@ namespace ArcticFoxEngine.ImGuiIntegration {
 			}
 
 			IntPtr imguiID = texture.GetNativePointer();
-			texture.PrepareAsShaderResource(descriptorHeap.CPUDescriptorHandleForHeapStart + ArcticFoxEngine.Render.Rendering.descriptorHeapIncrement * descriptorHeapIndex);
+			texture.AllowShaderResource(descriptorHeap.CPUDescriptorHandleForHeapStart + Graphics.descriptorHeapIncrement * descriptorHeapIndex);
 			//Graphics.device.CreateShaderResourceView(texture.resource, null, descriptorHeap.CPUDescriptorHandleForHeapStart + Rendering.Rendering.descriptorHeapIncrement * descriptorHeapIndex);
 			//texture.PrepareAsShaderResource(descriptorHeap, descriptorHeapIndex);
 			textureResources.TryAdd(imguiID, (texture, descriptorHeapIndex));

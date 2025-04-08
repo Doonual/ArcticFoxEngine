@@ -12,13 +12,11 @@ namespace ArcticFoxEngine.Render {
 		public ShaderVisibility shaderVisibility;
 		public int rootParameterIndex;
 
-		public GpuDescriptorHandle currentDescriptorLocation;
 
 		public TextureSlot(ShaderVisibility shaderVisibility) {
 
 			this.shaderVisibility = shaderVisibility;
 			rootParameterIndex = -1;
-			currentDescriptorLocation = new GpuDescriptorHandle();
 
 		}
 

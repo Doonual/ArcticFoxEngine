@@ -71,7 +71,7 @@ namespace ArcticFoxEngine.ImGuiIntegration {
 
 			cmdList = Graphics.CreateDirectCommandList();
 
-			renderTexture = new Texture(MainWindow.width, MainWindow.height, flags: ResourceFlags.AllowRenderTarget);
+			renderTexture = new Texture(MainWindow.width, MainWindow.height, flags: ResourceFlags.AllowRenderTarget | ResourceFlags.AllowUnorderedAccess);
 			renderTexture.name = "ImGui Render Texture";
 			DescriptorHeapDescription rtvHeapDescription = new DescriptorHeapDescription() {
 				DescriptorCount = 1,
@@ -330,7 +330,7 @@ namespace ArcticFoxEngine.ImGuiIntegration {
 			CpuDescriptorHandle dsvHandle = dsvDescHeap.CPUDescriptorHandleForHeapStart;
 
 			cmdList.SetRenderTargets(rtvHandle, dsvHandle);
-			cmdList.ClearRenderTargetView(rtvHandle, new SharpDX.Mathematics.Interop.RawColor4(0f, 0f, 0f, 1f));
+			cmdList.ClearRenderTargetView(rtvHandle, new SharpDX.Mathematics.Interop.RawColor4(0f, 0f, 0f, 0f));
 			cmdList.ClearDepthStencilView(dsvHandle, ClearFlags.FlagsDepth, 1f, 0);
 
 			#region Rendering
@@ -386,9 +386,10 @@ namespace ArcticFoxEngine.ImGuiIntegration {
 			cmdList.Close();
 
 			Graphics.ExecuteDirectCommandList(cmdList);
+			Graphics.WaitForDirectCommandQueue();
+			Graphics.AlphaBlendTextures(Graphics.mainTexture, renderTexture, Graphics.mainTexture);
 
 			ImGuiInput.ReSetLastCursor();
-
 
 		}
 
@@ -500,7 +501,7 @@ namespace ArcticFoxEngine.ImGuiIntegration {
 			}
 
 			IntPtr imguiID = texture.GetNativePointer();
-			texture.AllowShaderResource(descriptorHeap.CPUDescriptorHandleForHeapStart + Graphics.descriptorHeapIncrement * descriptorHeapIndex);
+			texture.CreateExternalShaderResourceView(descriptorHeap.CPUDescriptorHandleForHeapStart + Graphics.descriptorHeapIncrement * descriptorHeapIndex);
 			//Graphics.device.CreateShaderResourceView(texture.resource, null, descriptorHeap.CPUDescriptorHandleForHeapStart + Rendering.Rendering.descriptorHeapIncrement * descriptorHeapIndex);
 			//texture.PrepareAsShaderResource(descriptorHeap, descriptorHeapIndex);
 			textureResources.TryAdd(imguiID, (texture, descriptorHeapIndex));

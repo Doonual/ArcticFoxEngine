@@ -1,6 +1,4 @@
-﻿using ArcticFoxEngine.Render;
-using SharpDX.Direct3D12;
-using static ArcticFoxEngine.Render.Shader;
+﻿using SharpDX.Direct3D12;
 
 namespace ArcticFoxEngine.Compute {
 	public class ComputeShader {
@@ -9,37 +7,28 @@ namespace ArcticFoxEngine.Compute {
 		public RootSignature rootSignature;
 
 		private GraphicsCommandList computeCmdList;
-		private DescriptorHeap descriptorHeap;
 
-		Texture boundTexture;
+		DescriptorHeap descriptorHeap;
+		private Dictionary<string, TextureBinding> textureBindings;
 
 		public ComputeShader(string path) {
+
 			computeCmdList = Graphics.CreateComputeCommandList();
 
-			ShaderBytecode shaderBytecode = CompileShader(path, "main");
+			textureBindings = new Dictionary<string, TextureBinding>();
 
-			RootSignatureDescription rootSignatureDesc = new RootSignatureDescription() {
-				Parameters = new RootParameter[] {
-					new RootParameter(ShaderVisibility.All, new DescriptorRange() {
-						BaseShaderRegister = 0,
-						DescriptorCount = 1,
-						OffsetInDescriptorsFromTableStart = int.MinValue,
-						RangeType = DescriptorRangeType.UnorderedAccessView,
-					}),
-				},
-			};
-			rootSignature = Graphics.device.CreateRootSignature(rootSignatureDesc.Serialize());
+			ShaderBytecode shaderBytecode = CompileShader(path, "main");
+			UpdateShaderResources(path);
+
+			rootSignature = CreateRootSignature(textureBindings.Values.ToList());
 			computePipeline = CreateComputePipeline(rootSignature, shaderBytecode);
 
-
 			DescriptorHeapDescription descriptorHeapDesc = new DescriptorHeapDescription() {
-				DescriptorCount = 1,
+				DescriptorCount = textureBindings.Count,
 				Type = DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView,
 				Flags = DescriptorHeapFlags.ShaderVisible,
 			};
 			descriptorHeap = Graphics.device.CreateDescriptorHeap(descriptorHeapDesc);
-
-
 
 		}
 
@@ -55,6 +44,58 @@ namespace ArcticFoxEngine.Compute {
 
 		}
 
+		private void UpdateShaderResources(string path) {
+
+			string shaderCode = File.ReadAllText(path);
+
+			textureBindings.Clear();
+
+			string[] shaderBlocks = shaderCode.Split(';', ' ');
+			for (int i = 0; i < shaderBlocks.Length; i++) {
+				if (shaderBlocks[i].Contains("register") == true) {
+
+					int openBracketIndex = shaderBlocks[i].IndexOf('(');
+					int closeBracketIndex = shaderBlocks[i].IndexOf(')');
+
+					string variableType = shaderBlocks[i - 3];
+					string variableName = shaderBlocks[i - 2];
+					string register = new string(shaderBlocks[i].Skip(openBracketIndex + 1).Take(closeBracketIndex - openBracketIndex - 1).ToArray());
+					int registerIndex = int.Parse(new string(register.Skip(1).ToArray()));
+
+					if (variableType.Contains("Texture") == true) {
+						TextureBinding textureBinding = new TextureBinding(registerIndex);
+						textureBindings.Add(variableName, textureBinding);
+					}
+
+					//Log.Info("(Type: " + variableType + ", Name: " + variableName + ", Register: " + register + ")");
+
+
+
+				}
+			}
+
+
+		}
+		private RootSignature CreateRootSignature(List<TextureBinding> textureBindings) {
+
+			RootParameter[] rootParameters = new RootParameter[textureBindings.Count()];
+			for (int i = 0; i < textureBindings.Count(); i++) {
+				rootParameters[i] = new RootParameter(ShaderVisibility.All, new DescriptorRange() {
+					BaseShaderRegister = i,
+					DescriptorCount = 1,
+					OffsetInDescriptorsFromTableStart = int.MinValue,
+					RangeType = DescriptorRangeType.UnorderedAccessView,
+				});
+			}
+
+			RootSignatureDescription rootSignatureDesc = new RootSignatureDescription() {
+				Parameters = rootParameters,
+			};
+			RootSignature rootSignature = Graphics.device.CreateRootSignature(rootSignatureDesc.Serialize());
+			return rootSignature;
+
+		}
+
 		private PipelineState CreateComputePipeline(RootSignature rootSignature, ShaderBytecode shaderBytecode) {
 
 			ComputePipelineStateDescription computePipelineDesc = new ComputePipelineStateDescription() {
@@ -67,15 +108,8 @@ namespace ArcticFoxEngine.Compute {
 
 		}
 
-		public void SetTexture(Texture texture) {
-
-			CpuDescriptorHandle srcDescriptor = texture.descriptorHeap.CPUDescriptorHandleForHeapStart + Graphics.descriptorHeapIncrement;
-			CpuDescriptorHandle dstDescriptor = descriptorHeap.CPUDescriptorHandleForHeapStart;
-
-			Graphics.device.CopyDescriptorsSimple(1, dstDescriptor, srcDescriptor, DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView);
-
-			boundTexture = texture;
-
+		public void SetTexture(Texture texture, string name) {
+			textureBindings[name].AssignTexture(texture);
 		}
 
 		public void Dispatch() {
@@ -88,16 +122,22 @@ namespace ArcticFoxEngine.Compute {
 			computeCmdList.PipelineState = computePipeline;
 			computeCmdList.SetComputeRootSignature(rootSignature);
 
-			computeCmdList.ResourceBarrierTransition(boundTexture.resource, Texture.defaultState, ResourceStates.UnorderedAccess);
-			
-			computeCmdList.SetComputeRootDescriptorTable(0, descriptorHeap.GPUDescriptorHandleForHeapStart);
+			List<TextureBinding> textureBindingsToBind = textureBindings.Values.ToList();
+			for (int i = 0; i < textureBindingsToBind.Count(); i++) {
+				textureBindingsToBind[i].ResourceTransitionToUA(computeCmdList);
+				textureBindingsToBind[i].BindTexture(computeCmdList, descriptorHeap);
+			}
 
 			computeCmdList.Dispatch(MainWindow.width / 8, MainWindow.height / 8, 1);
 
-			computeCmdList.ResourceBarrierTransition(boundTexture.resource, ResourceStates.UnorderedAccess, Texture.defaultState);
+			for (int i = 0; i < textureBindingsToBind.Count(); i++) {
+				textureBindingsToBind[i].ResourceTransitionFromUA(computeCmdList);
+			}
+
 			computeCmdList.Close();
 
 			Graphics.ExecuteComputeCommandList(computeCmdList);
+
 
 		}
 

@@ -46,6 +46,6 @@ void main(uint3 dispatchThreadID : SV_DispatchThreadID) {
 			mainTex[id] = float4(1.0, 1.0, 1.0, 1.0);
 		}
 	}
-    
+
 }
 

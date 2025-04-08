@@ -24,6 +24,7 @@ namespace ArcticFoxEngine.Demos.ComputeTest {
 			updateButton = new KeyboardButtonInput(KeyboardButtonInput.KeyboardButton.Space);
 
 			testTexture = new Texture(1920, 1080, flags: SharpDX.Direct3D12.ResourceFlags.AllowUnorderedAccess);
+			
 			for (int i = 0; i < testTexture.width; i ++) {
 				for (int n = 0; n < testTexture.height; n ++) {
 					if (MathUtil.RandomChance(0.5f) == true) {
@@ -32,20 +33,20 @@ namespace ArcticFoxEngine.Demos.ComputeTest {
 				}
 			}
 			testTexture.BatchSync();
-
+			
 
 		}
 
 		public override void Render() {
 
-			Graphics.Blit(testTexture, Graphics.GetActiveResource());
+			Graphics.Blit(testTexture, Graphics.mainTexture);
 
 		}
 
 		public override void Update() {
 			
 			if (updateButton.GetButton() == true) {
-				computeShader.SetTexture(testTexture);
+				computeShader.SetTexture(testTexture, "mainTex");
 				computeShader.Dispatch();
 			}
 
@@ -53,7 +54,7 @@ namespace ArcticFoxEngine.Demos.ComputeTest {
 
 		public override void DrawInspector() {
 			if (ImGui.Button("Dispatch button") == true) {
-				computeShader.SetTexture(testTexture);
+				computeShader.SetTexture(testTexture, "mainTex");
 				computeShader.Dispatch();
 			}
 		}

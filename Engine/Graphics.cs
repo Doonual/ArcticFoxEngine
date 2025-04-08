@@ -1,4 +1,5 @@
-﻿using CoolClassLibrary;
+﻿using ArcticFoxEngine.Compute;
+using CoolClassLibrary;
 using SharpDX;
 using SharpDX.Direct3D12;
 using SharpDX.DXGI;
@@ -21,6 +22,8 @@ namespace ArcticFoxEngine {
 		internal const int swapChainFrameCount = 2;
 		internal static int frameIndex;
 
+		public static Texture mainTexture;
+		private static ComputeShader alphaBlendShader;
 
 		#region Command queue objects
 
@@ -73,6 +76,7 @@ namespace ArcticFoxEngine {
 			try {
 
 				SetupDevice();
+				
 
 				// Create an event handle to use for frame synchronisation
 				fenceEvent = new AutoResetEvent(false);
@@ -81,6 +85,8 @@ namespace ArcticFoxEngine {
 				SetupComputeCommandAllocator();
 
 				SetupSwapChain(width, height, refreshRate, cmdQueueDirect);
+
+				alphaBlendShader = new ComputeShader(".res/ComputeShaders/alpha_blend.hlsl");
 
 				Log.Success("Initialised renderer");
 			}
@@ -269,6 +275,7 @@ namespace ArcticFoxEngine {
 				swapchainResources[n] = swapChain.GetBackBuffer<Resource>(n);
 			}
 
+			mainTexture = new Texture(width, height, flags: ResourceFlags.AllowUnorderedAccess);
 
 
 		}
@@ -279,6 +286,13 @@ namespace ArcticFoxEngine {
 		/// Shows the render target to the screen and swaps which resource is the render target
 		/// </summary>
 		internal static void Buffer() {
+
+			
+			Blit(mainTexture, GetActiveResource());
+
+			Graphics.WaitForDirectCommandQueue();
+			Graphics.WaitForComputeCommandQueue();
+
 			// Present the frame
 			try {
 				CheckHRESULT(swapChain.Present(1, 0));
@@ -343,7 +357,14 @@ namespace ArcticFoxEngine {
 		public static void Blit(Texture src, Texture dst) {
 			Blit(src.resource, dst.resource);
 		}
+		public static void AlphaBlendTextures(Texture underTexture, Texture overTexture, Texture resultTexture) {
 
+			alphaBlendShader.SetTexture(underTexture, "underTexture");
+			alphaBlendShader.SetTexture(overTexture, "overTexture");
+			alphaBlendShader.SetTexture(resultTexture, "resultTexture");
+			alphaBlendShader.Dispatch();
+
+		}
 
 		/// <summary>
 		/// Disposes all resources held by Graphics

@@ -145,7 +145,7 @@ namespace ArcticFoxEngine.Gui {
 
 			if (isOpen == false) { return; }
 			RenderImGui.Render();
-			Graphics.Blit(RenderImGui.renderTexture, Graphics.GetActiveResource());
+			Graphics.AlphaBlendTextures(Graphics.mainTexture, RenderImGui.renderTexture, Graphics.mainTexture);
 
 		}
 

@@ -100,7 +100,8 @@ namespace ArcticFoxEngine {
 					if (toggleGuiButton.GetButtonDown() == true) { GuiManager.ToggleGUI(); }
 					GuiManager.UpdateImGui();
 
-					Graphics.WaitForDirectCommandQueue();
+					
+					
 					Graphics.Buffer();
 					MainWindow.form.Show();
 

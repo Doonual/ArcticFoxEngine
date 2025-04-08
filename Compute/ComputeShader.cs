@@ -1,4 +1,8 @@
-﻿using SharpDX.Direct3D12;
+﻿using ArcticFoxEngine.Demos.ComputeTest;
+using ArcticFoxEngine.Render;
+using CoolClassLibrary;
+using ImGuiNET;
+using SharpDX.Direct3D12;
 
 namespace ArcticFoxEngine.Compute {
 	public class ComputeShader {
@@ -8,7 +12,7 @@ namespace ArcticFoxEngine.Compute {
 
 		private GraphicsCommandList computeCmdList;
 
-		DescriptorHeap descriptorHeap;
+		//DescriptorHeap descriptorHeap;
 		private Dictionary<string, TextureBinding> textureBindings;
 
 		public ComputeShader(string path) {
@@ -23,12 +27,6 @@ namespace ArcticFoxEngine.Compute {
 			rootSignature = CreateRootSignature(textureBindings.Values.ToList());
 			computePipeline = CreateComputePipeline(rootSignature, shaderBytecode);
 
-			DescriptorHeapDescription descriptorHeapDesc = new DescriptorHeapDescription() {
-				DescriptorCount = textureBindings.Count,
-				Type = DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView,
-				Flags = DescriptorHeapFlags.ShaderVisible,
-			};
-			descriptorHeap = Graphics.device.CreateDescriptorHeap(descriptorHeapDesc);
 
 		}
 
@@ -117,15 +115,14 @@ namespace ArcticFoxEngine.Compute {
 			Graphics.WaitForComputeCommandQueue();
 			Graphics.ResetComputeCommandList(computeCmdList);
 
-			// TODO: Combine this descriptor heap into the one used for rendering. For now, im just trying to get it to work.
-			computeCmdList.SetDescriptorHeaps(descriptorHeap);
+			computeCmdList.SetDescriptorHeaps(RenderEngine.gpuDescriptorHeap);
 			computeCmdList.PipelineState = computePipeline;
 			computeCmdList.SetComputeRootSignature(rootSignature);
 
 			List<TextureBinding> textureBindingsToBind = textureBindings.Values.ToList();
 			for (int i = 0; i < textureBindingsToBind.Count(); i++) {
 				textureBindingsToBind[i].ResourceTransitionToUA(computeCmdList);
-				textureBindingsToBind[i].BindTexture(computeCmdList, descriptorHeap);
+				textureBindingsToBind[i].BindTexture(computeCmdList);
 			}
 
 			computeCmdList.Dispatch(MainWindow.width / 8, MainWindow.height / 8, 1);

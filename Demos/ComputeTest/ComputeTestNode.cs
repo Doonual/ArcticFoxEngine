@@ -18,6 +18,8 @@ namespace ArcticFoxEngine.Demos.ComputeTest {
 
 		ButtonBinding updateButton;
 
+		public static bool test;
+
 		public ComputeTestNode() {
 
 			computeShader = new ComputeShader("Demos/ComputeTest/gol_compute.hlsl");
@@ -57,6 +59,9 @@ namespace ArcticFoxEngine.Demos.ComputeTest {
 				computeShader.SetTexture(testTexture, "mainTex");
 				computeShader.Dispatch();
 			}
+
+			ImGui.Checkbox("Test", ref test);
+
 		}
 
 		

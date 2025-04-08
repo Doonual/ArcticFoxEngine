@@ -25,14 +25,9 @@ namespace ArcticFoxEngine.Compute {
 
 		}
 
-		public void BindTexture(GraphicsCommandList cmdList, DescriptorHeap descriptorHeap) {
+		public void BindTexture(GraphicsCommandList cmdList) {
 
-			CpuDescriptorHandle destCpuDescriptor = descriptorHeap.CPUDescriptorHandleForHeapStart + Graphics.descriptorHeapIncrement * rootParameterIndex;
-			GpuDescriptorHandle destGpuDescriptor = descriptorHeap.GPUDescriptorHandleForHeapStart + Graphics.descriptorHeapIncrement * rootParameterIndex;
-
-			Graphics.device.CopyDescriptorsSimple(1, destCpuDescriptor, boundTexture.GetUAVDescriptorLocation(), DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView);
-
-
+			GpuDescriptorHandle destGpuDescriptor = RenderEngine.CopyDescriptorsIn(boundTexture.GetUAVDescriptorLocation(), 1);
 			cmdList.SetComputeRootDescriptorTable(rootParameterIndex, destGpuDescriptor);
 
 		}

@@ -8,12 +8,12 @@ namespace ArcticFoxEngine {
 	/// A constant buffer on the GPU
 	/// </summary>
 	/// <typeparam name="T">The type of data contained in this buffer</typeparam>
-	public class ConstBuffer<T> where T : struct {
+	public class ConstantBuffer<T> : GraphicsResource where T : struct {
 
 		bool disposed = true;
 
-		internal DescriptorHeap descriptorHeap;
-		private Resource constantBuffer;
+		private DescriptorHeap descriptorHeap;
+		internal Resource resource;
 		private IntPtr constantBufferPointer;
 
 		public readonly int numElements;
@@ -25,7 +25,7 @@ namespace ArcticFoxEngine {
 		/// Creates a new constant buffer
 		/// </summary>
 		/// <param name="numElements">The number of elements of type T the buffer can store</param>
-		public ConstBuffer(int numElements) {
+		public ConstantBuffer(int numElements) {
 
 			disposed = false;
 
@@ -36,38 +36,39 @@ namespace ArcticFoxEngine {
 			
 
 			// Allocate memory on the heap for the constant buffer
-			constantBuffer = Graphics.device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None, ResourceDescription.Buffer(size), ResourceStates.GenericRead);
-			constantBufferPointer = constantBuffer.Map(0);
+			resource = Graphics.device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None, ResourceDescription.Buffer(size), ResourceStates.GenericRead);
+			constantBufferPointer = resource.Map(0);
+
+			PrepareDescriptorHeap();
+
+		}
+
+		private void PrepareDescriptorHeap() {
 
 			DescriptorHeapDescription dhd = new DescriptorHeapDescription() {
 				DescriptorCount = numElements,
 				Type = DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView,
 			};
 			descriptorHeap = Graphics.device.CreateDescriptorHeap(dhd);
-			AddToDescriptorHeap(descriptorHeap, 0);
 
+			for (int i = 0; i < numElements; i++) {
+				ConstantBufferViewDescription cbvDesc = new ConstantBufferViewDescription() {
+					BufferLocation = resource.GPUVirtualAddress + stride * i,
+					SizeInBytes = stride,
+				};
+				Graphics.device.CreateConstantBufferView(cbvDesc, descriptorHeap.CPUDescriptorHandleForHeapStart + i * Graphics.descriptorHeapIncrement);
+			}
 
 		}
 
-		/// <summary>
-		/// Creates a constant buffer view on the descriptor heap of this constant buffer
-		/// </summary>
-		/// <param name="destDescriptorHeap">The descriptor heap to create the constant buffer view on</param>
-		/// <param name="offset">The offset into the descriptor heap the constant buffer view will be created at</param>
-		internal void AddToDescriptorHeap(DescriptorHeap destDescriptorHeap, int offset) {
-
-			int descHeapIncrement = Graphics.device.GetDescriptorHandleIncrementSize(DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView);
-
-			for (int i = 0; i < numElements; i++) {
-
-				ConstantBufferViewDescription cbvDesc = new ConstantBufferViewDescription() {
-					BufferLocation = constantBuffer.GPUVirtualAddress + stride * i,
-					SizeInBytes = stride,
-				};
-				Graphics.device.CreateConstantBufferView(cbvDesc, destDescriptorHeap.CPUDescriptorHandleForHeapStart + (offset + i) * descHeapIncrement);
-
-			}
-
+		internal override Resource GetResource() {
+			return resource;
+		}
+		internal override int[] GetLength() {
+			return new int[] { numElements};
+		}
+		internal override CpuDescriptorHandle GetCBVDescriptorLocation() {
+			return descriptorHeap.CPUDescriptorHandleForHeapStart;
 		}
 
 		/// <summary>
@@ -98,14 +99,14 @@ namespace ArcticFoxEngine {
 			if (disposed == true) { return; }
 			disposed = true;
 
-			if (constantBuffer.IsDisposed == false) {
-				constantBuffer.Unmap(0);
+			if (resource.IsDisposed == false) {
+				resource.Unmap(0);
 			}
-			constantBuffer.Dispose();
+			resource.Dispose();
 			descriptorHeap.Dispose();
 
 		}
-		~ConstBuffer() {
+		~ConstantBuffer() {
 			Dispose();
 		}
 

@@ -310,9 +310,8 @@ namespace ArcticFoxEngine {
 		R1_UNorm = 66,
 	}
 
-	public class Texture {
+	public class Texture : GraphicsResource {
 
-		
 		internal bool disposed = true;
 
 		internal static ResourceStates defaultState = ResourceStates.CopyDestination;
@@ -426,10 +425,16 @@ namespace ArcticFoxEngine {
 
 		}
 
-		internal CpuDescriptorHandle GetSRVDescriptorLocation() {
+		internal override Resource GetResource() {
+			return resource;
+		}
+		internal override int[] GetLength() {
+			return new int[] { width, height };
+		}
+		internal override CpuDescriptorHandle GetSRVDescriptorLocation() {
 			return descriptorHeap.CPUDescriptorHandleForHeapStart;
 		}
-		internal CpuDescriptorHandle GetUAVDescriptorLocation() {
+		internal override CpuDescriptorHandle GetUAVDescriptorLocation() {
 			return descriptorHeap.CPUDescriptorHandleForHeapStart + Graphics.descriptorHeapIncrement;
 		}
 

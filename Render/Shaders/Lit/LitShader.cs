@@ -31,7 +31,7 @@ namespace ArcticFoxEngine.Render {
 
 		}
 
-		public static ConstBuffer<LightingWorld> lightingInfoBuffer;
+		public static ConstantBuffer<LightingWorld> lightingInfoBuffer;
 		public static StructuredBuffer<LightData> lightBuffer;
 
 		public override string name => "Lit";
@@ -55,7 +55,7 @@ namespace ArcticFoxEngine.Render {
 		public LitShader() {
 
 			lightBuffer = new StructuredBuffer<LightData>(16);
-			lightingInfoBuffer = new ConstBuffer<LightingWorld>(1);
+			lightingInfoBuffer = new ConstantBuffer<LightingWorld>(1);
 
 
 			rootSignature = CreateRootSignature(

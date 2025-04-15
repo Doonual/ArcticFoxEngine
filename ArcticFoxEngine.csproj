@@ -85,6 +85,9 @@
 	
 	
 	<ItemGroup>
+	  <None Update="Demos\ComputeTest\agents_compute.hlsl">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
 	  <None Update="Demos\ComputeTest\gol_compute.hlsl">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </None>

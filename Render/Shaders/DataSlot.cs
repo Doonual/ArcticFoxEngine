@@ -20,9 +20,9 @@ namespace ArcticFoxEngine.Render {
 			currentDescriptorLocation = new GpuDescriptorHandle();
 		}
 
-		public void SetData<T>(ConstBuffer<T> dataSource, int sourceIndex) where T : struct {
+		public void SetData<T>(ConstantBuffer<T> dataSource, int sourceIndex) where T : struct {
 
-			CpuDescriptorHandle srcDescriptor = dataSource.descriptorHeap.CPUDescriptorHandleForHeapStart + sourceIndex * Graphics.descriptorHeapIncrement;
+			CpuDescriptorHandle srcDescriptor = dataSource.GetCBVDescriptorLocation() + sourceIndex * Graphics.descriptorHeapIncrement;
 			GpuDescriptorHandle destDescriptor = RenderEngine.CopyDescriptorsIn(srcDescriptor, 1);
 
 			RenderEngine.cmdList.SetGraphicsRootDescriptorTable(rootParameterIndex, destDescriptor);

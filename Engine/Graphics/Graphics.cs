@@ -73,7 +73,7 @@ namespace ArcticFoxEngine {
 			int height = form.ClientSize.Height;
 			int refreshRate = 240;
 
-			try {
+			//try {
 
 				SetupDevice();
 				
@@ -86,14 +86,14 @@ namespace ArcticFoxEngine {
 
 				SetupSwapChain(width, height, refreshRate, cmdQueueDirect);
 
-				alphaBlendShader = new ComputeShader(".res/ComputeShaders/alpha_blend.hlsl");
+				alphaBlendShader = new ComputeShader(".res/ComputeShaders/alpha_blend.hlsl", "main");
 
 				Log.Success("Initialised renderer");
-			}
-			catch (Exception e) {
-				Log.Error("Failed to initialise renderer");
-				Log.Raw(e);
-			}
+			//}
+			//catch (Exception e) {
+			//	Log.Error("Failed to initialise renderer");
+			//	Log.Raw(e);
+			//}
 
 
 
@@ -288,7 +288,7 @@ namespace ArcticFoxEngine {
 		internal static void Buffer() {
 
 			
-			Blit(mainTexture, GetActiveResource());
+			BlitTexture(mainTexture, GetActiveResource());
 
 			Graphics.WaitForDirectCommandQueue();
 			Graphics.WaitForComputeCommandQueue();
@@ -332,7 +332,7 @@ namespace ArcticFoxEngine {
 			return swapchainResources[frameIndex];
 		}
 
-		public static void Blit(Resource src, Resource dst) {
+		public static void BlitTexture(Resource src, Resource dst, int xOffset = 0, int yOffset = 0, int zOffset = 0) {
 
 			WaitForDirectCommandQueue();
 			ResetDirectCommandList(directCmdList);
@@ -340,29 +340,51 @@ namespace ArcticFoxEngine {
 			TextureCopyLocation srcLocation = new TextureCopyLocation(src, 0);
 			TextureCopyLocation dstLocation = new TextureCopyLocation(dst, 0);
 
-			directCmdList.CopyTextureRegion(dstLocation, 0, 0, 0, srcLocation, null);
+			directCmdList.CopyTextureRegion(dstLocation, xOffset, yOffset, zOffset, srcLocation, null);
 
 			directCmdList.Close();
 			ExecuteDirectCommandList(directCmdList);
-			
-
 
 		}
-		public static void Blit(Texture src, Resource dst) {
-			Blit(src.resource, dst);
+		public static void BlitTexture(Texture src, Resource dst, int xOffset = 0, int yOffset = 0, int zOffset = 0) {
+			BlitTexture(src.resource, dst, xOffset, yOffset, zOffset);
 		}
-		public static void Blit(Resource src, Texture dst) {
-			Blit(src, dst.resource);
+		public static void BlitTexture(Resource src, Texture dst, int xOffset = 0, int yOffset = 0, int zOffset = 0) {
+			BlitTexture(src, dst.resource, xOffset, yOffset, zOffset);
 		}
-		public static void Blit(Texture src, Texture dst) {
-			Blit(src.resource, dst.resource);
+		public static void BlitTexture(Texture src, Texture dst, int xOffset = 0, int yOffset = 0, int zOffset = 0) {
+			BlitTexture(src.resource, dst.resource, xOffset, yOffset, zOffset);
 		}
+
+		public static void BlitBuffer(Resource src, Resource dst, int numBytes, int srcOffset = 0, int dstOffset = 0) {
+
+			WaitForDirectCommandQueue();
+			ResetDirectCommandList(directCmdList);
+
+			directCmdList.CopyBufferRegion(dst, dstOffset, src, srcOffset, numBytes);
+
+			directCmdList.Close();
+			ExecuteDirectCommandList(directCmdList);
+
+		}
+		public static void BlitBuffer<T>(StructuredBuffer<T> src, Resource dst, int numBytes, int srcOffset = 0, int dstOffset = 0) where T : struct {
+			BlitBuffer(src.resource, dst, numBytes, srcOffset, dstOffset);
+		}
+		public static void BlitBuffer<T>(Resource src, StructuredBuffer<T> dst, int numBytes, int srcOffset = 0, int dstOffset = 0) where T : struct {
+			BlitBuffer(src, dst.resource, numBytes, srcOffset, dstOffset);
+		}
+		public static void BlitBuffer<T>(StructuredBuffer<T> src, StructuredBuffer<T> dst, int numBytes, int srcOffset = 0, int dstOffset = 0) where T : struct {
+			BlitBuffer(src.resource, dst.resource, numBytes, srcOffset, dstOffset);
+		}
+
+
+
 		public static void AlphaBlendTextures(Texture underTexture, Texture overTexture, Texture resultTexture) {
 
-			alphaBlendShader.SetTexture(underTexture, "underTexture");
-			alphaBlendShader.SetTexture(overTexture, "overTexture");
-			alphaBlendShader.SetTexture(resultTexture, "resultTexture");
-			alphaBlendShader.Dispatch();
+			alphaBlendShader.SetTexture("underTexture", underTexture);
+			alphaBlendShader.SetTexture("overTexture", overTexture);
+			alphaBlendShader.SetTexture("resultTexture", resultTexture);
+			alphaBlendShader.Dispatch("main", (int)MathF.Ceiling(resultTexture.width / 8f), (int)MathF.Ceiling(resultTexture.height / 8f), 1);
 
 		}
 

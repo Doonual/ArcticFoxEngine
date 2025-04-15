@@ -55,6 +55,13 @@ namespace ArcticFoxEngine {
 			a = 1f;
 		}
 
+		/// <summary>
+		/// Creates a color object based on the HSV color model
+		/// </summary>
+		/// <param name="h">Hue [0-359]</param>
+		/// <param name="s">Saturation [0-255]</param>
+		/// <param name="v">Value [0-255]</param>
+		/// <returns></returns>
 		public static Color FromHSV(int h, int s, int v) {
 
 			float h_ = (float)h % 360;

@@ -21,8 +21,8 @@ namespace ArcticFoxEngine.Render {
 		public DataSlot lightingWorld = new DataSlot(ShaderVisibility.Pixel);
 		public DataSlot skyBoxInfo = new DataSlot(ShaderVisibility.Pixel);
 
-		private ConstBuffer<Matrix> projMatrixBuffer;
-		private ConstBuffer<Matrix> camTransformMatrixBuffer;
+		private ConstantBuffer<Matrix> projMatrixBuffer;
+		private ConstantBuffer<Matrix> camTransformMatrixBuffer;
 
 		[StructLayout(LayoutKind.Explicit)]
 		public struct SkyboxInfo {
@@ -49,8 +49,8 @@ namespace ArcticFoxEngine.Render {
 			);
 			pipelineState = CreatePipelineObject();
 
-			projMatrixBuffer = new ConstBuffer<Matrix>(1);
-			camTransformMatrixBuffer = new ConstBuffer<Matrix>(1);
+			projMatrixBuffer = new ConstantBuffer<Matrix>(1);
+			camTransformMatrixBuffer = new ConstantBuffer<Matrix>(1);
 			
 		}
 		

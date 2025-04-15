@@ -30,7 +30,7 @@ namespace ArcticFoxEngine.Render {
 		public IndexBufferView indexBufferView;
 
 		public int[] transformGap;
-		public ConstBuffer<TransformInfo> transformBuffer;
+		public ConstantBuffer<TransformInfo> transformBuffer;
 
 
 		/// <summary>
@@ -66,7 +66,7 @@ namespace ArcticFoxEngine.Render {
 			indexBufferView.SizeInBytes = numIndexBufferElements * sizeof(int);
 			indexBufferView.Format = SharpDX.DXGI.Format.R32_UInt;
 
-			transformBuffer = new ConstBuffer<TransformInfo>(numTransformBufferElements);
+			transformBuffer = new ConstantBuffer<TransformInfo>(numTransformBufferElements);
 
 		}
 

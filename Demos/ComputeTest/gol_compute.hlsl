@@ -1,3 +1,10 @@
+
+cbuffer viewportInfo : register(b0) {
+	
+	float2 viewCentre;
+	
+};
+
 RWTexture2D<float4> mainTex : register(u0);
 
 float3 SampleLooped(int2 uv, int width, int height) {

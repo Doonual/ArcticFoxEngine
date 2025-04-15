@@ -28,7 +28,7 @@ namespace ArcticFoxEngine.ImGuiIntegration {
 		static Resource indexBuffer;
 		static IndexBufferView indexBufferView;
 
-		static ConstBuffer<Matrix> constantBuffer;
+		static ConstantBuffer<Matrix> constantBuffer;
 		static GraphicsCommandList cmdList;
 
 		public static Texture renderTexture;
@@ -140,8 +140,9 @@ namespace ArcticFoxEngine.ImGuiIntegration {
 				Type = DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView,
 			};
 			descriptorHeap = Graphics.device.CreateDescriptorHeap(dhd);
-			constantBuffer = new ConstBuffer<Matrix>(1);
-			constantBuffer.AddToDescriptorHeap(descriptorHeap, 0);
+			constantBuffer = new ConstantBuffer<Matrix>(1);
+
+			Graphics.device.CopyDescriptorsSimple(constantBuffer.numElements, descriptorHeap.CPUDescriptorHandleForHeapStart, constantBuffer.GetCBVDescriptorLocation(), DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView);
 
 		}
 
@@ -388,7 +389,7 @@ namespace ArcticFoxEngine.ImGuiIntegration {
 			Graphics.ExecuteDirectCommandList(cmdList);
 			Graphics.WaitForDirectCommandQueue();
 			Graphics.AlphaBlendTextures(Graphics.mainTexture, renderTexture, Graphics.mainTexture);
-
+			Graphics.WaitForComputeCommandQueue();
 			ImGuiInput.ReSetLastCursor();
 
 		}

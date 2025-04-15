@@ -10,7 +10,7 @@ namespace ArcticFoxEngine.Render {
 	public class SkyboxMaterial : Material {
 
 		SkyboxShader.SkyboxInfo skyboxInfo;
-		private ConstBuffer<SkyboxShader.SkyboxInfo> skyboxInfoBuffer;
+		private ConstantBuffer<SkyboxShader.SkyboxInfo> skyboxInfoBuffer;
 
 
 		public SkyboxMaterial() {
@@ -23,7 +23,7 @@ namespace ArcticFoxEngine.Render {
 				sunSharpness = -0.00002f,
 				horizonSharpness = -0.0034f,
 			};
-			skyboxInfoBuffer = new ConstBuffer<SkyboxShader.SkyboxInfo>(1);
+			skyboxInfoBuffer = new ConstantBuffer<SkyboxShader.SkyboxInfo>(1);
 			skyboxInfoBuffer.Write(skyboxInfo, 0);
 
 		}

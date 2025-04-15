@@ -18,7 +18,7 @@ namespace ArcticFoxEngine.Nodes {
 		internal DescriptorHeap rtvDescriptorHeap;
 		public Texture depthTexture;
 		internal DescriptorHeap dsvDescriptorHeap;
-		internal ConstBuffer<ProjectionInfo> projectionInfo;
+		internal ConstantBuffer<ProjectionInfo> projectionInfo;
 
 		public float fov = 100f;
 		public float nearPlane = 0.01f;
@@ -69,7 +69,7 @@ namespace ArcticFoxEngine.Nodes {
 			renderTexture.name = "Camera Render Texture";
 			depthTexture = new Texture(renderTexture.width, renderTexture.height, format: Format.D32_Float, flags: ResourceFlags.AllowDepthStencil);
 			depthTexture.name = "Camera Depth Texture";
-			projectionInfo = new ConstBuffer<ProjectionInfo>(1);
+			projectionInfo = new ConstantBuffer<ProjectionInfo>(1);
 
 			// Create render target view descriptor heap and add the render texture to it
 			DescriptorHeapDescription rtvHeapDesc = new DescriptorHeapDescription() {
@@ -229,7 +229,7 @@ namespace ArcticFoxEngine.Nodes {
 		public override void Render() {
 
 			RenderEngine.RenderScene(this);
-			Graphics.Blit(renderTexture, Graphics.mainTexture);
+			Graphics.BlitTexture(renderTexture, Graphics.mainTexture);
 
 		}
 

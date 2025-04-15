@@ -9,7 +9,7 @@ namespace ArcticFoxEngine.Render {
 
 		public override string name => "Mandelbrot";
 
-		public ConstBuffer<ViewportInfo> viewportInfoBuffer;
+		public ConstantBuffer<ViewportInfo> viewportInfoBuffer;
 
 		public struct ViewportInfo {
 
@@ -29,7 +29,7 @@ namespace ArcticFoxEngine.Render {
 
 		public MandelbrotShader() {
 
-			viewportInfoBuffer = new ConstBuffer<ViewportInfo>(1);
+			viewportInfoBuffer = new ConstantBuffer<ViewportInfo>(1);
 
 			rootSignature = CreateRootSignature(
 				new DataSlot[] { projectionInfoDataSlot, transformInfoDataSlot, viewportInfoSlot},

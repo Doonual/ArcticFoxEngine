@@ -22,7 +22,7 @@ namespace ArcticFoxEngine.Render {
 
 
 		public MaterialInfo materialInfo;
-		ConstBuffer<MaterialInfo> lightingInfoBuffer;
+		ConstantBuffer<MaterialInfo> lightingInfoBuffer;
 		public Texture mainTexture;
 		public Texture normalTexture;
 		
@@ -30,7 +30,7 @@ namespace ArcticFoxEngine.Render {
 		public LitMaterial() {
 
 			materialInfo = new MaterialInfo();
-			lightingInfoBuffer = new ConstBuffer<MaterialInfo>(1);
+			lightingInfoBuffer = new ConstantBuffer<MaterialInfo>(1);
 
 
 		}
